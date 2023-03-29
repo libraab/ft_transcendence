@@ -5,6 +5,19 @@
  ╚██████╔╝    ██║       ██║   
   ╚═════╝     ╚═╝       ╚═╝   
 ========================
+Examples of git commands:
+========================
+
+- To create you branch:
+git branch <your_super_branch_name>
+
+- To go on your branch:
+git checkout <your_super_branch_name>
+
+- To exit the branch and go to main branch:
+git checkout main
+
+========================
 Basic commands explained:
 ========================
 
@@ -50,18 +63,4 @@ so you can keep your codebase clean and organized.
 
 git blame -> When something goes wrong, you want to find out who's responsible.
 This command shows you who made changes to a file and when they made them, it's like detective work!
-
-========================
-Example of git commands:
-========================
-
-- To create you branch:
-git branch <your_super_branch_name>
-
-- To go on your branch:
-git checkout <your_super_branch_name>
-
-- To exit the branch and go to main branch:
-git checkout main
-
 
