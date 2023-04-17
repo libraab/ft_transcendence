@@ -40,5 +40,8 @@ export class AuthController {
 		// TODO
 		// faire le guard (autre fichiers)
 		// https://docs.nestjs.com/guards
+		// guards can be controller-scoped, method-scoped, or global-scoped
+		// to use the guard : @UseGuards(MyGuard)
+
 	}
 }
