@@ -7,6 +7,7 @@ import { RoomLstModule } from './room_lst/room_lst.module';
 import { AuthModule } from './auth/auth.module';
 import { DataBaseModule } from './data-base/data-base.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DashboardModule } from './dashboard/dashboard.module';
 import entities from './data-base/typeorm';
 
 @Module({
@@ -21,7 +22,7 @@ import entities from './data-base/typeorm';
       entities,
       synchronize: true
     }
-  )],
+  ), DashboardModule],
   controllers: [AppController],
   providers: [AppService],
 })
