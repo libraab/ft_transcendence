@@ -20,6 +20,17 @@ export class DashboardController
 
 		//	si authentification != id page
 		//		alors visiteur
+
+
+
+		// si user
+		// return user	infos
+		//				relations
+		//				rooms
+		//				bool = true pour update ? 
+
+		// sinon
+		// return user public infos
 	}
 
 	Post(':id')
@@ -27,21 +38,27 @@ export class DashboardController
 				@Body() updateClientDto : UpdatClientDto)
 	{
 		// verif si authed
+		// sinon
+		//	return login page
+
 		// verif si auth == id user
 
 		// si non
-		// throw 403 Forbidden
+		// 		throw 403 Forbidden
 
 		// si oui
-		// update bd
+		//		update bd
+
 		// return
 	}
 
 
+	------------------------------------------------
+
 	//===> Peut être mettre ces fonctions dans app.controller.
 	//		pour ne pas les rendre unique à dashboard
 
-	Post('seek')
+	Post('seekU')
 	seekUser()
 	{}
 
@@ -52,6 +69,24 @@ export class DashboardController
 	Post('block')
 	blockUser()
 	{}
+
+	Post('unblock')
+	unblockUser()
+	{}
+
+	Post('seekR')
+	seekRoom()
+	{}
+
+	Post('joinR')
+	joinRoom()
+	{}
+
+	Posrt('leaveR')
+	leaveRoom()
+	{}
+
+	------------------------------------------------
 
 	*/
 

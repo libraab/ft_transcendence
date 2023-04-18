@@ -1,5 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Timestamp } from "typeorm";
 import { Client } from "./client";
+import { Room } from "./room";
 
 @Entity()
 export class Messages_rooms
@@ -30,4 +31,7 @@ export class Messages_rooms
 		}
 	)
 	time: Timestamp;
+	
+	@ManyToOne(() => Room, { onDelete: 'CASCADE' })
+	room: Room;
 }

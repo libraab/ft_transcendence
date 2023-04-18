@@ -49,44 +49,11 @@ export class Client
 	@Column(
 		{
 			type: 'varchar',
-			length: 100,
+			length: 200,
 			nullable: false
 		}
 	)
-	password: string;
-
-	@Column(
-		{
-			type: 'varchar',
-			length: 100,
-			default: ''
-		}
-	)
-	title: string;
-
-	@Column(
-		{
-			type: 'bigint',
-			default: 0
-		}
-	)
-	played: string;
-
-	@Column(
-		{
-			type: 'bigint',
-			default: 0
-		}
-	)
-	won: string;
-
-	@Column(
-		{
-			type: 'text',
-			default: ''
-		}
-	)
-	hf: string;
+	cookie: string;
 
 	@Column(
 		{

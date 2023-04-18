@@ -2,7 +2,8 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Client } from "./client";
 
 @Entity()
-export class Relations {
+export class Relations
+{
 	@PrimaryGeneratedColumn()
 	id: number;
 
