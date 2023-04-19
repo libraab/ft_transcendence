@@ -1,5 +1,4 @@
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Client } from "./client";
+import { Column, Entity, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Room
@@ -21,13 +20,26 @@ export class Room
 	)
 	name: string;
 
-	@ManyToMany(() => Client, client => client.rooms, {
-		onDelete: 'CASCADE'
-	})
-	@JoinTable({
-		name: 'client_rooms',
-		joinColumn: { name: 'room_id', referencedColumnName: 'id' },
-		inverseJoinColumn: { name: 'client_id', referencedColumnName: 'id' },
-	})
-	members: Client[];
+	@Column(
+		{
+			type: 'bigint',
+			array: true,
+		}
+	)
+	members: bigint[];
+
+	@Column(
+		{
+			type: 'bigint',
+			array: true,
+		}
+	)
+	admins: bigint[];
+
+	@Column(
+		{
+			type: 'bigint',
+		}
+	)
+	owner: bigint;
 }

@@ -1,5 +1,4 @@
 import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Room } from "./room";
 
 @Entity()
 export class Client
@@ -64,13 +63,11 @@ export class Client
 	)
 	num: string;
 
-	@ManyToMany(() => Room, room => room.members, {
-		onDelete: 'CASCADE'
-	})
-	@JoinTable({
-		name: 'client_rooms',
-		joinColumn: { name: 'client_id', referencedColumnName: 'id' },
-		inverseJoinColumn: { name: 'room_id', referencedColumnName: 'id' },
-	})
-	rooms: Room[];
+	@Column(
+		{
+			type: 'bigint',
+			array: true,
+		}
+	)
+	rooms: bigint[];
 }
