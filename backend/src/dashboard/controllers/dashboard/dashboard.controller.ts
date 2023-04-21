@@ -1,8 +1,13 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get } from '@nestjs/common';
 
 @Controller('dashboard')
 export class DashboardController
 {
+	@Get('')
+	testpage()
+	{
+		return "this is root dashboard";
+	}
 	/*
 
 	constructor(instance de bd pour request global,
