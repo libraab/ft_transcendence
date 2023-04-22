@@ -6,8 +6,14 @@ export class DashboardController
 	@Get('')
 	testpage()
 	{
-		return "this is root dashboard";
+		return {msg : "this is root dashboard",
+				name : "math",
+				surname: "silas",
+				win : 42
+		};
 	}
+
+
 	/*
 
 	constructor(instance de bd pour request global,

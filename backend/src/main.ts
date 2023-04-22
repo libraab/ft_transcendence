@@ -17,9 +17,8 @@ async function bootstrap() {
     secret: 'my-secret', // for cookies signature
   });
 
-//  const jwtService = app.get<JwtService>(JwtService); // Get the JwtService instance
+  const jwtService = app.get<JwtService>(JwtService); // Get the JwtService instance
 
-//  app.useGlobalGuards(new AuthGuard(jwtService)); // Pass the JwtService instance to AuthGuard constructor
   await app.listen(3000);
 }
 

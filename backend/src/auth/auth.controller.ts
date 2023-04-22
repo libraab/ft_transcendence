@@ -37,6 +37,7 @@ export class AuthController {
 		// npm i @fastify/cookie
 		// @nestjs/platform-fastify
 		response.setCookie('jwt_cookie', jwt);
+		console.log(response);
 		// TODO
 		// faire le guard (autre fichiers)
 		// https://docs.nestjs.com/guards
