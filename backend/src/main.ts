@@ -4,6 +4,7 @@ import fastifyCookie from '@fastify/cookie';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AuthGuard } from './auth/auth.guard';
 import { JwtService } from '@nestjs/jwt';
+import { ValidationPipe } from '@nestjs/common';
 
 require('dotenv').config()
 
@@ -19,6 +20,7 @@ async function bootstrap() {
 
   const jwtService = app.get<JwtService>(JwtService); // Get the JwtService instance
 
+  app.useGlobalPipes(new ValidationPipe());
   await app.listen(3000);
 }
 

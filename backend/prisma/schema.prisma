@@ -11,57 +11,62 @@ datasource db {
 }
 
 model Clients {
-	id       Int      @id @default(autoincrement())
-	img      Bytes?
-	name     String   @db.VarChar(50) @unique
-	pseudo   String   @db.VarChar(50) @unique
-	email    String   @db.VarChar(100) @unique
-	cookie   String   @db.VarChar(200)
-	num      String   @db.VarChar(15) @unique
-	memberOf Int[]
+	id			Int		@id @default(autoincrement())
+	id42		Int		@unique
+	img			Bytes?
+	name		String	@db.VarChar(50)		@unique
+	pseudo		String	@db.VarChar(50)		@unique
+	email		String	@db.VarChar(100)	@unique
+	cookie		String	@db.VarChar(200)	@unique
+	num			String	@db.VarChar(15)		@unique
 
-	client1		ClientToClient[] @relation("ClientToClient_client1")
-	client2		ClientToClient[] @relation("ClientToClient_client2")
+	client1		ClientToClient[]			@relation("ClientToClient_client1")
+	client2		ClientToClient[]			@relation("ClientToClient_client2")
+	rooms		Rooms[]						@relation("ClientsRooms")
+	admin		Rooms[]						@relation("AdminsRooms")
+	roomsOwned	Rooms[]						@relation("RoomsOwned")
+	msgSent		MessagesClientToClient[]	@relation("ClientToClient_client1")
+	msgReceived	MessagesClientToClient[]	@relation("ClientToClient_client2")
 	clientStats	ClientStats[]
-	roomsOwned  Rooms[]   @relation("RoomsOwned")
-	messages    MessagesRooms[]
-	msgSent     MessagesClientToClient[] @relation("ClientToClient_client1")
-	msgReceived MessagesClientToClient[] @relation("ClientToClient_client2")
+	messages	MessagesRooms[]
 }
 
 model ClientToClient {
-	id        Int       @id @default(autoincrement())
+	id			Int		@id @default(autoincrement())
+	status		String	@db.VarChar(10)
+
 	client1Id	Int
-	client1   Clients   @relation("ClientToClient_client1", fields: [client1Id], references: [id])
 	client2Id	Int
-	client2   Clients   @relation("ClientToClient_client2", fields: [client2Id], references: [id])
-	status    String    @db.VarChar(10)
+	client1		Clients   @relation("ClientToClient_client1", fields: [client1Id], references: [id])
+	client2		Clients   @relation("ClientToClient_client2", fields: [client2Id], references: [id])
 
 	@@index([status])
 	@@map("clients_to_clients")
 }
 
 model ClientStats {
-	id        Int		@id @default(autoincrement())
-	client    Clients	@relation(fields: [clientId], references: [id])
-	clientId  Int		@unique
-	title     String	@db.VarChar(50)
-	played    Int
-	won       Int
-	score     Int
-	hf        String	@db.VarChar(100)
+	id			Int		@id @default(autoincrement())
+	played		Int
+	won			Int
+	score		Int
+	title		String	@db.VarChar(50)
+	hf			String	@db.VarChar(100)
+
+	clientId	Int		@unique
+	client		Clients	@relation(fields: [clientId], references: [id])
 
 	@@map("client_stats")
 }
 
 model Rooms {
-	id       Int      @id @default(autoincrement())
-	name     String   @db.VarChar(50)
-	ownerid  Int
-	owner    Clients  @relation("RoomsOwned", fields: [ownerid], references: [id])
-	admins   Int[]
-	members  Int[]
+	id			Int		@id @default(autoincrement())
+	name		String	@db.VarChar(50)
 
+	ownerid		Int
+	owner		Clients		@relation("RoomsOwned", fields: [ownerid], references: [id])
+	admins		Clients[]	@relation("AdminsRooms")
+	members		Clients[]	@relation("ClientsRooms")
+  
 	messages    MessagesRooms[]
 
 	@@map("rooms")
@@ -70,25 +75,27 @@ model Rooms {
 }
 
 model MessagesRooms {
-	id       Int       @id @default(autoincrement())
-	client   Clients   @relation(fields: [clientId], references: [id])
-	room     Rooms     @relation(fields: [roomId], references: [id])
-	msg      String
-	time     DateTime  @default(now())
-	roomId   Int
-	clientId Int
+	id			Int			@id @default(autoincrement())
+	msg			String
+	time		DateTime	@default(now())
+
+	roomId		Int
+	clientId	Int
+	room		Rooms		@relation(fields: [roomId], references: [id])
+	client		Clients		@relation(fields: [clientId], references: [id])
 
 	@@map("messages_rooms")
 }
 
 model MessagesClientToClient {
-	id            Int     @id @default(autoincrement())
-	clientSrc     Clients  @relation("ClientToClient_client1", fields: [clientSrcId], references: [id])
-	clientSrcId   Int
-	clientDest    Clients  @relation("ClientToClient_client2", fields: [clientDestId], references: [id])
-	clientDestId  Int
-	message       String
-	time          DateTime @default(now())
+	id				Int			@id @default(autoincrement())
+	message			String
+	time			DateTime	@default(now())
 	
+	clientSrcId		Int
+	clientDestId	Int
+	clientSrc		Clients		@relation("ClientToClient_client1", fields: [clientSrcId], references: [id])
+	clientDest		Clients		@relation("ClientToClient_client2", fields: [clientDestId], references: [id])
+
 	@@map("messages_client_to_client")
 }
