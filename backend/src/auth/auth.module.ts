@@ -6,13 +6,12 @@ import { jwtConstants } from './auth.constants';
 import { AuthGuard } from './auth.guard';
 @Module({
   //https://docs.nestjs.com/security/authentication
-  imports: [
+/*  imports: [
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret
     }),
   ],
-  controllers: [AuthController],
   providers: [AuthService, AuthGuard]
 })
 export class AuthModule {}
