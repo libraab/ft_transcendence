@@ -1,3 +1,4 @@
+import { Transform } from 'class-transformer';
 import { IsString, IsEmail, IsNotEmpty, IsOptional, MaxLength, IsPhoneNumber, IsBase64, IsMimeType, isNumber, IsNumber } from 'class-validator';
 
 export class ClientDto
@@ -39,3 +40,41 @@ export class ClientDto
 	@IsPhoneNumber('FR')
 	num: string;
 }
+
+export class UpdateClientDto
+{
+	@IsOptional()
+	@IsString()
+	@IsBase64()
+	@Transform(({ value }) => Buffer.from(value, 'base64'))
+	@IsMimeType()
+	img?: Buffer;
+
+	@IsOptional()
+	@IsString()
+	@MaxLength(50)
+	name?: string;
+	
+	@IsOptional()
+	@IsString()
+	@MaxLength(50)
+	pseudo?: string;
+	
+	@IsOptional()
+	@IsString()
+	@IsEmail()
+	@MaxLength(100)
+	email?: string;
+	
+	@IsOptional()
+	@IsString()
+//	@IsBase64()
+	@MaxLength(200)
+	cookie?: string;
+
+	@IsOptional()
+	@IsString()
+	@MaxLength(15)
+	@IsPhoneNumber('FR')
+	num?: string;
+  }

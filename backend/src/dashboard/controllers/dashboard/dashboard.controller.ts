@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
-import { ClientDto } from 'src/database/dtos/dbBaseDto';
+import { ClientDto, UpdateClientDto } from 'src/database/dtos/dbBaseDto';
 
 @Controller('dashboard')
 export class DashboardController
@@ -11,7 +11,7 @@ export class DashboardController
 	@Get('get/:id')
 	welcome(@Param('id', ParseIntPipe) id42: number)
 	{
-		return this.db.getClientById42(id42);
+		return this.db.getClientId42FromId(id42);
 	}
 
 	@Get(':id')
@@ -24,6 +24,13 @@ export class DashboardController
 	testpage(@Body() dto: ClientDto)
 	{
 		return this.db.createClient(dto);
+	}
+
+	@Post('update/:id')
+	update(@Param('id', ParseIntPipe) id:number, @Body() dto: UpdateClientDto)
+	{
+		console.log(dto);
+		return this.db.updateClient(id, dto);
 	}
 	
 
