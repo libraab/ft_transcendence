@@ -1,3 +1,2 @@
-npm install --save @nestjs/jwt
-npm i @fastify/cookie
-npm i @nestjs/platform-fastify
+npm install
+npx prisma migrate dev (if prob in database)
