@@ -34,11 +34,12 @@ export class AuthController {
 		// https://docs.nestjs.com/techniques/cookies
 		// putting jwt in a cookie
 		response.setCookie('jwt_cookie', jwt);
-		response.send(`
-		<h1>Authentication successful</h1>
-		<script>
-			setTimeout(() => window.close(), 100);
-		</script>
-	`);
+		console.log(response);
+		// TODO
+		// faire le guard (autre fichiers)
+		// https://docs.nestjs.com/guards
+		// guards can be controller-scoped, method-scoped, or global-scoped
+		// to use the guard : @UseGuards(MyGuard)
+
 	}
 }
