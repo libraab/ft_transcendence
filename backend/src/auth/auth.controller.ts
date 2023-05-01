@@ -20,23 +20,21 @@ export class AuthController {
 		const user_info: User42Interface = await this.authService.get_user_info(access_token);
 		console.log('id user --> ', user_info.id);
 		console.log('login -->', user_info.login);
-		// TODO
-		// check if user already exist 
-		// create user if new user
-		// load the user if already exist
+		//------------------------------------------------------
+		const user = await this.authService.getClientIdFromId42(user_info.id); // change authservice with the right one 
+		if (!user)
+			await this.authService.createClient(user_info);
+		else 
+			await this.authService.loadUser(user);
 		//------------------------------------------------------
 		// generetate the jwt
-		// npm install --save @nestjs/jwt
 		const jwt = await this.jwtService.signAsync({id: user_info.id});
 		console.log('jwt -->', jwt);
-		// console.log('jwt --> ' + jwt);
-		// console.log(`jwt --> ${jwt}`);
 		//------------------------------------------------------
-		// putting jwt in a cookie
 		// https://docs.nestjs.com/techniques/cookies
-		// npm i @fastify/cookie
-		// @nestjs/platform-fastify
+		// putting jwt in a cookie
 		response.setCookie('jwt_cookie', jwt);
+		console.log(response);
 		// TODO
 		// faire le guard (autre fichiers)
 		// https://docs.nestjs.com/guards

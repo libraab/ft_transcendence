@@ -1,0 +1,3 @@
+npm install --save @nestjs/jwt
+npm i @fastify/cookie
+npm i @nestjs/platform-fastify
