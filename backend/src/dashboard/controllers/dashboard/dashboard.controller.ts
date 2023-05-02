@@ -29,7 +29,6 @@ export class DashboardController
 	@Post('update/:id')
 	update(@Param('id', ParseIntPipe) id:number, @Body() dto: UpdateClientDto)
 	{
-		console.log(dto);
 		return this.db.updateClient(id, dto);
 	}
 	

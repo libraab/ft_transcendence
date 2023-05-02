@@ -15,10 +15,6 @@ model Clients {
 	id42		Int		@unique
 	img			Bytes?
 	name		String	@db.VarChar(50)		@unique
-	pseudo		String	@db.VarChar(50)		@unique
-	email		String	@db.VarChar(100)	@unique
-	cookie		String	@db.VarChar(200)	@unique
-	num			String	@db.VarChar(15)		@unique
 
 	client1		ClientToClient[]			@relation("ClientToClient_client1")
 	client2		ClientToClient[]			@relation("ClientToClient_client2")
