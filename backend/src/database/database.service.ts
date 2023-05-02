@@ -54,7 +54,6 @@ export class DatabaseService
 	{
 		try
 		{
-			console.log(dto.name);
 			const client = await this.prisma.clients.create({
 				data:{
 					id42: dto.id42,
