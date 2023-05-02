@@ -1,0 +1,2 @@
+npm install
+npx prisma migrate dev (if prob in database)

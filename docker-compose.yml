@@ -3,7 +3,7 @@ services:
   database:
     image: postgres
     ports:
-      - 5000:5432
+      - 5432:5432
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: ft_transcendence

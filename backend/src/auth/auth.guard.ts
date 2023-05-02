@@ -2,6 +2,10 @@ import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { FastifyRequest } from 'fastify';
 
+// https://docs.nestjs.com/guards
+// guards can be controller-scoped, method-scoped, or global-scoped
+// to use the guard : @UseGuards(MyGuard)
+
 @Injectable()
 export class AuthGuard implements CanActivate {
     constructor(private jwtService: JwtService) {}
