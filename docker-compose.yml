@@ -2,8 +2,10 @@ version: '3.8'
 services:
   database:
     image: postgres
+    env_file:
+      - ./backend/.env
     ports:
-      - 6000:5432
+      - "${PORT_DB}:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: ft_transcendence

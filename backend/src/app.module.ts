@@ -8,9 +8,12 @@ import { AuthModule } from './auth/auth.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DatabaseModule } from './database/database.module';
 import { PrismaModule } from './prisma/prisma.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ChatModule, UsersModule, RoomLstModule, AuthModule, DashboardModule, DatabaseModule, PrismaModule],
+  imports: [ChatModule, UsersModule, RoomLstModule, AuthModule, DashboardModule, DatabaseModule, PrismaModule, ConfigModule.forRoot({
+    isGlobal: true,
+  }),],
   controllers: [AppController],
   providers: [AppService],
 })
