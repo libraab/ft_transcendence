@@ -1,30 +1,43 @@
 <script>
-	export let name;
+	import Header from "./component/Header.svelte";
+	import Footer from "./component/Footer.svelte";
+	import Tabs from "./shared/Tabs.svelte";
+	import Dashboard from "./component/dashboard/Dashboard.svelte";
+
+	let tabs = ['Dashboard', 'Game', 'Chat', 'Rooms'];
+	let activeTab = 'Dashboard';
+	
+	let id42 = 4444;
+
+	const switchTab = (e) => {
+		activeTab = e.detail;
+	}
+
 </script>
 
+
+<Header/>
+
 <main>
-	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+	<Tabs {activeTab} {tabs} on:tabChange={ switchTab } />
+	{#if activeTab === "Dashboard"}
+		<p>This is the dashboard yo</p>
+		<Dashboard {id42} />
+	{:else if activeTab === "Game"}
+		<p>Here to play bro</p>
+	{:else if activeTab === "Chat"}
+		<p>talk to me</p>
+	{:else if activeTab === "Rooms"}
+		<p>talk to everyone</p>
+	{/if}
 </main>
 
+<Footer/>
+
+
 <style>
-	main {
-		text-align: center;
-		padding: 1em;
-		max-width: 240px;
-		margin: 0 auto;
-	}
-
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
-	@media (min-width: 640px) {
-		main {
-			max-width: none;
-		}
+	main{
+		max-width: 960;
+		margin: 40px auto;
 	}
 </style>

@@ -50,6 +50,16 @@ export class DatabaseService
 		return client?.id42 || null;
 	}
 	
+	async findClientsByName(name: string): Promise<Clients[]> {
+		return await this.prisma.clients.findMany({
+		  where: {
+				name: {
+				contains: name,
+				},
+			},
+		});
+	}
+
 	async createClient(dto: ClientDto): Promise<Clients>
 	{
 		try
