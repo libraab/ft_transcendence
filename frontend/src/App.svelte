@@ -1,4 +1,5 @@
 <script>
+
 	import Header from "./component/Header.svelte";
 	import Footer from "./component/Footer.svelte";
 	import Tabs from "./shared/Tabs.svelte";
@@ -8,9 +9,22 @@
 	let activeTab = 'Dashboard';
 	
 	let id42 = 4444;
+	let data = {};
 
 	const switchTab = (e) => {
 		activeTab = e.detail;
+	}
+	
+	async function fetchData() {
+		try {
+			const response = await fetch(`http://localhost:3000/dashboard/${id42}`);
+			data = await response.json();
+		}
+		catch (error) {
+			console.error(error);
+		}
+		
+		return data;
 	}
 
 </script>
@@ -20,9 +34,22 @@
 
 <main>
 	<Tabs {activeTab} {tabs} on:tabChange={ switchTab } />
+
 	{#if activeTab === "Dashboard"}
-		<p>This is the dashboard yo</p>
-		<Dashboard {id42} />
+		{#await fetchData()}
+			<p>Loading...</p>
+			{:then dashboardData}
+				{#if dashboardData}
+					<p>This is the dashboard yo</p>
+					<Dashboard data={dashboardData} />
+				{:else}
+					<h1>┌∩┐(◕_◕)┌∩┐</h1>
+					<p>sry but nop</p>
+				{/if}
+			{:catch error}
+				<h3>Error: {error.message}</h3>
+		{/await}
+
 	{:else if activeTab === "Game"}
 		<p>Here to play bro</p>
 	{:else if activeTab === "Chat"}
