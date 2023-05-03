@@ -8,6 +8,12 @@ export class DashboardController
 	constructor(private db: DatabaseService)
 	{}
 
+	@Get('/name/:name')
+	searchFor(@Param('name') name: string)
+	{
+		return this.db.findClientsByName(name);
+	}
+
 	@Get('get/:id')
 	welcome(@Param('id', ParseIntPipe) id42: number)
 	{
@@ -17,7 +23,7 @@ export class DashboardController
 	@Get(':id')
 	benvindao(@Param('id', ParseIntPipe) id: number)
 	{
-		return this.db.getClientById(id);
+		return this.db.getClientById42(id);
 	}
 
 	@Post('/create')
@@ -34,7 +40,6 @@ export class DashboardController
 	
 
 	/*
-
 	constructor(instance de bd pour request global,
 				et instance de auth pour cookie)
 
@@ -117,7 +122,6 @@ export class DashboardController
 	{}
 
 	------------------------------------------------
-
 	*/
 
 }
