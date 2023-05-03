@@ -5,8 +5,8 @@
 
 	export let tabs;
 	export let activeTab;
-
 </script>
+
 
 <div class="tabs">
 	<ul>
@@ -43,17 +43,5 @@
 		color: #d91b42;
 		border-bottom: 2px solid #d91b42;
 		padding-bottom: 8px;
-	}
-
-	.buttons_r {
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		align-items: center;
-		padding-right: 20px;
-	}
-
-	.buttons_r button {
-		margin-bottom: 10px;
 	}
 </style>

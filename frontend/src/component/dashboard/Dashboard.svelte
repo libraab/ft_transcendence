@@ -1,31 +1,18 @@
 <script>
-	export let id42;
+	export let data;
 
-	import { onMount } from 'svelte';
+	let id42 = data.id42;
+	let id = data.id;
+	let name = data.name;
 
-	let data = "";
 	let searchRes = [];
-
-	onMount(() => {
-		fetchData();
-	});
-
-	async function fetchData() {
-		try {
-			const response = await fetch(`http://localhost:3000/dashboard/${id42}`);
-			data = await response.json();
-		}
-		catch (error) {
-			console.error(error);
-		}
-	}
 
 	async function getSpecifiedClients()
 	{
-		const name = document.getElementById('id42-name-input').value;
-		if (name !== '') {
+		const retName = document.getElementById('id42-name-input').value;
+		if (retName !== '') {
 			try {
-				const response = await fetch(`http://localhost:3000/dashboard/name/${name}`);
+				const response = await fetch(`http://localhost:3000/dashboard/name/${retName}`);
 				searchRes = await response.json();
 			}
 			catch (error) {
@@ -44,17 +31,15 @@
 
 <main>
 <div>
-	<h1>id owner {id42}</h1>
+	<h1>id42: {id42}</h1>
+	<h1>name: {name}</h1>
+	<h1>id: {id}</h1>
 <!--	<label for="id42-input">get by ID42:</label>
 	<input type="text" id="id42-input" bind:value={id42} />
 	<button on:click={() => fetchData()}>Fetch Data</button>
 -->
 	<label for="id42-name-input">search by Name:</label>
 	<input type="text" id="id42-name-input" on:input={() => getSpecifiedClients()} />
-</div>
-
-<div>
-	<p>C'est un id bidon pour le test</p>
 </div>
 
 <div>
