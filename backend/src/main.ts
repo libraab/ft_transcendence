@@ -5,6 +5,8 @@ import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify
 import { AuthGuard } from './auth/auth.guard';
 import { JwtService } from '@nestjs/jwt';
 import { ValidationPipe } from '@nestjs/common';
+import cors from 'cors';
+
 
 require('dotenv').config()
 
@@ -21,6 +23,13 @@ async function bootstrap() {
   const jwtService = app.get<JwtService>(JwtService); // Get the JwtService instance
 
   app.useGlobalPipes(new ValidationPipe());
+
+  app.enableCors({
+    origin: 'http://localhost:8080',
+    credentials: true
+  });
+  app.use(cors({origin: 'http://localhost:8080'}));
+
   await app.listen(3000);
 }
 
