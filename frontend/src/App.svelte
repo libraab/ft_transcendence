@@ -40,8 +40,10 @@
 			<p>Loading...</p>
 			{:then dashboardData}
 				{#if dashboardData}
-					<p>This is the dashboard yo</p>
-					<Dashboard data={dashboardData} />
+					<div class="main_body">
+						<p>This is the dashboard yo</p>
+						<Dashboard data={dashboardData}/>
+					</div>
 				{:else}
 					<h1>┌∩┐(◕_◕)┌∩┐</h1>
 					<p>sry but nop</p>
@@ -66,5 +68,14 @@
 	main{
 		max-width: 960;
 		margin: 40px auto;
+	}
+	.main_body {
+		height: 50vh; /* 33% de la hauteur de la fenêtre */
+		width: 80vw; /* 80% de la largeur de la fenêtre */
+		background: url('path/to/img.png') center/cover no-repeat, blue;
+		color: white;
+		margin: 0 auto;
+		font-size: 6px;
+		font-size: 1vw;
 	}
 </style>
