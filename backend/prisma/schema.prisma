@@ -13,7 +13,7 @@ datasource db {
 model Clients {
 	id			Int		@id @default(autoincrement())
 	id42		Int		@unique
-	img			Bytes?
+	img			String?
 	name		String	@db.VarChar(50)		@unique
 
 	client1		ClientToClient[]			@relation("ClientToClient_client1")
