@@ -33,32 +33,33 @@
 <Header/>
 
 <main>
-	<Tabs {activeTab} {tabs} on:tabChange={ switchTab } />
 
-	{#if activeTab === "Dashboard"}
-		{#await fetchData()}
-			<p>Loading...</p>
-			{:then dashboardData}
-				{#if dashboardData}
-					<div class="main_body">
-						<p>This is the dashboard yo</p>
-						<Dashboard data={dashboardData}/>
-					</div>
-				{:else}
-					<h1>┌∩┐(◕_◕)┌∩┐</h1>
-					<p>sry but nop</p>
-				{/if}
-			{:catch error}
-				<h3>Error: {error.message}</h3>
-		{/await}
+	{#await fetchData()}
+		<p>Loading...</p>
+	
+	{:then dashboardData}
+		{#if dashboardData}
+			<Tabs {activeTab} {tabs} id={dashboardData.id} on:tabChange={ switchTab } />
+			{#if activeTab === "Dashboard"}
+				<div class="main_body">
+					<p>This is the dashboard yo</p>
+					<Dashboard data={dashboardData}/>
+				</div>
+			{:else if activeTab === "Game"}
+				<p>Here to play bro</p>
+			{:else if activeTab === "Chat"}
+				<p>talk to me</p>
+			{:else if activeTab === "Rooms"}
+				<p>talk to everyone</p>
+			{/if}
+		{:else}
+			<h1>┌∩┐(◕_◕)┌∩┐</h1>
+			<p>sry but nop</p>
+		{/if}
+	{:catch error}
+		<h3>Error: {error.message}</h3>
+	{/await}
 
-	{:else if activeTab === "Game"}
-		<p>Here to play bro</p>
-	{:else if activeTab === "Chat"}
-		<p>talk to me</p>
-	{:else if activeTab === "Rooms"}
-		<p>talk to everyone</p>
-	{/if}
 </main>
 
 <Footer/>

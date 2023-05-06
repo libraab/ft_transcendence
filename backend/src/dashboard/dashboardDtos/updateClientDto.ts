@@ -1,6 +1,6 @@
 export class UpdateClientDto
 {
-	img?: Buffer;
+	img?: string;
 	pseudo?: string;
 	email?: string;
 	password?: string;

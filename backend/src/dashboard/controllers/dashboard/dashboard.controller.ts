@@ -14,17 +14,30 @@ export class DashboardController
 		return this.db.findClientsByName(name);
 	}
 
-	@Get('get/:id')
-	getById(@Param('id', ParseIntPipe) id42: number)
-	{
-		return this.db.getClientId42FromId(id42);
-	}
-
 	@Get(':id')
 	getByid42(@Param('id', ParseIntPipe) id: number)
 	{
 		return this.db.getClientById42(id);
 	}
+
+	@Get('/stats/:id')
+	getStatsbyId(@Param('id', ParseIntPipe) id: number)
+	{
+		return this.db.getClientStatsById(id);
+	}
+
+	@Get('/ranking')
+	getRanking()
+	{
+		return this.db.getTop100Scores();
+	}
+
+	@Get('/fl/:id')
+	getFlForId42(@Param('id', ParseIntPipe) id: number)
+	{
+		return this.db.getRelationsByClientId1(id);
+	}
+
 
 	@Post('/create')
 	createClient(@Body() dto: ClientDto)
@@ -37,4 +50,11 @@ export class DashboardController
 	{
 		return this.db.updateClient(id, dto);
 	}
+
+	@Get('get/:id')
+	getById(@Param('id', ParseIntPipe) id42: number)
+	{
+		return this.db.getClientId42FromId(id42);
+	}
+
 }
