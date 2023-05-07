@@ -22,7 +22,9 @@
 
 {#if flTab}
 	{#await getFlforId()}
-		<p>Loading...</p>
+		<div class="backdrop" on:click|self on:keypress>
+			<p>Loading...</p>
+		</div>
   	{:then}
 		<div class="backdrop" on:click|self on:keypress>
 			<div class="modal">

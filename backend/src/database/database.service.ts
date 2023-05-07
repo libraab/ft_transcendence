@@ -116,17 +116,17 @@ export class DatabaseService
 		}
 	}
 
-	async getClientStatsById(id: number): Promise<ClientStats | null>
+	async getClientStatsById(id: number): Promise<ClientStats>
 	{
 		const clientStats = await this.prisma.clientStats.findUnique({
 			where: { id },
 			include: { client: true },
 		});
 
-	   return clientStats || null;
+	   return clientStats;
 	}
 
-	async getTop100Scores(): Promise<ClientStats[] | null> {
+	async getTop100Scores(): Promise<ClientStats[]> {
 		const top100Scores = await this.prisma.clientStats.findMany({
 			orderBy: {
 				score: 'asc',
@@ -134,17 +134,17 @@ export class DatabaseService
 			take: 100,
 		});
 
-		return top100Scores || null;
+		return top100Scores;
 	}
 
-	async getRelationsByClientId1(clientId1: number): Promise<ClientToClient[] | null> {
+	async getRelationsByClientId1(clientId1: number): Promise<ClientToClient[]> {
 		const values = await this.prisma.clientToClient.findMany({
 			where: {
 				client1Id: clientId1
 			}
 		});
 
-		return values || null;
+		return values;
 	}
 
 

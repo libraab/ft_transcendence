@@ -67,6 +67,17 @@
 		id42NameInputNotEmpty = null;
 	}
 
+	function returnBackHome(client) {
+		targetId = id;
+		targetName = name;
+		targetImg = img;
+		getTargetStats();
+	
+		document.getElementById('id42-name-input').value = "";
+		searchRes = [];
+		id42NameInputNotEmpty = null;
+	}
+
 	function updateMe()
 	{
 		console.log("Incomming soon");
@@ -78,7 +89,6 @@
 	<main class="container">
 		
 		<div >
-			<p>{targetId} - {id}</p>
 			{#if targetId === id}
 				<h2>{name}</h2>
 				<p>Home Sweet Home</p>
@@ -87,6 +97,7 @@
 			{:else}
 				<h2>{targetName}</h2>
 				<p>(¬‿¬) (≖ ‿ ≖ ) I am watching you watching</p>
+				<button on:click={() => returnBackHome()}>My Profile</button>
 			{/if}
 		</div>
 		
@@ -111,18 +122,19 @@
 					</div>
 				{/if}
 			</div>
+			
 		</div>
 
 	</main>
 </div>
 
 <style>
-    .container {
-        height: 100%; /* occupe 100% de la hauteur de main_body */
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-    }
+	.container {
+		height: 100%; /* occupe 100% de la hauteur de main_body */
+		display: flex;
+		justify-content: space-around;
+		align-items: center;
+	}
 	.popup_container {
 		position: relative; /* Ajout du positionnement relatif */
 		width: 7vw;
