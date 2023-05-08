@@ -23,10 +23,7 @@ export class UpdateClientDto
 {
 	@IsOptional()
 	@IsString()
-	@IsBase64()
-	@Transform(({ value }) => Buffer.from(value, 'base64'))
-	@IsMimeType()
-	img?: Buffer;
+	img?: string;
 
 	@IsOptional()
 	@IsString()
