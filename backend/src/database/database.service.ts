@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientDto, UpdateClientDto } from './dtos/dbBaseDto';
-import { Clients, Prisma } from '@prisma/client';
+import { ClientStats, ClientToClient, Clients, Prisma } from '@prisma/client';
 
 @Injectable()
 export class DatabaseService
@@ -115,4 +115,37 @@ export class DatabaseService
 
 		}
 	}
+
+	async getClientStatsById(id: number): Promise<ClientStats>
+	{
+		const clientStats = await this.prisma.clientStats.findUnique({
+			where: { id },
+			include: { client: true },
+		});
+
+	   return clientStats;
+	}
+
+	async getTop100Scores(): Promise<ClientStats[]> {
+		const top100Scores = await this.prisma.clientStats.findMany({
+			orderBy: {
+				score: 'asc',
+			},
+			take: 100,
+		});
+
+		return top100Scores;
+	}
+
+	async getRelationsByClientId1(clientId1: number): Promise<ClientToClient[]> {
+		const values = await this.prisma.clientToClient.findMany({
+			where: {
+				client1Id: clientId1
+			}
+		});
+
+		return values;
+	}
+
+
 }

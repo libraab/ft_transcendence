@@ -14,115 +14,47 @@ export class DashboardController
 		return this.db.findClientsByName(name);
 	}
 
-	@Get('get/:id')
-	welcome(@Param('id', ParseIntPipe) id42: number)
-	{
-		return this.db.getClientId42FromId(id42);
-	}
-
 	@Get(':id')
-	benvindao(@Param('id', ParseIntPipe) id: number)
+	getByid42(@Param('id', ParseIntPipe) id: number)
 	{
 		return this.db.getClientById42(id);
 	}
 
+	@Get('/stats/:id')
+	getStatsbyId(@Param('id', ParseIntPipe) id: number)
+	{
+		return this.db.getClientStatsById(id);
+	}
+
+	@Get('/ranking')
+	getRanking()
+	{
+		return this.db.getTop100Scores();
+	}
+
+	@Get('/fl/:id')
+	getFlForId42(@Param('id', ParseIntPipe) id: number)
+	{
+		return this.db.getRelationsByClientId1(id);
+	}
+
+
 	@Post('/create')
-	testpage(@Body() dto: ClientDto)
+	createClient(@Body() dto: ClientDto)
 	{
 		return this.db.createClient(dto);
 	}
 
 	@Post('update/:id')
-	update(@Param('id', ParseIntPipe) id:number, @Body() dto: UpdateClientDto)
+	updateClient(@Param('id', ParseIntPipe) id:number, @Body() dto: UpdateClientDto)
 	{
 		return this.db.updateClient(id, dto);
 	}
-	
 
-	/*
-	constructor(instance de bd pour request global,
-				et instance de auth pour cookie)
-
-	Get(':id')
-	dashboardPage(@Param(validationPipe) id: number)
+	@Get('get/:id')
+	getById(@Param('id', ParseIntPipe) id42: number)
 	{
-		// 1 verif is authed
-		// si non authed redirect login
-		
-		// si authed
-		// 	si authification == id
-		//	alors personnal page prévoir fonctionalité update dans le front
-
-		//	si authentification != id page
-		//		alors visiteur
-
-
-
-		// si user
-		// return user	infos
-		//				relations
-		//				rooms
-		//				bool = true pour update ? 
-
-		// sinon
-		// return user public infos
+		return this.db.getClientId42FromId(id42);
 	}
-
-	Post(':id')
-	updateProfil(@Param(validationPipe) id: number,
-				@Body() updateClientDto : UpdatClientDto)
-	{
-		// verif si authed
-		// sinon
-		//	return login page
-
-		// verif si auth == id user
-
-		// si non
-		// 		throw 403 Forbidden
-
-		// si oui
-		//		update bd
-
-		// return
-	}
-
-
-	------------------------------------------------
-
-	//===> Peut être mettre ces fonctions dans app.controller.
-	//		pour ne pas les rendre unique à dashboard
-
-	Post('seekU')
-	seekUser()
-	{}
-
-	Post('add')
-	addUserFl()
-	{}
-
-	Post('block')
-	blockUser()
-	{}
-
-	Post('unblock')
-	unblockUser()
-	{}
-
-	Post('seekR')
-	seekRoom()
-	{}
-
-	Post('joinR')
-	joinRoom()
-	{}
-
-	Posrt('leaveR')
-	leaveRoom()
-	{}
-
-	------------------------------------------------
-	*/
 
 }
-
