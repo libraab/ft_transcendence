@@ -1,7 +1,8 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientDto, UpdateClientDto } from './dtos/dbBaseDto';
-import { ClientStats, ClientToClient, Clients, Prisma } from '@prisma/client';
+import { ClientStats, ClientToClient, Clients, Prisma, Rooms } from '@prisma/client';
+import { RoomLstController } from 'src/room_lst/room_lst.controller';
 
 @Injectable()
 export class DatabaseService
@@ -147,5 +148,33 @@ export class DatabaseService
 		return values;
 	}
 
+	async getRoomsByUserId(userId: number): Promise<Rooms[]> {
+		return await this.prisma.rooms.findMany({
+			where: {
+				members: {
+					some: {
+						id: userId,
+					},
+				},
+			},
+		});
+	}
+
+	async getLastNMessagesByRoomId(roomId: number, n: number): Promise<[string, string][]> {
+		const messages = await this.prisma.messagesRooms.findMany({
+			where: {
+				roomId,
+			},
+			orderBy: {
+				time: 'desc',
+			},
+			take: n,
+			include: {
+				client: true,
+			},
+		});
+
+		return messages.map((message) => [message.client.name, message.msg]);
+	}
 
 }
