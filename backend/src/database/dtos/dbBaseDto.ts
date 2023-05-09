@@ -1,5 +1,4 @@
-import { Transform } from 'class-transformer';
-import { IsString, IsEmail, IsNotEmpty, IsOptional, MaxLength, IsPhoneNumber, IsBase64, IsMimeType, isNumber, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength, IsNumber } from 'class-validator';
 
 export class ClientDto
 {
@@ -19,14 +18,3 @@ export class ClientDto
 	name: string;
 }
 
-export class UpdateClientDto
-{
-	@IsOptional()
-	@IsString()
-	img?: string;
-
-	@IsOptional()
-	@IsString()
-	@MaxLength(50)
-	name?: string;
-  }

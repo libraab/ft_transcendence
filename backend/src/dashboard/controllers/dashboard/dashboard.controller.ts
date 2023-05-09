@@ -1,6 +1,9 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
-import { ClientDto, UpdateClientDto } from 'src/database/dtos/dbBaseDto';
+import { ClientDto } from 'src/database/dtos/dbBaseDto';
+import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
+import { Req } from '@nestjs/common';
+
 
 @Controller('dashboard')
 export class DashboardController
@@ -9,50 +12,50 @@ export class DashboardController
 	{}
 
 	@Get('/name/:name')
-	searchFor(@Param('name') name: string)
+	async searchFor(@Param('name') name: string)
 	{
 		return this.db.findClientsByName(name);
 	}
 
 	@Get(':id')
-	getByid42(@Param('id', ParseIntPipe) id: number)
+	async getByid42(@Param('id', ParseIntPipe) id: number)
 	{
 		return this.db.getClientById42(id);
 	}
 
 	@Get('/stats/:id')
-	getStatsbyId(@Param('id', ParseIntPipe) id: number)
+	async getStatsbyId(@Param('id', ParseIntPipe) id: number)
 	{
 		return this.db.getClientStatsById(id);
 	}
 
 	@Get('/ranking')
-	getRanking()
+	async getRanking()
 	{
 		return this.db.getTop100Scores();
 	}
 
 	@Get('/fl/:id')
-	getFlForId42(@Param('id', ParseIntPipe) id: number)
+	async getFlForId42(@Param('id', ParseIntPipe) id: number)
 	{
 		return this.db.getRelationsByClientId1(id);
 	}
 
 
 	@Post('/create')
-	createClient(@Body() dto: ClientDto)
+	async createClient(@Body() dto: ClientDto)
 	{
 		return this.db.createClient(dto);
 	}
 
 	@Post('update/:id')
-	updateClient(@Param('id', ParseIntPipe) id:number, @Body() dto: UpdateClientDto)
+	async updateClient(@Param('id', ParseIntPipe) id:number, @Body() dto: UpdateClientDto)
 	{
 		return this.db.updateClient(id, dto);
 	}
 
 	@Get('get/:id')
-	getById(@Param('id', ParseIntPipe) id42: number)
+	async getById(@Param('id', ParseIntPipe) id42: number)
 	{
 		return this.db.getClientId42FromId(id42);
 	}

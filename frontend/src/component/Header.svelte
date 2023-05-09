@@ -1,6 +1,10 @@
+<script>
+	export let img_path;
+</script>
+
 <header>
 	<h1>
-		<img src="img/il_794xN.3892173164_egqv.avif" alt="logo" class="rick">
+		<img src={img_path} alt="logo" class="rick">
 	</h1>
 </header>
 

@@ -12,11 +12,14 @@
 	let id42 = 4444;
 	let data = {};
 
+	let img_path = "img/il_794xN.3892173164_egqv.avif";
+
 	const switchTab = (e) => {
 		activeTab = e.detail;
 	}
 	
-	async function fetchData() {
+	async function fetchData()
+	{
 		try {
 			const response = await fetch(`http://localhost:3000/dashboard/${id42}`);
 			data = await response.json();
@@ -27,10 +30,15 @@
 		
 		return data;
 	}
+
+	const handleNewImgPath = (event) => {
+		console.log(event.detail);
+		console.log("img gonna be upload");
+	}
 </script>
 
 
-<Header/>
+<Header {img_path} />
 
 <main>
 	{#await fetchData()}
@@ -44,7 +52,7 @@
 			{#if activeTab === "Dashboard"}
 				<div class="main_body">
 					<p>This is the dashboard yo</p>
-					<Dashboard data={dashboardData}/>
+					<Dashboard data={dashboardData} on:updateImg={ handleNewImgPath }/>
 				</div>
 
 			{:else if activeTab === "Game"}
@@ -88,7 +96,7 @@
 	.main_body {
 		height: 50vh; /* 33% de la hauteur de la fenêtre */
 		width: 80vw; /* 80% de la largeur de la fenêtre */
-		background: url('path/to/img.png') center/cover no-repeat, blue;
+		background: blue;
 		color: white;
 		margin: 0 auto;
 		font-size: 6px;

@@ -1,8 +1,8 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ClientDto, UpdateClientDto } from './dtos/dbBaseDto';
+import { ClientDto } from './dtos/dbBaseDto';
 import { ClientStats, ClientToClient, Clients, Prisma, Rooms } from '@prisma/client';
-import { RoomLstController } from 'src/room_lst/room_lst.controller';
+import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 
 @Injectable()
 export class DatabaseService

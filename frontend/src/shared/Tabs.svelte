@@ -33,7 +33,7 @@
 		{ /each }
 	</ul>
 
-	<button on:click={() => toggleFlTab()}>Friend List for {id}</button>
+	<button on:click={() => toggleFlTab()}>Friend List</button>
 	<button on:click={() => toggleRanksTab()}>Ranking</button>
 
 </div>
