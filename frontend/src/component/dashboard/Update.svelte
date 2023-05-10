@@ -2,6 +2,7 @@
 	import { createEventDispatcher } from "svelte";
 	const dispatch = createEventDispatcher();
 
+	export let apiClient;
 	export let updatePop;
 	export let id;
 
@@ -24,7 +25,7 @@
 
 		try
 		{
-			const response = await fetch(`http://localhost:3000/dashboard/update/${id}`,
+			const response = await apiClient.get('http://localhost:3000/dashboard/update/${id}',
 			{
 				method: "POST",
 				body: JSON.stringify(jsonData),

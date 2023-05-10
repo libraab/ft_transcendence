@@ -1,11 +1,12 @@
 <script>
+	export let apiClient;
 	export let ranksTab;
 
 	let classment = [];
 
 	async function getClientStatsOrdered() {
 		try {
-			const response = await fetch(`http://localhost:3000/dashboard/ranking`)
+			const response = await apiClient.get('http://localhost:3000/dashboard/ranking')
 			if (response)
 			{
 				classment = await response.json();

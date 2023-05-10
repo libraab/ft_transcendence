@@ -3,15 +3,36 @@ services:
   database:
     image: postgres
     env_file:
-      - ./backend/.env
+      - .env
     ports:
       - "${PORT_DB}:5432"
     environment:
       POSTGRES_USER: postgres
       POSTGRES_DB: ft_transcendence
       POSTGRES_PASSWORD: 123
-    networks:
-      - peterPan
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT_BACKEND}:3000"
+    depends_on:
+      - database
+    environment:
+      - NODE_ENV=development
+
+  frontend:
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "${PORT_FRONTEND}:5000"
+    depends_on:
+      - backend
+    environment:
+      API_URL: http://backend:3000
+      PORT: 5000
 
 networks:
   peterPan:

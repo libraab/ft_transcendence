@@ -6,6 +6,7 @@
 
 	const dispatch = createEventDispatcher();
 
+	export let apiClient;
 	export let data;
 
 	let id42NameInputNotEmpty = false;
@@ -28,7 +29,7 @@
 
 	async function fetchData() {
 		try {
-			const response = await fetch(`http://localhost:3000/dashboard/${id42}`);
+			const response = await apiClient.get('http://localhost:3000/dashboard/${id42}');
 			data = await response.json();
 		}
 		catch (error) {
@@ -47,7 +48,7 @@
 
 		if (id42NameInputNotEmpty) {
 			try {
-				const response = await fetch(`http://localhost:3000/dashboard/name/${retName}`);
+				const response = await apiClient.get('http://localhost:3000/dashboard/name/${retName}');
 				searchRes = await response.json();
 			}
 			catch (error) {
@@ -61,7 +62,7 @@
 	async function getTargetStats()
 	{
 		try {
-			const response = await fetch(`http://localhost:3000/dashboard/stats/${id}`)
+			const response = await apiClient.get('http://localhost:3000/dashboard/stats/${id}')
 			if (response)
 				stats = await response.json();
 			else
