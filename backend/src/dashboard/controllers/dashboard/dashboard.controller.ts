@@ -8,8 +8,7 @@ import { Req } from '@nestjs/common';
 @Controller('dashboard')
 export class DashboardController
 {
-	constructor(private db: DatabaseService)
-	{}
+	constructor(private db: DatabaseService) {}
 
 	@Get('/name/:name')
 	async searchFor(@Param('name') name: string)
@@ -40,7 +39,6 @@ export class DashboardController
 	{
 		return this.db.getRelationsByClientId1(id);
 	}
-
 
 	@Post('/create')
 	async createClient(@Body() dto: ClientDto)

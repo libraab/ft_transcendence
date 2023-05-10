@@ -68,7 +68,8 @@ export class DatabaseService
 			const client = await this.prisma.clients.create({
 				data:{
 					id42: dto.id42,
-					name: dto.name
+					name: dto.name,
+					cookie: dto.cookie
 				},
 			});
 
@@ -92,6 +93,7 @@ export class DatabaseService
 			const updateData: Prisma.ClientsUpdateInput = {
 				img: data.img ? { set: data.img } : undefined,
 				name: data.name ? { set: data.name } : undefined,
+				cookie: data.cookie ? { set: data.cookie } : undefined,
 			};
 
 			const updatedClient = await this.prisma.clients.update({
