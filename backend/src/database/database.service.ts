@@ -93,6 +93,35 @@ export class DatabaseService
 			const updateData: Prisma.ClientsUpdateInput = {
 				img: data.img ? { set: data.img } : undefined,
 				name: data.name ? { set: data.name } : undefined,
+			};
+
+			const updatedClient = await this.prisma.clients.update({
+				where: { id },
+				data: updateData,
+			});
+			
+			return updatedClient;
+		}
+		catch (error)
+		{
+			if (error instanceof Prisma.PrismaClientKnownRequestError)
+			{
+				if (error.code === 'P2025') {
+					throw new NotFoundException('User doesn\'t exist');
+				}
+				if (error.code === 'P2002') {
+					throw new ForbiddenException('Credentials taken');
+				}
+				throw error;
+			}
+
+		}
+	}
+	
+	async updateCookie(id: number, data: UpdateClientDto): Promise<Clients>
+	{
+		try{
+			const updateData: Prisma.ClientsUpdateInput = {
 				cookie: data.cookie ? { set: data.cookie } : undefined,
 			};
 
