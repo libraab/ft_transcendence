@@ -5,7 +5,7 @@
 {#if deletePop}
 	<div class="backdrop" on:click|self on:keypress>
 		<div class="modal">
-			<h1>Plz stay...</h1>>
+			<h1>Plz stay...</h1>
 			<p>we can work this out</p>
 			<p>i know its me, not you</p>
 			<p>you know it's kinda hard for me right now</p>

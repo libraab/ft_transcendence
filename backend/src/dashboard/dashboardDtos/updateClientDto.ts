@@ -1,4 +1,4 @@
-import { IsString, IsOptional, MaxLength, isString } from 'class-validator';
+import { IsString, IsOptional, MaxLength } from 'class-validator';
 
 export class UpdateClientDto
 {

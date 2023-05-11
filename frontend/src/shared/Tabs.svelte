@@ -21,8 +21,8 @@
 	}
 </script>
 
-<!-- <RankModal {ranksTab} on:click={() => toggleRanksTab()} />
-<FlModal {flTab} {id} on:click={() => toggleFlTab()} /> -->
+<RankModal {ranksTab} on:click={() => toggleRanksTab()} />
+<FlModal {flTab} {id} on:click={() => toggleFlTab()} />
 
 <div class="tabs">
 	<ul>
@@ -33,8 +33,9 @@
 		{ /each }
 	</ul>
 
-	<!-- <button on:click={() => toggleFlTab()}>Friend List for {id}</button>
-	<button on:click={() => toggleRanksTab()}>Ranking</button> -->
+	<button on:click={() => toggleFlTab()}>Friend List</button>
+	<button on:click={() => toggleRanksTab()}>Ranking</button>
+	<button>Match history</button>
 
 </div>
 

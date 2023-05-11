@@ -22,6 +22,12 @@ export class DashboardController
 		return this.db.getClientById42(id);
 	}
 
+	@Get('/cookie/:cookie')
+	async getByCookie(@Param('cookie') cookie: string)
+	{
+		return this.db.getClientByCookie(cookie);
+	}
+
 	@Get('/stats/:id')
 	async getStatsbyId(@Param('id', ParseIntPipe) id: number)
 	{

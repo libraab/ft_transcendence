@@ -5,6 +5,7 @@
 	import Dashboard from "./component/dashboard/Dashboard.svelte";
     import { loop_guard } from "svelte/internal";
     import Chat from "./component/chat/Chat.svelte";
+    import FriendList from "./shared/FriendList.svelte";
 
 	let tabs = ['Dashboard', 'Game', 'Chat', 'Rooms'];
 	let activeTab = 'Dashboard';
@@ -45,6 +46,7 @@
 
 {:then dashboardData}
 {#if dashboardData}
+
 <Tabs {activeTab} {tabs} id={dashboardData.id} on:tabChange={ switchTab } />
 <main>
 		<div class="main_body">
