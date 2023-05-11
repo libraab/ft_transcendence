@@ -9,7 +9,7 @@
 	let tabs = ['Dashboard', 'Game', 'Chat', 'Rooms'];
 	let activeTab = 'Dashboard';
 	
-	export let apiClient;
+	let id42 = 4444;
 	let data = {};
 
 	let img_path = "img/il_794xN.3892173164_egqv.avif";
@@ -21,7 +21,7 @@
 	async function fetchData()
 	{
 		try {
-			const response = await apiClient.get('http://localhost:3000/dashboard/${id42}');
+			const response = await fetch(`http://localhost:3000/dashboard/${id42}`);
 			data = await response.json();
 		}
 		catch (error) {

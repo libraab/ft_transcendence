@@ -1,8 +1,10 @@
 {
   "devDependencies": {
-    "env-cmd": "^10.1.0"
+    "env-cmd": "^10.1.0",
+    "prisma": "^4.14.0"
   },
   "dependencies": {
-    "build": "^0.1.4"
+    "build": "^0.1.4",
+    "pm2": "^5.3.0"
   }
 }
