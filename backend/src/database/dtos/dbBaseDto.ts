@@ -7,8 +7,6 @@ export class ClientDto
 	id42: number;
 /*
 	@IsOptional()
-	@IsBase64()
-	@Transform(({ value }) => Buffer.from(value, 'base64'))
 	@IsMimeType()
 	img: Buffer;
 */
@@ -16,5 +14,10 @@ export class ClientDto
 	@IsNotEmpty()
 	@MaxLength(50)
 	name: string;
+
+	@IsNotEmpty()
+	@IsString()
+	@MaxLength(250)
+	cookie: string;
 }
 

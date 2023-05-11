@@ -1,4 +1,4 @@
-import { IsString, IsOptional, MaxLength } from 'class-validator';
+import { IsString, IsOptional, MaxLength, isString } from 'class-validator';
 
 export class UpdateClientDto
 {
@@ -10,4 +10,9 @@ export class UpdateClientDto
 	@IsOptional()
 	@IsString()
 	img?: string;
+
+	@IsOptional()
+	@IsString()
+	@MaxLength(250)
+	cookie?: string;
   }
