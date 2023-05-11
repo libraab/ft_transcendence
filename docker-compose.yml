@@ -3,7 +3,7 @@ services:
   database:
     image: postgres
     env_file:
-      - .env
+      - ./.env
     ports:
       - "${PORT_DB}:5432"
     environment:
@@ -32,7 +32,7 @@ services:
       - backend
     environment:
       API_URL: http://backend:3000
-      PORT: 5000
+      PORT: 5001
 
 networks:
   peterPan:
