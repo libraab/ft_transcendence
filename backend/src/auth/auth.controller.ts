@@ -5,6 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import { FastifyReply } from 'fastify';
 import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
+import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 @Controller('auth')
 export class AuthController {
 	constructor(	private authService: AuthService,
@@ -21,18 +22,32 @@ export class AuthController {
 		if (access_token == undefined)
 			throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
 		const user_info: User42Interface = await this.authService.get_user_info(access_token);
-		const user = await this.databaseService.getClientById42(user_info.id);
+		let user = await this.databaseService.getClientById42(user_info.id);
 		if (!user) {
 			let new_user: ClientDto = new ClientDto;
 			new_user.id42 = user_info.id;
 			new_user.name = user_info.login;
-			await this.databaseService.createClient(new_user);
+			new_user.cookie = "ABC";
+			user = await this.databaseService.createClient(new_user);
 		}
+		let add_cookie: UpdateClientDto = new UpdateClientDto;
 		// generetate the jwt
-		const jwt = await this.jwtService.signAsync({id: user_info.id});
-		console.log('jwt -->', jwt);
-		// https://docs.nestjs.com/techniques/cookies
+		let jwt = await this.jwtService.signAsync({id: user_info.id});
 		response.setCookie('jwt_cookie', jwt);
-		return ('<script>window.close()</script>');
+		console.log('jwt -->', jwt);
+		console.log('user id is -->', user.id);
+		console.log('user 42_id is -->', user.id42);
+		console.log('user name is -->', user.name);
+		
+		add_cookie.cookie = jwt;
+
+		// console.log('cookie added -->', add_cookie.cookie);
+		await this.databaseService.updateCookie(user.id42, add_cookie);
+
+		// https://docs.nestjs.com/techniques/cookies
+		// return ('<script>window.close()</script>');
+		return response.redirect(302, 'http://localhost:8080');
+		// response is a Fastify Reply object and not an Express Response object that is why we have to redirect redirect with Fastify by giving the status
 	}
 }
+

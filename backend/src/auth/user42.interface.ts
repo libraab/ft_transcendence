@@ -4,4 +4,5 @@ export default interface User42Interface {
     image: {
         link: string;
     }
+    cookie: string;
 }
