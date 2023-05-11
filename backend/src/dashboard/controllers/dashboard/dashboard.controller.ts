@@ -1,8 +1,9 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, UseGuards } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 import { Req } from '@nestjs/common';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 
 @Controller('dashboard')
@@ -11,6 +12,7 @@ export class DashboardController
 	constructor(private db: DatabaseService) {}
 
 	@Get('/name/:name')
+	@UseGuards(AuthGuard)
 	async searchFor(@Param('name') name: string)
 	{
 		return this.db.findClientsByName(name);

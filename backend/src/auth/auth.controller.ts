@@ -34,6 +34,7 @@ export class AuthController {
 		// generetate the jwt
 		let jwt = await this.jwtService.signAsync({id: user_info.id});
 		response.setCookie('jwt_cookie', jwt);
+		response.setCookie('id42', user.id42.toString());
 		console.log('jwt -->', jwt);
 		console.log('user id is -->', user.id);
 		console.log('user 42_id is -->', user.id42);
@@ -47,7 +48,7 @@ export class AuthController {
 		// https://docs.nestjs.com/techniques/cookies
 		// return ('<script>window.close()</script>');
 		return response.redirect(302, 'http://localhost:8080');
+
 		// response is a Fastify Reply object and not an Express Response object that is why we have to redirect redirect with Fastify by giving the status
 	}
 }
-
