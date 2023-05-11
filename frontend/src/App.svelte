@@ -40,64 +40,54 @@
 
 <Header {img_path} />
 
+{#await fetchData()}
+<p>Loading...</p>
+
+{:then dashboardData}
+{#if dashboardData}
+<Tabs {activeTab} {tabs} id={dashboardData.id} on:tabChange={ switchTab } />
 <main>
-	{#await fetchData()}
-		<p>Loading...</p>
-	
-	{:then dashboardData}
-		{#if dashboardData}
-
-			<Tabs {activeTab} {tabs} id={dashboardData.id} on:tabChange={ switchTab } />
-
+		<div class="main_body">
 			{#if activeTab === "Dashboard"}
-				<div class="main_body">
-					<p>This is the dashboard yo</p>
-					<Dashboard data={dashboardData} on:updateImg={ handleNewImgPath }/>
-				</div>
+				<Dashboard data={dashboardData} on:updateImg={ handleNewImgPath }/>
 
 			{:else if activeTab === "Game"}
-				<div class="main_body">
 					<p>Here to play bro</p>
-				</div>
 
 			{:else if activeTab === "Chat"}
-				<div class="main_body">
-					<p>talk to me</p>
 					<Chat/>
-				</div>
 
 			{:else if activeTab === "Rooms"}
-				<div class="main_body">
 					<p>talk to everyone</p>
-				</div>
 
 			{/if}
+		</div>
+</main>
+	{:else}
+		<h1>┌∩┐(◕_◕)┌∩┐</h1>
+		<p>sry but nop</p>
+	{/if}
 
-		{:else}
-			<h1>┌∩┐(◕_◕)┌∩┐</h1>
-			<p>sry but nop</p>
-
-		{/if}
-
-	{:catch error}
-		<h3>Error: {error.message}</h3>
+			{:catch error}
+				<h3>Error: {error.message}</h3>
 
 	{/await}
-</main>
 
 <Footer/>
 
 
 <style>
 	main{
-		max-width: 960;
-		margin: 40px auto;
+		background: #ececec;
+		padding: 20px 0px;;
+		width: 100%;
 	}
 	.main_body {
-		height: 50vh; /* 33% de la hauteur de la fenêtre */
-		width: 80vw; /* 80% de la largeur de la fenêtre */
-		background: blue;
-		color: white;
+		/* height: 50vh; 33% de la hauteur de la fenêtre */
+		width: 100%; /* 100% de la largeur de la fenêtre */
+		/* background: url('path/to/img.png') center/cover no-repeat, blue; */
+
+		/* color: white; */
 		margin: 0 auto;
 		font-size: 6px;
 		font-size: 1vw;

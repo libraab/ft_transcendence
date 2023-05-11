@@ -21,8 +21,8 @@
 	}
 </script>
 
-<RankModal {ranksTab} on:click={() => toggleRanksTab()} />
-<FlModal {flTab} {id} on:click={() => toggleFlTab()} />
+<!-- <RankModal {ranksTab} on:click={() => toggleRanksTab()} />
+<FlModal {flTab} {id} on:click={() => toggleFlTab()} /> -->
 
 <div class="tabs">
 	<ul>
@@ -33,20 +33,22 @@
 		{ /each }
 	</ul>
 
-	<button on:click={() => toggleFlTab()}>Friend List</button>
-	<button on:click={() => toggleRanksTab()}>Ranking</button>
+	<!-- <button on:click={() => toggleFlTab()}>Friend List for {id}</button>
+	<button on:click={() => toggleRanksTab()}>Ranking</button> -->
 
 </div>
 
 
 <style>
 	.tabs{
-		margin-bottom: 40px;
+		margin: 0;
+		background-color: #292d39;
+		color: lightgray
 	}
 	ul{
 		display: flex;
 		justify-content: center;
-		padding: 0;
+		padding: 10px 100px 5px 100px;
 		list-style-type: none;
 	}
 	li{
@@ -55,9 +57,14 @@
 		content: #555;
 		cursor: pointer;
 	}
+
+	li:hover {
+		color: #545969;
+	}
+
 	.active{
-		color: #d91b42;
-		border-bottom: 2px solid #d91b42;
-		padding-bottom: 8px;
+		color: whitesmoke;
+		border-bottom: 2px solid whitesmoke;
+		padding-bottom: 5px;
 	}
 </style>
