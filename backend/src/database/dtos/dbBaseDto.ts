@@ -11,7 +11,7 @@ export class ClientDto
 	img: Buffer;
 */
 	@IsString()
-	@IsNotEmpty()
+	// @IsNotEmpty()
 	@MaxLength(50)
 	name: string;
 

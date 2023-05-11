@@ -126,7 +126,7 @@ export class DatabaseService
 			};
 
 			const updatedClient = await this.prisma.clients.update({
-				where: { id },
+				where: { id42: id },
 				data: updateData,
 			});
 			
