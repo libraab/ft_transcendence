@@ -10,7 +10,6 @@
 	let tabs = ['Dashboard', 'Game', 'Chat', 'Rooms'];
 	let activeTab = 'Dashboard';
 	
-	let id42 = 4444;
 	let data = {};
 
 	let img_path = "img/il_794xN.3892173164_egqv.avif";
@@ -22,8 +21,28 @@
 	async function fetchData()
 	{
 		try {
-			const response = await fetch(`http://localhost:3000/dashboard/${id42}`);
-			data = await response.json();
+			const cookieValue = document.cookie
+  			.split('; ')
+  			.find(cookie => cookie.startsWith('jwt_cookie'))
+  			.split('=')[1];
+
+			const id42 = document.cookie
+					.split('; ')
+					.find(cookie => cookie.startsWith('id42'))
+					.split('=')[1];
+
+			console.log(cookieValue);
+			const response = await fetch(`http://localhost:3000/dashboard/${id42}`, {
+				headers: {
+					'Authorization': `Bearer ${cookieValue}`
+				}
+			});
+			if (response.ok) {
+				const data = await response.json();
+				return data;
+			} else {
+				throw new Error('Failed to fetch dashboard data');
+			}
 		}
 		catch (error) {
 			console.error(error);
