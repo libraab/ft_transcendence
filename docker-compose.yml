@@ -10,8 +10,5 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_DB: ft_transcendence
       POSTGRES_PASSWORD: 123
-    networks:
-      - peterPan
-
 networks:
   peterPan:

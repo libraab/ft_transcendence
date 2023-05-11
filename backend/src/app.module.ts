@@ -12,7 +12,8 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [ChatModule, RoomLstModule, AuthModule, DashboardModule, DatabaseModule, PrismaModule, ConfigModule.forRoot({
     isGlobal: true,
-  }),],
+  })
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

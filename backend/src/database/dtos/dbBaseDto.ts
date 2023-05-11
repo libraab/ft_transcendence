@@ -1,5 +1,4 @@
-import { Transform } from 'class-transformer';
-import { IsString, IsEmail, IsNotEmpty, IsOptional, MaxLength, IsPhoneNumber, IsBase64, IsMimeType, isNumber, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength, IsNumber } from 'class-validator';
 
 export class ClientDto
 {
@@ -8,8 +7,6 @@ export class ClientDto
 	id42: number;
 /*
 	@IsOptional()
-	@IsBase64()
-	@Transform(({ value }) => Buffer.from(value, 'base64'))
 	@IsMimeType()
 	img: Buffer;
 */
@@ -17,16 +14,10 @@ export class ClientDto
 	@IsNotEmpty()
 	@MaxLength(50)
 	name: string;
+
+	@IsNotEmpty()
+	@IsString()
+	@MaxLength(250)
+	cookie: string;
 }
 
-export class UpdateClientDto
-{
-	@IsOptional()
-	@IsString()
-	img?: string;
-
-	@IsOptional()
-	@IsString()
-	@MaxLength(50)
-	name?: string;
-  }

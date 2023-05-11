@@ -1,11 +1,18 @@
+import { IsString, IsOptional, MaxLength, isString } from 'class-validator';
+
 export class UpdateClientDto
 {
-	img?: string;
-	pseudo?: string;
-	email?: string;
-	password?: string;
-	title?: string;
-	hf: string;
-	num?: string;
-}
+	@IsOptional()
+	@IsString()
+	@MaxLength(50)
+	name?: string;
 
+	@IsOptional()
+	@IsString()
+	img?: string;
+
+	@IsOptional()
+	@IsString()
+	@MaxLength(250)
+	cookie?: string;
+  }

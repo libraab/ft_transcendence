@@ -1,7 +1,8 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ClientDto, UpdateClientDto } from './dtos/dbBaseDto';
-import { ClientStats, ClientToClient, Clients, Prisma } from '@prisma/client';
+import { ClientDto } from './dtos/dbBaseDto';
+import { ClientStats, ClientToClient, Clients, Prisma, Rooms } from '@prisma/client';
+import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 
 @Injectable()
 export class DatabaseService
@@ -67,7 +68,8 @@ export class DatabaseService
 			const client = await this.prisma.clients.create({
 				data:{
 					id42: dto.id42,
-					name: dto.name
+					name: dto.name,
+					cookie: dto.cookie
 				},
 			});
 
@@ -91,6 +93,36 @@ export class DatabaseService
 			const updateData: Prisma.ClientsUpdateInput = {
 				img: data.img ? { set: data.img } : undefined,
 				name: data.name ? { set: data.name } : undefined,
+			};
+
+			const updatedClient = await this.prisma.clients.update({
+				where: { id },
+				data: updateData,
+			});
+			
+			return updatedClient;
+		}
+		catch (error)
+		{
+			if (error instanceof Prisma.PrismaClientKnownRequestError)
+			{
+				if (error.code === 'P2025') {
+					throw new NotFoundException('User doesn\'t exist');
+				}
+				if (error.code === 'P2002') {
+					throw new ForbiddenException('Credentials taken');
+				}
+				throw error;
+			}
+
+		}
+	}
+	
+	async updateCookie(id: number, data: UpdateClientDto): Promise<Clients>
+	{
+		try{
+			const updateData: Prisma.ClientsUpdateInput = {
+				cookie: data.cookie ? { set: data.cookie } : undefined,
 			};
 
 			const updatedClient = await this.prisma.clients.update({
@@ -147,5 +179,33 @@ export class DatabaseService
 		return values;
 	}
 
+	async getRoomsByUserId(userId: number): Promise<Rooms[]> {
+		return await this.prisma.rooms.findMany({
+			where: {
+				members: {
+					some: {
+						id: userId,
+					},
+				},
+			},
+		});
+	}
+
+	async getLastNMessagesByRoomId(roomId: number, n: number): Promise<[string, string][]> {
+		const messages = await this.prisma.messagesRooms.findMany({
+			where: {
+				roomId,
+			},
+			orderBy: {
+				time: 'desc',
+			},
+			take: n,
+			include: {
+				client: true,
+			},
+		});
+
+		return messages.map((message) => [message.client.name, message.msg]);
+	}
 
 }

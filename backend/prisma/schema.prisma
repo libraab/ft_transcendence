@@ -2,96 +2,97 @@
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
-	provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-	provider = "postgresql"
-	url      = env("DATABASE_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Clients {
-	id			Int		@id @default(autoincrement())
-	id42		Int		@unique
-	img			String?
-	name		String	@db.VarChar(50)		@unique
+  id     Int     @id @default(autoincrement())
+  id42   Int     @unique
+  img    String?
+  name   String  @unique @db.VarChar(50)
+  cookie String  @unique @db.VarChar(250)
 
-	client1		ClientToClient[]			@relation("ClientToClient_client1")
-	client2		ClientToClient[]			@relation("ClientToClient_client2")
-	rooms		Rooms[]						@relation("ClientsRooms")
-	admin		Rooms[]						@relation("AdminsRooms")
-	roomsOwned	Rooms[]						@relation("RoomsOwned")
-	msgSent		MessagesClientToClient[]	@relation("ClientToClient_client1")
-	msgReceived	MessagesClientToClient[]	@relation("ClientToClient_client2")
-	clientStats	ClientStats[]
-	messages	MessagesRooms[]
+  client1     ClientToClient[]         @relation("ClientToClient_client1")
+  client2     ClientToClient[]         @relation("ClientToClient_client2")
+  rooms       Rooms[]                  @relation("ClientsRooms")
+  admin       Rooms[]                  @relation("AdminsRooms")
+  roomsOwned  Rooms[]                  @relation("RoomsOwned")
+  msgSent     MessagesClientToClient[] @relation("ClientToClient_client1")
+  msgReceived MessagesClientToClient[] @relation("ClientToClient_client2")
+  clientStats ClientStats[]
+  messages    MessagesRooms[]
 }
 
 model ClientToClient {
-	id			Int		@id @default(autoincrement())
-	status		String	@db.VarChar(10)
+  id     Int    @id @default(autoincrement())
+  status String @db.VarChar(10)
 
-	client1Id	Int
-	client2Id	Int
-	client1		Clients   @relation("ClientToClient_client1", fields: [client1Id], references: [id])
-	client2		Clients   @relation("ClientToClient_client2", fields: [client2Id], references: [id])
+  client1Id Int
+  client2Id Int
+  client1   Clients @relation("ClientToClient_client1", fields: [client1Id], references: [id])
+  client2   Clients @relation("ClientToClient_client2", fields: [client2Id], references: [id])
 
-	@@index([status])
-	@@map("clients_to_clients")
+  @@index([status])
+  @@map("clients_to_clients")
 }
 
 model ClientStats {
-	id			Int		@id @default(autoincrement())
-	played		Int
-	won			Int
-	score		Int
-	title		String	@db.VarChar(50)
-	hf			String	@db.VarChar(100)
+  id     Int    @id @default(autoincrement())
+  played Int
+  won    Int
+  score  Int
+  title  String @db.VarChar(50)
+  hf     String @db.VarChar(100)
 
-	clientId	Int		@unique
-	client		Clients	@relation(fields: [clientId], references: [id])
+  clientId Int     @unique
+  client   Clients @relation(fields: [clientId], references: [id])
 
-	@@map("client_stats")
+  @@map("client_stats")
 }
 
 model Rooms {
-	id			Int		@id @default(autoincrement())
-	name		String	@db.VarChar(50)
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(50)
 
-	ownerid		Int
-	owner		Clients		@relation("RoomsOwned", fields: [ownerid], references: [id])
-	admins		Clients[]	@relation("AdminsRooms")
-	members		Clients[]	@relation("ClientsRooms")
-  
-	messages    MessagesRooms[]
+  ownerid Int
+  owner   Clients   @relation("RoomsOwned", fields: [ownerid], references: [id])
+  admins  Clients[] @relation("AdminsRooms")
+  members Clients[] @relation("ClientsRooms")
 
-	@@map("rooms")
-	@@index([ownerid], name: "owner_idx")
-	@@unique([name], name: "name_uniq")
+  messages MessagesRooms[]
+
+  @@unique([name], name: "name_uniq")
+  @@index([ownerid], name: "owner_idx")
+  @@map("rooms")
 }
 
 model MessagesRooms {
-	id			Int			@id @default(autoincrement())
-	msg			String
-	time		DateTime	@default(now())
+  id   Int      @id @default(autoincrement())
+  msg  String
+  time DateTime @default(now())
 
-	roomId		Int
-	clientId	Int
-	room		Rooms		@relation(fields: [roomId], references: [id])
-	client		Clients		@relation(fields: [clientId], references: [id])
+  roomId   Int
+  clientId Int
+  room     Rooms   @relation(fields: [roomId], references: [id])
+  client   Clients @relation(fields: [clientId], references: [id])
 
-	@@map("messages_rooms")
+  @@map("messages_rooms")
 }
 
 model MessagesClientToClient {
-	id				Int			@id @default(autoincrement())
-	message			String
-	time			DateTime	@default(now())
-	
-	clientSrcId		Int
-	clientDestId	Int
-	clientSrc		Clients		@relation("ClientToClient_client1", fields: [clientSrcId], references: [id])
-	clientDest		Clients		@relation("ClientToClient_client2", fields: [clientDestId], references: [id])
+  id      Int      @id @default(autoincrement())
+  message String
+  time    DateTime @default(now())
 
-	@@map("messages_client_to_client")
+  clientSrcId  Int
+  clientDestId Int
+  clientSrc    Clients @relation("ClientToClient_client1", fields: [clientSrcId], references: [id])
+  clientDest   Clients @relation("ClientToClient_client2", fields: [clientDestId], references: [id])
+
+  @@map("messages_client_to_client")
 }

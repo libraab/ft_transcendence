@@ -1,5 +1,11 @@
 <script>
 	import { onMount } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
+	import UpdateModal from './Update.svelte';
+	import DeleteModal from './Delete.svelte';
+
+	const dispatch = createEventDispatcher();
+
 	export let data;
 
 	let id42NameInputNotEmpty = false;
@@ -15,10 +21,24 @@
 	// Target to inspect
 	let targetId = data.id;
 	let targetName = data.name;
-	let targetImg = data.img;
+	let targetImg;
 
 	// stats are always target ones
 	let stats = {};
+
+	async function fetchData() {
+		try {
+			const response = await fetch(`http://localhost:3000/dashboard/${id42}`);
+			data = await response.json();
+		}
+		catch (error) {
+			console.error(error);
+		}
+		id = data.id;
+		name = data.name;
+		img = data.img;
+		returnBackHome();
+	}
 
 	async function getSpecifiedClients()
 	{
@@ -56,7 +76,7 @@
 		await getTargetStats();
 	});
 	
-	function handleClientClick(client) {
+	function moveDisplayToTargetClient(client) {
 		targetId = client.id;
 		targetName = client.name;
 		targetImg = client.img;
@@ -67,7 +87,7 @@
 		id42NameInputNotEmpty = null;
 	}
 
-	function returnBackHome(client) {
+	function returnBackHome() {
 		targetId = id;
 		targetName = name;
 		targetImg = img;
@@ -78,12 +98,30 @@
 		id42NameInputNotEmpty = null;
 	}
 
-	function updateMe()
+	function profileUpdate() {
+		fetchData();
+		dispatch("updateImg", img);
+	}
+/*
+	function updateButton()
 	{
 		console.log("Incomming soon");
+		dispatch('updateImgPath', 'new/path/to/img.png');
+	}
+*/
+	let updatePop = false;
+	function toggleUpdatePopup() {
+		updatePop = !updatePop;
 	}
 
+	let deletePop = false;
+	function toggleDeletePopup() {
+		deletePop = !deletePop;
+	}
 </script>
+
+<UpdateModal {updatePop} {id} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
+<DeleteModal {deletePop} on:click={() => toggleDeletePopup()}/>
 
 <div class="main_body">
 	<main class="container">
@@ -92,8 +130,8 @@
 			{#if targetId === id}
 				<h2>{name}</h2>
 				<p>Home Sweet Home</p>
-				<button on:click={() => updateMe()}>Update</button>
-				<button on:click={() => updateMe()}>Delete</button>
+				<button on:click={() => toggleUpdatePopup()}>Update</button>
+				<button on:click={() => toggleDeletePopup()}>Delete</button>
 			{:else}
 				<h2>{targetName}</h2>
 				<p>(¬‿¬) (≖ ‿ ≖ ) I am watching you watching</p>
@@ -117,12 +155,11 @@
 				{#if id42NameInputNotEmpty}
 					<div class="popup">
 						{#each searchRes as client}
-							<button class="popup-button" on:click={() => handleClientClick(client)}>{client.name}</button>
+							<button class="popup-button" on:click={() => moveDisplayToTargetClient(client)}>{client.name}</button>
 						{/each}
 					</div>
 				{/if}
 			</div>
-			
 		</div>
 
 	</main>
