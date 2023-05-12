@@ -52,3 +52,4 @@ export class AuthController {
 		// response is a Fastify Reply object and not an Express Response object that is why we have to redirect redirect with Fastify by giving the status
 	}
 }
+
