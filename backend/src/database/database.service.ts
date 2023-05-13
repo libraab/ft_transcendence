@@ -79,7 +79,8 @@ export class DatabaseService
 				data:{
 					id42: dto.id42,
 					name: dto.name,
-					cookie: dto.cookie
+					cookie: dto.cookie,
+					img: dto.img
 				},
 			});
 

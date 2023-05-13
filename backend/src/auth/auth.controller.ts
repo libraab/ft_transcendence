@@ -28,22 +28,27 @@ export class AuthController {
 			new_user.id42 = user_info.id;
 			new_user.name = user_info.login;
 			new_user.cookie = "ABC";
+			new_user.img = user_info.image.link;
 			user = await this.databaseService.createClient(new_user);
 		}
 		let add_cookie: UpdateClientDto = new UpdateClientDto;
 		// generetate the jwt
 		let jwt = await this.jwtService.signAsync({id: user_info.id});
+
+		console.log('image -->', user_info.image.link);
+
 		response.setCookie('jwt_cookie', jwt);
 		response.setCookie('id42', user.id42.toString());
-		console.log('jwt -->', jwt);
-		console.log('user id is -->', user.id);
-		console.log('user 42_id is -->', user.id42);
-		console.log('user name is -->', user.name);
+		// console.log('jwt -->', jwt);
+		// console.log('user id is -->', user.id);
+		// console.log('user 42_id is -->', user.id42);
+		// console.log('user name is -->', user.name);
+		// console.log('img link is -->', user.img);
 		
 		add_cookie.cookie = jwt;
 
 		// console.log('cookie added -->', add_cookie.cookie);
-		await this.databaseService.updateCookie(user.id42, add_cookie);
+		await this.databaseService.updateCookie(user.id42, add_cookie); // not good
 
 		// https://docs.nestjs.com/techniques/cookies
 		// return ('<script>window.close()</script>');
