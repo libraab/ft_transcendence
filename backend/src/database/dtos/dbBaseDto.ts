@@ -1,17 +1,16 @@
-import { IsString, IsNotEmpty, MaxLength, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, MaxLength, IsNumber, IsOptional } from 'class-validator';
 
 export class ClientDto
 {
 	@IsNumber()
 	@IsNotEmpty()
 	id42: number;
-/*
-	@IsOptional()
-	@IsMimeType()
-	img: Buffer;
-*/
+
 	@IsString()
-	// @IsNotEmpty()
+	@MaxLength(100)
+	img: string;
+
+	@IsString()
 	@MaxLength(50)
 	name: string;
 
