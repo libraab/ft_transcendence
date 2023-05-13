@@ -21,7 +21,7 @@
 	// Target to inspect
 	let targetId = data.id;
 	let targetName = data.name;
-	let targetImg;
+	let targetImg = data.img;
 
 	// stats are always target ones
 	let stats = {};
@@ -125,7 +125,10 @@
 
 <div class="main_body">
 	<main class="container">
-		
+		<div style="width: 130px; height: 130px; border-radius: 60%; overflow: hidden; margin-top: 20px;">
+			<!-- svelte-ignore a11y-missing-attribute -->
+			<img src={targetImg} style="width: 100%; height: 100%; object-fit: cover;">
+		</div>
 		<div >
 			{#if targetId === id}
 				<h2>{name}</h2>
