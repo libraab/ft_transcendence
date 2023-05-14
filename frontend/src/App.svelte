@@ -11,14 +11,10 @@
 
     let tabs = ['Dashboard', 'Game', 'Chat', 'Rooms'];
     let activeTab = 'Dashboard';
-
     let data = {};
-
     let img_path = "img/il_794xN.3892173164_egqv.avif";
 
-    const switchTab = (e) => {
-        activeTab = e.detail;
-    }
+    const switchTab = (e) => { activeTab = e.detail;}
 
     async function fetchData() {
         try {
@@ -47,7 +43,6 @@
         } catch (error) {
             console.error(error);
         }
-
         return data;
     }
 
@@ -57,52 +52,42 @@
     }
 </script>
 
+
 <Router>
-
     <Header {img_path}/>
-
     <main>
         <Route path="login">
             <Login/>
         </Route>
         <PrivateRoute path="/">
-            	{#await fetchData()}
-            	<p>Loading...</p>
+            {#await fetchData()}
+            <p>Loading...</p>
+            {:then dashboardData}
+            {#if dashboardData}
+                <Tabs {activeTab} {tabs} id={dashboardData.id} on:tabChange={ switchTab } />
+                    <div class="main_body">
+                        {#if activeTab === "Dashboard"}
+                            <Dashboard data={dashboardData} on:updateImg={ handleNewImgPath }/>
 
-            	{:then dashboardData}
-            	{#if dashboardData}
+                        {:else if activeTab === "Game"}
+                                <p>Here to play bro</p>
 
-            	<Tabs {activeTab} {tabs} id={dashboardData.id} on:tabChange={ switchTab } />
-                    			<div class="main_body">
-                    				{#if activeTab === "Dashboard"}
-                    					<Dashboard data={dashboardData} on:updateImg={ handleNewImgPath }/>
+                        {:else if activeTab === "Chat"}
+                                <Chat/>
 
-                    				{:else if activeTab === "Game"}
-                    						<p>Here to play bro</p>
+                        {:else if activeTab === "Rooms"}
+                                <p>talk to everyone</p>
 
-                    				{:else if activeTab === "Chat"}
-                    						<Chat/>
-
-                    				{:else if activeTab === "Rooms"}
-                    						<p>talk to everyone</p>
-
-                    				{/if}
-                    			</div>
-            		{:else}
-            			<h1>┌∩┐(◕_◕)┌∩┐</h1>
-            			<p>sry but nop</p>
-            		{/if}
-
-            				{:catch error}
-            					<h3>Error: {error.message}</h3>
-
-            		{/await}
+                        {/if}
+                    </div>
+            {:else}
+                <Login/>
+            {/if}
+                {:catch error}
+                    <h3>Error: {error.message}</h3>
+            {/await}
         </PrivateRoute>
-
-
     </main>
-
-
     <Footer/>
 </Router>
 
