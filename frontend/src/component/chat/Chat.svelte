@@ -1,5 +1,16 @@
 <script>
-	let rooms = [
+	import { io } from 'socket.io-client'
+	//Variables
+	let selected_room_id = 0;
+	let messages_room_id = [];
+	let user_message = "";
+	const socket = io('localhost:3000'); // dans on mount uniquement
+
+	socket.emit('msgToServer', "Hell yeah");
+	console.log("chat is mounted");
+	
+	//Data
+	let rooms = [ //is fetched on mount
 		{ name: 'Transcandence', id: 1},
 		{ name: 'some Guy', id: 2},
 		{ name: 'some Groupe', id: 15},
@@ -13,16 +24,15 @@
 		{ name: 'some Groupe', id: 36},
 		{ name: 'best friend', id: 37}
 	]
-
+	
+	//let messages = [] starting messages data like this, then fetch function on click event chen connecting to the channel
 	let messages = [
 		{room_id: 1, msg_content:[ { sender: "silas", content: "Hi it's me silas"} , { sender: "dmercadi", content: "Hi! Do you want to talk about our savior Rick?"}, { sender: "silas", content: "Schrcool!"}] },
 		{room_id: 15, msg_content:[ { sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"} ]},
 		{room_id: 37, msg_content:[ { sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"} ]},
 	]
 
-	let selected_room_id = 0;
-	let messages_room_id = [];
-
+	//Methods
 	let change_showing_messages = (id) => {
 		selected_room_id = id;
 		let room = messages.filter(data => data.room_id == id);
@@ -31,6 +41,11 @@
 		else
 			messages_room_id = [];
 	};
+
+	let sendMessage = () => {
+
+		user_message = ""
+	}
 
 </script>
 
@@ -61,8 +76,8 @@
 			{/each}
 		</ul>
 		<div class="component_send_box">
-			<input type="text" placeholder="write a message, or shut up">
-			<button>send</button>
+			<input type="text" placeholder="write a message, or shut up" bind:value={user_message}>
+			<button on:click={sendMessage}>send</button>
 		</div>
 	</div>
 </div>
