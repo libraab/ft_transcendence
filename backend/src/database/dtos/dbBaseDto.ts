@@ -19,4 +19,3 @@ export class ClientDto
 	@MaxLength(250)
 	cookie: string;
 }
-

@@ -8,6 +8,7 @@
 
 	export let data;
 
+	// display boolean
 	let id42NameInputNotEmpty = false;
 
 	// Personnal page
@@ -102,6 +103,7 @@
 		fetchData();
 		dispatch("updateImg", img);
 	}
+
 /*
 	function updateButton()
 	{
@@ -109,6 +111,7 @@
 		dispatch('updateImgPath', 'new/path/to/img.png');
 	}
 */
+
 	let updatePop = false;
 	function toggleUpdatePopup() {
 		updatePop = !updatePop;
@@ -123,12 +126,11 @@
 <UpdateModal {updatePop} {id} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
 <DeleteModal {deletePop} on:click={() => toggleDeletePopup()}/>
 
+
 <div class="main_body">
+
 	<main class="container">
-		<div style="width: 130px; height: 130px; border-radius: 60%; overflow: hidden; margin-top: 20px;">
-			<!-- svelte-ignore a11y-missing-attribute -->
-			<img src={targetImg} style="width: 100%; height: 100%; object-fit: cover;">
-		</div>
+<!-- ---------------------------------------------------------------------------- -->
 		<div >
 			{#if targetId === id}
 				<h2>{name}</h2>
@@ -136,12 +138,17 @@
 				<button on:click={() => toggleUpdatePopup()}>Update</button>
 				<button on:click={() => toggleDeletePopup()}>Delete</button>
 			{:else}
+				<div style="width: 130px; height: 130px; border-radius: 60%; overflow: hidden; margin-top: 20px;">
+					<!-- svelte-ignore a11y-missing-attribute -->
+					<img src={targetImg} style="width: 100%; height: 100%; object-fit: cover;">
+				</div>
+				
 				<h2>{targetName}</h2>
 				<p>(¬‿¬) (≖ ‿ ≖ ) I am watching you watching</p>
 				<button on:click={() => returnBackHome()}>My Profile</button>
 			{/if}
 		</div>
-		
+<!-- ---------------------------------------------------------------------------- -->
 		<div>
 			<h2>Stats</h2>
 			{#if stats}
@@ -150,10 +157,11 @@
 				<p>didn't play yet</p>
 			{/if}
 		</div>
-
+<!-- ---------------------------------------------------------------------------- -->
 		<div>
 			<label for="id42-name-input">search by Name:</label>
 			<input type="text" id="id42-name-input" on:input={() => getSpecifiedClients()} />
+			
 			<div class="popup_container">
 				{#if id42NameInputNotEmpty}
 					<div class="popup">
@@ -163,10 +171,13 @@
 					</div>
 				{/if}
 			</div>
+			
 		</div>
-
+<!-- ---------------------------------------------------------------------------- -->
 	</main>
+		
 </div>
+
 
 <style>
 	.container {

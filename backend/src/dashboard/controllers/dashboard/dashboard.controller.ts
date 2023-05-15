@@ -3,6 +3,7 @@ import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 import { Req } from '@nestjs/common';
+import { createRelationsDto } from 'src/dashboard/dashboardDtos/createsTablesDtos';
 
 
 @Controller('dashboard')
@@ -10,22 +11,10 @@ export class DashboardController
 {
 	constructor(private db: DatabaseService) {}
 
-	@Get('/name/:name')
-	async searchFor(@Param('name') name: string)
-	{
-		return this.db.findClientsByName(name);
-	}
-
 	@Get(':id')
 	async getByid42(@Param('id', ParseIntPipe) id: number)
 	{
 		return this.db.getClientById42(id);
-	}
-
-	@Get('/cookie/:cookie')
-	async getByCookie(@Param('cookie') cookie: string)
-	{
-		return this.db.getClientByCookie(cookie);
 	}
 
 	@Get('/stats/:id')
@@ -34,22 +23,10 @@ export class DashboardController
 		return this.db.getClientStatsById(id);
 	}
 
-	@Get('/ranking')
-	async getRanking()
-	{
-		return this.db.getTop100Scores();
-	}
-
 	@Get('/fl/:id')
 	async getFlForId42(@Param('id', ParseIntPipe) id: number)
 	{
 		return this.db.getRelationsByClientId1(id);
-	}
-
-	@Post('/create')
-	async createClient(@Body() dto: ClientDto)
-	{
-		return this.db.createClient(dto);
 	}
 
 	@Post('update/:id')
@@ -58,10 +35,53 @@ export class DashboardController
 		return this.db.updateClient(id, dto);
 	}
 
-	@Get('get/:id')
-	async getById(@Param('id', ParseIntPipe) id42: number)
+
+
+
+
+
+
+
+
+
+
+	@Get('/ranking')
+	async getRanking()
 	{
-		return this.db.getClientId42FromId(id42);
+		return this.db.getTop100Scores();
 	}
 
+	@Get('/cookie/:cookie')
+	async getByCookie(@Param('cookie') cookie: string)
+	{
+		return this.db.getClientByCookie(cookie);
+	}
+
+	@Get('/name/:name')
+	async searchFor(@Param('name') name: string)
+	{
+		return this.db.findClientsByName(name);
+	}
+
+
+
+
+
+
+
+
+
+
+
+	@Post('/create')
+	async createClient(@Body() dto: ClientDto)
+	{
+		return this.db.createClient(dto);
+	}
+
+	@Post('/relations/create')
+	async createRelations(@Body() dto: createRelationsDto)
+	{
+		return this.db.createRelation(dto);
+	}
 }
