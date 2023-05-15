@@ -1,0 +1,63 @@
+<script>
+  let roomName = "";
+  let isProtected = false;
+  let password = "";
+
+  function createRoom() {
+    const room = {
+      name: roomName,
+      isProtected: isProtected,
+      password: password
+    };
+    console.log(room);
+    // add code to save the room to database or perform other actions here
+  }
+</script>
+
+<div class="create-form">
+  <form on:submit|preventDefault={createRoom}>
+    <label for="room-name">Room name:</label>
+    <input type="text" id="room-name" bind:value={roomName}>
+    <br>
+    <label>
+      <input type="checkbox" bind:checked={isProtected}> Protected
+			<input type="checkbox"> Private
+			<input type="checkbox"> Public
+    </label>
+    {#if isProtected}
+      <br>
+      <label for="password">Password:</label>
+      <input type="password" id="password" bind:value={password}>
+    {/if}
+    <br>
+    <button type="submit">Create</button>
+  </form>
+</div>
+
+<style>
+  .create-form {
+    border: 1px solid #ccc;
+    padding: 10px;
+  }
+  .create-form label {
+    display: block;
+    margin-bottom: 5px;
+  }
+  .create-form input[type="text"],
+  .create-form input[type="password"],
+  .create-form button {
+    margin-bottom: 10px;
+    padding: 5px;
+    font-size: 16px;
+  }
+  .create-form button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .create-form button:hover {
+    background-color: #2E8B57;
+  }
+</style>

@@ -6,6 +6,7 @@
 	import Tabs from "./shared/Tabs.svelte";
 	import Dashboard from "./component/dashboard/Dashboard.svelte";
 	import Chat from "./component/chat/Chat.svelte";
+	import Rooms from "./component/rooms/rooms.svelte";
 	import PrivateRoute from "./PrivateRoute.svelte";
 	import { userId42 } from "./stores";
 
@@ -76,7 +77,7 @@
                                 <Chat/>
 
                         {:else if activeTab === "Rooms"}
-                                <p>talk to everyone</p>
+                                <Rooms/>
 
                         {/if}
                     </div>
