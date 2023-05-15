@@ -35,7 +35,7 @@ export class AuthController {
 		// generetate the jwt
 		let jwt = await this.jwtService.signAsync({id: user_info.id});
 
-		console.log('image -->', user_info.image.link);
+		// console.log('image -->', user_info.image.link);
 
 		response.setCookie('jwt_cookie', jwt);
 		response.setCookie('id42', user.id42.toString());

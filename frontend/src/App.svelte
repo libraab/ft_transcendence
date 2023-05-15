@@ -105,7 +105,7 @@
 							<Chat/>
 
 					{:else if activeTab === "Rooms"}
-							<p>talk to everyone</p>
+                            <Rooms/>
 
 					{/if}
 				</div>

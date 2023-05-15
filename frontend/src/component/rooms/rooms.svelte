@@ -12,7 +12,6 @@
     const toggleForm = () => {
       isFormVisible = !isFormVisible;
     }
-
     const handleSubmit = (event) => {
         event.preventDefault();
         console.log('Creating room:', roomName, 'of type', roomType);
@@ -29,7 +28,7 @@
         toggleForm();
     }
   </script>
-  
+
   <div class="main_body">
     <main class="container">
       <div class="rooms-container">
@@ -67,7 +66,7 @@
       </div>
     </main>
   </div>
-  
+
   <style>
     .container {
       height: 100%;
@@ -124,4 +123,3 @@
       display: block;
     }
   </style>
-  
