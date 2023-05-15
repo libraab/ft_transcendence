@@ -3,6 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientDto } from './dtos/dbBaseDto';
 import { ClientStats, ClientToClient, Clients, Prisma, Rooms } from '@prisma/client';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
+import { createRelationsDto } from 'src/dashboard/dashboardDtos/createsTablesDtos';
 
 @Injectable()
 export class DatabaseService
@@ -217,6 +218,33 @@ export class DatabaseService
 		});
 
 		return messages.map((message) => [message.client.name, message.msg]);
+	}
+
+
+	async createRelation(dto: createRelationsDto): Promise<ClientToClient>
+	{
+		try
+		{
+			const relation = await this.prisma.clientToClient.create({
+				data:{
+					client1Id: dto.idClient1,
+					status: dto.status,
+					client2Id: dto.idClient2
+				},
+			});
+
+			return relation;
+		}
+		catch (error)
+		{
+			if (error instanceof Prisma.PrismaClientKnownRequestError)
+			{
+				if (error.code === 'P2002') {
+					throw new ForbiddenException('Credentials taken');
+				}
+			}
+			throw error;
+		}
 	}
 
 }
