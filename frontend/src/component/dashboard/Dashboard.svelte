@@ -27,18 +27,25 @@
 	// stats are always target ones
 	let stats = {};
 
+	onMount(async () => {
+		await getTargetStats();
+	});
+	
 	async function fetchData() {
-		try {
+		try
+		{
 			const response = await fetch(`http://localhost:3000/dashboard/${id42}`);
 			data = await response.json();
+			name = data.name;
+			img = data.img;
+			returnBackHome();
+
+			return data;
 		}
-		catch (error) {
+		catch (error)
+		{
 			console.error(error);
 		}
-		id = data.id;
-		name = data.name;
-		img = data.img;
-		returnBackHome();
 	}
 
 	async function getSpecifiedClients()
@@ -46,8 +53,10 @@
 		const retName = document.getElementById('id42-name-input').value;
 		id42NameInputNotEmpty = retName.trim() !== '';
 
-		if (id42NameInputNotEmpty) {
-			try {
+		if (id42NameInputNotEmpty)
+		{
+			try
+			{
 				const response = await fetch(`http://localhost:3000/dashboard/name/${retName}`);
 				searchRes = await response.json();
 			}
@@ -61,7 +70,8 @@
 
 	async function getTargetStats()
 	{
-		try {
+		try
+		{
 			const response = await fetch(`http://localhost:3000/dashboard/stats/${id}`)
 			if (response)
 				stats = await response.json();
@@ -73,11 +83,8 @@
 		}
 	}
 	
-	onMount(async () => {
-		await getTargetStats();
-	});
-	
-	function moveDisplayToTargetClient(client) {
+	function moveDisplayToTargetClient(client)
+	{
 		targetId = client.id;
 		targetName = client.name;
 		targetImg = client.img;
@@ -88,7 +95,8 @@
 		id42NameInputNotEmpty = null;
 	}
 
-	function returnBackHome() {
+	function returnBackHome()
+	{
 		targetId = id;
 		targetName = name;
 		targetImg = img;
@@ -99,9 +107,10 @@
 		id42NameInputNotEmpty = null;
 	}
 
-	function profileUpdate() {
-		fetchData();
-		dispatch("updateImg", img);
+	async function profileUpdate()
+	{
+		let client = await fetchData();
+		dispatch("updateProfile", client);
 	}
 
 /*
@@ -113,12 +122,14 @@
 */
 
 	let updatePop = false;
-	function toggleUpdatePopup() {
+	function toggleUpdatePopup()
+	{
 		updatePop = !updatePop;
 	}
 
 	let deletePop = false;
-	function toggleDeletePopup() {
+	function toggleDeletePopup()
+	{
 		deletePop = !deletePop;
 	}
 </script>

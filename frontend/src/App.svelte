@@ -13,7 +13,9 @@
     let tabs = ['Dashboard', 'Game', 'Chat', 'Rooms'];
     let activeTab = 'Dashboard';
     let data = {};
-    let img_path = "img/il_794xN.3892173164_egqv.avif";
+    let img_path;
+
+	let dashboardValue = null;
 
     const switchTab = (e) => { activeTab = e.detail;}
 
@@ -40,6 +42,12 @@
 			if (response.ok)
 			{
 				const data = await response.json();
+				if (data.img !== "undefined")
+					img_path = data.img;
+				else
+    				img_path = "img/il_794xN.3892173164_egqv.avif";
+
+				dashboardValue = data;
 				return data;
 			}
 			else
@@ -47,39 +55,18 @@
 				throw new Error('Failed to fetch dashboard data');
 			}
 		}
-
 		catch (error)
 		{
 			console.error(error);
 		}
-		return data;
 	}
-
-/*
-	let id42 = 4444;
-	async function fetchData()
-	{
-		try {
-			const response = await fetch(`http://localhost:3000/dashboard/${id42}`);
-			
-			if (!response.ok) {
-				console.log(`Erreur HTTP from server: ${response.status}`)
-				return null;
-			}
-
-			data = await response.json();
-		}
-		catch (error) {
-			console.error(error);
-		}
-		
-		return data;
-	}
-*/
-	const handleNewImgPath = (event) => {
+	
+	const newProfileData = (event) => {
 		console.log(event.detail);
-		console.log("img gonna be upload");
+		console.log("you've been uploaded");
+		dashboardValue = event.detail;
 	}
+
 </script>
 
 
@@ -88,37 +75,37 @@
 {#await fetchData()}
 	<center><p>Loading...</p></center>
 
-	{:then dashboardData}
+{:then dashboardData}
 
-		{#if dashboardData && Object.keys(dashboardData).length > 0}
+	{#if dashboardData && Object.keys(dashboardData).length > 0}
 
-			<Tabs {activeTab} {tabs} id={dashboardData.id} on:tabChange={ switchTab } />
-			<main>
-				<div class="main_body">
-					{#if activeTab === "Dashboard"}
-						<Dashboard data={dashboardData} on:updateImg={ handleNewImgPath }/>
+		<Tabs {activeTab} {tabs} id={dashboardData.id} on:tabChange={ switchTab } />
+		<main>
+			<div class="main_body">
+				{#if activeTab === "Dashboard"}
+					<Dashboard data={dashboardValue} on:updateProfile={ newProfileData }/>
 
-					{:else if activeTab === "Game"}
-							<p>Here to play bro</p>
+				{:else if activeTab === "Game"}
+						<p>Here to play bro</p>
 
-					{:else if activeTab === "Chat"}
-							<Chat/>
+				{:else if activeTab === "Chat"}
+						<Chat/>
 
-					{:else if activeTab === "Rooms"}
-							<p>talk to everyone</p>
+				{:else if activeTab === "Rooms"}
+						<p>talk to everyone</p>
 
-					{/if}
-				</div>
-			</main>
+				{/if}
+			</div>
+		</main>
 
-		{:else}
-			<center><h1>┌∩┐(◕_◕)┌∩┐</h1></center>
-			<center><p>sry but nop</p></center>
-			<Login/>
-		{/if}
+	{:else}
+		<center><h1>┌∩┐(◕_◕)┌∩┐</h1></center>
+		<center><p>sry but nop</p></center>
+		<Login/>
+	{/if}
 
-	{:catch error}
-		<h3>Error: {error.message}</h3>
+{:catch error}
+	<h3>Error: {error.message}</h3>
 
 {/await}
 
