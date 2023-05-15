@@ -91,8 +91,8 @@
 				{:else if activeTab === "Chat"}
 						<Chat/>
 
-				{:else if activeTab === "Rooms"}
-						<p>talk to everyone</p>
+					{:else if activeTab === "Rooms"}
+                            <Rooms/>
 
 				{/if}
 			</div>
