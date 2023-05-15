@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
 	path: '/chatsockets',
-	namespace: '/',
+	namespace: '/chat',
 	cors: {
 	  origin: '*',
 	},
@@ -25,10 +25,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 	
 
-	@SubscribeMessage('msgToServer')
-	handleMessage(client: any, text: string): void {
-		this.logger.log(`A message was send by ${client.id} --content--> ${text}`);
-		this.wss.emit('msgToClient', text);
+	@SubscribeMessage('chatToServer')
+	handleMessage(client: Socket, message: {sender: string, message: string} ): void {
+		this.logger.log(`A message was send by ${message.sender} --content--> ${message.message}`);
+		this.wss.emit('serverToChat', message);
 		// WsResponse<string>
     	// return { event: 'msgToClient', data: text};
   	}
