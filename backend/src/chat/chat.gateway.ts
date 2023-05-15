@@ -3,6 +3,8 @@ import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 
 @WebSocketGateway({
+	path: '/chatsockets',
+	namespace: '/',
 	cors: {
 	  origin: '*',
 	},
@@ -24,9 +26,10 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	
 
 	@SubscribeMessage('msgToServer')
-	handleMessage(client: any, text: string): WsResponse<string> {
-	// this.wss.emit('msgToEveryone', text);
-		this.logger.log('A message was send by someone');
-    return { event: 'msgToClient', data: text};
+	handleMessage(client: any, text: string): void {
+		this.logger.log(`A message was send by ${client.id} --content--> ${text}`);
+		this.wss.emit('msgToClient', text);
+		// WsResponse<string>
+    	// return { event: 'msgToClient', data: text};
   	}
 }

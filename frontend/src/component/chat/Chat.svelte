@@ -1,13 +1,15 @@
 <script>
 	import { io } from 'socket.io-client'
+    import { onMount } from 'svelte';
 	//Variables
 	let selected_room_id = 0;
 	let messages_room_id = [];
 	let user_message = "";
-	const socket = io('localhost:3000'); // dans on mount uniquement
+	const socket = io('localhost:3000', {path: '/chatsockets'}); // dans on mount?
 
-	socket.emit('msgToServer', "Hell yeah");
-	console.log("chat is mounted");
+	onMount(() => {
+		console.log('the component has mounted');
+	});
 	
 	//Data
 	let rooms = [ //is fetched on mount
@@ -43,9 +45,19 @@
 	};
 
 	let sendMessage = () => {
-
+		socket.emit('msgToServer', user_message);
 		user_message = ""
 	}
+
+	let recieveMessage = (msg) => {
+		let new_content = messages[0].msg_content;
+		new_content.push({sender: 'anonymous', content: msg});
+
+		messages[0].msg_content = new_content;
+		change_showing_messages(selected_room_id); //very bad logic but working. Messages of selected id is not updated but the messages data of all already fetched messages.
+	}
+
+	socket.on('msgToClient', (msg) => { recieveMessage(msg)});
 
 </script>
 
@@ -75,10 +87,10 @@
 				{/if}
 			{/each}
 		</ul>
-		<div class="component_send_box">
+		<form on:submit|preventDefault={sendMessage} class="component_send_box">
 			<input type="text" placeholder="write a message, or shut up" bind:value={user_message}>
-			<button on:click={sendMessage}>send</button>
-		</div>
+			<button>send</button>
+		</form>
 	</div>
 </div>
 
