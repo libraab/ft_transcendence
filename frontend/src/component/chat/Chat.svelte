@@ -1,5 +1,18 @@
 <script>
-	let rooms = [
+	import { io } from 'socket.io-client'
+    import { onMount } from 'svelte';
+	//Variables
+	let selected_room_id = 0;
+	let messages_room_id = [];
+	let user_message = "";
+	const socket = io('localhost:3000', {path: '/chatsockets'}); // dans on mount?
+
+	onMount(() => {
+		console.log('the component has mounted');
+	});
+	
+	//Data
+	let rooms = [ //is fetched on mount
 		{ name: 'Transcandence', id: 1},
 		{ name: 'some Guy', id: 2},
 		{ name: 'some Groupe', id: 15},
@@ -13,16 +26,15 @@
 		{ name: 'some Groupe', id: 36},
 		{ name: 'best friend', id: 37}
 	]
-
+	
+	//let messages = [] starting messages data like this, then fetch function on click event chen connecting to the channel
 	let messages = [
 		{room_id: 1, msg_content:[ { sender: "silas", content: "Hi it's me silas"} , { sender: "dmercadi", content: "Hi! Do you want to talk about our savior Rick?"}, { sender: "silas", content: "Schrcool!"}] },
 		{room_id: 15, msg_content:[ { sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"} ]},
 		{room_id: 37, msg_content:[ { sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"},{ sender: "asma", content: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", content: "What PiccleRick woudl do?"}, { sender: "Haythem", content: "He is one of them!!" }, { sender: "server", content: "Lionel has been kicked"} ]},
 	]
 
-	let selected_room_id = 0;
-	let messages_room_id = [];
-
+	//Methods
 	let change_showing_messages = (id) => {
 		selected_room_id = id;
 		let room = messages.filter(data => data.room_id == id);
@@ -31,6 +43,21 @@
 		else
 			messages_room_id = [];
 	};
+
+	let sendMessage = () => {
+		socket.emit('msgToServer', user_message);
+		user_message = ""
+	}
+
+	let recieveMessage = (msg) => {
+		let new_content = messages[0].msg_content;
+		new_content.push({sender: 'anonymous', content: msg});
+
+		messages[0].msg_content = new_content;
+		change_showing_messages(selected_room_id); //very bad logic but working. Messages of selected id is not updated but the messages data of all already fetched messages.
+	}
+
+	socket.on('msgToClient', (msg) => { recieveMessage(msg)});
 
 </script>
 
@@ -60,10 +87,10 @@
 				{/if}
 			{/each}
 		</ul>
-		<div class="component_send_box">
-			<input type="text" placeholder="write a message, or shut up">
+		<form on:submit|preventDefault={sendMessage} class="component_send_box">
+			<input type="text" placeholder="write a message, or shut up" bind:value={user_message}>
 			<button>send</button>
-		</div>
+		</form>
 	</div>
 </div>
 
