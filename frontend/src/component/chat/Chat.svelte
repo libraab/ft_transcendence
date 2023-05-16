@@ -195,7 +195,6 @@
 		color: #292d39;
 		padding: 5px;
 		max-height: 60vh;
-		overflow: scroll;
 	}
 
 	.component_send_box {
@@ -227,6 +226,10 @@
 		background: lightseagreen;
 	}
 
+	.messages {
+		max-height: 50vh;
+		overflow: scroll;
+	}
 
 	.one_message {
 		padding: 2px;
