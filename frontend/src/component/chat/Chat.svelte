@@ -15,6 +15,15 @@
 		console.log('the component has mounted');
 	});
 	
+	async function fetchData() {
+		try {
+			const response = await fetch(`http://localhost:3000/dashboard/${id42}`);
+			data = await response.json();
+		}
+		catch (error) {
+			console.error(error);
+		}
+	}
 	//Data
 	let rooms = [ //is fetched on mount
 		{ name: 'Transcandence', id: 1},
@@ -75,7 +84,8 @@
 		if (found == false)
 		{
 			//here fetching data messages from room by id, then add message
-			messages.push({room_id: msg.channel, msg_content: {sender: msg.sender, message: msg.message} });
+			messages.push({room_id: msg.channel, msg_content: [{sender: msg.sender, message: msg.message}] });
+			console.log(messages);
 		}
 		change_showing_messages(selected_room_id); //very bad logic but working. Messages of selected id is not updated but the messages data of all already fetched messages.
 	}
