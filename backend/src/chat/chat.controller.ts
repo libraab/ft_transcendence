@@ -9,7 +9,7 @@ export class ChatController {
     @Get(':id')
     async getAllUsersChat(@Param('id', ParseIntPipe) id: number)
     {
-        return this.db.getRoomsByUserId(id);
+        return this.db.getRoomIdsAndNamesByClientId(id);
     }
 
     @Delete()
