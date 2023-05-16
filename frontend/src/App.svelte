@@ -73,7 +73,7 @@
                                 <p>Here to play bro</p>
 
                         {:else if activeTab === "Chat"}
-                                <Chat/>
+                                <Chat username={dashboardData.name}/>
 
                         {:else if activeTab === "Rooms"}
                                 <p>talk to everyone</p>
