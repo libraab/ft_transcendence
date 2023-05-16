@@ -9,6 +9,9 @@ export class ChatController {
     @Get(':id')
     async getAllUsersChat(@Param('id', ParseIntPipe) id: number)
     {
+		let client = await this.db.getClientById42(id);
+		let json = await this.db.getRoomIdsAndNamesByClientId(client.id);
+		return json;
         return this.db.getRoomIdsAndNamesByClientId(id);
     }
 
@@ -32,8 +35,17 @@ export class ChatController {
         console.log(this.dto.ownerid);
         console.log(this.dto.secu);
 
-        return this.db.createRooom(this.dto);
+        let Room = await this.db.createRooom(this.dto);
+		this.db.addMemberToRoom(Room.id, this.dto.ownerid, 0);
     }
+	/*
+	0 - owner
+	1 - admin
+	2 - member
+	3 - muted
+	4 - kicked
+	5 - banned
+	*/
 
     @Get()
     async getRooms(): Promise<{ id: number; name: string }[]> {
