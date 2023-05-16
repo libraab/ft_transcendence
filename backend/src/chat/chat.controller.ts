@@ -51,4 +51,10 @@ export class ChatController {
     async getRooms(): Promise<{ id: number; name: string }[]> {
         return this.db.getRooms();
     }
+
+    @Post('/join')
+    async joinRoom(@Body() data) {
+    await this.db.addMemberToRoom(data.roomId, data.clientId, 2);
+    return 'User joined the room';
+  }
 }
