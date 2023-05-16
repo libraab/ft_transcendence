@@ -392,6 +392,10 @@ export class DatabaseService
 			},
 		});
 
-		return messages;
+		return messages.map((message) => ({
+			message: message.msg,
+			clientId: message.client.id,
+			clientName: message.client.name,
+		}));
 	}
 }
