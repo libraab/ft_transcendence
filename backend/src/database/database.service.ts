@@ -275,4 +275,34 @@ export class DatabaseService
 		}
 	}
 
+	async getRooms(): Promise<{ id: number; name: string }[]> {
+		const rooms = await this.prisma.rooms.findMany({
+			where: {
+				secu: {
+					not: 2,
+				},
+			},
+			select: {
+				id: true,
+				name: true,
+			},
+		});
+
+		return rooms;
+	}
+
+	async getRoomIdsByClientId(clientId: number): Promise<number[]> {
+		const roomMembers = await this.prisma.roomMembers.findMany({
+			where: {
+				memberId: clientId,
+			},
+			select: {
+				roomId: true,
+			},
+		});
+
+		const roomIds = roomMembers.map((roomMember) => roomMember.roomId);
+
+		return roomIds;
+	}
 }
