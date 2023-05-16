@@ -315,6 +315,7 @@ export class DatabaseService
 	}
 
 	async addMemberToRoom(roomId: number, memberId: number, status: number): Promise<RoomMembers> {
+		console.log(roomId);
 		try {
 			const roomMember = await this.prisma.roomMembers.create({
 				data: {
