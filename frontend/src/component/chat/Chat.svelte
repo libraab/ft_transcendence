@@ -27,6 +27,7 @@
 		catch (error) {
 			console.error(error);
 		}
+		connectToAllChannel();
 	}
 
 	//Data
@@ -58,7 +59,7 @@
 		});
 	}
 
-	connectToAllChannel();
+
 
 	//Methods
 	let change_showing_messages = (id) => {
@@ -73,6 +74,7 @@
 	};
 
 	let sendMessage = () => {
+		console.log("send_message");
 		socket.chat.emit('chatToServer', {channel: selected_room_id, sender: username, message: user_message});
 		user_message = ""
 	}
