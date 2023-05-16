@@ -1,11 +1,7 @@
 <script>
     import { onMount } from 'svelte';
     export let data;
-    let rooms = [
-      { id: 1, name: "general"},
-      { id: 2, name: "Room1"},
-      { id: 3, name: "Room2"},
-    ];
+    let rooms = [];
     let isFormVisible = false;
     let roomName = '';
     let roomType = 'public';
@@ -40,13 +36,12 @@
         console.error('Failed to create room');
         // handle error
       }
-      // push la nouvelle room
-      rooms.push({ id: rooms.length + 1, name: roomName });
       // Reset les valeurs du formulaure
       roomName = '';
       roomType = 'public';
       password = '';
       toggleForm();
+      fetchRooms();
   }
     const fetchRooms = async () => {
       const response = await fetch('http://localhost:3000/chat');
@@ -66,8 +61,13 @@
       <button class="toggle-btn">List of Rooms</button>
       <div class="room-list">
         {#each rooms as room}
-          <div>
-            <h3>{room.name}</h3>
+          <div class="room-item">
+            {#if room.secu == 1}
+              <h3>🔒 {room.name}</h3>
+            {:else}
+              <h3>{room.name}</h3>
+            {/if}
+            <button class="join-button">Join</button>
           </div>
         {/each}
       </div>
@@ -153,4 +153,20 @@
   .toggle-btn:focus + .room-list {
     display: block;
   }
+
+  .room-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+h3 {
+  margin-right: 10px;
+}
+
+.join-button {
+  margin-left: 10px;
+  margin-right: 0;
+  align-self: flex-end;
+}
 </style>
