@@ -15,6 +15,18 @@ export class ChatController {
         return this.db.getRoomIdsAndNamesByClientId(id);
     }
 
+    @Get('/messages/:id')
+    async getAllMessages(@Param('id', ParseIntPipe) id: number)
+    {
+		let json = await this.db.getRoomMessagesById(id);
+        let res = [];
+        await Promise.all(json.map(async (e) => {
+            res.push({ sender: e.clientName, message: e.message});
+        }));
+        console.log(res);
+		return res;
+    }
+
     @Delete()
     quitRoom(): string
     {
@@ -31,9 +43,6 @@ export class ChatController {
             this.dto.secu = 1;
         if (data.roomType == "private")
             this.dto.secu = 2;
-        console.log(this.dto.name);
-        console.log(this.dto.ownerid);
-        console.log(this.dto.secu);
 
         let Room = await this.db.createRooom(this.dto);
 		this.db.addMemberToRoom(Room.id, this.dto.ownerid, 0);
