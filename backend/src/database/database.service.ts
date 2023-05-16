@@ -275,7 +275,7 @@ export class DatabaseService
 		}
 	}
 
-	async getRooms(): Promise<{ id: number; name: string }[]> {
+	async getRooms(): Promise<{ id: number; name: string; secu: number}[]> {
 		const rooms = await this.prisma.rooms.findMany({
 			where: {
 				secu: {
@@ -285,6 +285,7 @@ export class DatabaseService
 			select: {
 				id: true,
 				name: true,
+				secu: true,
 			},
 		});
 
