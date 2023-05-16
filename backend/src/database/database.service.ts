@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientDto } from './dtos/dbBaseDto';
-import { ClientStats, ClientToClient, Clients, Prisma, Rooms } from '@prisma/client';
+import { ClientStats, ClientToClient, Clients, Prisma, RoomMembers, Rooms } from '@prisma/client';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 import { createRelationsDto, createRoomDto } from 'src/dashboard/dashboardDtos/createsTablesDtos';
 
@@ -312,5 +312,30 @@ export class DatabaseService
 		}));
 
 		return roomIdsAndNames;
+	}
+
+	async addMemberToRoom(roomId: number, memberId: number, status: number): Promise<RoomMembers> {
+		try {
+			const roomMember = await this.prisma.roomMembers.create({
+				data: {
+					roomId,
+					memberId,
+					status,
+				},
+			});
+
+			return roomMember;
+		}	
+		catch (error)
+		{
+			if (error instanceof Prisma.PrismaClientKnownRequestError)
+			{
+				if (error.code === 'P2002') {
+					throw new ForbiddenException('Credentials taken');
+				}
+			}
+			throw error;
+		}
+
 	}
 }
