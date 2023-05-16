@@ -88,7 +88,7 @@
 						<p>Here to play bro</p>
 
 				{:else if activeTab === "Chat"}
-						<Chat username={dashboardData.name}/>
+						<Chat username={dashboardValue.name}/>
 
 					{:else if activeTab === "Rooms"}
                             <Rooms/>
