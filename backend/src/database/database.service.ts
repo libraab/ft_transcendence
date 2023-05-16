@@ -1,7 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientDto } from './dtos/dbBaseDto';
-import { ClientStats, ClientToClient, Clients, Prisma, RoomMembers, Rooms } from '@prisma/client';
+import { ClientStats, ClientToClient, Clients, MessagesRooms, Prisma, RoomMembers, Rooms } from '@prisma/client';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 import { createRelationsDto, createRoomDto } from 'src/dashboard/dashboardDtos/createsTablesDtos';
 
@@ -338,6 +338,65 @@ export class DatabaseService
 			}
 			throw error;
 		}
+	}
 
+	async getRoomById(roomId: number): Promise<Rooms | null> {
+		try
+		{
+			const room = await this.prisma.rooms.findUnique({
+				where: {
+					id: roomId,
+				},
+			});
+
+			return room || null;
+		}
+		catch (error)
+		{
+			throw error;
+		}
+	}
+
+	async addMessageToRoom(roomId: number, clientId: number, message: string): Promise<MessagesRooms> {
+		try
+		{
+			const newMessage = await this.prisma.messagesRooms.create({
+				data: {
+					msg: message,
+					time: new Date(),
+					roomId: roomId,
+					clientId: clientId,
+				},
+			});
+
+			return newMessage;
+		}
+		catch (error)
+		{
+			throw error;
+		}
+	}
+
+	async getRoomMessagesById(roomId: number): Promise<any[]> {
+		const messages = await this.prisma.messagesRooms.findMany({
+			where: {
+				roomId: roomId,
+			},
+			select: {
+				msg: true,
+				client: {
+					select: {
+						name: true,
+						id: true,
+					},
+				},
+			},
+		});
+
+		return messages.map((message) => ({
+			message: message.msg,
+			clientId: message.client.id,
+			clientName: message.client.name,
+		}));
 	}
 }
