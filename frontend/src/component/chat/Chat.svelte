@@ -6,7 +6,7 @@
 	export let data;
 	let username = data.name;
 	//Variables
-	let selected_room_id = 0;
+	let selected_room_id = -1;
 	let messages_room_id = [];
 	let user_message = "";
 	let rooms = [];
@@ -59,7 +59,18 @@
 		});
 	}
 
-
+	async function fetchMessages(id) {
+		try {
+			const response = await fetch(`http://localhost:3000/chat/messages/${id}`);
+			let rjson = await response.json();
+			messages.push({ room_id: id, msg_content: rjson});
+			messages_room_id = rjson;
+			// console.log(messages);
+		}
+		catch (error) {
+			console.error(error);
+		}
+	}
 
 	//Methods
 	let change_showing_messages = (id) => {
@@ -70,12 +81,15 @@
 		if (room.length)
 			messages_room_id = messages.filter(data => data.room_id == id)[0].msg_content;
 		else
-			messages_room_id = [];
+		{
+			fetchMessages(selected_room_id);
+			//change_showing_messages(id);
+		}
 	};
 
 	let sendMessage = () => {
 		console.log("send_message");
-		socket.chat.emit('chatToServer', {channel: selected_room_id, sender: username, message: user_message});
+		socket.chat.emit('chatToServer', {channel: selected_room_id, sender: username, message: user_message, sender_id: data.id42});
 		user_message = ""
 	}
 
