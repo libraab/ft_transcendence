@@ -63,7 +63,6 @@
 	
 	const newProfileData = (event) => {
 		console.log(event.detail);
-		console.log("you've been uploaded");
 		dashboardValue = event.detail;
 	}
 

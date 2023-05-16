@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientDto } from './dtos/dbBaseDto';
 import { ClientStats, ClientToClient, Clients, Prisma, Rooms } from '@prisma/client';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
-import { createRelationsDto } from 'src/dashboard/dashboardDtos/createsTablesDtos';
+import { createRelationsDto, createRoomDto } from 'src/dashboard/dashboardDtos/createsTablesDtos';
 
 @Injectable()
 export class DatabaseService
@@ -247,4 +247,70 @@ export class DatabaseService
 		}
 	}
 
+	async createRooom(dto: createRoomDto): Promise<Rooms>
+	{
+		try
+		{
+			const { name, ownerid, secu } = dto;
+
+			const room = await this.prisma.rooms.create({
+				data: {
+					name,
+					ownerid,
+					secu,
+				},
+			});
+
+			return room;
+		}
+		catch (error)
+		{
+			if (error instanceof Prisma.PrismaClientKnownRequestError)
+			{
+				if (error.code === 'P2002') {
+					throw new ForbiddenException('Credentials taken');
+				}
+			}
+			throw error;
+		}
+	}
+
+	async getRooms(): Promise<{ id: number; name: string }[]> {
+		const rooms = await this.prisma.rooms.findMany({
+			where: {
+				secu: {
+					not: 2,
+				},
+			},
+			select: {
+				id: true,
+				name: true,
+			},
+		});
+
+		return rooms;
+	}
+
+	async getRoomIdsAndNamesByClientId(clientId: number): Promise<{ roomId: number; roomName: string }[]> {
+		const roomMembers = await this.prisma.roomMembers.findMany({
+			where: {
+				memberId: clientId,
+			},
+			select: {
+				room: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+			},
+		});
+
+		const roomIdsAndNames = roomMembers.map((roomMember) => ({
+			roomId: roomMember.room.id,
+			roomName: roomMember.room.name,
+		}));
+
+		return roomIdsAndNames;
+	}
 }
