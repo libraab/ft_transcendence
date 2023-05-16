@@ -19,18 +19,19 @@ model Clients {
 
   client1     ClientToClient[]         @relation("ClientToClient_client1")
   client2     ClientToClient[]         @relation("ClientToClient_client2")
-  rooms       Rooms[]                  @relation("ClientsRooms")
-  admin       Rooms[]                  @relation("AdminsRooms")
+  histClient1 GameHistoric[]           @relation("GameHistoric_client1")
+  histClient2 GameHistoric[]           @relation("GameHistoric_client2")
   roomsOwned  Rooms[]                  @relation("RoomsOwned")
   msgSent     MessagesClientToClient[] @relation("ClientToClient_client1")
   msgReceived MessagesClientToClient[] @relation("ClientToClient_client2")
+  roomMembers RoomMembers[]            @relation("ClientRoomMembers")
   clientStats ClientStats[]
   messages    MessagesRooms[]
 }
 
 model ClientToClient {
   id     Int    @id @default(autoincrement())
-  status String @db.VarChar(10)
+  status Int
 
   client1Id Int
   client2Id Int
@@ -40,6 +41,20 @@ model ClientToClient {
   @@index([status])
   @@map("clients_to_clients")
 }
+
+model GameHistoric {
+  id        Int    @id @default(autoincrement())
+  persScore Int
+  vsScore   Int
+
+  client1Id Int
+  client2Id Int
+  client1   Clients @relation("GameHistoric_client1", fields: [client1Id], references: [id])
+  client2   Clients @relation("GameHistoric_client2", fields: [client2Id], references: [id])
+
+  @@map("game_historic")
+}
+
 
 model ClientStats {
   id     Int    @id @default(autoincrement())
@@ -59,17 +74,33 @@ model Rooms {
   id   Int    @id @default(autoincrement())
   name String @db.VarChar(50)
 
-  ownerid Int
-  owner   Clients   @relation("RoomsOwned", fields: [ownerid], references: [id])
-  admins  Clients[] @relation("AdminsRooms")
-  members Clients[] @relation("ClientsRooms")
+  ownerid  Int
+  owner    Clients  @relation("RoomsOwned", fields: [ownerid], references: [id])
+  secu     Int
+  password String?  @db.VarChar()
 
-  messages MessagesRooms[]
+  members     RoomMembers[]
+  messages    MessagesRooms[]
 
   @@unique([name], name: "name_uniq")
   @@index([ownerid], name: "owner_idx")
   @@map("rooms")
 }
+
+model RoomMembers {
+  id          Int       @id @default(autoincrement())
+
+  roomId      Int
+  room        Rooms     @relation(fields: [roomId], references: [id])
+
+  memberId    Int
+  member      Clients   @relation("ClientRoomMembers", fields: [memberId], references: [id])
+
+  status      Int
+
+  @@map("room_members")
+}
+
 
 model MessagesRooms {
   id   Int      @id @default(autoincrement())

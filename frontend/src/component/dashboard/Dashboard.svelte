@@ -27,11 +27,13 @@
 	// stats are always target ones
 	let stats = {};
 
-	onMount(async () => {
+	onMount(async () =>
+	{
 		await getTargetStats();
 	});
 	
-	async function fetchData() {
+	async function fetchData()
+	{
 		try
 		{
 			const response = await fetch(`http://localhost:3000/dashboard/${id42}`);
