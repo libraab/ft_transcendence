@@ -9,6 +9,8 @@
 	let selected_room_id = 0;
 	let messages_room_id = [];
 	let user_message = "";
+	let rooms = [];
+	let messages = [];
 	let socket = { chat: null, alerts: null};
 	socket.chat = io('localhost:3000/chat', {path: '/chatsockets'}); // dans on mount?
 
@@ -26,34 +28,33 @@
 			console.error(error);
 		}
 	}
-	fetchData();
 
 	//Data
-	let rooms = [ //is fetched on mount
-		{ name: 'Transcandence', id: 1},
-		{ name: 'some Guy', id: 2},
-		{ name: 'some Groupe', id: 15},
-		{ name: 'best friend', id: 23},
-		{ name: 'Transcandence', id: 30},
-		{ name: 'some Guy', id: 31},
-		{ name: 'some Groupe', id: 32},
-		{ name: 'best friend', id: 33},
-		{ name: 'Transcandence', id: 34},
-		{ name: 'some Guy', id: 35},
-		{ name: 'some Groupe', id: 36},
-		{ name: 'best friend', id: 37}
-	]
+	// let rooms = [ //is fetched on mount
+	// 	{ name: 'Transcandence', id: 1},
+	// 	{ name: 'some Guy', id: 2},
+	// 	{ name: 'some Groupe', id: 15},
+	// 	{ name: 'best friend', id: 23},
+	// 	{ name: 'Transcandence', id: 30},
+	// 	{ name: 'some Guy', id: 31},
+	// 	{ name: 'some Groupe', id: 32},
+	// 	{ name: 'best friend', id: 33},
+	// 	{ name: 'Transcandence', id: 34},
+	// 	{ name: 'some Guy', id: 35},
+	// 	{ name: 'some Groupe', id: 36},
+	// 	{ name: 'best friend', id: 37}
+	// ]
 	
 	//let messages = [] starting messages data like this, then fetch function on click event chen connecting to the channel
-	let messages = [
-		{room_id: 1, msg_content:[ { sender: "silas", message: "Hi it's me silas"} , { sender: "dmercadi", message: "Hi! Do you want to talk about our savior Rick?"}, { sender: "silas", message: "Schrcool!"}] },
-		{room_id: 15, msg_content:[ { sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"} ]},
-		{room_id: 37, msg_content:[ { sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"} ]},
-	]
+	// let messages = [
+	// 	// {room_id: 1, msg_content:[ { sender: "silas", message: "Hi it's me silas"} , { sender: "dmercadi", message: "Hi! Do you want to talk about our savior Rick?"}, { sender: "silas", message: "Schrcool!"}] },
+	// 	// {room_id: 15, msg_content:[ { sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"} ]},
+	// 	// {room_id: 37, msg_content:[ { sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"},{ sender: "asma", message: "Hi, i think math and dan are crazy, what to do?"} , { sender: "lionel", message: "What PiccleRick woudl do?"}, { sender: "Haythem", message: "He is one of them!!" }, { sender: "server", message: "Lionel has been kicked"} ]},
+	// ]
 
 	let connectToAllChannel = () => {
 		rooms.forEach(room => {
-			socket.chat.emit('joinChannel', room.id);
+			socket.chat.emit('joinChannel', room.roomId);
 		});
 	}
 
@@ -100,15 +101,19 @@
 
 <div class="container">
 	<div class="list_box">
+		{#await fetchData()}
+			<center><p>Loading...</p></center>
+		{:then}
 		<ul>
-			{#each rooms as room (room.id)}
-				<li class:activeroom={room.id === selected_room_id} class="one_room" on:click={() => change_showing_messages(room.id)} on:keypress>
-					{room.name}
+			{#each rooms as room (room.roomId)}
+				<li class:activeroom={room.roomId === selected_room_id} class="one_room" on:click={() => change_showing_messages(room.roomId)} on:keypress>
+					{room.roomName}
 				</li>
 			{:else}
 			<p>you don't have friends</p>
 			{/each}
 		</ul>
+		{/await}
 	</div>
 	<div class="room_wrap">
 		<ul class="messages">
