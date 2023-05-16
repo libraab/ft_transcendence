@@ -336,6 +336,23 @@ export class DatabaseService
 			}
 			throw error;
 		}
-
 	}
+
+	async getRoomById(roomId: number): Promise<Rooms | null> {
+		try
+		{
+			const room = await this.prisma.rooms.findUnique({
+				where: {
+					id: roomId,
+				},
+			});
+
+			return room || null;
+		}
+		catch (error)
+		{
+			throw error;
+		}
+	}
+
 }
