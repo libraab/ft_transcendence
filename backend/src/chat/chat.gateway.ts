@@ -1,6 +1,7 @@
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
+import { DatabaseService } from 'src/database/database.service';
 
 @WebSocketGateway({
 	path: '/chatsockets',
@@ -11,6 +12,7 @@ import { Server, Socket } from 'socket.io';
   })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() wss: Server;
+	constructor(private db: DatabaseService) {}
 	
 	private logger: Logger = new Logger('ChatGateway');
 	
@@ -35,6 +37,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	handleMessage(client: Socket, message: {channel: string, sender: string, message: string} ): void {
 		this.logger.log(`A message was send by ${message.sender} --content--> ${message.message}`);
 		this.wss.to(message.channel).emit('serverToChat', message);
+		
 		// WsResponse<string>
     	// return { event: 'msgToClient', data: text};
   	}

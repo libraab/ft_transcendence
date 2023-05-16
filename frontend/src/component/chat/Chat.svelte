@@ -3,7 +3,8 @@
     import { onMount } from 'svelte';
 
 	// extern variable
-	export let username;
+	export let data;
+	let username = data.name;
 	//Variables
 	let selected_room_id = 0;
 	let messages_room_id = [];
@@ -17,13 +18,16 @@
 	
 	async function fetchData() {
 		try {
-			const response = await fetch(`http://localhost:3000/dashboard/${id42}`);
-			data = await response.json();
+			const response = await fetch(`http://localhost:3000/chat/${data.id42}`);
+			rooms = await response.json();
+			console.log(rooms);
 		}
 		catch (error) {
 			console.error(error);
 		}
 	}
+	fetchData();
+
 	//Data
 	let rooms = [ //is fetched on mount
 		{ name: 'Transcandence', id: 1},
