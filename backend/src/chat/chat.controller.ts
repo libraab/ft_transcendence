@@ -1,12 +1,14 @@
-import { Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import { Controller, Delete, Get, Post, ParseIntPipe, Put, Param } from '@nestjs/common';
+import { DatabaseService } from 'src/database/database.service';
 
 @Controller('chat')
 export class ChatController {
+	constructor(private db: DatabaseService) {}
 
-    @Get()
-    getAllUsersChat(): string
+    @Get(':id')
+    async getAllUsersChat(@Param('id', ParseIntPipe) id: number)
     {
-        return 'returning all chat of user';
+        return this.db.getRoomsByUserId(id);
     }
 
     @Delete()

@@ -23,13 +23,38 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	handleDisconnect(client: Socket) {
 		this.logger.log(`Client disconnected : ${client.id}`);
 	}
+
+	// @SubscribeMessage('setUsername')
+  	// handleSetUsername(socket: Socket, username: string) {
+    // 	this.logger.log(`Received username: ${username}`);
+    // 	socket.username = username; // Store the username in the socket object
+  	// }
 	
 
 	@SubscribeMessage('chatToServer')
-	handleMessage(client: Socket, message: {sender: string, message: string} ): void {
+	handleMessage(client: Socket, message: {channel: string, sender: string, message: string} ): void {
 		this.logger.log(`A message was send by ${message.sender} --content--> ${message.message}`);
-		this.wss.emit('serverToChat', message);
+		this.wss.to(message.channel).emit('serverToChat', message);
 		// WsResponse<string>
     	// return { event: 'msgToClient', data: text};
   	}
+
+	@SubscribeMessage('joinChannel')
+	handleJoinChannel(client: Socket, channel: string)
+	{
+		// check if channel id is existing if not do nothing
+		// check if client is a member of channel then proceed
+		client.join(channel);
+		client.emit('joinedChannel', channel);
+	}
+
+	@SubscribeMessage('leaveChannel')
+	handleLeaveChannel(client: Socket, channel: string)
+	{
+		// check if channel id is existing if not do nothing
+		// check if client is a member of channel then proceed
+		// ask the chat service to delete the user from members
+		client.leave(channel);
+		client.emit('leavedChannel', channel);
+	}
 }
