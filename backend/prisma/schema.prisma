@@ -16,6 +16,7 @@ model Clients {
   img    String  @unique @db.VarChar(100)
   name   String  @unique @db.VarChar(50)
   cookie String  @unique @db.VarChar(250)
+  Dfa    Boolean
 
   client1     ClientToClient[]         @relation("ClientToClient_client1")
   client2     ClientToClient[]         @relation("ClientToClient_client2")

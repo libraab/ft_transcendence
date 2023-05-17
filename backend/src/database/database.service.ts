@@ -81,7 +81,8 @@ export class DatabaseService
 					id42: dto.id42,
 					name: dto.name,
 					cookie: dto.cookie,
-					img: dto.img
+					img: dto.img,
+					Dfa: false
 				},
 			});
 
