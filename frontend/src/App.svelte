@@ -98,8 +98,6 @@
 		</main>
 
 	{:else}
-		<center><h1>┌∩┐(◕_◕)┌∩┐</h1></center>
-		<center><p>sry but nop</p></center>
 		<Login/>
 	{/if}
 
