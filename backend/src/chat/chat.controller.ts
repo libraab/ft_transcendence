@@ -12,7 +12,7 @@ export class ChatController {
 		let client = await this.db.getClientById42(id);
 		let json = await this.db.getRoomIdsAndNamesByClientId(client.id);
 		return json;
-        return this.db.getRoomIdsAndNamesByClientId(id);
+        return this.db.getRoomIdsAndNamesByClientId(id); // <-- useless
     }
 
     @Get('/messages/:id')
@@ -35,6 +35,12 @@ export class ChatController {
 
     @Post()
     async createNewRoom(@Body() data) {
+        const existingRooms = await this.db.getRooms();
+        const roomNames = existingRooms.map((room) => room.name);
+
+        if (roomNames.includes(data.roomName)) {
+            throw new Error('Room name already exists');
+        }
         this.dto.name = data.roomName;
         this.dto.ownerid = data.iddata;
         if (data.roomType == "public")
@@ -63,6 +69,21 @@ export class ChatController {
 
     @Post('/join')
     async joinRoom(@Body() data) {
+    const room = await this.db.getRoomById(data.roomId);
+    const client = await this.db.getClientById(data.clientId);
+
+    if (!room) {
+        throw new Error('Room does not exist');
+    }
+
+    if (room.secu === 2) {
+        throw new Error('Cannot join a private room');
+    }
+
+    if (room.secu === 1) {
+        console.log('This room is protected, password required');
+    }
+
     await this.db.addMemberToRoom(data.roomId, data.clientId, 2);
     return 'User joined the room';
   }
