@@ -27,6 +27,12 @@
 	// stats are always target ones
 	let stats = {};
 
+	let isDFAActive = false;
+
+	function toggleDFAState() {
+	isDFAActive = !isDFAActive;
+	}
+
 	onMount(async () =>
 	{
 		await getTargetStats();
@@ -144,22 +150,30 @@
 
 	<main class="container">
 <!-- ---------------------------------------------------------------------------- -->
-		<div >
+		<div class="profile-container">
 			{#if targetId === id}
-				<h2>{name}</h2>
-				<p>Home Sweet Home</p>
-				<button on:click={() => toggleUpdatePopup()}>Update</button>
-				<button on:click={() => toggleDeletePopup()}>Delete</button>
-			{:else}
-				<div style="width: 130px; height: 130px; border-radius: 60%; overflow: hidden; margin-top: 20px;">
-					<!-- svelte-ignore a11y-missing-attribute -->
-					<img src={targetImg} style="width: 100%; height: 100%; object-fit: cover;">
+				<h2 class="shiny-text">{name}</h2>
+				<div class="profile-info">
+					<button class="round-button" on:click={() => toggleUpdatePopup()}>Update</button>
+					<button class="round-button" on:click={() => toggleDeletePopup()}>Delete</button>
+					<button
+						class:active={isDFAActive}
+						class:inactive={!isDFAActive}
+						class="round-button dfa-button"
+						on:click={() => toggleDFAState()}
+      				>
+       	 			DFA
+      				</button>
 				</div>
-				
-				<h2>{targetName}</h2>
-				<p>(¬‿¬) (≖ ‿ ≖ ) I am watching you watching</p>
-				<button on:click={() => returnBackHome()}>My Profile</button>
-			{/if}
+			{:else}
+    			<div class="avatar">
+      				<!-- svelte-ignore a11y-missing-attribute -->
+      				<img src={targetImg} alt="Avatar">
+    			</div>
+    			<h2 class="shiny-text">{targetName}</h2>
+    			<p>(¬‿¬) (≖ ‿ ≖ ) I am watching you watching</p>
+    			<button on:click={() => returnBackHome()}>My Profile</button>
+  			{/if}
 		</div>
 <!-- ---------------------------------------------------------------------------- -->
 		<div>
@@ -193,6 +207,26 @@
 
 
 <style>
+	.profile-container {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		text-align: center;
+  	}
+
+	.shiny-text {
+		font-size: 36px; /* Increase the font size to make it bigger */
+		font-family: "Arial", sans-serif; /* Apply a specific font */
+		color: #333; /* Set a desired font color */
+		text-shadow: none; /* Remove the text shadow */
+	}
+
+	.profile-info {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
 	.container {
 		height: 100%; /* occupe 100% de la hauteur de main_body */
 		display: flex;
@@ -224,6 +258,51 @@
 		width: 100%;
 		margin-bottom: 8px;
 	}
+
+	.avatar {
+		width: 130px;
+		height: 130px;
+		border-radius: 60%;
+		overflow: hidden;
+		margin-top: 20px;
+	}
+
+	.avatar img {
+		width: 100%;
+		height: 100%;
+		object-fit: cover;
+	}
+
+	.round-button {
+		border: none;
+		background-color: #9e9c9c;
+		border-radius: 20px;
+		color: white;
+		font-size: 16px;
+		font-weight: bold;
+		cursor: pointer;
+		outline: none;
+		padding: 10px 20px;
+		margin: 10px;
+		transition: background-color 0.3s ease;
+	}
+
+	.round-button:hover {
+		background-color: #464947;
+	}
+
+	.round-button:active {
+		transform: scale(0.95);
+	}
+
+	.dfa-button.active {
+		background-color: green;
+	}
+
+	.dfa-button.inactive {
+		background-color: red;
+	}	
+
 </style>
 
   
