@@ -98,7 +98,10 @@
 	{
 		targetId = client.id;
 		targetName = client.name;
-		targetImg = client.img;
+		if (client.img === "undefined")
+			targetImg = "img/il_794xN.3892173164_egqv.avif";
+		else
+			targetImg = client.img;
 		getTargetStats();
 	
 		document.getElementById('id42-name-input').value = "";
@@ -123,14 +126,6 @@
 		let client = await fetchData();
 		dispatch("updateProfile", client);
 	}
-
-/*
-	function updateButton()
-	{
-		console.log("Incomming soon");
-		dispatch('updateImgPath', 'new/path/to/img.png');
-	}
-*/
 
 	let updatePop = false;
 	function toggleUpdatePopup()
