@@ -3,7 +3,7 @@ import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 import { Req } from '@nestjs/common';
-import { createRelationsDto } from 'src/dashboard/dashboardDtos/createsTablesDtos';
+import { createRelationsDto, createStatsDto, updateStatDto } from 'src/dashboard/dashboardDtos/createsTablesDtos';
 
 
 @Controller('dashboard')
@@ -83,5 +83,17 @@ export class DashboardController
 	async createRelations(@Body() dto: createRelationsDto)
 	{
 		return this.db.createRelation(dto);
+	}
+
+	@Post('/stats/create')
+	async createStats(@Body() dto: createStatsDto)
+	{
+		return this.db.createClientStat(dto);
+	}
+
+	@Post('/stats/update/:id')
+	async updateStats(@Param('id', ParseIntPipe) id: number, @Body() dto: updateStatDto)
+	{
+		return this.db.updateStat(id, dto);
 	}
 }

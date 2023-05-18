@@ -14,12 +14,35 @@ export class createRelationsDto
 	idClient2: number;
 }
 
-export class createStatsDto
+export class createStatsDto {
+	@IsNotEmpty()
+	@IsNumber()
+	played: number;
+
+	@IsNotEmpty()
+	@IsNumber()
+	won: number;
+
+	@IsNotEmpty()
+	@IsNumber()
+	score: number;
+
+	@IsNotEmpty()
+	@IsString()
+	hf: string;
+
+	@IsNotEmpty()
+	@IsNumber()
+	clientId: number;
+}
+
+export class updateStatDto
 {
+	clientId: number;
 	played: number;
 	won: number;
-	score: string;
 	title: string;
+	score: number;
 	hf: string;
 }
 
@@ -36,4 +59,7 @@ export class createRoomDto
 	@IsNotEmpty()
 	@IsNumber()
 	secu: number;
+
+	@IsOptional()
+	password?: string;
 }

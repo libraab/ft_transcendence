@@ -55,14 +55,13 @@ model GameHistoric {
   @@map("game_historic")
 }
 
-
 model ClientStats {
   id     Int    @id @default(autoincrement())
   played Int
   won    Int
   score  Int
-  title  String @db.VarChar(50)
-  hf     String @db.VarChar(100)
+  title  String? @db.VarChar(50)
+  hf     String? @db.VarChar(100)
 
   clientId Int     @unique
   client   Clients @relation(fields: [clientId], references: [id])
@@ -77,7 +76,7 @@ model Rooms {
   ownerid  Int
   owner    Clients  @relation("RoomsOwned", fields: [ownerid], references: [id])
   secu     Int
-  password String?  @db.VarChar()
+  password String?
 
   members     RoomMembers[]
   messages    MessagesRooms[]

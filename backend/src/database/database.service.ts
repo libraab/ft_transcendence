@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientDto } from './dtos/dbBaseDto';
 import { ClientStats, ClientToClient, Clients, MessagesRooms, Prisma, RoomMembers, Rooms } from '@prisma/client';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
-import { createRelationsDto, createRoomDto } from 'src/dashboard/dashboardDtos/createsTablesDtos';
+import { createRelationsDto, createRoomDto, createStatsDto, updateStatDto } from 'src/dashboard/dashboardDtos/createsTablesDtos';
 
 @Injectable()
 export class DatabaseService
@@ -100,6 +100,69 @@ export class DatabaseService
 		}
 	}
 
+	async createClientStat(dto: createStatsDto): Promise<ClientStats> {
+		try
+		{
+			const { clientId, played, won, score, hf } = dto;
+
+			const clientStat = await this.prisma.clientStats.create({
+				data: {
+					played,
+					won,
+					score,
+					hf,
+					clientId
+				},
+			});
+
+			return clientStat;
+		}
+		catch (error)
+		{
+			if (error instanceof Prisma.PrismaClientKnownRequestError)
+			{
+				if (error.code === 'P2002') {
+					throw new ForbiddenException('Credentials taken');
+				}
+			}
+			throw error;
+		}
+	}
+
+	async updateStat(clientId: number, data: updateStatDto): Promise<ClientStats>
+	{
+		try{
+			const updateData: Prisma.ClientStatsUpdateInput = {
+				played: data.played ? { set: data.played } : undefined,
+				won: data.won ? { set: data.won } : undefined,
+				title: data.title ? { set: data.title } : undefined,
+				score: data.score ? { set: data.score } : undefined,
+				hf: data.hf ? { set: data.hf } : undefined,
+			};
+
+			const updatedClient = await this.prisma.clientStats.update({
+				where: { clientId },
+				data: updateData,
+			});
+			
+			return updatedClient;
+		}
+		catch (error)
+		{
+			if (error instanceof Prisma.PrismaClientKnownRequestError)
+			{
+				if (error.code === 'P2025') {
+					throw new NotFoundException('User doesn\'t exist');
+				}
+				if (error.code === 'P2002') {
+					throw new ForbiddenException('Credentials taken');
+				}
+				throw error;
+			}
+
+		}
+	}
+
 	async updateClient(id: number, data: UpdateClientDto): Promise<Clients>
 	{
 		try{
@@ -164,7 +227,7 @@ export class DatabaseService
 	async getClientStatsById(id: number): Promise<ClientStats>
 	{
 		const clientStats = await this.prisma.clientStats.findUnique({
-			where: { id },
+			where: { clientId: id },
 			include: { client: true },
 		});
 
@@ -252,13 +315,14 @@ export class DatabaseService
 	{
 		try
 		{
-			const { name, ownerid, secu } = dto;
+			const { name, ownerid, secu, password } = dto;
 			console.log('here');
 			const room = await this.prisma.rooms.create({
 				data: {
 					name,
 					ownerid,
 					secu,
+					password
 				},
 			});
 
@@ -376,6 +440,31 @@ export class DatabaseService
 		{
 			throw error;
 		}
+	}
+
+	async getRoomByClientIdAndRoomId(clientId: number, roomId: number): Promise<Rooms | null> {
+		const room = await this.prisma.rooms.findFirst({
+			where: {
+				id: roomId,
+				members: {
+					some: {
+						memberId: clientId
+					}
+				}
+			},
+			include: {
+				members: {
+					where: {
+						memberId: clientId
+					},
+					select: {
+						status: true
+					}
+				}
+			}
+		});
+
+		return room;
 	}
 
 	async getRoomMessagesById(roomId: number): Promise<any[]> {
