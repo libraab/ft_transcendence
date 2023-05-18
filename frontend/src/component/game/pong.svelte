@@ -14,8 +14,9 @@
   const paddleThickness = 10;
   let gameStarted = false;
   let gameOver = false;
-  let lossCount = 0;
   let girlyMode = false;
+  let playerScore = 0;
+  let aiScore = 0;
 
   const calculateMousePos = (event) => {
     const rect = canvas.getBoundingClientRect();
@@ -37,6 +38,11 @@
       startGame();
     }
   };
+  // const handleMouseClick = () => {
+  //   if (!gameStarted) {
+  //     startGame();
+  //   }
+  // };
 
   const resetGame = () => {
     ballX = canvas.width / 2;
@@ -48,18 +54,22 @@
     requestId = requestAnimationFrame(update);
   };
 
+  // const startGame = () => {
+  //   if (gameStarted) return;
+  //   gameStarted = true;
+  //   if (playerScore === 10 || aiScore === 10) {
+  //     // Reset scores for a new game
+  //     playerScore = 0;
+  //     aiScore = 0;
+  //   }
+  //   requestId = requestAnimationFrame(update);
+  // };
+
   const startGame = () => {
     if (gameStarted) return;
     gameStarted = true;
-    if (lossCount > 0) {
-      setTimeout(() => {
-        resetGame();
-      }, 3000); // Wait for 3 seconds before starting the game again
-    } else {
-      requestId = requestAnimationFrame(update);
-    }
+    requestId = requestAnimationFrame(update);
   };
-
 
   const update = () => {
     move();
@@ -95,21 +105,48 @@
 
   // AI-controlled paddle movement
   const paddle2YCenter = paddle2Y + paddleHeight / 2;
-  if (paddle2YCenter < ballY - 35) {
-    paddle2Y += 6; // Adjust the AI paddle speed here
-  } else if (paddle2YCenter > ballY + 35) {
-    paddle2Y -= 6; // Adjust the AI paddle speed here
-  }
-};
-
-  const handleLoss = () => {
-    lossCount++;
-    if (lossCount >= 3) {
-      gameOver = true;
-    } else {
-      gameStarted = false;
+    if (paddle2YCenter < ballY - 35) {
+      paddle2Y += 6; // Adjust the AI paddle speed here
+    } else if (paddle2YCenter > ballY + 35) {
+      paddle2Y -= 6; // Adjust the AI paddle speed here
     }
   };
+
+  // const handleLoss = () => {
+  //   if (ballX < 0) {
+  //     // Player lost
+  //     aiScore++;
+  //   } else {
+  //     // AI lost
+  //     playerScore++;
+  //   }
+
+  //   if (playerScore === 10 || aiScore === 10) {
+  //     // Game over when either player reaches 10 points
+  //     gameOver = true;
+  //   } else {
+  //     // Continue the game
+  //     gameStarted = false;
+  //   }
+  // };
+
+  const handleLoss = () => {
+    if (ballX < 0) {
+      aiScore++;
+    } else {
+      playerScore++;
+    }
+    if (playerScore === 10 || aiScore === 10) {
+      gameOver = true;
+      playerScore = 0;
+      aiScore = 0;
+      gameStarted = false;
+      startGame();
+    }
+    else
+      resetGame();
+  };
+
   
   const draw = () => {
     // Clear the canvas
@@ -131,7 +168,22 @@
     context.beginPath();
     context.arc(ballX, ballY, 10, 0, Math.PI * 2, true);
     context.fill();
-  };
+
+    // Draw the scores
+    const playerScoreElement = document.getElementById("player-score");
+    const aiScoreElement = document.getElementById("ai-score");
+    playerScoreElement.textContent = playerScore.toString();
+    aiScoreElement.textContent = aiScore.toString();
+
+    // Draw game over message if the game is over
+    if (gameOver) {
+      context.font = "bold 50px Arial";
+      context.fillStyle = "#fff";
+      context.textAlign = "center";
+      context.fillText("Game Over", canvas.width / 2, canvas.height / 2);
+    }
+    
+ };
 
   onMount(() => {
     canvas = document.getElementById("pong-canvas");
@@ -146,35 +198,56 @@
 
     startGame();
   });
+
 </script>
 
-<canvas id="pong-canvas" width="800" height="400"></canvas>
+<div id="game-container">
+  <div id="player-score">0</div>
+  <canvas id="pong-canvas" width="800" height="400"></canvas>
+  <div id="ai-score">0</div>
+</div>
 <button on:click={() => girlyMode = !girlyMode}>Girly Mode</button>
+
 
 <style>
 
-  canvas {
-    cursor: none;
-  }
+#game-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
 
-  #pong-canvas {
-    display: block;
-    margin: 0 auto;
-    width: 90%;
-    max-width: 1000px;
-    height: auto;
-    border: 1px solid #fff;
-  }
-  button {
-    display: block;
-    margin: 20px auto;
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #ed4197; /* Change the background color to pink */
-    color: rgb(16, 9, 9); /* Set the text color to white */
-    border: none; /* Remove the border */
-    border-radius: 20px; /* Make the button more round */
-    box-shadow: 0 0 20px rgba(58, 18, 38, 0.5); /* Add a glow effect */
-  }
+#player-score {
+  font-size: 100px;
+  font-weight: bold;
+  color: rgb(6, 6, 6);
+  margin-left: 200px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+#ai-score {
+  font-size: 100px;
+  font-weight: bold;
+  color: rgb(6, 6, 6);
+  margin-right: 200px;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+}
+
+#pong-canvas {
+  border: 1px solid #fff;
+}
+
+button {
+  display: block;
+  margin: 20px auto;
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #ed4197;
+  color: rgb(16, 9, 9); 
+  border: none; 
+  border-radius: 20px; 
+  box-shadow: 0 0 20px rgba(58, 18, 38, 0.5);
+}
 
 </style>
