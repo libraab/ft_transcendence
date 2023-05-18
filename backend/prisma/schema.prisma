@@ -13,10 +13,11 @@ datasource db {
 model Clients {
   id     Int     @id @default(autoincrement())
   id42   Int     @unique
-  img    String  @unique @db.VarChar(100)
+  img    String  @db.VarChar(100)
   name   String  @unique @db.VarChar(50)
   cookie String  @unique @db.VarChar(250)
   Dfa    Boolean
+
   client1     ClientToClient[]         @relation("ClientToClient_client1")
   client2     ClientToClient[]         @relation("ClientToClient_client2")
   histClient1 GameHistoric[]           @relation("GameHistoric_client1")
@@ -78,8 +79,8 @@ model Rooms {
   secu     Int
   password String?
 
-  members     RoomMembers[]
-  messages    MessagesRooms[]
+  members     RoomMembers[] @relation("RoomMembersToRooms")
+  messages    MessagesRooms[] @relation("MessagesRoomsToRooms")
 
   @@unique([name], name: "name_uniq")
   @@index([ownerid], name: "owner_idx")
@@ -90,7 +91,7 @@ model RoomMembers {
   id          Int       @id @default(autoincrement())
 
   roomId      Int
-  room        Rooms     @relation(fields: [roomId], references: [id])
+  room        Rooms     @relation("RoomMembersToRooms", fields: [roomId], references: [id])
 
   memberId    Int
   member      Clients   @relation("ClientRoomMembers", fields: [memberId], references: [id])
@@ -108,7 +109,7 @@ model MessagesRooms {
 
   roomId   Int
   clientId Int
-  room     Rooms   @relation(fields: [roomId], references: [id])
+  room     Rooms  @relation("MessagesRoomsToRooms", fields: [roomId], references: [id])
   client   Clients @relation(fields: [clientId], references: [id])
 
   @@map("messages_rooms")
