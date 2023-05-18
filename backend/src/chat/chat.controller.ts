@@ -104,7 +104,6 @@ export class ChatController {
   async joinProtectedRoom(@Body() data) {
     const room = await this.db.getRoomById(data.roomId);
     const member = await this.db.getRoomByClientIdAndRoomId(data.iddata, room.id);
-    console.log('member --> ', member);
 
     if (!room) {
         throw new Error('Room does not exist');
