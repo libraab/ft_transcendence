@@ -90,14 +90,26 @@ export class ChatController {
         throw new Error('Already member');
     }
     
-    if (member.roomMembers[0].status === 5) {
+    if (member. === 5) {
         throw new Error('You are banned');
     }
     
     if (room.secu === 1) {
         console.log('This room is protected, password required');
-        await bcrypt.compare(data.enteredPassword, member.password);
+        bcrypt.compare(data.enteredPassword, member.password)
+            .then((passwordsMatch) => {
+                if (passwordsMatch) {
+                    console.log("Correct password");
+                    continue;
+                } else {
+                    console.log("Wrong password");
+                }
+            })
+            .catch((error) => {
+                console.log("An error occurred during password comparison:", error);
+            });
     }
+    
     await this.db.addMemberToRoom(data.roomId, data.clientId, 2);
     return 'User joined the room';
   }
