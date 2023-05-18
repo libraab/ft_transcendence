@@ -4,8 +4,8 @@
   let canvas;
   let context;
   let requestId;
-  let ballX = 50;
-  let ballY = 50;
+  let ballX = 0;
+  let ballY = 0;
   let ballSpeedX = 10;
   let ballSpeedY = 4;
   let paddle1Y = 250;
@@ -45,6 +45,7 @@
   // };
 
   const resetGame = () => {
+    console.log('reset NOW');
     ballX = canvas.width / 2;
     ballY = canvas.height / 2;
     ballSpeedX = -3; // Adjust the X-axis speed here
@@ -54,27 +55,16 @@
     requestId = requestAnimationFrame(update);
   };
 
-  // const startGame = () => {
-  //   if (gameStarted) return;
-  //   gameStarted = true;
-  //   if (playerScore === 10 || aiScore === 10) {
-  //     // Reset scores for a new game
-  //     playerScore = 0;
-  //     aiScore = 0;
-  //   }
-  //   requestId = requestAnimationFrame(update);
-  // };
-
   const startGame = () => {
     if (gameStarted) return;
     gameStarted = true;
-    requestId = requestAnimationFrame(update);
+    requestId = requestAnimationFrame(update); //run the camva without moving the ball
   };
 
   const update = () => {
     move();
     draw();
-    requestId = requestAnimationFrame(update);
+    requestId = requestAnimationFrame(update); // move the ball when it starts
   };
 
   const move = () => {
@@ -106,9 +96,9 @@
   // AI-controlled paddle movement
   const paddle2YCenter = paddle2Y + paddleHeight / 2;
     if (paddle2YCenter < ballY - 35) {
-      paddle2Y += 6; // Adjust the AI paddle speed here
+      paddle2Y += 5; // Adjust the AI paddle speed here
     } else if (paddle2YCenter > ballY + 35) {
-      paddle2Y -= 6; // Adjust the AI paddle speed here
+      paddle2Y -= 5; // Adjust the AI paddle speed here
     }
   };
 
@@ -161,13 +151,21 @@
       paddle2Y,
       paddleThickness,
       paddleHeight
-    );
-
-    // Draw the ball
-    context.fillStyle = "#fff";
-    context.beginPath();
-    context.arc(ballX, ballY, 10, 0, Math.PI * 2, true);
-    context.fill();
+      );
+      
+      // Draw the ball
+      context.fillStyle = "#fff";
+      context.beginPath();
+      context.arc(ballX, ballY, 10, 0, Math.PI * 2, true);
+      context.fill();
+      
+      // // Draw showClickToPlay if game not started
+      // if (!gameStarted && showClickToPlay) {
+      //   context.font = "bold 30px Arial";
+      //   context.fillStyle = "#fff";
+      //   context.textAlign = "center";
+      //   context.fillText("Click to play", canvas.width / 2, canvas.height / 2);
+      // }
 
     // Draw the scores
     const playerScoreElement = document.getElementById("player-score");
@@ -196,14 +194,13 @@
 
     canvas.addEventListener("mousedown", handleMouseClick);
 
-    startGame();
   });
 
 </script>
 
 <div id="game-container">
   <div id="player-score">0</div>
-  <canvas id="pong-canvas" width="800" height="400"></canvas>
+  <canvas id="pong-canvas" width="1000" height="600" on:click={handleMouseClick}></canvas>
   <div id="ai-score">0</div>
 </div>
 <button on:click={() => girlyMode = !girlyMode}>Girly Mode</button>

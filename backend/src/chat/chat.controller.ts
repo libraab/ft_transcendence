@@ -54,7 +54,7 @@ export class ChatController {
 
         if (this.dto.secu === 1) {
             const saltRounds = 10;
-            this.dto.Password = await bcrypt.hash(data.password, saltRounds);
+            this.dto.password = await bcrypt.hash(data.password, saltRounds);
         }
         let Room = await this.db.createRooom(this.dto);
 
@@ -78,7 +78,7 @@ export class ChatController {
     async joinRoom(@Body() data) {
     const room = await this.db.getRoomById(data.roomId);
     const client = await this.db.getClientById(data.clientId);
-    const member = await this.db.getRoomByClientIdAndRoomId(client, room);
+    const member = await this.db.getRoomByClientIdAndRoomId(client.id, room.id);
 
     if (!room) {
         throw new Error('Room does not exist');
@@ -86,18 +86,30 @@ export class ChatController {
     if (room.secu === 2) {
         throw new Error('Cannot join a private room');
     }
-    if (room.secu === 1) {
-        console.log('This room is protected, password required');
-        
-    }
     if (member) {
         throw new Error('Already member');
     }
-
-    if (member.members[0].status == 5) {
+    
+    if (member. === 5) {
         throw new Error('You are banned');
     }
-
+    
+    if (room.secu === 1) {
+        console.log('This room is protected, password required');
+        bcrypt.compare(data.enteredPassword, member.password)
+            .then((passwordsMatch) => {
+                if (passwordsMatch) {
+                    console.log("Correct password");
+                    continue;
+                } else {
+                    console.log("Wrong password");
+                }
+            })
+            .catch((error) => {
+                console.log("An error occurred during password comparison:", error);
+            });
+    }
+    
     await this.db.addMemberToRoom(data.roomId, data.clientId, 2);
     return 'User joined the room';
   }
