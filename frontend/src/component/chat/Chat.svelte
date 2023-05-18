@@ -12,9 +12,13 @@
 	let rooms = [];
 	let messages = [];
 	let socket = { chat: null, alerts: null};
-	socket.chat = io('localhost:3000/chat', {path: '/chatsockets'}); // dans on mount?
+	let newMsgAlert = [];
 
+	
 	onMount(() => {
+		socket.chat = io('localhost:3000/chat', {path: '/chatsockets'}); // dans App directement -- on crée la socket
+		socket.chat.on('serverToChat', (msg) => { recieveMessage(msg)}); // on defini le comportement lors de l'event
+		fetchData();
 		console.log('the component has mounted');
 	});
 	
@@ -22,12 +26,11 @@
 		try {
 			const response = await fetch(`http://localhost:3000/chat/${data.id42}`);
 			rooms = await response.json();
-			console.log(rooms);
+			connectToAllChannel();
 		}
 		catch (error) {
 			console.error(error);
 		}
-		connectToAllChannel();
 	}
 
 	//Data
@@ -83,8 +86,11 @@
 		else
 		{
 			fetchMessages(selected_room_id);
+			//here correcting last message based on Date()
 			//change_showing_messages(id);
 		}
+		if (isAlertOn(id, newMsgAlert))
+			deleteAlertOn(id);
 	};
 
 	let sendMessage = () => {
@@ -93,7 +99,7 @@
 		user_message = ""
 	}
 
-	let recieveMessage = (msg) => {
+	async function recieveMessage(msg) {
 		let found = false;
 		messages.forEach(e => {
 			if (e.room_id == msg.channel)
@@ -105,25 +111,50 @@
 		if (found == false)
 		{
 			//here fetching data messages from room by id, then add message
-			messages.push({room_id: msg.channel, msg_content: [{sender: msg.sender, message: msg.message}] });
-			console.log(messages);
+			await fetchMessages(msg.channel);
+			//messages.push({room_id: msg.channel, msg_content: [{sender: msg.sender, message: msg.message}] });
+			//console.log(messages);
 		}
+		if (msg.channel != selected_room_id)
+			createAlertOn(msg.channel);
 		change_showing_messages(selected_room_id); //very bad logic but working. Messages of selected id is not updated but the messages data of all already fetched messages.
 	}
 
-	socket.chat.on('serverToChat', (msg) => { recieveMessage(msg)});
+	let createAlertOn = (roomId) =>
+	{
+		console.log("alert on ");
+		console.log(roomId);
+		newMsgAlert.push(roomId);
+		newMsgAlert = newMsgAlert;
+	}
+
+	let deleteAlertOn = (roomId) =>
+	{
+		console.log("deletinf");
+		newMsgAlert = newMsgAlert.filter(item => item !== roomId)
+	}
+
+	let isAlertOn = (roomId, alertSet) =>
+	{
+		console.log(roomId);
+		console.log(alertSet.find(e => e == roomId) != undefined);
+		return alertSet.find(e => e == roomId) != undefined;
+	}
+
+	
 
 </script>
 
 <div class="container">
 	<div class="list_box">
-		{#await fetchData()}
+		{#await rooms}
 			<center><p>Loading...</p></center>
 		{:then}
 		<ul>
 			{#each rooms as room (room.roomId)}
 				<li class:activeroom={room.roomId === selected_room_id} class="one_room" on:click={() => change_showing_messages(room.roomId)} on:keypress>
 					{room.roomName}
+					<div class="alertBox" class:alertOn={isAlertOn(room.roomId, newMsgAlert)}></div>
 				</li>
 			{:else}
 			<p>you don't have friends</p>
@@ -138,7 +169,7 @@
 					<strong>{message.sender}</strong>: {message.message}
 				</li>
 			{:else}
-				{#if selected_room_id != 0}
+				{#if selected_room_id != -1}
 					<p class="info">no messages, be the first one</p>
 				{:else}
 					<p class="info">no room selected</p>
@@ -185,6 +216,19 @@
 		padding: 15px;
 		cursor: pointer;
 		border-bottom: 1px #898f9f solid;
+	}
+	.alertBox
+	{
+		width: 10px;
+		height: 10px;
+		background-color: brown;
+		border-radius: 5px;
+		display: none;
+	}
+
+	.alertOn
+	{
+		display: block;
 	}
 
 	.one_room:hover {

@@ -3,9 +3,11 @@
 </script>
 
 <header>
-	<img src={img_path} alt="logo" class="rick">
+	<div class="image-container">
+		<img src={img_path} alt="logo" class="rick">
+	</div>
 	<div class="description">
-		<h1>FT_RICKSCENDANCE</h1>
+		<h1 class="glow-text">FT_TRANSCENDENCE</h1>
 		<p class="catch-phrase">A strange adventure into Pong Univers inside an Multiverse inside a jelly jar inside something else and go on ...</p>
 	</div>
 </header>
@@ -32,13 +34,20 @@
 		font-style: italic;
 	}
 
+	.image-container {
+		position: relative;
+	}
 	.rick {
-		/* display: block; */
-		/* margin: 0 auto; */
 		width: 150px;
-		height: 150px;;
-		margin: 30px 0px;
-		/* height: auto; */
+		height: 150px;
+		border-radius: 50%;
+		margin-right: 20px;
+		object-fit: cover;
+		box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+	}
+
+	.glow-text {
+		text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
 	}
 
 </style>

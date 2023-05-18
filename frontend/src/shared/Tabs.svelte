@@ -2,11 +2,14 @@
 	import { createEventDispatcher } from "svelte";
 	import RankModal from './Ranking.svelte';
 	import FlModal from './FriendList.svelte';
+	import { page_shown } from "../stores"
 
-	const dispatch = createEventDispatcher();
+  	const show_page = () =>{
+  	  const url = event.target.getAttribute("href")
+  	  history.pushState({"href_to_show":url}, '', url)
+  	  $page_shown = url
+  	}
 
-	export let tabs;
-	export let activeTab;
 	export let id;
 
 	let ranksTab = false;
@@ -24,34 +27,35 @@
 <RankModal {ranksTab} on:click={() => toggleRanksTab()} />
 <FlModal {flTab} {id} on:click={() => toggleFlTab()} />
 
-<div class="tabs">
-	<ul>
-		{ #each tabs as tab }
-			<li on:click={ () => dispatch("tabChange", tab) } on:keypress>
-				<div class:active={tab === activeTab}>{ tab }</div>
-			</li>
-		{ /each }
-	</ul>
-
-	<button on:click={() => toggleFlTab()}>Friend List</button>
-	<button on:click={() => toggleRanksTab()}>Ranking</button>
-	<button>Match history</button>
-
-</div>
+<nav class="tabs">
+	<a href="/" on:click|preventDefault={show_page} class:active={$page_shown == "/"}>DashBoard</a>
+	<a href="game" on:click|preventDefault={show_page} class:active={$page_shown == "game"}>Game</a>
+	<a href="chat" on:click|preventDefault={show_page} class:active={$page_shown == "chat"}>Chat</a>
+	<a href="room" on:click|preventDefault={show_page} class:active={$page_shown == "room"}>Room</a>	
+</nav>
+<button on:click={() => toggleFlTab()}>Friend List</button>
+<button on:click={() => toggleRanksTab()}>Ranking</button>
+<button>Match history</button>
 
 
 <style>
 	.tabs{
+		display: flex;
+		justify-content: space-around;
+		padding: 0 150px;
 		margin: 0;
 		background-color: #292d39;
 		color: lightgray
 	}
-	ul{
-		display: flex;
-		justify-content: center;
-		padding: 10px 100px 5px 100px;
+	a{
+		text-decoration: none;
+		color: rgb(148, 146, 193);
+		text-align: center;
+		width: 120px;
+		margin: 5px 20px;
 		list-style-type: none;
 	}
+	/*
 	li{
 		margin: 0 16px;
 		font-size: 18px;
@@ -61,7 +65,7 @@
 
 	li:hover {
 		color: #545969;
-	}
+	} */
 
 	.active{
 		color: whitesmoke;

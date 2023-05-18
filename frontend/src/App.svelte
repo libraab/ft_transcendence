@@ -6,9 +6,18 @@
 	import Tabs from "./shared/Tabs.svelte";
 	import Dashboard from "./component/dashboard/Dashboard.svelte";
 	import Chat from "./component/chat/Chat.svelte";
+	import Game from "./component/game/pong.svelte"
 	import Rooms from "./component/rooms/rooms.svelte";
 	import PrivateRoute from "./PrivateRoute.svelte";
 	import { userId42 } from "./stores";
+	import { page_shown } from "./stores"
+
+	history.replaceState({"href_to_show":"/"}, "", "/")
+
+	window.addEventListener("popstate", e => {
+		console.log(e.state.href_to_show)
+		$page_shown = e.state.href_to_show
+	})
 
     let tabs = ['Dashboard', 'Game', 'Chat', 'Rooms'];
     let activeTab = 'Dashboard';
@@ -17,7 +26,7 @@
 
 	let dashboardValue = null;
 
-    const switchTab = (e) => { activeTab = e.detail;}
+    // const switchTab = (e) => { activeTab = e.detail;}
 
 	async function fetchData()
 	{
@@ -78,28 +87,22 @@
 
 	{#if dashboardData && Object.keys(dashboardData).length > 0}
 
-		<Tabs {activeTab} {tabs} id={dashboardData.id} on:tabChange={ switchTab } />
+		<Tabs id={dashboardData.id} />
 		<main>
 			<div class="main_body">
-				{#if activeTab === "Dashboard"}
+				{#if $page_shown == "/"}
 					<Dashboard data={dashboardValue} on:updateProfile={ newProfileData }/>
-
-				{:else if activeTab === "Game"}
-						<p>Here to play bro</p>
-
-				{:else if activeTab === "Chat"}
-						<Chat data={dashboardValue}/>
-
-					{:else if activeTab === "Rooms"}
-                            <Rooms data={dashboardValue}/>
-
+				{:else if $page_shown == "game"}
+					<Game/>
+				{:else if $page_shown == "chat"}
+					<Chat data={dashboardValue}/>
+				{:else if $page_shown === "room"}
+					<Rooms data={dashboardValue}/>
 				{/if}
 			</div>
 		</main>
 
 	{:else}
-		<center><h1>┌∩┐(◕_◕)┌∩┐</h1></center>
-		<center><p>sry but nop</p></center>
 		<Login/>
 	{/if}
 

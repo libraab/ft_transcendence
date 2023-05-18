@@ -36,9 +36,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	@SubscribeMessage('chatToServer')
 	async handleMessage(client: Socket, message: {channel: string, sender: string, message: string, sender_id: number} ) {
 		this.logger.log(`A message was send by ${message.sender} --content--> ${message.message}`);
-		this.wss.to(message.channel).emit('serverToChat', message);
 		let client_id = await this.db.getClientById42(message.sender_id);
-		this.addMessageToRoom({ id: message.channel, sender: client_id.id, msg: message.message});
+		await this.addMessageToRoom({ id: message.channel, sender: client_id.id, msg: message.message});
+		this.wss.to(message.channel).emit('serverToChat', message);
 		// WsResponse<string>
     	// return { event: 'msgToClient', data: text};
   	}
