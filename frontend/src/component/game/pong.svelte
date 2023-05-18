@@ -3,7 +3,7 @@
 
   let canvas;
   let context;
-  let requestId;
+  let requestId; // to add later when real player
   let ballX = 0;
   let ballY = 0;
   let ballSpeedX = 10;
@@ -26,11 +26,6 @@
     return { x: mouseX, y: mouseY };
   };
 
-  // const toggleGirlyMode = () => {
-  //   girlyMode = !girlyMode;
-  //   canvas.style.backgroundColor = girlyMode ? "#ff69b4" : "#000";
-  // };
-
   const handleMouseClick = () => {
     if (gameOver) {
       resetGame();
@@ -38,14 +33,8 @@
       startGame();
     }
   };
-  // const handleMouseClick = () => {
-  //   if (!gameStarted) {
-  //     startGame();
-  //   }
-  // };
-
   const resetGame = () => {
-    console.log('reset NOW');
+    console.log('going crazy here');
     ballX = canvas.width / 2;
     ballY = canvas.height / 2;
     ballSpeedX = -3; // Adjust the X-axis speed here
@@ -102,24 +91,6 @@
     }
   };
 
-  // const handleLoss = () => {
-  //   if (ballX < 0) {
-  //     // Player lost
-  //     aiScore++;
-  //   } else {
-  //     // AI lost
-  //     playerScore++;
-  //   }
-
-  //   if (playerScore === 10 || aiScore === 10) {
-  //     // Game over when either player reaches 10 points
-  //     gameOver = true;
-  //   } else {
-  //     // Continue the game
-  //     gameStarted = false;
-  //   }
-  // };
-
   const handleLoss = () => {
     if (ballX < 0) {
       aiScore++;
@@ -158,14 +129,7 @@
       context.beginPath();
       context.arc(ballX, ballY, 10, 0, Math.PI * 2, true);
       context.fill();
-      
-      // // Draw showClickToPlay if game not started
-      // if (!gameStarted && showClickToPlay) {
-      //   context.font = "bold 30px Arial";
-      //   context.fillStyle = "#fff";
-      //   context.textAlign = "center";
-      //   context.fillText("Click to play", canvas.width / 2, canvas.height / 2);
-      // }
+  
 
     // Draw the scores
     const playerScoreElement = document.getElementById("player-score");
