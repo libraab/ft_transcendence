@@ -133,4 +133,29 @@ export class ChatController {
             });
     }
   }
+
+    @Post('/invite')
+    async inviteToPrivateRoom(@Body() data) {
+        const room = await this.db.getRoomById(data.roomId);
+        const invited = await this.db.getClientById(data.iddata1);
+        const host = await this.db.getClientById(data.iddata2);
+        const member1 = await this.db.getRoomByClientIdAndRoomId(host.id, room.id);
+        const member2 = await this.db.getRoomByClientIdAndRoomId(invited.id, room.id);
+
+        if (!room) { // room exist ?
+            throw new Error('Room does not exist');
+        }
+        if (member1) { // host not member
+            throw new Error('Only members can invite into the room');
+        }
+        if (member2) { // invited already member
+            throw new Error('Already member');
+        }
+        if (member2.status === 5) { // invited is banned
+            throw new Error('You are banned');
+        }
+
+        await this.db.addMemberToRoom(data.roomId, invited.id, 2);
+        return 'User joined the room';
+    }
 }
