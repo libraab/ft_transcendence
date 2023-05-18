@@ -71,14 +71,16 @@ model ClientStats {
 }
 
 model Rooms {
-  id          Int            @id @default(autoincrement())
-  name        String         @db.VarChar(50)
-  ownerid     Int
-  owner       Clients        @relation("RoomsOwned", fields: [ownerid], references: [id])
-  secu        Int
-  password    String?
-  members     RoomMembers[]  @relation("RoomMembersToRooms", fields: [roomId], references: [id])
-  messages    MessagesRooms[]     @relation("MessagesToRoom", fields: [roomId], references: [id])
+  id   Int    @id @default(autoincrement())
+  name String @db.VarChar(50)
+
+  ownerid  Int
+  owner    Clients  @relation("RoomsOwned", fields: [ownerid], references: [id])
+  secu     Int
+  password String?
+
+  members  RoomMembers[] @relation("RoomMembersToRooms")
+  messages MessagesRooms[]
 
   @@unique([name], name: "name_uniq")
   @@index([ownerid], name: "owner_idx")
@@ -86,22 +88,29 @@ model Rooms {
 }
 
 model RoomMembers {
-  id          Int            @id @default(autoincrement())
-  roomId      Int
-  room        Rooms          @relation("RoomMembersToRooms", fields: [roomId], references: [id])
-  memberId    Int
-  member      Clients        @relation("ClientRoomMembers", fields: [memberId], references: [id])
+  id          Int       @id @default(autoincrement())
+
+  roomId  Int
+  room    Rooms    @relation("RoomMembersToRooms", fields: [roomId], references: [id])
+  memberId Int
+  member  Clients  @relation("ClientRoomMembers", fields: [memberId], references: [id])
+
   status      Int
 
   @@map("room_members")
 }
 
 model MessagesRooms {
-  id          Int            @id @default(autoincrement())
-  content     String
-  roomId      Int
-  room        Rooms          @relation("MessagesToRoom", fields: [roomId], references: [id])
-  
+  id   Int      @id @default(autoincrement())
+  msg  String
+  time DateTime @default(now())
+
+  roomId  Int
+  room    Rooms     @relation(fields: [roomId], references: [id])
+
+  clientId Int
+  client   Clients @relation(fields: [clientId], references: [id])
+
   @@map("messages_rooms")
 }
 

@@ -19,11 +19,11 @@
 		console.log(e.state.href_to_show)
 		$page_shown = e.state.href_to_show
 	})
-
+/*
     let tabs = ['Dashboard', 'Game', 'Chat', 'Rooms'];
     let activeTab = 'Dashboard';
     let data = {};
-    let img_path;
+*/  let img_path;
 
 	let dashboardValue = null;
 
