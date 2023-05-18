@@ -55,6 +55,7 @@ export class ChatController {
         if (this.dto.secu === 1) {
             const saltRounds = 10;
             this.dto.password = await bcrypt.hash(data.password, saltRounds);
+            console.log('a protected room has been created');
         }
         let Room = await this.db.createRooom(this.dto);
 
@@ -77,8 +78,8 @@ export class ChatController {
     @Post('/join')
     async joinRoom(@Body() data) {
     const room = await this.db.getRoomById(data.roomId);
-    const client = await this.db.getClientById(data.clientId);
-    const member = await this.db.getRoomByClientIdAndRoomId(client.id, room.id);
+    // const client = await this.db.getClientById(data.iddata);
+    const member = await this.db.getRoomByClientIdAndRoomId(data.iddata, room.id);
 
     if (!room) {
         throw new Error('Room does not exist');
@@ -89,17 +90,41 @@ export class ChatController {
     if (member) {
         throw new Error('Already member');
     }
-    
-    if (member.members[0].status === 5) {
+
+    if (member.status === 5) {
         throw new Error('You are banned');
     }
     
+    await this.db.addMemberToRoom(data.roomId, data.clientId, 2);
+    return 'User joined the room';
+  }
+
+
+  @Post('/verify-password')
+  async joinProtectedRoom(@Body() data) {
+    const room = await this.db.getRoomById(data.roomId);
+    const member = await this.db.getRoomByClientIdAndRoomId(data.iddata, room.id);
+    console.log('member --> ', member);
+
+    if (!room) {
+        throw new Error('Room does not exist');
+    }
+    if (member) {
+        throw new Error('Already member');
+    }
+
+    if (member.status === 5) {
+        throw new Error('You are banned');
+    }
+
     if (room.secu === 1) {
         console.log('This room is protected, password required');
-        bcrypt.compare(data.enteredPassword, member.password)
+        bcrypt.compare(data.password, room.password)
             .then((passwordsMatch) => {
                 if (passwordsMatch) {
                     console.log("Correct password");
+                    this.db.addMemberToRoom(data.roomId, data.clientId, 2);
+                    return 'User joined the room';
                 } else {
                     console.log("Wrong password");
                 }
@@ -108,8 +133,5 @@ export class ChatController {
                 console.log("An error occurred during password comparison:", error);
             });
     }
-    
-    await this.db.addMemberToRoom(data.roomId, data.clientId, 2);
-    return 'User joined the room';
   }
 }
