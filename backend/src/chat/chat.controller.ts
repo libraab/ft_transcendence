@@ -90,7 +90,7 @@ export class ChatController {
         throw new Error('Already member');
     }
     
-    if (member. === 5) {
+    if (member.members[0].status === 5) {
         throw new Error('You are banned');
     }
     
@@ -100,7 +100,6 @@ export class ChatController {
             .then((passwordsMatch) => {
                 if (passwordsMatch) {
                     console.log("Correct password");
-                    continue;
                 } else {
                     console.log("Wrong password");
                 }
