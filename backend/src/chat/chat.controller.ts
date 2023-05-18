@@ -86,18 +86,18 @@ export class ChatController {
     if (room.secu === 2) {
         throw new Error('Cannot join a private room');
     }
-    if (room.secu === 1) {
-        console.log('This room is protected, password required');
-
-    }
     if (member) {
         throw new Error('Already member');
     }
-
-    if (member. == 5) {
+    
+    if (member.roomMembers[0].status === 5) {
         throw new Error('You are banned');
     }
-
+    
+    if (room.secu === 1) {
+        console.log('This room is protected, password required');
+        await bcrypt.compare(data.enteredPassword, member.password);
+    }
     await this.db.addMemberToRoom(data.roomId, data.clientId, 2);
     return 'User joined the room';
   }
