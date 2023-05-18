@@ -6,6 +6,7 @@
 	import Tabs from "./shared/Tabs.svelte";
 	import Dashboard from "./component/dashboard/Dashboard.svelte";
 	import Chat from "./component/chat/Chat.svelte";
+	import Game from "./component/game/pong.svelte"
 	import Rooms from "./component/rooms/rooms.svelte";
 	import PrivateRoute from "./PrivateRoute.svelte";
 	import { userId42 } from "./stores";
@@ -92,7 +93,7 @@
 				{#if $page_shown == "/"}
 					<Dashboard data={dashboardValue} on:updateProfile={ newProfileData }/>
 				{:else if $page_shown == "game"}
-					<p>Here to play bro</p>
+					<Game/>
 				{:else if $page_shown == "chat"}
 					<Chat data={dashboardValue}/>
 				{:else if $page_shown === "room"}
