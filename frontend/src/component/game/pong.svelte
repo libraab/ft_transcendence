@@ -63,31 +63,39 @@
   };
 
   const move = () => {
-    if (gameOver) return;
+  if (gameOver) return;
 
-    ballX += ballSpeedX;
-    ballY += ballSpeedY;
+  ballX += ballSpeedX;
+  ballY += ballSpeedY;
 
-    if (ballX < 0) {
-      if (ballY > paddle1Y && ballY < paddle1Y + paddleHeight) {
-        ballSpeedX = -ballSpeedX;
-      } else {
-        handleLoss();
-      }
+  if (ballX < 0) {
+    if (ballY > paddle1Y && ballY < paddle1Y + paddleHeight) {
+      ballSpeedX = -ballSpeedX;
+    } else {
+      handleLoss();
     }
+  }
 
-    if (ballX > canvas.width) {
-      if (ballY > paddle2Y && ballY < paddle2Y + paddleHeight) {
-        ballSpeedX = -ballSpeedX;
-      } else {
-        handleLoss();
-      }
+  if (ballX > canvas.width) {
+    if (ballY > paddle2Y && ballY < paddle2Y + paddleHeight) {
+      ballSpeedX = -ballSpeedX;
+    } else {
+      handleLoss();
     }
+  }
 
-    if (ballY < 0 || ballY > canvas.height) {
-      ballSpeedY = -ballSpeedY;
-    }
-  };
+  if (ballY < 0 || ballY > canvas.height) {
+    ballSpeedY = -ballSpeedY;
+  }
+
+  // AI-controlled paddle movement
+  const paddle2YCenter = paddle2Y + paddleHeight / 2;
+  if (paddle2YCenter < ballY - 35) {
+    paddle2Y += 6; // Adjust the AI paddle speed here
+  } else if (paddle2YCenter > ballY + 35) {
+    paddle2Y -= 6; // Adjust the AI paddle speed here
+  }
+};
 
   const handleLoss = () => {
     lossCount++;
