@@ -25,12 +25,12 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   app.enableCors({
-    origin: 'http://localhost:8080',
+    origin: "http://"+process.env.HOSTNAME+":8080",
     credentials: true
   });
-  app.use(cors({origin: 'http://localhost:8080'}));
+  app.use(cors({origin: "http://"+process.env.HOSTNAME+":8080"}));
 
-  await app.listen(3000);
+  await app.listen(3000, '0.0.0.0');
 }
 
 bootstrap();

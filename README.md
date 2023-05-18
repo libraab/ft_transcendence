@@ -7,7 +7,7 @@ TO RUN
 5. Run `npm run start:dev` in backend
 6. Run `npm install` in frontend
 7. Run `npm run dev` in frontend
-8. Go to `http://localhost:8080/` in browser
+8. Go to `http://c1r5p2:8080/` in browser
 ---------------
 TO VISUALIZE DATABASE
 ---------------

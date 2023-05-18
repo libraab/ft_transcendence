@@ -1,5 +1,5 @@
 <script>
-
+	import { hostname } from "../hostname";
 	export let flTab;
 	export let id;
 
@@ -7,7 +7,7 @@
 
 	async function getFlforId() {
 		try {
-			const response = await fetch(`http://localhost:3000/dashboard/fl/${id}`)
+			const response = await fetch(`http://${hostname}:3000/dashboard/fl/${id}`)
 			if (response)
 			{
 				fl = await response.json();
