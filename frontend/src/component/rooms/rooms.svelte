@@ -156,18 +156,19 @@ onMount(fetchRooms);
 }
 
 .room-item {
-display: flex;
-justify-content: space-between;
-align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 h3 {
-margin-right: 10px;
+  margin-right: 10px;
 }
 
 .join-button {
-margin-left: 10px;
-margin-right: 0;
-align-self: flex-end;
+  margin-left: 10px;
+  margin-right: 0;
+  align-self: flex-end;
 }
+
 </style>
