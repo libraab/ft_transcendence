@@ -28,10 +28,13 @@
 	// stats are always target ones
 	let stats = {};
 
-	let isDFAActive = false;
+	//HF Titles
+	let HF = ["pas du tout", "un peu", "beaucoup", "passionnément", "à la folie"];
+	let title = [ "Straitght outta bronze", "Golden pad", "Diamonds Are Forever", "Big Brother", "Daddy"];
 
+	let isDFAActive = false;
 	function toggleDFAState() {
-	isDFAActive = !isDFAActive;
+		isDFAActive = !isDFAActive;
 	}
 
 	onMount(async () =>
@@ -180,7 +183,16 @@
 		<div>
 			<h2>Stats</h2>
 			{#if stats}
-				<pre>{JSON.stringify(stats, null, 0)}</pre>
+				<p> played: { stats.played } </p>
+				<p> won: { stats.won } </p>
+				{#if stats.hf}
+					<p> hf: { stats.hf } </p>
+				{/if}
+				{#if stats.title}
+					<p> hf: { stats.title } </p>
+				{/if}
+				<p> {stats.won * 100 / stats.played}% victory </p>
+				<p> score: { stats.score } </p>
 			{:else}
 				<p>didn't play yet</p>
 			{/if}
