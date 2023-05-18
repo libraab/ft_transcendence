@@ -12,10 +12,10 @@
   let paddle2Y = 250;
   const paddleHeight = 100;
   const paddleThickness = 10;
-  let canvasBackgroundColor = "#000"; // Default background color
   let gameStarted = false;
   let gameOver = false;
   let lossCount = 0;
+  let girlyMode = false;
 
   const calculateMousePos = (event) => {
     const rect = canvas.getBoundingClientRect();
@@ -23,6 +23,11 @@
     const mouseX = event.clientX - rect.left - root.scrollLeft;
     const mouseY = event.clientY - rect.top - root.scrollTop;
     return { x: mouseX, y: mouseY };
+  };
+
+  const toggleGirlyMode = () => {
+    girlyMode = !girlyMode;
+    canvas.style.backgroundColor = girlyMode ? "#ff69b4" : "#000";
   };
 
   const handleMouseClick = () => {
@@ -108,7 +113,7 @@
   
   const draw = () => {
     // Clear the canvas
-    context.fillStyle = "#000";
+    context.fillStyle = girlyMode ? "#ff69b4" : "#000";
     context.fillRect(0, 0, canvas.width, canvas.height);
 
     // Draw the paddles
@@ -128,10 +133,6 @@
     context.fill();
   };
 
-  const changeBackgroundColor = () => {
-    canvasBackgroundColor = "#ff69b4"; // Change background color to pink
-  };
-
   onMount(() => {
     canvas = document.getElementById("pong-canvas");
     context = canvas.getContext("2d");
@@ -148,12 +149,11 @@
 </script>
 
 <canvas id="pong-canvas" width="800" height="400"></canvas>
-<button on:click={changeBackgroundColor} style="border-radius: 50%; background-color: pink;">Girly Mode</button>
+<button on:click={() => girlyMode = !girlyMode}>Girly Mode</button>
 
 <style>
 
   canvas {
-    background-color: #000;
     cursor: none;
   }
 
