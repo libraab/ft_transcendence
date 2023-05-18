@@ -11,6 +11,7 @@
   const toggleForm = () => {
     isFormVisible = !isFormVisible;
   }
+  //-----------CREATE----ROOM---------------------------------//
   const handleSubmit = async (event) => {
     event.preventDefault();
     console.log('Creating room:', roomName, 'of type', roomType);
@@ -44,6 +45,7 @@
     toggleForm();
     fetchRooms();
 }
+//-------------------------LIST----ROOM-----------------------------//
   const fetchRooms = async () => {
     const response = await fetch(`http://${hostname}:3000/chat`);
     if (response.ok) {
@@ -52,8 +54,55 @@
       console.error('Failed to fetch rooms');
     }
   };
-
+//----------------------------ONMOUNT----------------------------//
 onMount(fetchRooms);
+//-------------------------JOIN--PRIVATE----------------------------//
+const handlePasswordInput = async (room, password) => {
+    const response = await fetch(`http://${hostname}:3000/chat/verify-password`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        roomId: room.id,
+        password: password,
+        iddata: data.id
+      })
+    });
+    if (response.ok) {
+      console.log('Password is correct');
+    } else {
+      console.error('Incorrect password or error');
+    }
+  };
+
+const askForPassword = (room) => {
+    const password = prompt('Enter the password:');
+    if (password !== null) {
+      handlePasswordInput(room, password);
+    }
+};
+//---------------------------JOIN----------NORMAL------------------//
+const join = async (room) => {
+  const response = await fetch(`http://${hostname}:3000/chat/join`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      roomId: room.id,
+      iddata: data.id
+    })
+  });
+
+  if (response.ok) {
+    console.log('Joined room:', room.name);
+  } else {
+    console.error('Failed to join room:', room.name);
+  }
+};
+
+
 </script>
 
 <div class="main_body">
@@ -65,10 +114,11 @@ onMount(fetchRooms);
         <div class="room-item">
           {#if room.secu == 1}
             <h3>🔒 {room.name}</h3>
+            <button class="join-button" on:click={() => askForPassword(room)}>Join</button>
           {:else}
             <h3>{room.name}</h3>
+            <button class="join-button" on:click={() => join(room)}>Join</button>
           {/if}
-          <button class="join-button">Join</button>
         </div>
       {/each}
     </div>
@@ -151,7 +201,7 @@ onMount(fetchRooms);
   text-decoration: underline;
 }
 
-.toggle-btn:focus + .room-list {
+.room-list {
   display: block;
 }
 
