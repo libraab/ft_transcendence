@@ -26,10 +26,10 @@
     return { x: mouseX, y: mouseY };
   };
 
-  const toggleGirlyMode = () => {
-    girlyMode = !girlyMode;
-    canvas.style.backgroundColor = girlyMode ? "#ff69b4" : "#000";
-  };
+  // const toggleGirlyMode = () => {
+  //   girlyMode = !girlyMode;
+  //   canvas.style.backgroundColor = girlyMode ? "#ff69b4" : "#000";
+  // };
 
   const handleMouseClick = () => {
     if (gameOver) {

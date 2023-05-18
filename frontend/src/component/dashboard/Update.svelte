@@ -1,5 +1,6 @@
 <script>
 	import { createEventDispatcher } from "svelte";
+	import { hostname } from "../../hostname"
 	const dispatch = createEventDispatcher();
 
 	export let updatePop;
@@ -24,7 +25,7 @@
 
 		try
 		{
-			const response = await fetch(`http://localhost:3000/dashboard/update/${id}`,
+			const response = await fetch(`http://${hostname}:3000/dashboard/update/${id}`,
 			{
 				method: "POST",
 				body: JSON.stringify(jsonData),

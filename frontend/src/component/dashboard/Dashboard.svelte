@@ -3,6 +3,7 @@
 	import { createEventDispatcher } from 'svelte';
 	import UpdateModal from './Update.svelte';
 	import DeleteModal from './Delete.svelte';
+	import { hostname } from '../../hostname';
 
 	const dispatch = createEventDispatcher();
 
@@ -42,7 +43,7 @@
 	{
 		try
 		{
-			const response = await fetch(`http://localhost:3000/dashboard/${id42}`);
+			const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`);
 			data = await response.json();
 			name = data.name;
 			img = data.img;
@@ -65,7 +66,7 @@
 		{
 			try
 			{
-				const response = await fetch(`http://localhost:3000/dashboard/name/${retName}`);
+				const response = await fetch(`http://${hostname}:3000/dashboard/name/${retName}`);
 				searchRes = await response.json();
 			}
 			catch (error) {
@@ -80,7 +81,7 @@
 	{
 		try
 		{
-			const response = await fetch(`http://localhost:3000/dashboard/stats/${id}`)
+			const response = await fetch(`http://${hostname}:3000/dashboard/stats/${id}`)
 			if (response)
 				stats = await response.json();
 			else

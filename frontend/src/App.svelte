@@ -11,6 +11,7 @@
 	import PrivateRoute from "./PrivateRoute.svelte";
 	import { userId42 } from "./stores";
 	import { page_shown } from "./stores"
+	import {hostname} from "./hostname"
 
 	history.replaceState({"href_to_show":"/"}, "", "/")
 
@@ -42,7 +43,7 @@
 									.find(cookie => cookie.startsWith('id42'))
 									.split('=')[1];
 			$userId42 = id42;
-			const response = await fetch(`http://localhost:3000/dashboard/${id42}`, {
+			const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {
 				headers:
 				{
 					'Authorization': `Bearer ${cookieValue}`

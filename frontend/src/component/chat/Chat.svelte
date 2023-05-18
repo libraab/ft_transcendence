@@ -1,6 +1,7 @@
 <script>
 	import { io } from 'socket.io-client'
     import { onMount } from 'svelte';
+	import { hostname } from "../../hostname"
 
 	// extern variable
 	export let data;
@@ -16,7 +17,7 @@
 
 	
 	onMount(() => {
-		socket.chat = io('localhost:3000/chat', {path: '/chatsockets'}); // dans App directement -- on crée la socket
+		socket.chat = io(hostname+':3000/chat', {path: '/chatsockets'}); // dans App directement -- on crée la socket
 		socket.chat.on('serverToChat', (msg) => { recieveMessage(msg)}); // on defini le comportement lors de l'event
 		fetchData();
 		console.log('the component has mounted');
@@ -24,7 +25,7 @@
 	
 	async function fetchData() {
 		try {
-			const response = await fetch(`http://localhost:3000/chat/${data.id42}`);
+			const response = await fetch(`http://${hostname}:3000/chat/${data.id42}`);
 			rooms = await response.json();
 			connectToAllChannel();
 		}
@@ -64,7 +65,7 @@
 
 	async function fetchMessages(id) {
 		try {
-			const response = await fetch(`http://localhost:3000/chat/messages/${id}`);
+			const response = await fetch(`http://${hostname}:3000/chat/messages/${id}`);
 			let rjson = await response.json();
 			messages.push({ room_id: id, msg_content: rjson});
 			messages_room_id = rjson;

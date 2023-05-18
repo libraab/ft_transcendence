@@ -52,7 +52,7 @@ export class AuthController {
 
 		// https://docs.nestjs.com/techniques/cookies
 		// return ('<script>window.close()</script>');
-		return response.redirect(302, 'http://localhost:8080');
+		return response.redirect(302, "http://"+process.env.HOSTNAME+":8080");
 
 		// response is a Fastify Reply object and not an Express Response object that is why we have to redirect redirect with Fastify by giving the status
 	}

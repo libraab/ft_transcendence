@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { hostname } from "../../hostname"
   export let data;
   let rooms = [];
   let isFormVisible = false;
@@ -17,7 +18,7 @@
         console.log('Password:', password);
     }
     // ici je fais api call  au back
-    const response = await fetch('http://localhost:3000/chat', {
+    const response = await fetch(`http://${hostname}:3000/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -44,7 +45,7 @@
     fetchRooms();
 }
   const fetchRooms = async () => {
-    const response = await fetch('http://localhost:3000/chat');
+    const response = await fetch(`http://${hostname}:3000/chat`);
     if (response.ok) {
       rooms = await response.json();
     } else {
