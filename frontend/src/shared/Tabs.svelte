@@ -33,9 +33,10 @@
 	<a href="chat" on:click|preventDefault={show_page} class:active={$page_shown == "chat"}>Chat</a>
 	<a href="room" on:click|preventDefault={show_page} class:active={$page_shown == "room"}>Room</a>	
 </nav>
-<button on:click={() => toggleFlTab()}>Friend List</button>
-<button on:click={() => toggleRanksTab()}>Ranking</button>
-<button>Match history</button>
+<center><button class="round-button" on:click={() => toggleFlTab()}>Friend List</button>
+<button class="round-button" on:click={() => toggleRanksTab()}>Ranking</button>
+<button class="round-button">Match history</button>
+<button class="round-button">Friend Request</button></center>
 
 
 <style>
@@ -66,6 +67,28 @@
 	li:hover {
 		color: #545969;
 	} */
+
+	.round-button {
+		border: none;
+		background-color: #9e9c9c;
+		border-radius: 20px;
+		color: white;
+		font-size: 16px;
+		font-weight: bold;
+		cursor: pointer;
+		outline: none;
+		padding: 10px 20px;
+		margin: 10px;
+		transition: background-color 0.3s ease;
+	}
+
+	.round-button:hover {
+		background-color: #464947;
+	}
+
+	.round-button:active {
+		transform: scale(0.95);
+	}
 
 	.active{
 		color: whitesmoke;

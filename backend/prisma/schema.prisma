@@ -79,8 +79,8 @@ model Rooms {
   secu     Int
   password String?
 
-  members     RoomMembers[] @relation("RoomMembersToRooms")
-  messages    MessagesRooms[] @relation("MessagesRoomsToRooms")
+  members  RoomMembers[] @relation("RoomMembersToRooms")
+  messages MessagesRooms[]
 
   @@unique([name], name: "name_uniq")
   @@index([ownerid], name: "owner_idx")
@@ -90,11 +90,10 @@ model Rooms {
 model RoomMembers {
   id          Int       @id @default(autoincrement())
 
-  roomId      Int
-  room        Rooms     @relation("RoomMembersToRooms", fields: [roomId], references: [id])
-
-  memberId    Int
-  member      Clients   @relation("ClientRoomMembers", fields: [memberId], references: [id])
+  roomId  Int
+  room    Rooms    @relation("RoomMembersToRooms", fields: [roomId], references: [id])
+  memberId Int
+  member  Clients  @relation("ClientRoomMembers", fields: [memberId], references: [id])
 
   status      Int
 
@@ -107,9 +106,10 @@ model MessagesRooms {
   msg  String
   time DateTime @default(now())
 
-  roomId   Int
+  roomId  Int
+  room    Rooms     @relation(fields: [roomId], references: [id])
+
   clientId Int
-  room     Rooms  @relation("MessagesRoomsToRooms", fields: [roomId], references: [id])
   client   Clients @relation(fields: [clientId], references: [id])
 
   @@map("messages_rooms")
