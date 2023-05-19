@@ -442,29 +442,32 @@ export class DatabaseService
 		}
 	}
 
-	async getRoomByClientIdAndRoomId(clientId: number, roomId: number): Promise<Rooms | null> {
-		const room = await this.prisma.rooms.findFirst({
+	async getRoomByClientIdAndRoomId(clientId: number, roomId: number)
+	: Promise<{ roomId: number; clientId: number; status: number; password: string } | null>  {
+		const roomMember = await this.prisma.roomMembers.findFirst({
 			where: {
-				id: roomId,
-				members: {
-					some: {
-						memberId: clientId
-					}
-				}
+				roomId,
+				memberId: clientId,
 			},
-			include: {
-				members: {
-					where: {
-						memberId: clientId
-					},
+			select: {
+				roomId: true,
+				memberId: true,
+				status: true,
+				room: {
 					select: {
-						status: true
-					}
-				}
-			}
+						password: true,
+					},
+				},
+			},
 		});
 
-		return room;
+		if (roomMember) {
+			const { roomId, status, room } = roomMember;
+			const password = room?.password || ""; // Accès au mot de passe
+			return { roomId, clientId , status, password };
+		}
+
+		return null;
 	}
 
 	async getRoomMessagesById(roomId: number): Promise<any[]> {

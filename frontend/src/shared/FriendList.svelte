@@ -1,4 +1,8 @@
 <script>
+    import { add_flush_callback } from "svelte/internal";
+	import { createEventDispatcher } from 'svelte';
+
+	const dispatch = createEventDispatcher();
 
 	export let flTab;
 	export let id;
@@ -43,14 +47,24 @@
 		fl = searchRes;
 	}
 
-	function moveDisplayToTargetClient(client)
+	async function addFl()
 	{
-		console.log("hahaha");
-		document.getElementById('id42-name-input').value = "";
+
+	}
+
+	async function blockTarget()
+	{
+
+	}
+
+	async function inspectTarget()
+	{
+		const target = document.getElementById('id42-name-input').value;
 		searchRes = [];
 		fl = [];
 		id42NameInputNotEmpty = false;
 	}
+
 </script>
 
 {#if flTab}
@@ -61,44 +75,32 @@
   	{:then}
 <!-- ---------------------------------------------------------------------------- -->
 		<div class="backdrop" on:click|self on:keypress>
-			<div class="modal">
-				<h1>Friend List</h1>
+				<div class="modal">
+					<h1>Friend List</h1>
 
-				<div>
-					<label for="id42-name-input">search by Name:</label>
-					<input type="text" id="id42-name-input" on:input={() => getSpecifiedClients()} />
-					
-					<div class="popup_container">
-						{#if id42NameInputNotEmpty}
-							<div class="popup">
-								{#each searchRes as client}
-									<button class="popup-button" on:click={() => moveDisplayToTargetClient(client)}>{client.name}</button>
-								{/each}
-							</div>
-						{:else}
-							getFlforId();
-						{/if}
+					<div>
+						<label for="id42-name-input">search by Name:</label>
+						<input type="text" id="id42-name-input" on:input={() => getSpecifiedClients()} />
 					</div>
+	<!-- ---------------------------------------------------------------------------- -->
+					{#if fl.length !== 0}
+						{#each fl as friend}
+							<h3> {friend.name} </h3>
+							<button on:click={ ()=> addFl() }>add</button>
+							<button on:click={ ()=> blockTarget() }>block</button>
+							<button on:click={ ()=> inspectTarget() }>inspect</button>
+							<p>-----------------</p>
+						{/each}
+					{:else}
+						<h1>┌∩┐(◕_◕)┌∩┐</h1>
+						<p>No friend</p>
+						<p>nobody loves you...</p>
+					{/if}
+	<!-- ---------------------------------------------------------------------------- -->
 				</div>
-<!-- ---------------------------------------------------------------------------- -->
-				{#if fl.length !== 0}
-					{#each fl as friend}
-						<h3> {fl.name} </h3>
-						<button>add</button>
-						<button>block</button>
-						<button>inspect</button>
-						<p>-----------------</p>
-					{/each}
-				{:else}
-					<h1>┌∩┐(◕_◕)┌∩┐</h1>
-					<p>No friend</p>
-					<p>nobody loves you...</p>
-				{/if}
-<!-- ---------------------------------------------------------------------------- -->
 			</div>
-		</div>
 	{:catch error}
-		<p>Une erreur s'est produite : {error.message}</p>
+		<p>Une erreur s'est produite: {error.message}</p>
 	{/await}
 {/if}
 

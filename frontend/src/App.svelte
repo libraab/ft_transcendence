@@ -87,7 +87,7 @@
 
 	{#if dashboardData && Object.keys(dashboardData).length > 0}
 
-		<Tabs id={dashboardData.id} />
+		<Tabs id={dashboardData.id}/>
 		<main>
 			<div class="main_body">
 				{#if $page_shown == "/"}
