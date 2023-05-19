@@ -492,4 +492,38 @@ export class DatabaseService
 			clientName: message.client.name,
 		}));
 	}
+
+	async addClientsToClient(id1: number, id2: number, status: number): Promise<void> {
+		const existingBlockedRelation = await this.prisma.clientToClient.findFirst({
+			where: {
+				OR: [
+					{ client1Id: id1, client2Id: id2, status: -1 },
+					{ client1Id: id2, client2Id: id1, status: -1 },
+				],
+			},
+		});
+
+		if (!existingBlockedRelation)
+		{
+			try
+			{
+				await this.prisma.clientToClient.createMany({
+					data: [
+						{ client1Id: id1, client2Id: id2, status: 1},
+						{ client1Id: id2, client2Id: id1, status: 1},
+					],
+				});
+			}
+			catch (error)
+			{
+				if (error instanceof Prisma.PrismaClientKnownRequestError)
+				{
+					if (error.code === 'P2002') {
+						throw new ForbiddenException('Credentials taken');
+					}
+				}
+				throw error;
+			}
+		}
+	}
 }
