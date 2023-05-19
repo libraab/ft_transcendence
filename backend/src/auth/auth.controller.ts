@@ -89,17 +89,18 @@ export class AuthController {
 			
 	@Post('/2fa')
 	async activateDfa(@Body() body: { isDFAActive: boolean }): Promise<{ qrCodeImageUrl?: string }> {
-		console.log('here');
+		console.log('line 92 of auth.controller.ts');
 		const { isDFAActive } = body;
 		if (isDFAActive) {
-		const secret = authenticator.generateSecret(); // Generate a new secret key
-		// Generate the QR code image
-		const otpauthUrl = authenticator.keyuri('asmabouhlel@student.42nice.fr', 'ft_transcendence', secret);
-		const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
-		// Return the QR code image URL to the frontend
-		return { qrCodeImageUrl };
+			const secret = authenticator.generateSecret(); // Generate a new secret key
+			// Generate the QR code image
+			const otpauthUrl = authenticator.keyuri('asmabouhlel@student.42nice.fr', 'ft_transcendence', secret);
+			const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
+			// Return the QR code image URL to the frontend
+			return { qrCodeImageUrl };
 		}
 		return {}; // Return an empty response if DFA is not activated
+		
 	}
 }
 

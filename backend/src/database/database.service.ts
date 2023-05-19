@@ -351,7 +351,6 @@ export class DatabaseService
 		try
 		{
 			const { name, ownerid, secu, password } = dto;
-			console.log('here');
 			const room = await this.prisma.rooms.create({
 				data: {
 					name,
