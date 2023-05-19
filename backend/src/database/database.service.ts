@@ -509,8 +509,8 @@ export class DatabaseService
 			{
 				await this.prisma.clientToClient.createMany({
 					data: [
-						{ client1Id: id1, client2Id: id2, status: 1},
-						{ client1Id: id2, client2Id: id1, status: 1},
+						{ client1Id: id1, client2Id: id2, status},
+						{ client1Id: id2, client2Id: id1, status},
 					],
 				});
 			}
