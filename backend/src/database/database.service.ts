@@ -497,8 +497,8 @@ export class DatabaseService
 		const existingBlockedRelation = await this.prisma.clientToClient.findFirst({
 			where: {
 				OR: [
-					{ client1Id: id1, client2Id: id2, status: -1 },
-					{ client1Id: id2, client2Id: id1, status: -1 },
+					{ client1Id: id1, client2Id: id2, status: "blocked" },
+					{ client1Id: id2, client2Id: id1, status: "blocked" },
 				],
 			},
 		});
@@ -524,6 +524,84 @@ export class DatabaseService
 				}
 				throw error;
 			}
+		}
+	}
+
+	async removeClientsFromClient(id1: number, id2: number): Promise<void> {
+		const existingFriendRelation1 = await this.prisma.clientToClient.findFirst({
+			where: {
+				client1Id: id1,
+				client2Id: id2,
+				status: "friend",
+			},
+		});
+
+		const existingFriendRelation2 = await this.prisma.clientToClient.findFirst({
+			where: {
+				client1Id: id2,
+				client2Id: id1,
+				status: "friend",
+			},
+		});
+
+		if (existingFriendRelation1 && existingFriendRelation2) {
+			try {
+				await this.prisma.clientToClient.deleteMany({
+					where: {
+						client1Id: id1,
+						client2Id: id2,
+					},
+				});
+
+				await this.prisma.clientToClient.deleteMany({
+					where: {
+						client1Id: id2,
+						client2Id: id1,
+					},
+				});
+			}
+			catch (error)
+			{
+				if (error instanceof Prisma.PrismaClientKnownRequestError)
+				{
+					if (error.code === 'P2025') {
+						throw new NotFoundException('User doesn\'t exist');
+					}
+					if (error.code === 'P2002') {
+						throw new ForbiddenException('Credentials taken');
+					}
+					throw error;
+				}
+
+			}
+		}
+	}
+
+	async createBlockedRelation(id1: number, id2: number): Promise<ClientToClient> {
+		try {
+			const relation = await this.prisma.clientToClient.create({
+				data: {
+					client1Id: id1,
+					client2Id: id2,
+					status: "blocked",
+				},
+			});
+
+			return relation;
+		}
+		catch (error)
+		{
+			if (error instanceof Prisma.PrismaClientKnownRequestError)
+			{
+				if (error.code === 'P2025') {
+					throw new NotFoundException('User doesn\'t exist');
+				}
+				if (error.code === 'P2002') {
+					throw new ForbiddenException('Credentials taken');
+				}
+				throw error;
+			}
+
 		}
 	}
 }
