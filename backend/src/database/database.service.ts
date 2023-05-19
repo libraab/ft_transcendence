@@ -497,8 +497,8 @@ export class DatabaseService
 		const existingBlockedRelation = await this.prisma.clientToClient.findFirst({
 			where: {
 				OR: [
-					{ client1Id: id1, client2Id: id2, status: "blocked" },
-					{ client1Id: id2, client2Id: id1, status: "blocked" },
+					{ client1Id: id1, client2Id: id2, status: 1 },
+					{ client1Id: id2, client2Id: id1, status: 1 },
 				],
 			},
 		});
@@ -536,7 +536,7 @@ export class DatabaseService
 			where: {
 				client1Id: id1,
 				client2Id: id2,
-				status: "friend",
+				status: 0,
 			},
 		});
 
@@ -544,7 +544,7 @@ export class DatabaseService
 			where: {
 				client1Id: id2,
 				client2Id: id1,
-				status: "friend",
+				status: 0,
 			},
 		});
 
@@ -586,7 +586,7 @@ export class DatabaseService
 			where: {
 				client1Id: id1,
 				client2Id: id2,
-				status: "friend",
+				status: 0,
 			},
 		});
 
@@ -599,7 +599,7 @@ export class DatabaseService
 				data: {
 					client1Id: id1,
 					client2Id: id2,
-					status: "blocked",
+					status: 1,
 				},
 			});
 
@@ -626,7 +626,7 @@ export class DatabaseService
 			where: {
 				client1Id: id1,
 				client2Id: id2,
-				status: "blocked",
+				status: 1,
 			},
 		});
 	}
