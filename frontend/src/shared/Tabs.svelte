@@ -4,6 +4,8 @@
 	import FlModal from './FriendList.svelte';
 	import { page_shown } from "../stores"
 
+	const dispatch = createEventDispatcher();
+	  
   	const show_page = () =>{
   	  const url = event.target.getAttribute("href")
   	  history.pushState({"href_to_show":url}, '', url)
@@ -22,6 +24,7 @@
 	function toggleFlTab(){
 		flTab = !flTab;
 	}
+
 </script>
 
 <RankModal {ranksTab} on:click={() => toggleRanksTab()} />
@@ -33,7 +36,8 @@
 	<a href="chat" on:click|preventDefault={show_page} class:active={$page_shown == "chat"}>Chat</a>
 	<a href="room" on:click|preventDefault={show_page} class:active={$page_shown == "room"}>Room</a>	
 </nav>
-<center><button class="round-button" on:click={() => toggleFlTab()}>Friend List</button>
+<center><button class="round-button"
+	on:click={() => toggleFlTab()}>Friend List</button>
 <button class="round-button" on:click={() => toggleRanksTab()}>Ranking</button>
 <button class="round-button">Match history</button>
 <button class="round-button">Friend Request</button></center>

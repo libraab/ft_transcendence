@@ -100,7 +100,6 @@ model RoomMembers {
   @@map("room_members")
 }
 
-
 model MessagesRooms {
   id   Int      @id @default(autoincrement())
   msg  String
