@@ -41,10 +41,6 @@ export class DashboardController
 
 
 
-
-
-
-
 	@Get('/ranking')
 	async getRanking()
 	{
