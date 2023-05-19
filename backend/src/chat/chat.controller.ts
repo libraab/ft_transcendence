@@ -153,9 +153,9 @@ export class ChatController {
         if (member2) { // invited already member
             throw new Error('Already member');
         }
-        if (member2.status === 5) { // invited is banned
-            throw new Error('You are banned');
-        }
+        // if (member2.status === 5) { // invited is banned
+        //     throw new Error('You are banned');
+        // }
 
         await this.db.addMemberToRoom(data.roomId, invited.id, 2);
         return 'User joined the room';
@@ -170,7 +170,7 @@ export class ChatController {
             throw new Error('User does not exist');
         }
         
-        await this.db.addFriend(userId.id,newFriend.id);
+        await this.db.addClientsToClient(userId.id, newFriend.id, 0);
         return 'Users are now friends';
     }
 
