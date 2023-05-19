@@ -37,6 +37,11 @@
 		isDFAActive = !isDFAActive;
 	}
 
+	let blocked = false;
+	function toggleBlockState() {
+		blocked = !blocked;
+	}
+
 	onMount(async () =>
 	{
 		await getTargetStats();
@@ -140,22 +145,40 @@
 		// }
 	};
 	//---------------------------------------------------------------------------//
-	const blockUser = async (newFriend) => {
-		// const response = await fetch(`http://${hostname}:3000/chat/addFriend`, {
-		// 	method: 'POST',
-		// 	headers: {
-		// 		'Content-Type': 'application/json'
-		// 	},
-		// 	body: JSON.stringify({
-		// 		newFriendId: newFriend.id,
-		// 		iddata: data.id
-		// 	})
-		// });
-		// if (response.ok) {
-		// 	console.log('Joined room:', room.name);
-		// } else {
-		// 	console.error('Failed to join room:', room.name);
-		// }
+	const blockUser = async (blockedId) => {
+		const response = await fetch(`http://${hostname}:3000/chat/blockUser`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				blockedId: blockedId,
+				iddata: data.id
+			})
+		});
+		if (response.ok) {
+			console.log('User blocked');
+		} else {
+			console.error('Failed to block user');
+		}
+	};
+	//---------------------------------------------------------------------------//
+	const unblockUser = async (unblockedId) => {
+		const response = await fetch(`http://${hostname}:3000/chat/unblockUser`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				unblockedId: unblockedId,
+				iddata: data.id
+			})
+		});
+		if (response.ok) {
+			console.log('User unblocked');
+		} else {
+			console.error('Failed to unblock user');
+		}
 	};
 	//---------------------------------------------------------------------------//
 	const MP = async (newFriend) => {
@@ -249,7 +272,21 @@
 				<div class="button-container">
     				<button class="button-profile" on:click={() => returnBackHome()}>My Profile</button>
     				<button class="button-profile" on:click={() => addFriend(targetId)}>Add Friend</button>
-    				<button class="button-profile" on:click={() => blockUser()}>Block</button>
+					<button
+						class:active={!blocked}
+						class:inactive={blocked}
+						class="button-profile block-button"
+						on:click={() => {
+							if (blocked) {
+							  unblockUser(targetId);
+							} else {
+							  blockUser(targetId);
+							}
+							toggleBlockState();
+						  }}
+						>
+						  {blocked ? 'Unblock' : 'Block'}
+      				</button>
     				<button class="button-profile" on:click={() => MP()}>Send Msg</button>
     				<button class="button-profile" on:click={() => play()}>Play</button>
 				</div>
@@ -414,6 +451,10 @@
 	}
 
 	.dfa-button.inactive {
+		background-color: red;
+	}
+
+	.block-button.inactive {
 		background-color: red;
 	}	
 
