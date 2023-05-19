@@ -518,11 +518,15 @@ export class DatabaseService
 			{
 				if (error instanceof Prisma.PrismaClientKnownRequestError)
 				{
+					if (error.code === 'P2025') {
+						throw new NotFoundException('User doesn\'t exist');
+					}
 					if (error.code === 'P2002') {
 						throw new ForbiddenException('Credentials taken');
 					}
+					throw error;
 				}
-				throw error;
+
 			}
 		}
 	}
@@ -578,6 +582,18 @@ export class DatabaseService
 	}
 
 	async createBlockedRelation(id1: number, id2: number): Promise<ClientToClient> {
+		const existingFriendRelation = await this.prisma.clientToClient.findFirst({
+			where: {
+				client1Id: id1,
+				client2Id: id2,
+				status: "friend",
+			},
+		});
+
+		if (existingFriendRelation) {
+			// Supprimer les relations existantes
+			await this.removeClientsFromClient(id1, id2);
+		}
 		try {
 			const relation = await this.prisma.clientToClient.create({
 				data: {
@@ -604,4 +620,25 @@ export class DatabaseService
 
 		}
 	}
+
+	async unblockClient(id1: number, id2: number): Promise<void> {
+		await this.prisma.clientToClient.deleteMany({
+			where: {
+				client1Id: id1,
+				client2Id: id2,
+				status: "blocked",
+			},
+		});
+	}
+
+	async getClientRelations(id1: number): Promise<ClientToClient[]> {
+		const clientRelations = await this.prisma.clientToClient.findMany({
+			where: {
+				client1Id: id1,
+			},
+		});
+
+		return clientRelations;
+	}
+
 }
