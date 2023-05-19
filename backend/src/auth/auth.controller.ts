@@ -1,4 +1,4 @@
-import { Controller, Query, Get, HttpException, HttpStatus, Res, Header} from '@nestjs/common';
+import { Controller, Query, Get, HttpException, HttpStatus, Res, Header, Body, Post} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type User42Interface from './user42.interface';
 import { JwtService } from '@nestjs/jwt';
@@ -6,6 +6,9 @@ import { FastifyReply } from 'fastify';
 import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
+import { authenticator } from 'otplib';
+import { qrcode } from 'qrcode'
+
 @Controller('auth')
 export class AuthController {
 	constructor(	private authService: AuthService,
@@ -52,9 +55,52 @@ export class AuthController {
 
 		// https://docs.nestjs.com/techniques/cookies
 		// return ('<script>window.close()</script>');
+		if (user.Dfa) {
+			console.log('user DFA is activated');
+			// const isValid = totp.check(code, secret);
+			// if (isValid) {
+			// 	user.Dfa = false;
+			// 	return response.redirect(302, "http://"+process.env.HOSTNAME+":8080");
+			// } else {
+			// 	// Code is not valid
+			// }
+			// const isValid = authenticator.verify({
+			// 	token,
+			// 	secret,
+			// 	window: 1, // Number of time steps the code is valid for (default is 1)
+			//   });
+		}
 		return response.redirect(302, "http://"+process.env.HOSTNAME+":8080");
 
 		// response is a Fastify Reply object and not an Express Response object that is why we have to redirect redirect with Fastify by giving the status
 	}
+
+	// @Post('2fa/verify')
+	// async verifyTwoFactorAuthCode(@Body() body: { code: string }): Promise<{ isValid: boolean }> {
+		// 	const { code } = body;
+		// 	const secret = 'SECRET_KEY_FROM_DATABASE'; // Get the secret key from the database
+		// 	const isValid = authenticator.verify({
+			// 		token: code,
+			// 		secret,
+			// 		window: 1,
+			// 	});
+			// 	return { isValid };
+			// }
+			
+	@Post('/2fa')
+	async activateDfa(@Body() body: { isDFAActive: boolean }): Promise<{ qrCodeImageUrl?: string }> {
+		console.log('here');
+		const { isDFAActive } = body;
+		if (isDFAActive) {
+		const secret = authenticator.generateSecret(); // Generate a new secret key
+		// Generate the QR code image
+		const otpauthUrl = authenticator.keyuri('asmabouhlel@student.42nice.fr', 'ft_transcendence', secret);
+		const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
+		// Return the QR code image URL to the frontend
+		return { qrCodeImageUrl };
+		}
+		return {}; // Return an empty response if DFA is not activated
+	}
 }
+
 
