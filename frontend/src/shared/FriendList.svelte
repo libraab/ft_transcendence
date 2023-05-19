@@ -1,6 +1,7 @@
 <script>
     import { add_flush_callback } from "svelte/internal";
 	import { createEventDispatcher } from 'svelte';
+	import {hostname} from "../hostname"
 
 	const dispatch = createEventDispatcher();
 
@@ -49,7 +50,7 @@
 
 	async function addFl()
 	{
-		const response = await fetch(`http://${hostname}:3000/dashboard/fetch-fl`);
+		const response = await fetch(`http://${hostname}:3000/dashboard/fl/${id}`);
 		if (response.ok) {
 			rooms = await response.json();
 		} else {
@@ -74,27 +75,22 @@
 
 {#if flTab}
 	{#await getFlforId()}
-		<div class="backdrop" on:click|self on:keypress>
+		<div class="backdrop" on:click|self on:keypress={() => getFlforId()}>
 			<p>Loading...</p>
 		</div>
   	{:then}
 <!-- ---------------------------------------------------------------------------- -->
 		<div class="backdrop" on:click|self on:keypress>
 				<div class="modal">
-					<h1>Friend List</h1>
-
-					<div>
-						<label for="id42-name-input">search by Name:</label>
-						<input type="text" id="id42-name-input" on:input={() => getSpecifiedClients()} />
-					</div>
+					<h1>My Friends</h1>
 	<!-- ---------------------------------------------------------------------------- -->
 					{#if fl.length !== 0}
 						{#each fl as friend}
-							<h3> {friend.name} </h3>
-							<button on:click={ ()=> addFl() }>add</button>
-							<button on:click={ ()=> blockTarget() }>block</button>
-							<button on:click={ ()=> inspectTarget() }>inspect</button>
-							<p>-----------------</p>
+							{#if friend.status == 0}
+								<h3> {friend.client.name} </h3>
+							{:else}
+								<h3> {friend.client.name} ⛔️ </h3>
+							{/if}
 						{/each}
 					{:else}
 						<h1>┌∩┐(◕_◕)┌∩┐</h1>

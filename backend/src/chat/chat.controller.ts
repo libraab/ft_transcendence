@@ -182,10 +182,36 @@ export class ChatController {
         if (!newFriend){ 
             throw new Error('User does not exist');
         }
-        this.dto.name = "mp1";
+        this.dto.name = "mp";
         this.dto.ownerid = data.iddata;
 
         // await this.db.sendMsg(userId.id,newFriend.id);
         return 'A private chat room has been created';
+    }
+
+    @Post('/blockUser')
+    async blockUser(@Body() data) {
+        const user = await this.db.getClientById(data.iddata); // actor
+        const blockedUser = await this.db.getClientById(data.blockedId); // acted upon 
+        
+        if (!blockedUser || !user){ 
+            throw new Error('User does not exist');
+        }
+        
+        await this.db.createBlockedRelation(user.id, blockedUser.id);
+        return 'Users are now ennemies';
+    }
+
+    @Post('/unblockUser')
+    async unblockUser(@Body() data) {
+        const user = await this.db.getClientById(data.iddata); // actor
+        const unblockedUser = await this.db.getClientById(data.unblockedId); // acted upon 
+        
+        if (!unblockedUser || !user){ 
+            throw new Error('User does not exist');
+        }
+        
+        await this.db.unblockClient(user.id, unblockedUser.id);
+        return 'Users are friends again';
     }
 }

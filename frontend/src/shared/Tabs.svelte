@@ -39,8 +39,7 @@
 <center><button class="round-button"
 	on:click={() => toggleFlTab()}>Friend List</button>
 <button class="round-button" on:click={() => toggleRanksTab()}>Ranking</button>
-<button class="round-button">Match history</button>
-<button class="round-button">Friend Request</button></center>
+<button class="round-button">Match history</button></center>
 
 
 <style>

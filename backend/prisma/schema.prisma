@@ -41,6 +41,7 @@ model ClientToClient {
 
   @@index([status])
   @@map("clients_to_clients")
+  @@unique([client1Id, client2Id])
 }
 
 model GameHistoric {
