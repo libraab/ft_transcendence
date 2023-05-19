@@ -245,14 +245,49 @@ export class DatabaseService
 		return top100Scores;
 	}
 
-	async getRelationsByClientId1(clientId1: number): Promise<ClientToClient[]> {
-		const values = await this.prisma.clientToClient.findMany({
+	async getRelationsByClientId1(id1: number): Promise<{ client: Clients | null; status: number }[]> {
+		const clientRelations = await this.prisma.clientToClient.findMany({
 			where: {
-				client1Id: clientId1
-			}
+				client1Id: id1,
+			},
+			orderBy: [
+				{
+					status: 'asc',
+				},
+				{
+					client2: {
+						name: 'asc',
+					},
+				},
+			],
+			select: {
+				client2: {
+					select: {
+						id: true,
+						name: true,
+						id42: true,
+						img: true,
+						cookie: true,
+						Dfa: true,
+					},
+				},
+				status: true,
+			},
 		});
 
-		return values;
+		const formattedRelations: { client: Clients | null; status: number }[] = clientRelations.map((relation) => ({
+			client: {
+				id: relation.client2?.id,
+				name: relation.client2?.name,
+				id42: relation.client2?.id42, 
+				img: relation.client2?.img,
+				cookie: relation.client2?.cookie,
+				Dfa: relation.client2?.Dfa,
+			},
+			status: relation.status,
+		}));
+
+		return formattedRelations;
 	}
 
 	async getRoomsByUserId(userId: number): Promise<Rooms[]> {
@@ -497,8 +532,8 @@ export class DatabaseService
 		const existingBlockedRelation = await this.prisma.clientToClient.findFirst({
 			where: {
 				OR: [
-					{ client1Id: id1, client2Id: id2, status: 0 },
-					{ client1Id: id2, client2Id: id1, status: 0 },
+					{ client1Id: id1, client2Id: id2, status: 1 },
+					{ client1Id: id2, client2Id: id1, status: 1 },
 				],
 			},
 		});
@@ -536,7 +571,7 @@ export class DatabaseService
 			where: {
 				client1Id: id1,
 				client2Id: id2,
-				status: 1,
+				status: 0,
 			},
 		});
 
@@ -544,7 +579,7 @@ export class DatabaseService
 			where: {
 				client1Id: id2,
 				client2Id: id1,
-				status: 1,
+				status: 0,
 			},
 		});
 
@@ -626,7 +661,7 @@ export class DatabaseService
 			where: {
 				client1Id: id1,
 				client2Id: id2,
-				status: 0,
+				status: 1,
 			},
 		});
 	}
