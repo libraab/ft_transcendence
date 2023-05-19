@@ -170,7 +170,7 @@ export class ChatController {
             throw new Error('User does not exist');
         }
         
-        await this.db.addClientsToClient(userId.id, newFriend.id, '0');
+        await this.db.addClientsToClient(userId.id, newFriend.id, 0);
         return 'Users are now friends';
     }
 

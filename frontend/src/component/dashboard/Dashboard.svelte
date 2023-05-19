@@ -122,22 +122,22 @@
 		id42NameInputNotEmpty = null;
 	}
 	//---------------------------------------------------------------------------//
-	const addFriend = async (newFriend) => {
+	const addFriend = async (newFriendId) => {
 		const response = await fetch(`http://${hostname}:3000/chat/addFriend`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
-				newFriendId: newFriend.id,
+				newFriendId: newFriendId,
 				iddata: data.id
 			})
 		});
-		if (response.ok) {
-			console.log('Joined room:', room.name);
-		} else {
-			console.error('Failed to join room:', room.name);
-		}
+		// if (response.ok) {
+		// 	console.log('Joined room:', room.name);
+		// } else {
+		// 	console.error('Failed to join room:', room.name);
+		// }
 	};
 	//---------------------------------------------------------------------------//
 	const blockUser = async (newFriend) => {
@@ -248,7 +248,7 @@
     			<p>(¬‿¬) (≖ ‿ ≖ ) I am watching you watching</p>
 				<div class="button-container">
     				<button class="button-profile" on:click={() => returnBackHome()}>My Profile</button>
-    				<button class="button-profile" on:click={() => addFriend()}>Add Friend</button>
+    				<button class="button-profile" on:click={() => addFriend(targetId)}>Add Friend</button>
     				<button class="button-profile" on:click={() => blockUser()}>Block</button>
     				<button class="button-profile" on:click={() => MP()}>Send Msg</button>
     				<button class="button-profile" on:click={() => play()}>Play</button>
