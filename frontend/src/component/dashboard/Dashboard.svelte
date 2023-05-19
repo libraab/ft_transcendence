@@ -121,6 +121,81 @@
 		searchRes = [];
 		id42NameInputNotEmpty = null;
 	}
+	//---------------------------------------------------------------------------//
+	const addFriend = async (newFriend) => {
+		const response = await fetch(`http://${hostname}:3000/chat/addFriend`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				newFriendId: newFriend.id,
+				iddata: data.id
+			})
+		});
+		if (response.ok) {
+			console.log('Joined room:', room.name);
+		} else {
+			console.error('Failed to join room:', room.name);
+		}
+	};
+	//---------------------------------------------------------------------------//
+	const blockUser = async (newFriend) => {
+		// const response = await fetch(`http://${hostname}:3000/chat/addFriend`, {
+		// 	method: 'POST',
+		// 	headers: {
+		// 		'Content-Type': 'application/json'
+		// 	},
+		// 	body: JSON.stringify({
+		// 		newFriendId: newFriend.id,
+		// 		iddata: data.id
+		// 	})
+		// });
+		// if (response.ok) {
+		// 	console.log('Joined room:', room.name);
+		// } else {
+		// 	console.error('Failed to join room:', room.name);
+		// }
+	};
+	//---------------------------------------------------------------------------//
+	const MP = async (newFriend) => {
+		// const response = await fetch(`http://${hostname}:3000/chat/addFriend`, {
+		// 	method: 'POST',
+		// 	headers: {
+		// 		'Content-Type': 'application/json'
+		// 	},
+		// 	body: JSON.stringify({
+		// 		newFriendId: newFriend.id,
+		// 		iddata: data.id
+		// 	})
+		// });
+		// if (response.ok) {
+		// 	console.log('Joined room:', room.name);
+		// } else {
+		// 	console.error('Failed to join room:', room.name);
+		// }
+	};
+	//---------------------------------------------------------------------------//
+	const play = async (newFriend) => {
+		// const response = await fetch(`http://${hostname}:3000/chat/addFriend`, {
+		// 	method: 'POST',
+		// 	headers: {
+		// 		'Content-Type': 'application/json'
+		// 	},
+		// 	body: JSON.stringify({
+		// 		newFriendId: newFriend.id,
+		// 		iddata: data.id
+		// 	})
+		// });
+		// if (response.ok) {
+		// 	console.log('Joined room:', room.name);
+		// } else {
+		// 	console.error('Failed to join room:', room.name);
+		// }
+	};
+	//---------------------------------------------------------------------------//
+
+
 
 	async function profileUpdate()
 	{
@@ -171,7 +246,13 @@
     			</div>
     			<h2 class="shiny-text">{targetName}</h2>
     			<p>(¬‿¬) (≖ ‿ ≖ ) I am watching you watching</p>
-    			<button on:click={() => returnBackHome()}>My Profile</button>
+				<div class="button-container">
+    				<button class="button-profile" on:click={() => returnBackHome()}>My Profile</button>
+    				<button class="button-profile" on:click={() => addFriend()}>Add Friend</button>
+    				<button class="button-profile" on:click={() => blockUser()}>Block</button>
+    				<button class="button-profile" on:click={() => MP()}>Send Msg</button>
+    				<button class="button-profile" on:click={() => play()}>Play</button>
+				</div>
   			{/if}
 		</div>
 <!-- ---------------------------------------------------------------------------- -->
@@ -215,6 +296,31 @@
 
 
 <style>
+	.button-container {
+		display: flex;
+		gap: 20px;
+		margin-right: 20px;
+	}
+
+	.button-profile {
+		padding: 10px 20px;
+		border: none;
+		border-radius: 20px;
+		font-size: 16px;
+		background-color: #4caf50;
+		color: white;
+		cursor: pointer;
+	}
+
+	.button-profile:hover {
+		background-color: #45a049;
+	}
+	
+	.button-profile:focus {
+		outline: none;
+  		box-shadow: 0 0 0 2px #4caf50;
+	}
+
 	.profile-container {
 		display: flex;
 		flex-direction: column;
