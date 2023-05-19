@@ -1,6 +1,7 @@
 <script>
     import { add_flush_callback } from "svelte/internal";
 	import { createEventDispatcher } from 'svelte';
+	import {hostname} from "../hostname"
 
 	const dispatch = createEventDispatcher();
 
@@ -17,6 +18,7 @@
 			if (response)
 			{
 				fl = await response.json();
+				console.log(fl);
 			}
 			else
 				fl = [];
@@ -49,12 +51,13 @@
 
 	async function addFl()
 	{
-		const response = await fetch(`http://${hostname}:3000/dashboard/fetch-fl`);
+		const response = await fetch(`http://${hostname}:3000/dashboard/fl/${id}`);
 		if (response.ok) {
 			rooms = await response.json();
 		} else {
 			console.error('Failed to fetch friend list');
 		}
+		console.log('herreeeeea');
 	}
 
 	async function blockTarget()
@@ -90,7 +93,7 @@
 	<!-- ---------------------------------------------------------------------------- -->
 					{#if fl.length !== 0}
 						{#each fl as friend}
-							<h3> {friend.name} </h3>
+							<h3> {friend.client.name} </h3>
 							<button on:click={ ()=> addFl() }>add</button>
 							<button on:click={ ()=> blockTarget() }>block</button>
 							<button on:click={ ()=> inspectTarget() }>inspect</button>
