@@ -1,48 +1,16 @@
-###################
-# BUILD FOR LOCAL DEVELOPMENT
-###################
+# Specify the base image to use
+FROM node:18
 
-FROM node:18-alpine As development
+# Set the working directory inside the container
+WORKDIR /app
 
-WORKDIR /usr/src/app
+# Copy the package.json and package-lock.json files into the container
+COPY . ./
 
-COPY --chown=node:node package*.json ./
+# Install dependencies
+RUN npm install
 
-RUN npm ci
+EXPOSE 8080
 
-COPY --chown=node:node . .
-
-USER node
-
-###################
-# BUILD FOR PRODUCTION
-###################
-
-FROM node:18-alpine As build
-
-WORKDIR /usr/src/app
-
-COPY --chown=node:node package*.json ./
-
-COPY --chown=node:node --from=development /usr/src/app/node_modules ./node_modules
-
-COPY --chown=node:node . .
-
-RUN npm run build
-
-ENV NODE_ENV production
-
-RUN npm ci --only=production && npm cache clean --force
-
-USER node
-
-###################
-# PRODUCTION
-###################
-
-FROM node:18-alpine As production
-
-COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node --from=build /usr/src/app/dist ./dist
-
-CMD [ "npm", "run", "dev" ]
+# Start the application
+ENTRYPOINT "./entrypoint.sh"

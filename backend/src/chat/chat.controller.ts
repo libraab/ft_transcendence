@@ -39,7 +39,6 @@ export class ChatController {
     async createNewRoom(@Body() data) {
         const existingRooms = await this.db.getRooms();
         const roomNames = existingRooms.map((room) => room.name);
-
         if (roomNames.includes(data.roomName)) {
             throw new Error('Room name already exists');
         }
@@ -81,6 +80,7 @@ export class ChatController {
     // const client = await this.db.getClientById(data.iddata);
     const member = await this.db.getRoomByClientIdAndRoomId(data.iddata, room.id);
 
+    
     if (!room) {
         throw new Error('Room does not exist');
     }
@@ -90,12 +90,12 @@ export class ChatController {
     if (member) {
         throw new Error('Already member');
     }
-
-    if (member.status === 5) {
-        throw new Error('You are banned');
-    }
     
-    await this.db.addMemberToRoom(data.roomId, data.clientId, 2);
+    // if (member.status === 5) { // <-- if banned he is still member apparently
+    //     throw new Error('You are banned');
+    // }
+    
+    await this.db.addMemberToRoom(room.id, data.iddata, 2);
     return 'User joined the room';
   }
 
@@ -104,25 +104,27 @@ export class ChatController {
   async joinProtectedRoom(@Body() data) {
     const room = await this.db.getRoomById(data.roomId);
     const member = await this.db.getRoomByClientIdAndRoomId(data.iddata, room.id);
-
+    console.log('->', room);
     if (!room) {
         throw new Error('Room does not exist');
     }
     if (member) {
         throw new Error('Already member');
     }
+    console.log('->', member);
 
-    if (member.status === 5) {
-        throw new Error('You are banned');
-    }
+    // if (member.status === 5) {
+    //     throw new Error('You are banned');
+    // }
 
     if (room.secu === 1) {
+        console.log('->', member);
         console.log('This room is protected, password required');
         bcrypt.compare(data.password, room.password)
             .then((passwordsMatch) => {
                 if (passwordsMatch) {
                     console.log("Correct password");
-                    this.db.addMemberToRoom(data.roomId, data.clientId, 2);
+                    this.db.addMemberToRoom(room.id, data.iddata, 2);
                     return 'User joined the room';
                 } else {
                     console.log("Wrong password");
@@ -151,11 +153,39 @@ export class ChatController {
         if (member2) { // invited already member
             throw new Error('Already member');
         }
-        if (member2.status === 5) { // invited is banned
-            throw new Error('You are banned');
-        }
+        // if (member2.status === 5) { // invited is banned
+        //     throw new Error('You are banned');
+        // }
 
         await this.db.addMemberToRoom(data.roomId, invited.id, 2);
         return 'User joined the room';
+    }
+    
+    @Post('/addFriend')
+    async addFriend(@Body() data) {
+        const userId = await this.db.getClientById(data.iddata);
+        const newFriend = await this.db.getClientById(data.newFriendId);
+        
+        if (!newFriend){ 
+            throw new Error('User does not exist');
+        }
+        
+        await this.db.addClientsToClient(userId.id, newFriend.id, 0);
+        return 'Users are now friends';
+    }
+
+    @Post('/sendMsg')
+    async sendMsg(@Body() data) {
+        const userId = await this.db.getClientById(data.iddata);
+        const newFriend = await this.db.getClientById(data.newFriendId);
+        
+        if (!newFriend){ 
+            throw new Error('User does not exist');
+        }
+        this.dto.name = "mp1";
+        this.dto.ownerid = data.iddata;
+
+        // await this.db.sendMsg(userId.id,newFriend.id);
+        return 'A private chat room has been created';
     }
 }
