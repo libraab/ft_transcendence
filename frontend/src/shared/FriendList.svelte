@@ -49,7 +49,12 @@
 
 	async function addFl()
 	{
-
+		const response = await fetch(`http://${hostname}:3000/dashboard/fetch-fl`);
+		if (response.ok) {
+			rooms = await response.json();
+		} else {
+			console.error('Failed to fetch friend list');
+		}
 	}
 
 	async function blockTarget()
