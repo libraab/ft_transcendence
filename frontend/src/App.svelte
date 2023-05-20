@@ -12,6 +12,7 @@
 	import { userId42 } from "./stores";
 	import { page_shown } from "./stores"
 	import {hostname} from "./hostname"
+  import DfaHomePage from "./dfaHomePage.svelte";
 
 	history.replaceState({"href_to_show":"/"}, "", "/")
 
@@ -85,7 +86,9 @@
 	<center><p>Loading...</p></center>
 
 {:then dashboardData}
-
+	{#if dashboardData && dashboardData.Dfa}
+		<DfaHomePage/>
+	{/if}
 	{#if dashboardData && Object.keys(dashboardData).length > 0}
 
 		<Tabs id={dashboardData.id}/>

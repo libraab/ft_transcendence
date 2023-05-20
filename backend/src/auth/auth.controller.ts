@@ -1,4 +1,4 @@
-import { Controller, Query, Get, HttpException, HttpStatus, Res, Header, Body, Post, Param} from '@nestjs/common';
+import { Controller, Query, Get, HttpException, HttpStatus, Res, Header, Body, Post, Param, ParseIntPipe} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type User42Interface from './user42.interface';
 import { JwtService } from '@nestjs/jwt';
@@ -9,6 +9,7 @@ import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 import { authenticator } from 'otplib';
 import { qrcode } from "qrcode";
 const qrcode = require("qrcode");
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -28,6 +29,7 @@ export class AuthController {
 		const user_info: User42Interface = await this.authService.get_user_info(access_token);
 		let user = await this.databaseService.getClientById42(user_info.id);
 		if (!user) {
+			console.log('New user is being created');
 			let new_user: ClientDto = new ClientDto;
 			new_user.id42 = user_info.id;
 			new_user.name = user_info.login;
@@ -35,30 +37,29 @@ export class AuthController {
 			new_user.img = user_info.image.link;
 			user = await this.databaseService.createClient(new_user);
 		}
+		else 
+			console.log('We already know this person');
+		
+		console.log('user id is -->', user.id);
+		console.log('user 42_id is -->', user.id42);
+		console.log('user name is -->', user.name);
+		console.log('user dfa is -->', user.Dfa);
+		console.log('img link is -->', user.img);
 		let add_cookie: UpdateClientDto = new UpdateClientDto;
 		// generetate the jwt
 		let jwt = await this.jwtService.signAsync({id: user_info.id});
-		
-		// console.log('image -->', user_info.image.link);
-		
 		response.setCookie('jwt_cookie', jwt);
 		response.setCookie('id42', user.id42.toString());
+		
 		// console.log('jwt -->', jwt);
-		// console.log('user id is -->', user.id);
-		// console.log('user 42_id is -->', user.id42);
-		// console.log('user name is -->', user.name);
-		// console.log('img link is -->', user.img);
 		
 		add_cookie.cookie = jwt;
-		
-		// console.log('cookie added -->', add_cookie.cookie);
 		await this.databaseService.updateCookie(user.id42, add_cookie); // not good
 		
 		// https://docs.nestjs.com/techniques/cookies
 		// return ('<script>window.close()</script>');
-		console.log('about to reconnect - DFA is ', user.Dfa);
 		if (user.Dfa) {
-			console.log('user DFA is activated');
+			console.log('user DFA is activated and is sent to homepage');
 			// const isValid = totp.check(code, secret);
 			// if (isValid) {
 			// 	user.Dfa = false;
@@ -71,32 +72,35 @@ export class AuthController {
 			// 	secret,
 			// 	window: 1, // Number of time steps the code is valid for (default is 1)
 			//   });
-			return response.redirect(302, "http://"+process.env.HOSTNAME+":8080/dfaHomePage");
+			// return response.redirect(302, "http://"+process.env.HOSTNAME+":8080/dfaHomePage");
+
+			return response.redirect(302, "http://"+process.env.HOSTNAME+":8080");
 		}
 		return response.redirect(302, "http://"+process.env.HOSTNAME+":8080");
-
 		// response is a Fastify Reply object and not an Express Response object that is why we have to redirect redirect with Fastify by giving the status
 	}
 
 	// @Post('2fa/verify')
 	// async verifyTwoFactorAuthCode(@Body() body: { code: string }): Promise<{ isValid: boolean }> {
-		// 	const { code } = body;
-		// 	const secret = 'SECRET_KEY_FROM_DATABASE'; // Get the secret key from the database
-		// 	const isValid = authenticator.verify({
-			// 		token: code,
-			// 		secret,
-			// 		window: 1,
-			// 	});
-			// 	return { isValid };
-			// }
+		
+	// 		const { code } = body;
+	// 		const secret = 'SECRET_KEY_FROM_DATABASE'; // Get the secret key from the database
+	// 		const isValid = authenticator.verify({
+	// 				token: code,
+	// 				secret,
+	// 				window: 1,
+	// 			});
+	// 			return { isValid };
+	// 		}
 	
 	@Post('/2fa/:id')
-	async activateDfa(@Param('id') id: number, @Body() body: { isDFAActive: boolean }): Promise<{ qrCodeImageUrl?: string }> {
+	async activateDfa(@Param('id', ParseIntPipe) id: number, @Body() body: { isDFAActive: boolean }): Promise<{ qrCodeImageUrl?: string }> {
 		const { isDFAActive } = body;
-		let user: UpdateClientDto = new UpdateClientDto();
+		let user: UpdateClientDto = new UpdateClientDto;
 		console.log('DFA is ', isDFAActive);
 		// if user activate the dfa
 		if (isDFAActive) {
+			console.log('dfa is now activated in database');
 			user.dfa = true;
 			await this.databaseService.updateClient(id, user);
 			const secret = authenticator.generateSecret(); // Generate a new secret key
@@ -108,6 +112,7 @@ export class AuthController {
 		else {
 			user.dfa = false;
 			await this.databaseService.updateClient(id, user);
+			console.log('dfa is deactivatedin database');
 		}
 		return {};
 	}
