@@ -453,7 +453,7 @@ export class DatabaseService
 
 		return rooms;
 	}
-/*
+
 	async getRoomIdsAndNamesByClientId(clientId: number): Promise<{ roomId: number; roomName: string }[]> {
 		const roomMembers = await this.prisma.roomMembers.findMany({
 			where: {
@@ -476,8 +476,7 @@ export class DatabaseService
 
 		return roomIdsAndNames;
 	}
-*/
-
+/*
 	async getRoomIdsAndNamesByClientId(clientId: number): Promise<{ roomId: number; roomName: string }[]> {
 		const roomWithOwner = await this.prisma.rooms.findFirst({
 			where: {
@@ -519,7 +518,7 @@ export class DatabaseService
 
 		throw new Error("Room not Found");
 	}
-
+*/
 	async addMemberToRoom(roomId: number, memberId: number, status: number): Promise<RoomMembers | null> {
 		try {
 			const existingMember = await this.prisma.roomMembers.findFirst({

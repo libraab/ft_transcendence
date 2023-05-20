@@ -52,6 +52,10 @@ export class createRoomDto
 	@IsString()	
 	name: string;
 	
+	@IsOptional()
+	@IsString()	
+	name2: string;
+	
 	@IsNotEmpty()
 	@IsNumber()
 	ownerid: number;

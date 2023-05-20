@@ -1,5 +1,4 @@
 <script>
-    import {Route, Router} from "svelte-navigator";
     import Login from "./component/login/Login.svelte";
     import Header from "./component/Header.svelte";
     import Footer from "./component/Footer.svelte";
@@ -8,11 +7,10 @@
 	import Chat from "./component/chat/Chat.svelte";
 	import Game from "./component/game/pong.svelte"
 	import Rooms from "./component/rooms/rooms.svelte";
-	import PrivateRoute from "./PrivateRoute.svelte";
 	import { userId42 } from "./stores";
 	import { page_shown } from "./stores"
 	import {hostname} from "./hostname"
-  import DfaHomePage from "./dfaHomePage.svelte";
+  	// import DfaHomePage from "./dfaHomePage.svelte";
 
 	history.replaceState({"href_to_show":"/"}, "", "/")
 
@@ -35,14 +33,14 @@
 		try
 		{
 			const cookieValue = document.cookie
-											.split('; ')
-											.find(cookie => cookie.startsWith('jwt_cookie'))
-											.split('=')[1];
+				.split('; ')
+				.find(cookie => cookie.startsWith('jwt_cookie'))
+				.split('=')[1];
 
 			const id42 = document.cookie
-									.split('; ')
-									.find(cookie => cookie.startsWith('id42'))
-									.split('=')[1];
+				.split('; ')
+				.find(cookie => cookie.startsWith('id42'))
+				.split('=')[1];
 			$userId42 = id42;
 			const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {
 				headers:
@@ -86,10 +84,10 @@
 	<center><p>Loading...</p></center>
 
 {:then dashboardData}
-	{#if dashboardData && dashboardData.Dfa}
+	<!-- {#if dashboardData && dashboardData.Dfa}
 		<DfaHomePage/>
-	{/if}
-	{#if dashboardData && Object.keys(dashboardData).length > 0}
+	{/if} -->
+	{#if dashboardData && !dashboardData.Dfa && Object.keys(dashboardData).length > 0}
 
 		<Tabs id={dashboardData.id}/>
 		<main>

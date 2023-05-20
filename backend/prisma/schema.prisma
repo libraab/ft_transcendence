@@ -73,19 +73,21 @@ model ClientStats {
 }
 
 model Rooms {
-  id   Int    @id @default(autoincrement())
-  name String @db.VarChar(50)
-  
-  client2Id Int?
-  client2    Clients? @relation("RoomClients", fields: [client2Id], references: [id])
+  id    Int     @id @default(autoincrement())
+  name  String  @db.VarChar(50)
+  name2 String? @db.VarChar(50)
 
-  ownerid  Int
-  owner    Clients  @relation("RoomsOwned", fields: [ownerid], references: [id])
   secu     Int
   password String?
 
-  members  RoomMembers[] @relation("RoomMembersToRooms")
   messages MessagesRooms[]
+
+  client2Id Int?
+  client2   Clients? @relation("RoomClients", fields: [client2Id], references: [id])
+  ownerid   Int
+  owner     Clients  @relation("RoomsOwned", fields: [ownerid], references: [id])
+
+  members  RoomMembers[] @relation("RoomMembersToRooms")
 
   @@unique([name], name: "name_uniq")
   @@index([ownerid], name: "owner_idx")

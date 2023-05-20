@@ -23,8 +23,8 @@
           alert("An error occurred. Please try again later.");
         });
     }
-
     onMount(() => {
+      console.log('in Dfa');
       code = "";
     });
   </script>
