@@ -7,8 +7,8 @@ import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 import { authenticator } from 'otplib';
-import { qrcode } from 'qrcode'
-
+import { qrcode } from "qrcode";
+const qrcode = require("qrcode");
 @Controller('auth')
 export class AuthController {
 	constructor(	private authService: AuthService,
@@ -34,6 +34,7 @@ export class AuthController {
 			new_user.img = user_info.image.link;
 			user = await this.databaseService.createClient(new_user);
 		}
+		console.log('about to reconnect - DFA is ', user.Dfa);
 		let add_cookie: UpdateClientDto = new UpdateClientDto;
 		// generetate the jwt
 		let jwt = await this.jwtService.signAsync({id: user_info.id});
@@ -69,6 +70,7 @@ export class AuthController {
 			// 	secret,
 			// 	window: 1, // Number of time steps the code is valid for (default is 1)
 			//   });
+			return response.redirect(302, "http://"+process.env.HOSTNAME+":8080/dfaHomePage");
 		}
 		return response.redirect(302, "http://"+process.env.HOSTNAME+":8080");
 
@@ -86,21 +88,25 @@ export class AuthController {
 			// 	});
 			// 	return { isValid };
 			// }
-			
+	
 	@Post('/2fa')
 	async activateDfa(@Body() body: { isDFAActive: boolean }): Promise<{ qrCodeImageUrl?: string }> {
-		console.log('line 92 of auth.controller.ts');
 		const { isDFAActive } = body;
+		let user: UpdateClientDto = new UpdateClientDto;
+		console.log('DFA is ', isDFAActive);
+		// if user activate the dfa
 		if (isDFAActive) {
+			
+			// await this.databaseService.updateClient();
 			const secret = authenticator.generateSecret(); // Generate a new secret key
 			// Generate the QR code image
 			const otpauthUrl = authenticator.keyuri('asmabouhlel@student.42nice.fr', 'ft_transcendence', secret);
 			const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
-			// Return the QR code image URL to the frontend
 			return { qrCodeImageUrl };
 		}
-		return {}; // Return an empty response if DFA is not activated
-		
+		// else 
+			// await this.databaseService.updateClient();
+		return {};
 	}
 }
 
