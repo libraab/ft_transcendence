@@ -9,6 +9,7 @@ import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 import { authenticator } from 'otplib';
 import { qrcode } from "qrcode";
 const qrcode = require("qrcode");
+
 @Controller('auth')
 export class AuthController {
 	constructor(	private authService: AuthService,

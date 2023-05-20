@@ -13,8 +13,8 @@ export class ChatController {
     {
 		let client = await this.db.getClientById42(id);
 		let json = await this.db.getRoomIdsAndNamesByClientId(client.id);
+        console.log(json);
 		return json;
-        return this.db.getRoomIdsAndNamesByClientId(id); // <-- useless
     }
 
     @Get('/messages/:id')
@@ -78,7 +78,7 @@ export class ChatController {
     async joinRoom(@Body() data) {
     const room = await this.db.getRoomById(data.roomId);
     // const client = await this.db.getClientById(data.iddata);
-    const member = await this.db.getRoomByClientIdAndRoomId(data.iddata, room.id);
+    // const member = await this.db.getRoomByClientIdAndRoomId(data.iddata, room.id);
 
     
     if (!room) {
@@ -87,9 +87,9 @@ export class ChatController {
     if (room.secu === 2) {
         throw new Error('Cannot join a private room');
     }
-    if (member) {
-        throw new Error('Already member');
-    }
+    // if (member) {
+    //     throw new Error('Already member');
+    // }
     
     // if (member.status === 5) { // <-- if banned he is still member apparently
     //     throw new Error('You are banned');
