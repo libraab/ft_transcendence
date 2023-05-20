@@ -169,6 +169,7 @@ export class DatabaseService
 			const updateData: Prisma.ClientsUpdateInput = {
 				img: data.img ? { set: data.img } : undefined,
 				name: data.name ? { set: data.name } : undefined,
+				Dfa: data.dfa ? { set: data.dfa } : undefined,
 			};
 
 			const updatedClient = await this.prisma.clients.update({
@@ -350,13 +351,14 @@ export class DatabaseService
 	{
 		try
 		{
-			const { name, ownerid, secu, password } = dto;
+			const { name, ownerid, secu, password, client2Id } = dto;
 			const room = await this.prisma.rooms.create({
 				data: {
 					name,
 					ownerid,
 					secu,
-					password
+					password,
+					client2Id,
 				},
 			});
 
