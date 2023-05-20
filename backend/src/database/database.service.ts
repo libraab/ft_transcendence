@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientDto } from './dtos/dbBaseDto';
 import { ClientStats, ClientToClient, Clients, MessagesRooms, Prisma, RoomMembers, Rooms } from '@prisma/client';
@@ -346,7 +346,7 @@ export class DatabaseService
 			throw error;
 		}
 	}
-
+/*
 	async createRooom(dto: createRoomDto): Promise<Rooms>
 	{
 		try
@@ -375,7 +375,64 @@ export class DatabaseService
 			throw error;
 		}
 	}
+*/
+	async createRooom(dto: createRoomDto): Promise<Rooms> {
+		try {
+			const { name, ownerid, secu, password, client2Id } = dto;
 
+			if (secu === 3) {
+				if (!client2Id) {
+					throw new BadRequestException("client2Id est obligatoire lorsque secu est égal à 3");
+				}
+
+				const client2 = await this.prisma.clients.findUnique({
+					where: { id: client2Id },
+					select: { name: true },
+				});
+
+				if (!client2) {
+					throw new BadRequestException("client2Id spécifié n'existe pas");
+				}
+
+				const room = await this.prisma.rooms.create({
+					data: {
+						name: client2.name,
+						ownerid,
+						secu,
+						password,
+						client2Id,
+					},
+				});
+
+				return room;
+			} else {
+				const room = await this.prisma.rooms.create({
+					data: {
+						name,
+						ownerid,
+						secu,
+						password,
+						client2Id,
+					},
+				});
+
+				return room;
+			}
+		}
+		catch (error)
+		{
+			if (error instanceof Prisma.PrismaClientKnownRequestError)
+			{
+				if (error.code === 'P2025') {
+					throw new NotFoundException('User doesn\'t exist');
+				}
+				if (error.code === 'P2002') {
+					throw new ForbiddenException('Credentials taken');
+				}
+				throw error;
+			}
+		}
+	}
 	async getRooms(): Promise<{ id: number; name: string; secu: number}[]> {
 		const rooms = await this.prisma.rooms.findMany({
 			where: {
@@ -392,7 +449,7 @@ export class DatabaseService
 
 		return rooms;
 	}
-
+/*
 	async getRoomIdsAndNamesByClientId(clientId: number): Promise<{ roomId: number; roomName: string }[]> {
 		const roomMembers = await this.prisma.roomMembers.findMany({
 			where: {
@@ -414,6 +471,49 @@ export class DatabaseService
 		}));
 
 		return roomIdsAndNames;
+	}
+*/
+
+	async getRoomIdsAndNamesByClientId(clientId: number): Promise<{ roomId: number; roomName: string }[]> {
+		const roomWithOwner = await this.prisma.rooms.findFirst({
+			where: {
+				ownerid: clientId,
+			},
+			select: {
+				id: true,
+				name: true,
+			},
+		});
+
+		if (roomWithOwner) {
+			return [{
+				roomId: roomWithOwner.id,
+				roomName: roomWithOwner.name,
+			}];
+		}
+
+		const roomWithClient2 = await this.prisma.rooms.findFirst({
+			where: {
+				client2Id: clientId,
+			},
+			select: {
+				id: true,
+				owner: {
+					select: {
+						name: true,
+					},
+				},
+			},
+		});
+
+		if (roomWithClient2) {
+			return [{
+				roomId: roomWithClient2.id,
+				roomName: roomWithClient2.owner.name,
+			}];
+		}
+
+		throw new Error("Room not Found");
 	}
 
 	async addMemberToRoom(roomId: number, memberId: number, status: number): Promise<RoomMembers> {
