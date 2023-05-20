@@ -72,9 +72,8 @@ export class AuthController {
 			// 	secret,
 			// 	window: 1, // Number of time steps the code is valid for (default is 1)
 			//   });
-			// return response.redirect(302, "http://"+process.env.HOSTNAME+":8080/dfaHomePage");
-
-			return response.redirect(302, "http://"+process.env.HOSTNAME+":8080");
+			
+			// return response.redirect(302, "http://"+process.env.HOSTNAME+":8080/$page_shown=='dfaHomePage'");
 		}
 		return response.redirect(302, "http://"+process.env.HOSTNAME+":8080");
 		// response is a Fastify Reply object and not an Express Response object that is why we have to redirect redirect with Fastify by giving the status
