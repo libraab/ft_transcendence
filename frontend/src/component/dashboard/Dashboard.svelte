@@ -4,6 +4,7 @@
 	import UpdateModal from './Update.svelte';
 	import DeleteModal from './Delete.svelte';
 	import { hostname } from '../../hostname';
+	import axios from 'axios';
 
 	const dispatch = createEventDispatcher();
 
@@ -33,11 +34,9 @@
 	let title = [ "Straitght outta bronze", "Golden pad", "Diamonds Are Forever", "Big Brother", "Daddy"];
 
 	let isDFAActive = false;
-	function toggleDFAState() {
-		isDFAActive = !isDFAActive;
-	}
 
 	let blocked = false;
+	let qrCodeImageUrl = "";
 	function toggleBlockState() {
 		blocked = !blocked;
 	}
@@ -62,6 +61,18 @@
 		catch (error)
 		{
 			console.error(error);
+		}
+	}
+
+	async function toggleDFAState() {
+		isDFAActive = !isDFAActive;
+		// Send API request to update DFA status
+		try {
+			const response = await axios.post(`http://${hostname}:3000/auth/2fa`, { isDFAActive });
+			console.log('DFA status updated in the database.');
+			qrCodeImageUrl = response.data.qrCodeImageUrl;
+		} catch (error) {
+			console.error('Failed to update DFA status:', error);
 		}
 	}
 
@@ -261,6 +272,9 @@
       				>
        	 			DFA
       				</button>
+					{#if qrCodeImageUrl}
+					  <img src={qrCodeImageUrl} alt="QR Code" />
+					{/if}
 				</div>
 			{:else}
     			<div class="avatar">
