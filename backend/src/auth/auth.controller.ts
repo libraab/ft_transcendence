@@ -1,4 +1,4 @@
-import { Controller, Query, Get, HttpException, HttpStatus, Res, Header, Body, Post} from '@nestjs/common';
+import { Controller, Query, Get, HttpException, HttpStatus, Res, Header, Body, Post, Param} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type User42Interface from './user42.interface';
 import { JwtService } from '@nestjs/jwt';
@@ -34,13 +34,12 @@ export class AuthController {
 			new_user.img = user_info.image.link;
 			user = await this.databaseService.createClient(new_user);
 		}
-		console.log('about to reconnect - DFA is ', user.Dfa);
 		let add_cookie: UpdateClientDto = new UpdateClientDto;
 		// generetate the jwt
 		let jwt = await this.jwtService.signAsync({id: user_info.id});
-
+		
 		// console.log('image -->', user_info.image.link);
-
+		
 		response.setCookie('jwt_cookie', jwt);
 		response.setCookie('id42', user.id42.toString());
 		// console.log('jwt -->', jwt);
@@ -50,12 +49,13 @@ export class AuthController {
 		// console.log('img link is -->', user.img);
 		
 		add_cookie.cookie = jwt;
-
+		
 		// console.log('cookie added -->', add_cookie.cookie);
 		await this.databaseService.updateCookie(user.id42, add_cookie); // not good
-
+		
 		// https://docs.nestjs.com/techniques/cookies
 		// return ('<script>window.close()</script>');
+		console.log('about to reconnect - DFA is ', user.Dfa);
 		if (user.Dfa) {
 			console.log('user DFA is activated');
 			// const isValid = totp.check(code, secret);
@@ -89,23 +89,25 @@ export class AuthController {
 			// 	return { isValid };
 			// }
 	
-	@Post('/2fa')
-	async activateDfa(@Body() body: { isDFAActive: boolean }): Promise<{ qrCodeImageUrl?: string }> {
+	@Post('/2fa/:id')
+	async activateDfa(@Param('id') id: number, @Body() body: { isDFAActive: boolean }): Promise<{ qrCodeImageUrl?: string }> {
 		const { isDFAActive } = body;
-		let user: UpdateClientDto = new UpdateClientDto;
+		let user: UpdateClientDto = new UpdateClientDto();
 		console.log('DFA is ', isDFAActive);
 		// if user activate the dfa
 		if (isDFAActive) {
-			
-			// await this.databaseService.updateClient();
+			user.dfa = true;
+			await this.databaseService.updateClient(id, user);
 			const secret = authenticator.generateSecret(); // Generate a new secret key
 			// Generate the QR code image
 			const otpauthUrl = authenticator.keyuri('asmabouhlel@student.42nice.fr', 'ft_transcendence', secret);
 			const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
 			return { qrCodeImageUrl };
 		}
-		// else 
-			// await this.databaseService.updateClient();
+		else {
+			user.dfa = false;
+			await this.databaseService.updateClient(id, user);
+		}
 		return {};
 	}
 }
