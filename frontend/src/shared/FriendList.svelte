@@ -36,7 +36,7 @@
 		{
 			try
 			{
-				const response = await fetch(`http://localhost:3000/dashboard/name/${retName}`);
+				const response = await fetch(`http://${hostname}:3000/dashboard/name/${retName}`);
 				searchRes = await response.json();
 			}
 			catch (error) {
