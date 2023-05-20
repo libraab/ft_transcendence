@@ -68,7 +68,7 @@
 		isDFAActive = !isDFAActive;
 		// Send API request to update DFA status
 		try {
-			const response = await axios.post(`http://${hostname}:3000/auth/2fa`, { isDFAActive });
+			const response = await axios.post(`http://${hostname}:3000/auth/2fa/${id}`, { isDFAActive });
 			console.log('DFA status updated in the database.');
 			qrCodeImageUrl = response.data.qrCodeImageUrl;
 		} catch (error) {
