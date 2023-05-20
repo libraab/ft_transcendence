@@ -405,7 +405,9 @@ export class DatabaseService
 				});
 
 				return room;
-			} else {
+			}
+			else
+			{
 				const room = await this.prisma.rooms.create({
 					data: {
 						name,
@@ -516,9 +518,19 @@ export class DatabaseService
 		throw new Error("Room not Found");
 	}
 
-	async addMemberToRoom(roomId: number, memberId: number, status: number): Promise<RoomMembers> {
-		console.log(roomId);
+	async addMemberToRoom(roomId: number, memberId: number, status: number): Promise<RoomMembers | null> {
 		try {
+			const existingMember = await this.prisma.roomMembers.findFirst({
+				where: {
+					roomId,
+					memberId,
+				},
+			});
+
+			if (existingMember) {
+				return null; // Membre déjà membre de la salle, retourne null
+			}
+
 			const roomMember = await this.prisma.roomMembers.create({
 				data: {
 					roomId,
@@ -528,16 +540,16 @@ export class DatabaseService
 			});
 
 			return roomMember;
-		}	
-		catch (error)
-		{
-			if (error instanceof Prisma.PrismaClientKnownRequestError)
-			{
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
+				if (error.code === 'P2025') {
+					throw new NotFoundException("L'utilisateur n'existe pas");
+				}
 				if (error.code === 'P2002') {
 					throw new ForbiddenException('Credentials taken');
 				}
+				throw error;
 			}
-			throw error;
 		}
 	}
 
