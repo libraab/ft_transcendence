@@ -18,6 +18,7 @@
 	let id = data.id;
 	let name = data.name;
 	let img = data.img;
+	let Dfa = data.Dfa;
 
 	let searchRes = [];
 
@@ -33,7 +34,7 @@
 	let HF = ["pas du tout", "un peu", "beaucoup", "passionnément", "à la folie"];
 	let title = [ "Straitght outta bronze", "Golden pad", "Diamonds Are Forever", "Big Brother", "Daddy"];
 
-	let isDFAActive = false;
+	let isDFAActive = Dfa;
 
 	let blocked = false;
 	let qrCodeImageUrl = "";
