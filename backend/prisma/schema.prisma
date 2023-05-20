@@ -26,6 +26,7 @@ model Clients {
   msgSent     MessagesClientToClient[] @relation("ClientToClient_client1")
   msgReceived MessagesClientToClient[] @relation("ClientToClient_client2")
   roomMembers RoomMembers[]            @relation("ClientRoomMembers")
+  roomClient2 Rooms[]                  @relation("RoomClients")
   clientStats ClientStats[]
   messages    MessagesRooms[]
 }
@@ -74,6 +75,9 @@ model ClientStats {
 model Rooms {
   id   Int    @id @default(autoincrement())
   name String @db.VarChar(50)
+  
+  client2Id Int?
+  client2    Clients? @relation("RoomClients", fields: [client2Id], references: [id])
 
   ownerid  Int
   owner    Clients  @relation("RoomsOwned", fields: [ownerid], references: [id])

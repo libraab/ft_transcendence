@@ -62,4 +62,7 @@ export class createRoomDto
 
 	@IsOptional()
 	password?: string;
+
+	@IsOptional()
+	client2Id: number;
 }

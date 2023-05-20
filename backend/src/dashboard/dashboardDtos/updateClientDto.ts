@@ -15,4 +15,7 @@ export class UpdateClientDto
 	@IsString()
 	@MaxLength(250)
 	cookie?: string;
+
+	@IsOptional()
+	dfa?: boolean;
   }
