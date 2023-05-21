@@ -170,7 +170,7 @@ export class DatabaseService
 			const updateData: Prisma.ClientsUpdateInput = {
 				img: data.img ? { set: data.img } : undefined,
 				name: data.name ? { set: data.name } : undefined,
-				Dfa: data.dfa ? { set: data.dfa } : undefined,
+				Dfa: data.dfa,
 			};
 			
 			const updatedClient = await this.prisma.clients.update({
@@ -272,6 +272,7 @@ export class DatabaseService
 						img: true,
 						cookie: true,
 						Dfa: true,
+						DfaSecret: true
 					},
 				},
 				status: true,
@@ -286,6 +287,7 @@ export class DatabaseService
 				img: relation.client2?.img,
 				cookie: relation.client2?.cookie,
 				Dfa: relation.client2?.Dfa,
+				DfaSecret: relation.client2?.DfaSecret,
 			},
 			status: relation.status,
 		}));
