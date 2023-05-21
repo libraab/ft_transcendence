@@ -1,4 +1,4 @@
-import { Controller, Query, Get, HttpException, HttpStatus, Res, Header, Body, Post, Param, ParseIntPipe, Redirect} from '@nestjs/common';
+import { Controller, Query, Get, HttpException, HttpStatus, Res, Header, Body, Post, Param, ParseIntPipe, Redirect, BadRequestException} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type User42Interface from './user42.interface';
 import { JwtService } from '@nestjs/jwt';
@@ -74,9 +74,9 @@ export class AuthController {
 			userDto.dfa = false;
 			await this.databaseService.updateClient(user.id, userDto);
 			console.log('Correct code, dfa deactivated');
-			// return response.redirect(302, "http://"+process.env.HOSTNAME+":8080");
 			return response.redirect(302, "/"); // Redirect to the root of the same domain
 		}
+		return new BadRequestException();
 	}
 	
 	@Post('/2fa/:id')
@@ -91,10 +91,11 @@ export class AuthController {
 		if (isDFAActive) {
 			console.log('dfa is now activated in database');
 			user.dfa = true;
-			await this.databaseService.updateClient(id, user);
 			user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key
+			console.log(user.dfaSecret);
+			await this.databaseService.updateClient(id, user);
 			// Generate the QR code image
-			const otpauthUrl = authenticator.keyuri('asmabouhlel@student.42nice.fr', 'ft_transcendence', secret);
+			const otpauthUrl = authenticator.keyuri('asmabouhlel@student.42nice.fr', 'ft_transcendence', user.dfaSecret);
 			const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
 			return { qrCodeImageUrl };
 		}

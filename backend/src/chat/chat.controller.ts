@@ -7,20 +7,20 @@ import * as bcrypt from 'bcrypt'
 export class ChatController {
 	constructor(private db: DatabaseService,
                 private dto: createRoomDto) {}
-
+    //----------------------------------------------------------------------//
     @Get(':id')
     async getAllUsersChat(@Param('id', ParseIntPipe) id: number)
     {
-		let client = await this.db.getClientById42(id);
+        let client = await this.db.getClientById42(id);
 		let json = await this.db.getRoomIdsAndNamesByClientId(client.id);
         console.log(json);
 		return json;
     }
-
+    //----------------------------------------------------------------------//
     @Get('/messages/:id')
     async getAllMessages(@Param('id', ParseIntPipe) id: number)
     {
-		let json = await this.db.getRoomMessagesById(id);
+        let json = await this.db.getRoomMessagesById(id);
         let res = [];
         await Promise.all(json.map(async (e) => {
             res.push({ sender: e.clientName, message: e.message});
@@ -28,13 +28,13 @@ export class ChatController {
         console.log(res);
 		return res;
     }
-
+    //----------------------------------------------------------------------//
     @Delete()
     quitRoom(): string
     {
         return 'user quit the room';
     }
-
+    //----------------------------------------------------------------------//
     @Post()
     async createNewRoom(@Body() data) {
         const existingRooms = await this.db.getRooms();
@@ -45,21 +45,22 @@ export class ChatController {
         this.dto.name = data.roomName;
         this.dto.ownerid = data.iddata;
         if (data.roomType == "public")
-            this.dto.secu = 0;
+        this.dto.secu = 0;
         if (data.roomType == "protected")
-            this.dto.secu = 1;
+        this.dto.secu = 1;
         if (data.roomType == "private")
-            this.dto.secu = 2;
-
+        this.dto.secu = 2;
+        
         if (this.dto.secu === 1) {
             const saltRounds = 10;
             this.dto.password = await bcrypt.hash(data.password, saltRounds);
             console.log('a protected room has been created');
         }
         let Room = await this.db.createRooom(this.dto);
-
+        
 		this.db.addMemberToRoom(Room.id, this.dto.ownerid, 0);
     }
+    //----------------------------------------------------------------------//
 	/*
 	0 - owner
 	1 - admin
@@ -68,36 +69,27 @@ export class ChatController {
 	4 - kicked
 	5 - banned
 	*/
-
+    //----------------------------------------------------------------------//
     @Get()
     async getRooms(): Promise<{ id: number; name: string }[]> {
         return this.db.getRooms();
     }
-
-    @Post('/join')
-    async joinRoom(@Body() data) {
+//-----------------------------------------------------------------//
+@Post('/join')
+async joinRoom(@Body() data) {
     const room = await this.db.getRoomById(data.roomId);
-    // const client = await this.db.getClientById(data.iddata);
-    // const member = await this.db.getRoomByClientIdAndRoomId(data.iddata, room.id);
-
     
     if (!room) {
         throw new Error('Room does not exist');
     }
-    if (room.secu === 2) {
+    if (room.secu === 2 || room.secu === 3 ) {
         throw new Error('Cannot join a private room');
     }
-    // if (member) {
-    //     throw new Error('Already member');
-    // }
-    
-    // if (member.status === 5) { // <-- if banned he is still member apparently
-    //     throw new Error('You are banned');
-    // }
     
     await this.db.addMemberToRoom(room.id, data.iddata, 2);
     return 'User joined the room';
-  }
+}
+//-----------------------------------------------------------------//
 
 
   @Post('/verify-password')

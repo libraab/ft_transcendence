@@ -22,7 +22,8 @@
             id: data.id
         })
       });
-      dispatch('updateVerification');
+      if (response.ok)
+        dispatch('updateVerification');
       }
 
     onMount(() => {

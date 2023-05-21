@@ -165,20 +165,18 @@ export class DatabaseService
 
 	async updateClient(id: number, data: UpdateClientDto): Promise<Clients>
 	{
-		console.log('->', data);
-		console.log('->', id);
 		try{
 			const updateData: Prisma.ClientsUpdateInput = {
 				img: data.img ? { set: data.img } : undefined,
 				name: data.name ? { set: data.name } : undefined,
 				Dfa: data.dfa,
+				DfaSecret: data.dfaSecret? { set: data.dfaSecret} : undefined,
 			};
 			
 			const updatedClient = await this.prisma.clients.update({
 				where: { id },
 				data: updateData,
 			});
-			console.log('dfa returned ', updatedClient.Dfa);
 			return updatedClient;
 		}
 		catch (error)
