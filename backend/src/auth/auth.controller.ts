@@ -68,8 +68,7 @@ export class AuthController {
 		@Res({ passthrough: true }) response: FastifyReply)
 	{
 		const user = await this.databaseService.getClientById(id);
-		// const isVerified = authenticator.check(code, user.dfaSecret);
-		const isVerified = true;
+		const isVerified = authenticator.check(code, user.DfaSecret);
 		let userDto: UpdateClientDto = new UpdateClientDto;
 		if (isVerified) {
 			userDto.dfa = false;
@@ -93,7 +92,7 @@ export class AuthController {
 			console.log('dfa is now activated in database');
 			user.dfa = true;
 			await this.databaseService.updateClient(id, user);
-			const secret = authenticator.generateSecret(); // Generate a new secret key
+			user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key
 			// Generate the QR code image
 			const otpauthUrl = authenticator.keyuri('asmabouhlel@student.42nice.fr', 'ft_transcendence', secret);
 			const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
