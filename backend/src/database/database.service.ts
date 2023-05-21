@@ -273,6 +273,7 @@ export class DatabaseService
 						img: true,
 						cookie: true,
 						Dfa: true,
+						DfaSecret: true
 					},
 				},
 				status: true,
@@ -287,6 +288,7 @@ export class DatabaseService
 				img: relation.client2?.img,
 				cookie: relation.client2?.cookie,
 				Dfa: relation.client2?.Dfa,
+				DfaSecret: relation.client2?.DfaSecret,
 			},
 			status: relation.status,
 		}));

@@ -18,4 +18,7 @@ export class UpdateClientDto
 
 	@IsOptional()
 	dfa?: boolean;
+
+	@IsOptional()
+	dfaSecret?: string;
   }
