@@ -12,6 +12,8 @@
 	import { userId42 } from "./stores";
 	import { page_shown } from "./stores"
 	import {hostname} from "./hostname"
+	import { getSocket, initializeSocket, rooms } from "./socket"
+    import { onMount } from "svelte";
 
 	history.replaceState({"href_to_show":"/"}, "", "/")
 
@@ -23,9 +25,14 @@
     let tabs = ['Dashboard', 'Game', 'Chat', 'Rooms'];
     let activeTab = 'Dashboard';
     let data = {};
-*/  let img_path;
+*/  
+	let alertNumber = 0; //nombres de messages reçu non lu
+	let img_path;
+	let dashboardData = fetchData();
+	initializeSocket(dashboardData);
 
-	let dashboardValue = null;
+
+	// let dashboardValue = null;
 
     // const switchTab = (e) => { activeTab = e.detail;}
 
@@ -57,7 +64,7 @@
 				else
     				img_path = "img/il_794xN.3892173164_egqv.avif";
 
-				dashboardValue = data;
+				dashboardData = data;
 				return data;
 			}
 			else
@@ -68,37 +75,36 @@
 		catch (error)
 		{
 			console.error(error);
+			return null;
 		}
 	}
 	
 	const newProfileData = (event) => {
 		console.log(event.detail);
-		dashboardValue = event.detail;
+		dashboardData = event.detail;
 	}
 
 </script>
 
 
+
+{#await dashboardData}
+<center><p>Loading...</p></center>
+
+{:then}
 <Header {img_path} />
-
-{#await fetchData()}
-	<center><p>Loading...</p></center>
-
-{:then dashboardData}
-
 	{#if dashboardData && Object.keys(dashboardData).length > 0}
-
 		<Tabs id={dashboardData.id}/>
 		<main>
 			<div class="main_body">
 				{#if $page_shown == "/"}
-					<Dashboard data={dashboardValue} on:updateProfile={ newProfileData }/>
+					<Dashboard data={dashboardData} on:updateProfile={ newProfileData }/>
 				{:else if $page_shown == "game"}
 					<Game/>
 				{:else if $page_shown == "chat"}
-					<Chat data={dashboardValue}/>
+					<Chat data={dashboardData} socket={getSocket()}/>
 				{:else if $page_shown === "room"}
-					<Rooms data={dashboardValue}/>
+					<Rooms data={dashboardData}/>
 				{/if}
 			</div>
 		</main>
@@ -108,6 +114,7 @@
 	{/if}
 
 {:catch error}
+<Header {img_path} />
 	<h3>Error: {error.message}</h3>
 
 {/await}

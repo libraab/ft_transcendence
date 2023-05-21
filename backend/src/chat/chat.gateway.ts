@@ -39,6 +39,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		let client_id = await this.db.getClientById42(message.sender_id);
 		await this.addMessageToRoom({ id: message.channel, sender: client_id.id, msg: message.message});
 		this.wss.to(message.channel).emit('serverToChat', message);
+		this.wss.to(message.channel).emit('serverAlertToChat', message);
 		// WsResponse<string>
     	// return { event: 'msgToClient', data: text};
   	}
