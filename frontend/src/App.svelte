@@ -1,5 +1,6 @@
 <script>
     import Login from "./component/login/Login.svelte";
+    import DfaHomePage from "./component/dfa/dfaHomePage.svelte";
     import Header from "./component/Header.svelte";
     import Footer from "./component/Footer.svelte";
 	import Tabs from "./shared/Tabs.svelte";
@@ -10,9 +11,9 @@
 	import { userId42 } from "./stores";
 	import { page_shown } from "./stores"
 	import {hostname} from "./hostname"
-  	// import DfaHomePage from "./dfaHomePage.svelte";
+	import axios from 'axios';
 
-	history.replaceState({"href_to_show":"/"}, "", "/")
+	history.replaceState({"href_to_show":"/"}, "", "/");
 
 	window.addEventListener("popstate", e => {
 		console.log(e.state.href_to_show)
@@ -23,7 +24,8 @@
     let activeTab = 'Dashboard';
     let data = {};
 */  let img_path;
-
+	let id;
+	let isDFAActive;
 	let dashboardValue = null;
 
     // const switchTab = (e) => { activeTab = e.detail;}
@@ -57,6 +59,8 @@
     				img_path = "img/il_794xN.3892173164_egqv.avif";
 
 				dashboardValue = data;
+				id = data.id;
+				isDFAActive = data.Dfa;
 				return data;
 			}
 			else
@@ -74,6 +78,23 @@
 		console.log(event.detail);
 		dashboardValue = event.detail;
 	}
+	
+	async function verified() {
+		await toggleDFAState();
+		dashboardValue = await fetchData();
+		isDFAActive = false;
+	}
+
+	async function toggleDFAState() {
+		isDFAActive = true;
+		// Send API request to update DFA status
+		try {
+			const response = await axios.post(`http://${hostname}:3000/auth/2fa/${id}`, { isDFAActive });
+			console.log('DFA status updated in the database.');
+		} catch (error) {
+			console.error('Failed to update DFA status:', error);
+		}
+	}
 
 </script>
 
@@ -84,10 +105,10 @@
 	<center><p>Loading...</p></center>
 
 {:then dashboardData}
-	<!-- {#if dashboardData && dashboardData.Dfa}
-		<DfaHomePage/>
-	{/if} -->
-	{#if dashboardData && !dashboardData.Dfa && Object.keys(dashboardData).length > 0}
+	{#if dashboardData && isDFAActive}
+		<DfaHomePage data={dashboardValue} on:updateVerification={ verified }/>
+	{/if}
+	{#if dashboardData && !isDFAActive && Object.keys(dashboardData).length > 0}
 
 		<Tabs id={dashboardData.id}/>
 		<main>
@@ -104,7 +125,7 @@
 			</div>
 		</main>
 
-	{:else}
+	{:else if !dashboardData }
 		<Login/>
 	{/if}
 

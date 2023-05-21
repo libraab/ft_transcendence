@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import fastifyCookie from '@fastify/cookie';
+// import fastifyCors from 'fastify-cors';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AuthGuard } from './auth/auth.guard';
 import { JwtService } from '@nestjs/jwt';

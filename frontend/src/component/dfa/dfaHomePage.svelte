@@ -1,36 +1,39 @@
 <script>
     import { onMount } from "svelte";
-    import { navigate } from "svelte-routing";
-  
+    import { hostname } from "../../hostname"
+    import { onDestroy } from "svelte";
+	  import { createEventDispatcher } from 'svelte';
+
+    export let data;
+    
+	  const dispatch = createEventDispatcher();
+
+    let id = data.id;
     let code = ""; // variable to store the user's 2FA code
   
-    function handleSubmit() {
-      // send the code to the backend for verification
-      fetch("/auth/2fa-verify", {
-        method: "POST",
-        body: JSON.stringify({ code }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            navigate("/homepage"); // redirect to the homepage if the code is verified
-          } else {
-            alert("Invalid 2FA code. Please try again.");
-          }
+    async function handleSubmit() {
+      const response = await fetch(`http://${hostname}:3000/auth/2fa/verify/${id}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+          body: JSON.stringify({ 
+            code, 
+            id: data.id
         })
-        .catch((error) => {
-          console.error("Error:", error);
-          alert("An error occurred. Please try again later.");
-        });
-    }
+      });
+      dispatch('updateVerification');
+      }
+
     onMount(() => {
       console.log('in Dfa');
       code = "";
     });
+
   </script>
   
   <main>
-    <h1>Welcome to the Girly DFA Homepage!</h1>
+    <h1>Welcome to DFA Homepage!</h1>
     <form on:submit|preventDefault={handleSubmit}>
       <label for="code">Enter your 2FA code:</label>
       <input type="text" id="code" bind:value={code} />
