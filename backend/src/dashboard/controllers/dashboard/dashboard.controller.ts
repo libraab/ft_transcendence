@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, StreamableFile} from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, StreamableFile} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
@@ -48,14 +48,22 @@ export class DashboardController
 			var pump = require('pump');
 			await pump(data.file, fs.createWriteStream(process.cwd() + "/uploads/" + tmp_name));
 			dto.img = "http://localhost:3000/dashboard/getfile/" + tmp_name;
-			console.log('image path is -> ', dto.img);
+			console.log('new image path is -> ', dto.img);
 			return this.db.updateClient(id, dto);
 		}
-		console.log(data);
+		throw new BadRequestException();
 	}
-
-
-
+	
+	@Post('/updateName/:id')
+	async changeName(@Param('id', ParseIntPipe) id: number, @Body() name: string)
+	{
+		if (name.length < 50) {
+			let dto: UpdateClientDto = new UpdateClientDto();
+			dto.name = name;
+			return this.db.updateClient(id, dto);
+		}
+		throw new BadRequestException();
+	}
 
 	@Get('/ranking')
 	async getRanking()
