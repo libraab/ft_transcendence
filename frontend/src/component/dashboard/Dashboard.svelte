@@ -251,7 +251,7 @@
 	}
 </script>
 
-<UpdateModal {updatePop} {id} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
+<UpdateModal {updatePop} id={id} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
 <DeleteModal {deletePop} on:click={() => toggleDeletePopup()}/>
 
 

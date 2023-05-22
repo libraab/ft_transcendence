@@ -1,12 +1,12 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import fastifyCookie from '@fastify/cookie';
-// import fastifyCors from 'fastify-cors';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AuthGuard } from './auth/auth.guard';
 import { JwtService } from '@nestjs/jwt';
 import { ValidationPipe } from '@nestjs/common';
 import cors from 'cors';
+import fastifyMultipart from '@fastify/multipart'
 
 
 require('dotenv').config()
@@ -17,9 +17,10 @@ async function bootstrap() {
     new FastifyAdapter(),
   );
 
-  await app.register(fastifyCookie, {
+  app.register(fastifyCookie, {
     secret: 'my-secret', // for cookies signature
   });
+  app.register(fastifyMultipart);
 
   const jwtService = app.get<JwtService>(JwtService); // Get the JwtService instance
 
