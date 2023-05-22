@@ -12,7 +12,8 @@
 	import { page_shown } from "./stores"
 	import { hostname } from "./hostname"
 	import axios from 'axios';
-	// import { getSocket, initializeSocket, rooms } from "./socket"
+	import { getSocket, initializeSocket, rooms } from "./socket"
+	import { onMount } from "svelte";
 
 	history.replaceState({"href_to_show":"/"}, "", "/");
 
@@ -26,8 +27,9 @@
 	let isDFAActive;
 	let dashboardValue = null;
 	
-	// let alertNumber = 0; //nombres de messages reçu non lu
-	// initializeSocket(dashboardData);
+	let alertNumber = 0; //nombres de messages reçu non lu
+	let dashboardData = fetchData();
+	initializeSocket(dashboardData);
 
 	async function fetchData() {
 		try {
@@ -77,7 +79,6 @@
 
 	async function toggleDFAState() {
 		isDFAActive = true;
-		// Send API request to update DFA status
 		try {
 			const response = await axios.post(`http://${hostname}:3000/auth/2fa/${id}`, { isDFAActive });
 			console.log('DFA status updated in the database to true');
@@ -87,7 +88,6 @@
 	}
 
 </script>
-
 
 
 <Header {img_path} />
@@ -100,7 +100,6 @@
 		<DfaHomePage data={dashboardValue} on:updateVerification={ verified }/>
 	{/if}
 	{#if dashboardData && !isDFAActive && Object.keys(dashboardData).length > 0}
-
 		<Tabs id={dashboardData.id}/>
 		<main>
 			<div class="main_body">
@@ -109,8 +108,7 @@
 				{:else if $page_shown == "game"}
 					<Game/>
 				{:else if $page_shown == "chat"}
-					<Chat data={dashboardValue}/>
-					<!-- <Chat data={dashboardData} socket={getSocket()}/> -->
+					<Chat data={dashboardValue} socket={getSocket()}/>
 				{:else if $page_shown === "room"}
 					<Rooms data={dashboardValue}/>
 				{/if}
