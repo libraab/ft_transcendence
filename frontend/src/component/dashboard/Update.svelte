@@ -1,9 +1,11 @@
-<script>
+ <script>
 	import { createEventDispatcher } from "svelte";
 	import { hostname } from "../../hostname"
+
 	const dispatch = createEventDispatcher();
 
 	export let updatePop;
+
 	export let id;
 
 	let badUpdate = false;
@@ -13,44 +15,21 @@
 		const nameInput = document.getElementById("name-upload");
 		const fileInput = document.getElementById("file-upload");
 
-		const formData = new FormData();
-		formData.append("name", nameInput.value);
-		formData.append("img", fileInput.files[0]);
+		let data = new FormData();
 
-		const jsonData = {};
-		for (let [key, value] of formData.entries())
-		{
-			jsonData[key] = value !== "undefined" ? value : null;
-		}
 
-		try
-		{
-			const response = await fetch(`http://${hostname}:3000/dashboard/update/${id}`,
-			{
-				method: "POST",
-				body: JSON.stringify(jsonData),
-				headers: {
-					"Content-Type": "application/json",
-				},
-			});
+		data.append("file", fileInput.files[0]);
+		fetch (`http://${hostname}:3000/dashboard/update/${id}`, {
+			method: 'POST',
+			body: data
+		}).then((response) => {
+			console.log('OK');
+			
+		} )
+		.catch((error) => { 		
+		console.log('PAS OK');
+		});
 
-			if (response.ok)
-			{
-				console.log("no prob bro, i got this");
-				dispatch('updated');
-				// Gérer la réponse du backend en cas de succès
-			}
-			else
-			{
-				console.log("something went wrong");
-				badUpdate = true;
-				// Gérer la réponse du backend en cas d'erreur
-			}
-		}
-		catch (error)
-		{
-			console.error(error);
-		}
 	}
 
 	function closePopUp() {
@@ -75,7 +54,7 @@
 				<input type="file" name="file-upload" id="file-upload">
 			</div>
 
-			<button on:click={() => {submitForm()}} on:click|self>Validate</button>
+			<button on:click={submitForm} on:click|self>Validate</button>
 
 		</div>
 	</div>
@@ -123,3 +102,87 @@
 		justify-content: center;
 	}
 </style>
+
+
+<!-- 
+ <script>
+	import { onMount } from 'svelte';
+	import axios from 'axios';
+	import { hostname } from "../../hostname"
+  
+	let selectedFile;
+  
+	async function handleFileUpload() {
+		console.log('in upload pic');
+	  	const formData = new FormData();
+	  	formData.append('profilePicture', selectedFile);
+  
+	  	try {
+			await axios.post(`http://${hostname}:3000/dashboard/update`, formData, {
+		  	headers: {
+				'Content-Type': 'multipart/form-data'
+		  	}
+			});
+			console.log('Profile picture uploaded successfully');
+	  	} catch (error) {
+			console.error('Error uploading profile picture:', error);
+	  	}
+	}
+  
+	onMount(() => {
+	  // Additional code to handle file selection
+	  const fileInput = document.getElementById('profilePicture');
+	  fileInput.addEventListener('change', (event) => {
+		selectedFile = event.target.files[0];
+	  });
+	});
+
+  </script>
+  
+  <main>
+	<h1>Profile Picture Upload</h1>
+  
+	<form on:submit|preventDefault={handleFileUpload}>
+	  <input type="file" id="profilePicture" accept="image/*">
+	  <button type="submit">Upload</button>
+	</form>
+  </main>
+  
+  <style>
+	main {
+	  display: flex;
+	  flex-direction: column;
+	  align-items: center;
+	  justify-content: center;
+	  padding: 2rem;
+	}
+  
+	h1 {
+	  font-family: "Arial", sans-serif;
+	  font-size: 2rem;
+	  text-align: center;
+	  margin-bottom: 1rem;
+	}
+  
+	form {
+	  display: flex;
+	  flex-direction: column;
+	  align-items: center;
+	  justify-content: center;
+	}
+  
+	input[type="file"] {
+	  margin-bottom: 1rem;
+	}
+  
+	button {
+	  padding: 0.5rem 1rem;
+	  border-radius: 5px;
+	  background-color: pink;
+	  color: white;
+	  font-family: "Arial", sans-serif;
+	  font-size: 1rem;
+	  border: none;
+	  cursor: pointer;
+	}
+  </style> -->
