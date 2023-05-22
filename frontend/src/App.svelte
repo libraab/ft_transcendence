@@ -12,6 +12,8 @@
 	import { page_shown } from "./stores"
 	import {hostname} from "./hostname"
 	import axios from 'axios';
+	import { getSocket, initializeSocket, rooms } from "./socket"
+    import { onMount } from "svelte";
 
 	history.replaceState({"href_to_show":"/"}, "", "/");
 
@@ -27,6 +29,12 @@
 	let id;
 	let isDFAActive;
 	let dashboardValue = null;
+	
+	let alertNumber = 0; //nombres de messages reçu non lu
+	initializeSocket(dashboardData);
+
+
+	// let dashboardValue = null;
 
     // const switchTab = (e) => { activeTab = e.detail;}
 
@@ -71,12 +79,13 @@
 		catch (error)
 		{
 			console.error(error);
+			return null;
 		}
 	}
 	
 	const newProfileData = (event) => {
 		console.log(event.detail);
-		dashboardValue = event.detail;
+		dashboardData = event.detail;
 	}
 	
 	async function verified() {
@@ -99,6 +108,7 @@
 </script>
 
 
+
 <Header {img_path} />
 
 {#await fetchData()}
@@ -114,13 +124,13 @@
 		<main>
 			<div class="main_body">
 				{#if $page_shown == "/"}
-					<Dashboard data={dashboardValue} on:updateProfile={ newProfileData }/>
+					<Dashboard data={dashboardData} on:updateProfile={ newProfileData }/>
 				{:else if $page_shown == "game"}
 					<Game/>
 				{:else if $page_shown == "chat"}
-					<Chat data={dashboardValue}/>
+					<Chat data={dashboardData} socket={getSocket()}/>
 				{:else if $page_shown === "room"}
-					<Rooms data={dashboardValue}/>
+					<Rooms data={dashboardData}/>
 				{/if}
 			</div>
 		</main>
@@ -130,6 +140,7 @@
 	{/if}
 
 {:catch error}
+<Header {img_path} />
 	<h3>Error: {error.message}</h3>
 
 {/await}
