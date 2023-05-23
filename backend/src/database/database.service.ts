@@ -177,6 +177,7 @@ export class DatabaseService
 				where: { id },
 				data: updateData,
 			});
+
 			return updatedClient;
 		}
 		catch (error)
