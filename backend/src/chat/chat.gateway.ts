@@ -2,6 +2,7 @@ import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessa
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { DatabaseService } from 'src/database/database.service';
+import { UserConnectedService } from './user-connected-service.service';
 
 @WebSocketGateway({
 	path: '/chatsockets',
@@ -12,7 +13,7 @@ import { DatabaseService } from 'src/database/database.service';
   })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	@WebSocketServer() wss: Server;
-	constructor(private db: DatabaseService) {}
+	constructor(private db: DatabaseService, private usersConnected: UserConnectedService) {}
 	
 	private logger: Logger = new Logger('ChatGateway');
 	
@@ -24,6 +25,13 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 	handleDisconnect(client: Socket) {
 		this.logger.log(`Client disconnected : ${client.id}`);
+		this.usersConnected.deleteUser(client);
+	}
+
+	@SubscribeMessage('whoAmI')
+	addToUsers(user: Socket, id: number)
+	{
+		this.usersConnected.addUser(user, id);
 	}
 
 	// @SubscribeMessage('setUsername')

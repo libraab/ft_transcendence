@@ -20,6 +20,7 @@
 	let selected_room_id = -1;
 	let messages_room_id = [];
 	let messages = [];
+	// let members = [];
 	//bind variable
 	let user_message = "";
 
@@ -32,6 +33,8 @@
 		else
 			fetchMessages(selected_room_id);
 	}
+
+	// $: { members = fetchMembers(selected_room_id) }
 
 	onMount(() => {
 		deleteSocketEvents();
@@ -55,6 +58,18 @@
 			console.error(error);
 		}
 	}
+
+	// async function fetchMembers(room_id) {
+	// 	try {
+	// 		const response = await fetch(`http://${hostname}:3000/chat/messages/${id}`);
+	// 		let rjson = await response.json();
+	// 		messages.push({ room_id: id, msg_content: rjson});
+	// 		messages_room_id = rjson;
+	// 	}
+	// 	catch (error) {
+	// 		console.error(error);
+	// 	}
+	// }
 
 	//Methods
 	let changeSelectedId = (id) => {
@@ -131,6 +146,13 @@
 			<button>send</button>
 		</form>
 	</div>
+	<!-- <div class="members">
+		<ul>
+			{#each members as member}
+				
+			{/each}
+		</ul>
+	</div> -->
 </div>
 
 <style>

@@ -1,0 +1,59 @@
+<script>
+    import { onMount } from "svelte";
+	import { hostname } from "../hostname"
+
+	//exported var
+	export let userId;
+
+	// //var
+	// const statusType = {
+	// 	Disconnected: 0,
+	// 	Connected: 1,
+	// 	InGame: 2
+	// }
+
+	let userStatus = 0
+	onMount(() => {
+		setInterval(() => {
+			checkConnexion(userId);
+		}, 1000);
+	});
+
+	async function checkConnexion(userId) {
+		try {
+			console.log("trying");
+			const response = await fetch(`http://${hostname}:3000/chat/connected/${userId}`);
+			let status = await response.json();
+			console.log(status);
+			userStatus = status;
+		}
+		catch (error) {
+			console.error(error);
+		}
+	}
+
+
+</script>
+
+<div class="connectStats" class:connected={userStatus == 1} class:disconnected={userStatus == 0}>
+</div>
+
+<style>
+.connectStats
+{
+	border-radius: 50%;
+	width: 10px;
+	height: 10px;
+}
+
+.connected
+{
+	background-color: green;
+}
+
+.disconnected
+{
+	background-color: lightgray
+}
+
+</style>
