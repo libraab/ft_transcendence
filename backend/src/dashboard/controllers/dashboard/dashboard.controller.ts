@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, StreamableFile} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 import { Req } from '@nestjs/common';
 import { createRelationsDto, createStatsDto, updateStatDto } from 'src/dashboard/dashboardDtos/createsTablesDtos';
-
+import { FastifyRequest } from 'fastify';
+import { v4 as uuidv4 } from 'uuid'
+import * as fs from 'fs';
 
 @Controller('dashboard')
 export class DashboardController
@@ -29,17 +31,39 @@ export class DashboardController
 		return this.db.getRelationsByClientId1(id);
 	}
 
-	@Post('update/:id')
-	async updateClient(@Param('id', ParseIntPipe) id:number, @Body() dto: UpdateClientDto)
-	{
-		return this.db.updateClient(id, dto);
+	@Get('/getfile/:filename')
+	getFile(@Param('filename') fileName: string ): StreamableFile {
+		const file = fs.createReadStream(process.cwd() + "/uploads/" + fileName);
+		return new StreamableFile(file);
 	}
 
-
-
-
-
-
+	@Post('/update/:id')
+	async changePicture(@Param('id', ParseIntPipe) id: number, @Req() req: FastifyRequest)
+	{
+		let dto: UpdateClientDto = new UpdateClientDto();
+		const data = await req.file();
+		const valid_mime: string[] = [ "image/gif", "image/jpeg", "image/png", "image/bmp", "image/tiff" ]; // formats that we accept 
+		if (valid_mime.includes(data.mimetype)) {
+			const tmp_name = uuidv4();
+			var pump = require('pump');
+			await pump(data.file, fs.createWriteStream(process.cwd() + "/uploads/" + tmp_name));
+			dto.img = "http://localhost:3000/dashboard/getfile/" + tmp_name;
+			console.log('new image path is -> ', dto.img);
+			return this.db.updateClient(id, dto);
+		}
+		throw new BadRequestException();
+	}
+	
+	@Post('/updateName/:id')
+	async changeName(@Param('id', ParseIntPipe) id: number, @Body() name: string)
+	{
+		if (name.length < 50) {
+			let dto: UpdateClientDto = new UpdateClientDto();
+			dto.name = name;
+			return this.db.updateClient(id, dto);
+		}
+		throw new BadRequestException();
+	}
 
 	@Get('/ranking')
 	async getRanking()
@@ -58,12 +82,6 @@ export class DashboardController
 	{
 		return this.db.findClientsByName(name);
 	}
-
-
-
-
-
-
 
 
 
@@ -93,3 +111,7 @@ export class DashboardController
 		return this.db.updateStat(id, dto);
 	}
 }
+function Autorization() {
+	throw new Error('Function not implemented.');
+}
+

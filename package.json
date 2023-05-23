@@ -6,6 +6,7 @@
   "dependencies": {
     "axios": "^1.4.0",
     "build": "^0.1.4",
+    "fastify-multer": "^2.0.3",
     "pm2": "^5.3.0"
   }
 }

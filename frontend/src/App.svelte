@@ -10,8 +10,10 @@
 	import Rooms from "./component/rooms/rooms.svelte";
 	import { userId42 } from "./stores";
 	import { page_shown } from "./stores"
-	import {hostname} from "./hostname"
+	import { hostname } from "./hostname"
 	import axios from 'axios';
+	import { getSocket, initializeSocket, rooms } from "./socket"
+	import { onMount } from "svelte";
 
 	history.replaceState({"href_to_show":"/"}, "", "/");
 
@@ -19,21 +21,18 @@
 		console.log(e.state.href_to_show)
 		$page_shown = e.state.href_to_show
 	})
-/*
-    let tabs = ['Dashboard', 'Game', 'Chat', 'Rooms'];
-    let activeTab = 'Dashboard';
-    let data = {};
-*/  let img_path;
+
+	let img_path;
 	let id;
 	let isDFAActive;
 	let dashboardValue = null;
+	
+	let alertNumber = 0; //nombres de messages reçu non lu
+	let dashboardData = fetchData();
+	initializeSocket(dashboardData);
 
-    // const switchTab = (e) => { activeTab = e.detail;}
-
-	async function fetchData()
-	{
-		try
-		{
+	async function fetchData() {
+		try {
 			const cookieValue = document.cookie
 				.split('; ')
 				.find(cookie => cookie.startsWith('jwt_cookie'))
@@ -45,10 +44,7 @@
 				.split('=')[1];
 			$userId42 = id42;
 			const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {
-				headers:
-				{
-					'Authorization': `Bearer ${cookieValue}`
-				}
+				headers: { 'Authorization': `Bearer ${cookieValue}` }
 			});
 			if (response.ok)
 			{
@@ -62,14 +58,10 @@
 				id = data.id;
 				isDFAActive = data.Dfa;
 				return data;
-			}
-			else
-			{
+			} else {
 				throw new Error('Failed to fetch dashboard data');
 			}
-		}
-		catch (error)
-		{
+		} catch (error) {
 			console.error(error);
 		}
 	}
@@ -77,6 +69,7 @@
 	const newProfileData = (event) => {
 		console.log(event.detail);
 		dashboardValue = event.detail;
+		img_path = dashboardValue.img;
 	}
 	
 	async function verified() {
@@ -87,12 +80,11 @@
 
 	async function toggleDFAState() {
 		isDFAActive = true;
-		// Send API request to update DFA status
 		try {
 			const response = await axios.post(`http://${hostname}:3000/auth/2fa/${id}`, { isDFAActive });
-			console.log('DFA status updated in the database.');
+			console.log('DFA status updated in the database to true');
 		} catch (error) {
-			console.error('Failed to update DFA status:', error);
+			console.error('Failed to update DFA status: ', error);
 		}
 	}
 
@@ -109,7 +101,6 @@
 		<DfaHomePage data={dashboardValue} on:updateVerification={ verified }/>
 	{/if}
 	{#if dashboardData && !isDFAActive && Object.keys(dashboardData).length > 0}
-
 		<Tabs id={dashboardData.id}/>
 		<main>
 			<div class="main_body">
@@ -118,7 +109,7 @@
 				{:else if $page_shown == "game"}
 					<Game/>
 				{:else if $page_shown == "chat"}
-					<Chat data={dashboardValue}/>
+					<Chat data={dashboardValue} socket={getSocket()}/>
 				{:else if $page_shown === "room"}
 					<Rooms data={dashboardValue}/>
 				{/if}
@@ -130,6 +121,7 @@
 	{/if}
 
 {:catch error}
+<Header {img_path} />
 	<h3>Error: {error.message}</h3>
 
 {/await}

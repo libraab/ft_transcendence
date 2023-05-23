@@ -1,61 +1,71 @@
-<script>
+ <script>
 	import { createEventDispatcher } from "svelte";
 	import { hostname } from "../../hostname"
+
 	const dispatch = createEventDispatcher();
 
 	export let updatePop;
 	export let id;
 
 	let badUpdate = false;
+	let indexBadUpdate = 0;
 
 	async function submitForm()
 	{
 		const nameInput = document.getElementById("name-upload");
 		const fileInput = document.getElementById("file-upload");
 
-		const formData = new FormData();
-		formData.append("name", nameInput.value);
-		formData.append("img", fileInput.files[0]);
+		let data = new FormData();
+		data.append("file", fileInput.files[0]);
 
-		const jsonData = {};
-		for (let [key, value] of formData.entries())
-		{
-			jsonData[key] = value !== "undefined" ? value : null;
-		}
-
-		try
-		{
-			const response = await fetch(`http://${hostname}:3000/dashboard/update/${id}`,
+		if (fileInput && fileInput.files && fileInput.files[0]) {
+			try
 			{
-				method: "POST",
-				body: JSON.stringify(jsonData),
-				headers: {
-					"Content-Type": "application/json",
-				},
-			});
-
-			if (response.ok)
-			{
-				console.log("no prob bro, i got this");
-				dispatch('updated');
-				// Gérer la réponse du backend en cas de succès
+				const response = await fetch (`http://${hostname}:3000/dashboard/update/${id}`, {
+					method: 'POST',
+					body: data
+				});
+				if (!response.ok)
+				{
+					console.log('nop');
+					indexBadUpdate += 1;
+					badUpdate = true;
+				}
 			}
-			else
+			catch (error)
 			{
-				console.log("something went wrong");
-				badUpdate = true;
-				// Gérer la réponse du backend en cas d'erreur
+				console.log(error);
 			}
 		}
-		catch (error)
-		{
-			console.error(error);
+
+		if (nameInput) {
+			try
+			{
+				const response = await fetch (`http://${hostname}:3000/dashboard/updateName/${id}`, {
+					method: 'POST',
+					body: nameInput.value
+				});
+				if (!response.ok)
+				{
+					console.log('nop2');
+					indexBadUpdate += 2;
+					badUpdate = true;
+				}
+			}
+			catch (error)
+			{
+				console.log(error);
+			}
 		}
+
+		dispatch('updated');
 	}
 
 	function closePopUp() {
 		badUpdate = false;
+		indexBadUpdate = 0;
 	}
+
 </script>
 
 
@@ -75,7 +85,7 @@
 				<input type="file" name="file-upload" id="file-upload">
 			</div>
 
-			<button on:click={() => {submitForm()}} on:click|self>Validate</button>
+			<button on:click={submitForm} on:click|self>Validate</button>
 
 		</div>
 	</div>
@@ -85,6 +95,14 @@
 	<div class="backdrop" on:click|self on:keypress>
 		<div class="modal">
 			<h1>sry something went wrong</h1>
+			{#if indexBadUpdate === 1}
+				<p>img not updated</p>			
+			{:else if indexBadUpdate === 2}
+				<p>name not updated</p>
+			{:else if indexBadUpdate === 3}
+				<p>neither name nor img</p>	
+				<p>nothing updated</p>
+			{/if}
 			<button on:click={() => closePopUp()}>close</button>
 		</div>
 	</div>
