@@ -69,6 +69,7 @@
 	const newProfileData = (event) => {
 		console.log(event.detail);
 		dashboardValue = event.detail;
+		img_path = dashboardValue.img;
 	}
 	
 	async function verified() {

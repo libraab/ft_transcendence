@@ -5,10 +5,10 @@
 	const dispatch = createEventDispatcher();
 
 	export let updatePop;
-
 	export let id;
 
 	let badUpdate = false;
+	let indexBadUpdate = 0;
 
 	async function submitForm()
 	{
@@ -19,32 +19,51 @@
 		data.append("file", fileInput.files[0]);
 
 		if (fileInput && fileInput.files && fileInput.files[0]) {
-			fetch (`http://${hostname}:3000/dashboard/update/${id}`, {
-				method: 'POST',
-				body: data
-			}).then((response) => {
-				console.log('OK');
-			} )
-			.catch((error) => { 		
-				console.log('PAS OK');
-			});
+			try
+			{
+				const response = await fetch (`http://${hostname}:3000/dashboard/update/${id}`, {
+					method: 'POST',
+					body: data
+				});
+				if (!response.ok)
+				{
+					console.log('nop');
+					indexBadUpdate += 1;
+					badUpdate = true;
+				}
+			}
+			catch (error)
+			{
+				console.log(error);
+			}
 		}
 
 		if (nameInput) {
-			fetch (`http://${hostname}:3000/dashboard/updateName/${id}`, {
-				method: 'POST',
-				body: nameInput.value
-			}).then((response) => {
-				console.log('OK');
-			} )
-			.catch((error) => { 		
-				console.log('PAS OK');
-			});
+			try
+			{
+				const response = await fetch (`http://${hostname}:3000/dashboard/updateName/${id}`, {
+					method: 'POST',
+					body: nameInput.value
+				});
+				if (!response.ok)
+				{
+					console.log('nop2');
+					indexBadUpdate += 2;
+					badUpdate = true;
+				}
+			}
+			catch (error)
+			{
+				console.log(error);
+			}
 		}
+
+		dispatch('updated');
 	}
 
 	function closePopUp() {
 		badUpdate = false;
+		indexBadUpdate = 0;
 	}
 
 </script>
@@ -76,6 +95,14 @@
 	<div class="backdrop" on:click|self on:keypress>
 		<div class="modal">
 			<h1>sry something went wrong</h1>
+			{#if indexBadUpdate === 1}
+				<p>img not updated</p>			
+			{:else if indexBadUpdate === 2}
+				<p>name not updated</p>
+			{:else if indexBadUpdate === 3}
+				<p>neither name nor img</p>	
+				<p>nothing updated</p>
+			{/if}
 			<button on:click={() => closePopUp()}>close</button>
 		</div>
 	</div>
