@@ -792,4 +792,17 @@ export class DatabaseService
 		return clientRelations;
 	}
 
+	async getMembersByRoomId(roomId: number): Promise<Clients[]> {
+		const room = await this.prisma.rooms.findUnique({
+			where: { id: roomId },
+			include: { members: true },
+		});
+
+		if (!room) {
+			throw new NotFoundException(`Room with ID ${roomId} not found`);
+		}
+
+		const members = room.members.map((roomMember) => roomMember.member);
+		return members;
+	}
 }
