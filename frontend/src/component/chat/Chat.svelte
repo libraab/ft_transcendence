@@ -6,6 +6,7 @@
     import { get } from 'svelte/store';
 	import { set_data } from 'svelte/internal';
 	import { writable } from 'svelte/store';
+    import ConnectStatus from '../../shared/connectStatus.svelte';
 
 
 	// extern variable
@@ -20,7 +21,7 @@
 	let selected_room_id = -1;
 	let messages_room_id = [];
 	let messages = [];
-	// let members = [];
+	let members = [];
 	//bind variable
 	let user_message = "";
 
@@ -34,7 +35,7 @@
 			fetchMessages(selected_room_id);
 	}
 
-	// $: { members = fetchMembers(selected_room_id) }
+	$: { members = fetchMembers(selected_room_id) }
 
 	onMount(() => {
 		deleteSocketEvents();
@@ -59,17 +60,16 @@
 		}
 	}
 
-	// async function fetchMembers(room_id) {
-	// 	try {
-	// 		const response = await fetch(`http://${hostname}:3000/chat/messages/${id}`);
-	// 		let rjson = await response.json();
-	// 		messages.push({ room_id: id, msg_content: rjson});
-	// 		messages_room_id = rjson;
-	// 	}
-	// 	catch (error) {
-	// 		console.error(error);
-	// 	}
-	// }
+	async function fetchMembers(room_id) {
+		try {
+			const response = await fetch(`http://${hostname}:3000/chat/room/${room_id}`);
+			let rjson = await response.json();
+			return rjson;
+		}
+		catch (error) {
+			console.error(error);
+		}
+	}
 
 	//Methods
 	let changeSelectedId = (id) => {
@@ -146,13 +146,19 @@
 			<button>send</button>
 		</form>
 	</div>
-	<!-- <div class="members">
+	<div class="members">
 		<ul>
-			{#each members as member}
-				
-			{/each}
+			{#await members}
+			<center><p>Loading...</p></center>
+			{:then}
+				{#each members as member (member.id)}
+				<li class="one_member">
+					<strong>{member.name}</strong><ConnectStatus id={member.id} />
+				</li>
+				{/each}
+			{/await}
 		</ul>
-	</div> -->
+	</div>
 </div>
 
 <style>
