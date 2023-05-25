@@ -1,5 +1,5 @@
 <script>
-    import { onMount } from "svelte";
+    import { onDestroy, onMount } from "svelte";
 	import { hostname } from "../hostname"
 
 	//exported var
@@ -13,14 +13,22 @@
 	// }
 
 	let userStatus = 0
+	let intervalRefresh
+
+
 	onMount(() => {
-		setInterval(() => {
+		intervalRefresh = setInterval(() => {
 			checkConnexion(userId);
 		}, 1000);
 	});
 
+	onDestroy(() => {
+		clearInterval(intervalRefresh);
+	})
+
 	async function checkConnexion(userId) {
 		try {
+			console.log("go");
 			const response = await fetch(`http://${hostname}:3000/chat/connected/${userId}`);
 			let status = await response.json();
 			userStatus = status;
