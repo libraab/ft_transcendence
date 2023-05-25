@@ -64,6 +64,8 @@
 		try {
 			const response = await fetch(`http://${hostname}:3000/chat/room/${room_id}`);
 			let rjson = await response.json();
+			console.log("members");
+			console.log(rjson);
 			return rjson;
 		}
 		catch (error) {
@@ -150,10 +152,10 @@
 		<ul>
 			{#await members}
 			<center><p>Loading...</p></center>
-			{:then}
+			{:then members}
 				{#each members as member (member.id)}
 				<li class="one_member">
-					<strong>{member.name}</strong><ConnectStatus id={member.id} />
+					<strong>{member.name}</strong><ConnectStatus userId={member.id} />
 				</li>
 				{/each}
 			{/await}

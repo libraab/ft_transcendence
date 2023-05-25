@@ -21,10 +21,8 @@
 
 	async function checkConnexion(userId) {
 		try {
-			console.log("trying");
 			const response = await fetch(`http://${hostname}:3000/chat/connected/${userId}`);
 			let status = await response.json();
-			console.log(status);
 			userStatus = status;
 		}
 		catch (error) {
