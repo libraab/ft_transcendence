@@ -57,7 +57,8 @@ export class AuthController {
 		await this.databaseService.updateCookie(user.id42, add_cookie); // not good
 		// https://docs.nestjs.com/techniques/cookies
 
-		return response.redirect(302, "http://"+process.env.HOSTNAME+":8080");
+		const url = `http://${process.env.HOSTNAME}:${process.env.PORT_FRONT}`;
+		return response.redirect(302, url);
 		// response is a Fastify Reply object and not an Express Response object that is why we have to redirect redirect with Fastify by giving the status
 	}
 

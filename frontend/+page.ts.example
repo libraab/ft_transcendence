@@ -1,0 +1,18 @@
+import { PUBLIC_DOMAIN_BACK } from '$env/static/public';
+import { error } from '@sveltejs/kit';
+
+export async function load({fetch, params}) {
+    const r = await fetch(`${PUBLIC_DOMAIN_BACK}/api/coloring/${params.uuid}`, {
+            method: 'GET'
+        })
+        .then(async (res) => {
+            if (res.status != 200) {
+                throw error(404, 'Not found');
+            }
+            return await res.json();
+        })
+        .catch((err) => {
+            throw error(500, 'Internal server error');
+        })
+    return {...r, params};
+}
