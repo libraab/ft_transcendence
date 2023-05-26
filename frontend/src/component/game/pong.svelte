@@ -2,6 +2,7 @@
 	import { onMount, onDestroy } from 'svelte';
 	import io from 'socket.io-client';
 
+	export let id;
 	let socket;
 	let padPos = 50;
 	let mvt = 5;
@@ -14,6 +15,7 @@
 		// Écoutez les événements du serveur
 		socket.on('connect', () => {
 			console.log('Connecté au serveur Socket.IO');
+			socket.emit('userId', id);
 		});
 
 		socket.on('joinRoom', (data) => {
@@ -23,6 +25,14 @@
 		socket.on('posUpdate', (newPos) =>{
 			otherPad = newPos;
 		});
+
+		socket.on('lobbyUpdate', (data) => {
+			console.log(data);
+		})
+
+		socket.on('lobbyStatus', (data) => {
+			console.log(data);
+		})
 
 		document.addEventListener('keydown', handleKeyDown);
 	});
@@ -38,7 +48,6 @@
 				padPos = 400 - 80;
 			else
 				padPos += mvt * speed;
-			console.log(padPos);
 		}
 		else if (event.key === 'z')
 		{
@@ -46,9 +55,9 @@
 				padPos = 0
 			else
 				padPos -= mvt * speed;
-			console.log(padPos);
 		}
 		socket.emit('pads', padPos);
+		socket.emit('lobby');
 	};
 </script>
 

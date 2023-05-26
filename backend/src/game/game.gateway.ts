@@ -5,7 +5,6 @@ import { Server, Socket } from 'socket.io';
 import { Client } from 'socket.io/dist/client';
 import { DatabaseService } from 'src/database/database.service';
 
-
 @WebSocketGateway(
 	{ 
 		namespace: 'pong',
@@ -31,11 +30,33 @@ export class GameGateway
 	handleConnection(client: Socket, ...args: any[])
 	{
 		this.logger.log(`Client connected : ${client.id}`);
+		client.emit('postUpdate', 'lobby++');
 	}
 	
 	handleDisconnect(client: Socket)
 	{
 		this.logger.log(`Client disconnected : ${client.id}`);
+		client.emit('postUpdate', 'lobby--');
+	}
+
+	@SubscribeMessage('userId')
+	idRegister(
+		@MessageBody(ParseIntPipe) id: number,
+		@ConnectedSocket() client: Socket,)
+
+	{
+		console.log(client.id);
+		console.log('id db is: ', id);
+		// update in room
+		// update for opponent
+	}
+
+	@SubscribeMessage('lobby')
+	lobbyStatus(
+		@ConnectedSocket() client: Socket,)
+
+	{
+		console.log('returne lobby');
 	}
 
 	@SubscribeMessage('pads')
