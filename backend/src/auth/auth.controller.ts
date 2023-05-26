@@ -1,4 +1,4 @@
-import { Controller, Query, Get, HttpException, HttpStatus, Res, Header, Body, Post, Param, ParseIntPipe, Redirect, BadRequestException} from '@nestjs/common';
+import { Controller, Query, Get, HttpException, HttpStatus, Res, Header, Body, Post, Param, ParseIntPipe, Request, Redirect, BadRequestException} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type User42Interface from './user42.interface';
 import { JwtService } from '@nestjs/jwt';
@@ -64,19 +64,23 @@ export class AuthController {
 	@Post('2fa/verify/:id')
 	async verifyTwoFactorAuthCode(
 		@Param('id', ParseIntPipe) id: number,
-		@Body('code') code: any,
-		@Res({ passthrough: true }) response: FastifyReply)
+		@Body('code') code: string,
+	)
 	{
+		console.log(code);
 		const user = await this.databaseService.getClientById(id);
+		console.log(user);
 		const isVerified = authenticator.check(code, user.DfaSecret);
+		console.log(isVerified);
 		let userDto: UpdateClientDto = new UpdateClientDto;
 		if (isVerified) {
-			userDto.dfa = false;
-			await this.databaseService.updateClient(user.id, userDto);
-			console.log('Correct code, dfa deactivated');
-			return response.redirect(302, "/"); // Redirect to the root of the same domain
+			// userDto.dfa = false;
+			// await this.databaseService.updateClient(user.id, userDto);
+			return {
+				message: "2Fa is valide"
+			}
 		}
-		return new BadRequestException();
+		return new BadRequestException('Error check 2FA');
 	}
 	
 	@Post('/2fa/:id')

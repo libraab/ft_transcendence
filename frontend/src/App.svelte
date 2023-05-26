@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import Login from "./component/login/Login.svelte";
     import DfaHomePage from "./component/dfa/dfaHomePage.svelte";
     import Header from "./component/Header.svelte";
@@ -98,7 +98,7 @@
 
 {:then dashboardData}
 	{#if dashboardData && isDFAActive}
-		<DfaHomePage data={dashboardValue} on:updateVerification={ verified }/>
+		<DfaHomePage bind:isDFAActive={isDFAActive} data={dashboardValue} on:updateVerification={ verified }/>
 	{/if}
 	{#if dashboardData && !isDFAActive && Object.keys(dashboardData).length > 0}
 		<Tabs id={dashboardData.id}/>
