@@ -32,7 +32,6 @@
 
 		socket.on('lobbyStatus', async (data) => {
 			lobby = data;
-			console.log(data);
 		})
 
 		document.addEventListener('keydown', handleKeyDown);
