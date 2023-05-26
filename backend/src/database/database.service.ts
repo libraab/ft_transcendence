@@ -857,4 +857,26 @@ export class DatabaseService
 
 		return members;
 	}
+
+	async getClientNamesListByTheirIds(ids: number[] | null): Promise<string[]> {
+		if (ids === null) {
+			return null;
+		}
+
+		const clients = await this.prisma.clients.findMany({
+			where: {
+				id: {
+					in: ids,
+				},
+			},
+			select: {
+				name: true,
+			},
+		});
+
+		const clientNames = clients.map((client) => client.name);
+
+		return clientNames;
+	}
+
 }

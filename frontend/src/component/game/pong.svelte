@@ -8,6 +8,9 @@
 	let mvt = 5;
 	let speed = 2.5;
 	let otherPad = 50;
+	let ballPosx = 800 / 2;
+	let ballPosy = 400 / 2;
+	let lobby = [];
 
 	onMount(() => {
 		socket = io('http://localhost:3000/pong');
@@ -16,6 +19,7 @@
 		socket.on('connect', () => {
 			console.log('Connecté au serveur Socket.IO');
 			socket.emit('userId', id);
+			socket.emit('lobby')
 		});
 
 		socket.on('joinRoom', (data) => {
@@ -26,11 +30,8 @@
 			otherPad = newPos;
 		});
 
-		socket.on('lobbyUpdate', (data) => {
-			console.log(data);
-		})
-
-		socket.on('lobbyStatus', (data) => {
+		socket.on('lobbyStatus', async (data) => {
+			lobby = data;
 			console.log(data);
 		})
 
@@ -57,16 +58,25 @@
 				padPos -= mvt * speed;
 		}
 		socket.emit('pads', padPos);
-		socket.emit('lobby');
 	};
+
+//socket.emit('lobby');
 </script>
 
 <div class="game-container">
 	<div class="game">
 		<div class="pad left-pad" style="top: {padPos}px;"></div>
 		<div class="pad right-pad" style="top: {otherPad}px;"></div>
+		<div class="ball" style="top: {ballPosy}px; left: {ballPosx}px;"></div>
+	</div>
+	<div>
+		{#each lobby as item}
+			<div>{item}</div>
+			<button>Challenge</button>
+		{/each}
 	</div>
 </div>
+
 
 <style>
 	.game-container {
@@ -89,11 +99,19 @@
 		height: 80px;
 		background-color: black;
 	}
+
 	.left-pad {
 		left: 10px;
 	}
 
 	.right-pad {
 		right: 10px;
+	}
+
+	.ball {
+		position: absolute;
+		width: 10px;
+		height: 10px;
+		background-color: red;
 	}
 </style>

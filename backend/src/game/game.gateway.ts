@@ -4,6 +4,7 @@ import { Console } from 'console';
 import { Server, Socket } from 'socket.io';
 import { Client } from 'socket.io/dist/client';
 import { DatabaseService } from 'src/database/database.service';
+import { Lobby, Player } from './lobby';
 
 @WebSocketGateway(
 	{ 
@@ -18,7 +19,8 @@ export class GameGateway
 	@WebSocketServer()
 	server: Server;
 
-	constructor(private db: DatabaseService) {}
+	constructor(private db: DatabaseService,
+				private lobby: Lobby) {}
 	
 	private logger: Logger = new Logger('PongGateway');
 	
@@ -30,33 +32,43 @@ export class GameGateway
 	handleConnection(client: Socket, ...args: any[])
 	{
 		this.logger.log(`Client connected : ${client.id}`);
-		client.emit('postUpdate', 'lobby++');
 	}
 	
-	handleDisconnect(client: Socket)
+	async handleDisconnect(client: Socket)
 	{
+		this.lobby.deletePlayer(client.id);
 		this.logger.log(`Client disconnected : ${client.id}`);
-		client.emit('postUpdate', 'lobby--');
+
+		let lobbyAwaiting = this.lobby.getFullAwaitingLobby();
+		console.log('-> ', lobbyAwaiting);
+		let connected: string[] = await this.db.getClientNamesListByTheirIds(lobbyAwaiting);
+		client.emit('lobbyStatus' , connected);
 	}
 
 	@SubscribeMessage('userId')
-	idRegister(
+	async idRegister(
 		@MessageBody(ParseIntPipe) id: number,
 		@ConnectedSocket() client: Socket,)
 
 	{
+		let player = new Player(); 
+
 		console.log(client.id);
-		console.log('id db is: ', id);
-		// update in room
-		// update for opponent
+
+		player.idDb = id;
+		player.idSock = client.id;
+		player.room = null;
+		
+		this.lobby.addPlayer(player)
+		let connected: string[] = await this.db.getClientNamesListByTheirIds(this.lobby.getFullAwaitingLobby())
+		client.emit('lobbyStatus' , connected);
 	}
 
 	@SubscribeMessage('lobby')
-	lobbyStatus(
-		@ConnectedSocket() client: Socket,)
-
+	async lobbyStatus(@ConnectedSocket() client: Socket)
 	{
-		console.log('returne lobby');
+		let connected: string[] = await this.db.getClientNamesListByTheirIds(this.lobby.getFullAwaitingLobby())
+		client.emit('lobbyStatus' , connected);
 	}
 
 	@SubscribeMessage('pads')
