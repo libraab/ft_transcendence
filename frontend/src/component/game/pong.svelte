@@ -1,4 +1,53 @@
 <script>
+	import { onMount, onDestroy } from 'svelte';
+	import io from 'socket.io-client';
+
+	let socket;
+	let message = '';
+
+	const sendMessage = () => {
+		socket.emit(message, { name: 'test' });
+		message = '';
+	};
+
+	onMount(() => {
+		socket = io('http://localhost:3000/pong');
+
+		// Écoutez les événements du serveur
+		socket.on('connect', () => {
+			console.log('Connecté au serveur Socket.IO');
+		});
+
+		socket.on('joinRoom', (data) => {
+			console.log(data);
+		});
+
+		socket.on('message', (roomId) => {
+			console.log(roomId);
+		});
+
+		socket.emit('message', { message: 'Hello server!' });
+	});
+
+	onDestroy(() => {
+		// Déconnectez-vous du serveur Socket.IO lorsque le composant est détruit
+		socket.disconnect();
+	});
+</script>
+
+<h1>Client Socket.IO</h1>
+
+<!-- Champ de saisie pour le message -->
+<input type="text" bind:value="{message}" />
+
+<!-- Bouton pour envoyer le message -->
+<button on:click="{sendMessage}">Envoyer</button>
+
+
+
+
+<!---
+<script>
   import { onMount } from "svelte";
 
   let canvas;
@@ -19,41 +68,41 @@
   let aiScore = 0;
 
   const calculateMousePos = (event) => {
-    const rect = canvas.getBoundingClientRect();
-    const root = document.documentElement;
-    const mouseX = event.clientX - rect.left - root.scrollLeft;
-    const mouseY = event.clientY - rect.top - root.scrollTop;
-    return { x: mouseX, y: mouseY };
+	const rect = canvas.getBoundingClientRect();
+	const root = document.documentElement;
+	const mouseX = event.clientX - rect.left - root.scrollLeft;
+	const mouseY = event.clientY - rect.top - root.scrollTop;
+	return { x: mouseX, y: mouseY };
   };
 
   const handleMouseClick = () => {
-    if (gameOver) {
-      resetGame();
-    } else if (!gameStarted) {
-      startGame();
-    }
+	if (gameOver) {
+	  resetGame();
+	} else if (!gameStarted) {
+	  startGame();
+	}
   };
   const resetGame = () => {
-    console.log('going crazy here');
-    ballX = canvas.width / 2;
-    ballY = canvas.height / 2;
-    ballSpeedX = -3; // Adjust the X-axis speed here
-    ballSpeedY = 2; // Adjust the Y-axis speed here
-    gameStarted = false;
-    gameOver = false;
-    requestId = requestAnimationFrame(update);
+	console.log('going crazy here');
+	ballX = canvas.width / 2;
+	ballY = canvas.height / 2;
+	ballSpeedX = -3; // Adjust the X-axis speed here
+	ballSpeedY = 2; // Adjust the Y-axis speed here
+	gameStarted = false;
+	gameOver = false;
+	requestId = requestAnimationFrame(update);
   };
 
   const startGame = () => {
-    if (gameStarted) return;
-    gameStarted = true;
-    requestId = requestAnimationFrame(update); //run the camva without moving the ball
+	if (gameStarted) return;
+	gameStarted = true;
+	requestId = requestAnimationFrame(update); //run the camva without moving the ball
   };
 
   const update = () => {
-    move();
-    draw();
-    requestId = requestAnimationFrame(update); // move the ball when it starts
+	move();
+	draw();
+	requestId = requestAnimationFrame(update); // move the ball when it starts
   };
 
   const move = () => {
@@ -63,112 +112,109 @@
   ballY += ballSpeedY;
 
   if (ballX < 0) {
-    if (ballY > paddle1Y && ballY < paddle1Y + paddleHeight) {
-      ballSpeedX = -ballSpeedX;
-    } else {
-      handleLoss();
-    }
+	if (ballY > paddle1Y && ballY < paddle1Y + paddleHeight) {
+	  ballSpeedX = -ballSpeedX;
+	} else {
+	  handleLoss();
+	}
   }
 
   if (ballX > canvas.width) {
-    if (ballY > paddle2Y && ballY < paddle2Y + paddleHeight) {
-      ballSpeedX = -ballSpeedX;
-    } else {
-      handleLoss();
-    }
+	if (ballY > paddle2Y && ballY < paddle2Y + paddleHeight) {
+	  ballSpeedX = -ballSpeedX;
+	} else {
+	  handleLoss();
+	}
   }
 
   if (ballY < 0 || ballY > canvas.height) {
-    ballSpeedY = -ballSpeedY;
+	ballSpeedY = -ballSpeedY;
   }
 
   // AI-controlled paddle movement
   const paddle2YCenter = paddle2Y + paddleHeight / 2;
-    if (paddle2YCenter < ballY - 35) {
-      paddle2Y += 5; // Adjust the AI paddle speed here
-    } else if (paddle2YCenter > ballY + 35) {
-      paddle2Y -= 5; // Adjust the AI paddle speed here
-    }
+	if (paddle2YCenter < ballY - 35) {
+	  paddle2Y += 5; // Adjust the AI paddle speed here
+	} else if (paddle2YCenter > ballY + 35) {
+	  paddle2Y -= 5; // Adjust the AI paddle speed here
+	}
   };
 
   const handleLoss = () => {
-    if (ballX < 0) {
-      aiScore++;
-    } else {
-      playerScore++;
-    }
-    if (playerScore === 10 || aiScore === 10) {
-      gameOver = true;
-      playerScore = 0;
-      aiScore = 0;
-      gameStarted = false;
-      startGame();
-    }
-    else
-      resetGame();
+	if (ballX < 0) {
+	  aiScore++;
+	} else {
+	  playerScore++;
+	}
+	if (playerScore === 10 || aiScore === 10) {
+	  gameOver = true;
+	  playerScore = 0;
+	  aiScore = 0;
+	  gameStarted = false;
+	  startGame();
+	}
+	else
+	  resetGame();
   };
 
   
   const draw = () => {
-    // Clear the canvas
-    context.fillStyle = girlyMode ? "#ff69b4" : "#000";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+	// Clear the canvas
+	context.fillStyle = girlyMode ? "#ff69b4" : "#000";
+	context.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw the paddles
-    context.fillStyle = "#fff";
-    context.fillRect(0, paddle1Y, paddleThickness, paddleHeight);
-    context.fillRect(
-      canvas.width - paddleThickness,
-      paddle2Y,
-      paddleThickness,
-      paddleHeight
-      );
-      
-      // Draw the ball
-      context.fillStyle = "#fff";
-      context.beginPath();
-      context.arc(ballX, ballY, 10, 0, Math.PI * 2, true);
-      context.fill();
+	// Draw the paddles
+	context.fillStyle = "#fff";
+	context.fillRect(0, paddle1Y, paddleThickness, paddleHeight);
+	context.fillRect(
+	  canvas.width - paddleThickness,
+	  paddle2Y,
+	  paddleThickness,
+	  paddleHeight
+	  );
+	  
+	  // Draw the ball
+	  context.fillStyle = "#fff";
+	  context.beginPath();
+	  context.arc(ballX, ballY, 10, 0, Math.PI * 2, true);
+	  context.fill();
   
 
-    // Draw the scores
-    const playerScoreElement = document.getElementById("player-score");
-    const aiScoreElement = document.getElementById("ai-score");
-    playerScoreElement.textContent = playerScore.toString();
-    aiScoreElement.textContent = aiScore.toString();
+	// Draw the scores
+	const playerScoreElement = document.getElementById("player-score");
+	const aiScoreElement = document.getElementById("ai-score");
+	playerScoreElement.textContent = playerScore.toString();
+	aiScoreElement.textContent = aiScore.toString();
 
-    // Draw game over message if the game is over
-    if (gameOver) {
-      context.font = "bold 50px Arial";
-      context.fillStyle = "#fff";
-      context.textAlign = "center";
-      context.fillText("Game Over", canvas.width / 2, canvas.height / 2);
-    }
-    
+	// Draw game over message if the game is over
+	if (gameOver) {
+	  context.font = "bold 50px Arial";
+	  context.fillStyle = "#fff";
+	  context.textAlign = "center";
+	  context.fillText("Game Over", canvas.width / 2, canvas.height / 2);
+	}
+	
  };
 
   onMount(() => {
-    canvas = document.getElementById("pong-canvas");
-    context = canvas.getContext("2d");
+	canvas = document.getElementById("pong-canvas");
+	context = canvas.getContext("2d");
 
-    canvas.addEventListener("mousemove", (event) => {
-      const mousePos = calculateMousePos(event);
-      paddle1Y = mousePos.y - paddleHeight / 2;
-    });
+	canvas.addEventListener("mousemove", (event) => {
+	  const mousePos = calculateMousePos(event);
+	  paddle1Y = mousePos.y - paddleHeight / 2;
+	});
 
-    canvas.addEventListener("mousedown", handleMouseClick);
+	canvas.addEventListener("mousedown", handleMouseClick);
 
   });
-
 </script>
-
 <div id="game-container">
   <div id="player-score">0</div>
   <canvas id="pong-canvas" width="1000" height="600" on:click={handleMouseClick}></canvas>
   <div id="ai-score">0</div>
 </div>
 <button on:click={() => girlyMode = !girlyMode}>Girly Mode</button>
-
 
 <style>
 
@@ -212,3 +258,4 @@ button {
 }
 
 </style>
+-->
