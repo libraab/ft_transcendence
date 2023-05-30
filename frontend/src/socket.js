@@ -9,15 +9,17 @@ let socketData;
 
 export async function initializeSocket(data) {
   socketData = await data;
-  socket.chat = io(hostname+':3000/chat', {path: '/chatsockets'});
+  socket.chat = io(hostname+':3000/chat', {path: '/chatsockets'});//, auth: {token: }});
+  socket.chat.emit('whoAmI', socketData.id);
   reloadRooms();
   defineSocketEvents();
+//   await new Promise(r => setTimeout(r, 3000)); //TEST
+//   socket.chat.disconnect();
 }
 
 export async function reloadRooms() {
 	let loadedRooms = await fetchData();
 	rooms.set(loadedRooms);
-	//   await setRoomsSockets();
 	connectToRooms();
 }
 
@@ -28,6 +30,7 @@ export function getSocket() {
 export let defineSocketEvents = () =>
 {
 	socket.chat.on('serverAlertToChat', newMessage);
+	// socket.chat.on('clientRefreshRooms', reloadRooms);
 }
 
 export let deleteSocketEvents = () =>
@@ -45,18 +48,6 @@ export let newMessage = (msg) =>
 		return (item);
 	});
 	rooms.set(trythis);
-
-	// rooms.update((array) => {
-	// 	array.map((item) => 
-	// 		{
-	// 			if (item.roomId == msg.channel)
-	// 			{
-	// 				return { ...item, newMsgCount: item.newMsgCount + 1 };
-	// 			}
-	// 			return (item);
-	//     	});
-	// 		return array;
-	// });
 }
 
 let connectToRooms = () => {
@@ -70,13 +61,6 @@ async function fetchData() {
 	let curr_rooms = get(rooms);
 	try {
 		const response = await fetch(`http://${hostname}:3000/chat/${data.id42}`);
-		// let res = (await response.json()).map((item) => {
-		// 	return {
-		// 	  ...item,
-		// 	  newMsgCount: 0,
-		// 	};
-		//   });
-		// return res;
 		let tmp_rooms = await response.json();
 		tmp_rooms.forEach((el) =>
 		{

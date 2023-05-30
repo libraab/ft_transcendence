@@ -2,11 +2,13 @@ import { Controller, Delete, Get, Post, ParseIntPipe, Put, Param, Body } from '@
 import { DatabaseService } from 'src/database/database.service';
 import {createRoomDto} from '../dashboard/dashboardDtos/createsTablesDtos'
 import * as bcrypt from 'bcrypt'
+import { UserConnectedService } from './user-connected-service.service';
 
 @Controller('chat')
 export class ChatController {
 	constructor(private db: DatabaseService,
-                private dto: createRoomDto) {}
+                private dto: createRoomDto, 
+				private usersConnected: UserConnectedService) {}
     //----------------------------------------------------------------------//
     @Get(':id')
     async getAllUsersChat(@Param('id', ParseIntPipe) id: number)
@@ -28,6 +30,33 @@ export class ChatController {
         console.log(res);
 		return res;
     }
+
+	@Get('/connected/:id')
+    async getConnectedStatus(@Param('id', ParseIntPipe) id: number)
+    {
+        // let json = await this.db.getRoomMessagesById(id);
+        let res : number;
+		return this.usersConnected.checkStatus(id);
+        // await Promise.all(json.map(async (e) => {
+        //     res.push({ sender: e.clientName, message: e.message});
+        // }));
+        // console.log(res);
+		return res;
+    }
+
+	@Get('/room/:id')
+    async getRoomsMembers(@Param('id', ParseIntPipe) id: number)
+    {
+        let json = await this.db.getMembersByRoomId(id);
+        // let res : number;
+		// return this.usersConnected.checkStatus(id);
+        // await Promise.all(json.map(async (e) => {
+        //     res.push({ sender: e.clientName, message: e.message});
+        // }));
+        // console.log(res);
+		return json;
+    }
+
     //----------------------------------------------------------------------//
     @Delete()
     quitRoom(): string

@@ -6,6 +6,7 @@
     import { get } from 'svelte/store';
 	import { set_data } from 'svelte/internal';
 	import { writable } from 'svelte/store';
+    import ConnectStatus from '../../shared/connectStatus.svelte';
 
 
 	// extern variable
@@ -20,6 +21,7 @@
 	let selected_room_id = -1;
 	let messages_room_id = [];
 	let messages = [];
+	let members = [];
 	//bind variable
 	let user_message = "";
 
@@ -32,6 +34,8 @@
 		else
 			fetchMessages(selected_room_id);
 	}
+
+	$: { members = fetchMembers(selected_room_id) }
 
 	onMount(() => {
 		deleteSocketEvents();
@@ -50,6 +54,19 @@
 			let rjson = await response.json();
 			messages.push({ room_id: id, msg_content: rjson});
 			messages_room_id = rjson;
+		}
+		catch (error) {
+			console.error(error);
+		}
+	}
+
+	async function fetchMembers(room_id) {
+		try {
+			const response = await fetch(`http://${hostname}:3000/chat/room/${room_id}`);
+			let rjson = await response.json();
+			console.log("members");
+			console.log(rjson);
+			return rjson;
 		}
 		catch (error) {
 			console.error(error);
@@ -130,6 +147,19 @@
 			<input type="text" placeholder="write a message, or shut up" bind:value={user_message}>
 			<button>send</button>
 		</form>
+	</div>
+	<div class="members">
+		<ul>
+			{#await members}
+			<center><p>Loading...</p></center>
+			{:then members}
+				{#each members as member (member.id)}
+				<li class="one_member">
+					<strong>{member.name}</strong><ConnectStatus userId={member.id} />
+				</li>
+				{/each}
+			{/await}
+		</ul>
 	</div>
 </div>
 
