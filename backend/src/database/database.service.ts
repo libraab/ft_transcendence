@@ -842,7 +842,7 @@ export class DatabaseService
 
 		return clientRelations;
 	}
-
+/*
 	async getMembersByRoomId(roomId: number): Promise<Clients[]> {
 		const roomMembers = await this.prisma.roomMembers.findMany({
 			where: { roomId },
@@ -857,6 +857,25 @@ export class DatabaseService
 
 		return members;
 	}
+*/
+	async getMembersByRoomId(roomId: number): Promise<{ member: Clients; secu: number }[]> {
+		const roomMembers = await this.prisma.roomMembers.findMany({
+			where: { roomId },
+			include: { member: true, room: { select: { secu: true } } },
+		});
+
+		if (!roomMembers) {
+			throw new NotFoundException(`Room with ID ${roomId} not found`);
+		}
+
+		const members = roomMembers.map((roomMember) => ({
+			member: roomMember.member,
+			secu: roomMember.room.secu,
+		}));
+
+		return members;
+	}
+
 
 	async getClientNamesListByTheirIds(ids: number[] | null): Promise<string[]> {
 		if (ids === null) {
