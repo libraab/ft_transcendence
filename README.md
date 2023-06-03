@@ -7,7 +7,7 @@ TO RUN
 5. Run `npm run start:dev` in backend
 6. Run `npm install` in frontend
 7. Run `npm run dev` in frontend
-8. Change `c1r5p2` in .env and in hostname.js by your post number 
+8. Change `post number` in .env and in hostname.js by your post number 
 8. Go to `http://localhost:8080/` in browser
 ---------------
 TO VISUALIZE DATABASE
