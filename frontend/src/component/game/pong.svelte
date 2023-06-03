@@ -1,214 +1,116 @@
 <script>
-  import { onMount } from "svelte";
+	import { onMount, onDestroy } from 'svelte';
+	import io from 'socket.io-client';
 
-  let canvas;
-  let context;
-  let requestId; // to add later when real player
-  let ballX = 0;
-  let ballY = 0;
-  let ballSpeedX = 10;
-  let ballSpeedY = 4;
-  let paddle1Y = 250;
-  let paddle2Y = 250;
-  const paddleHeight = 100;
-  const paddleThickness = 10;
-  let gameStarted = false;
-  let gameOver = false;
-  let girlyMode = false;
-  let playerScore = 0;
-  let aiScore = 0;
+	export let id;
+	let socket;
+	let padPos = 50;
+	let mvt = 5;
+	let speed = 2.5;
+	let otherPad = 50;
+	let ballPosx = 800 / 2;
+	let ballPosy = 400 / 2;
+	let lobby = [];
 
-  const calculateMousePos = (event) => {
-    const rect = canvas.getBoundingClientRect();
-    const root = document.documentElement;
-    const mouseX = event.clientX - rect.left - root.scrollLeft;
-    const mouseY = event.clientY - rect.top - root.scrollTop;
-    return { x: mouseX, y: mouseY };
-  };
+	onMount(() => {
+		socket = io('http://localhost:3000/pong');
 
-  const handleMouseClick = () => {
-    if (gameOver) {
-      resetGame();
-    } else if (!gameStarted) {
-      startGame();
-    }
-  };
-  const resetGame = () => {
-    console.log('going crazy here');
-    ballX = canvas.width / 2;
-    ballY = canvas.height / 2;
-    ballSpeedX = -3; // Adjust the X-axis speed here
-    ballSpeedY = 2; // Adjust the Y-axis speed here
-    gameStarted = false;
-    gameOver = false;
-    requestId = requestAnimationFrame(update);
-  };
+		// Écoutez les événements du serveur
+		socket.on('connect', () => {
+			console.log('Connecté au serveur Socket.IO');
+			socket.emit('userId', id);
+			socket.emit('lobby')
+		});
 
-  const startGame = () => {
-    if (gameStarted) return;
-    gameStarted = true;
-    requestId = requestAnimationFrame(update); //run the camva without moving the ball
-  };
+		socket.on('joinRoom', (data) => {
+			console.log(data);
+		});
 
-  const update = () => {
-    move();
-    draw();
-    requestId = requestAnimationFrame(update); // move the ball when it starts
-  };
+		socket.on('posUpdate', (newPos) =>{
+			otherPad = newPos;
+		});
 
-  const move = () => {
-  if (gameOver) return;
+		socket.on('lobbyStatus', async (data) => {
+			lobby = data;
+		})
 
-  ballX += ballSpeedX;
-  ballY += ballSpeedY;
+		document.addEventListener('keydown', handleKeyDown);
+	});
 
-  if (ballX < 0) {
-    if (ballY > paddle1Y && ballY < paddle1Y + paddleHeight) {
-      ballSpeedX = -ballSpeedX;
-    } else {
-      handleLoss();
-    }
-  }
+	onDestroy(() => {
+		socket.disconnect();
+	});
 
-  if (ballX > canvas.width) {
-    if (ballY > paddle2Y && ballY < paddle2Y + paddleHeight) {
-      ballSpeedX = -ballSpeedX;
-    } else {
-      handleLoss();
-    }
-  }
+	const handleKeyDown = (event) => {
+		if (event.key === 's')
+		{
+			if (padPos + (mvt * speed) >= 400 - 80 )
+				padPos = 400 - 80;
+			else
+				padPos += mvt * speed;
+		}
+		else if (event.key === 'z')
+		{
+			if (padPos - (mvt * speed) <= 0)
+				padPos = 0
+			else
+				padPos -= mvt * speed;
+		}
+		socket.emit('pads', padPos);
+	};
 
-  if (ballY < 0 || ballY > canvas.height) {
-    ballSpeedY = -ballSpeedY;
-  }
-
-  // AI-controlled paddle movement
-  const paddle2YCenter = paddle2Y + paddleHeight / 2;
-    if (paddle2YCenter < ballY - 35) {
-      paddle2Y += 5; // Adjust the AI paddle speed here
-    } else if (paddle2YCenter > ballY + 35) {
-      paddle2Y -= 5; // Adjust the AI paddle speed here
-    }
-  };
-
-  const handleLoss = () => {
-    if (ballX < 0) {
-      aiScore++;
-    } else {
-      playerScore++;
-    }
-    if (playerScore === 10 || aiScore === 10) {
-      gameOver = true;
-      playerScore = 0;
-      aiScore = 0;
-      gameStarted = false;
-      startGame();
-    }
-    else
-      resetGame();
-  };
-
-  
-  const draw = () => {
-    // Clear the canvas
-    context.fillStyle = girlyMode ? "#ff69b4" : "#000";
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Draw the paddles
-    context.fillStyle = "#fff";
-    context.fillRect(0, paddle1Y, paddleThickness, paddleHeight);
-    context.fillRect(
-      canvas.width - paddleThickness,
-      paddle2Y,
-      paddleThickness,
-      paddleHeight
-      );
-      
-      // Draw the ball
-      context.fillStyle = "#fff";
-      context.beginPath();
-      context.arc(ballX, ballY, 10, 0, Math.PI * 2, true);
-      context.fill();
-  
-
-    // Draw the scores
-    const playerScoreElement = document.getElementById("player-score");
-    const aiScoreElement = document.getElementById("ai-score");
-    playerScoreElement.textContent = playerScore.toString();
-    aiScoreElement.textContent = aiScore.toString();
-
-    // Draw game over message if the game is over
-    if (gameOver) {
-      context.font = "bold 50px Arial";
-      context.fillStyle = "#fff";
-      context.textAlign = "center";
-      context.fillText("Game Over", canvas.width / 2, canvas.height / 2);
-    }
-    
- };
-
-  onMount(() => {
-    canvas = document.getElementById("pong-canvas");
-    context = canvas.getContext("2d");
-
-    canvas.addEventListener("mousemove", (event) => {
-      const mousePos = calculateMousePos(event);
-      paddle1Y = mousePos.y - paddleHeight / 2;
-    });
-
-    canvas.addEventListener("mousedown", handleMouseClick);
-
-  });
-
+//socket.emit('lobby');
 </script>
 
-<div id="game-container">
-  <div id="player-score">0</div>
-  <canvas id="pong-canvas" width="1000" height="600" on:click={handleMouseClick}></canvas>
-  <div id="ai-score">0</div>
+<div class="game-container">
+	<div class="game">
+		<div class="pad left-pad" style="top: {padPos}px;"></div>
+		<div class="pad right-pad" style="top: {otherPad}px;"></div>
+		<div class="ball" style="top: {ballPosy}px; left: {ballPosx}px;"></div>
+	</div>
+	<div>
+		{#each lobby as item}
+			<div>{item}</div>
+			<button>Challenge</button>
+		{/each}
+	</div>
 </div>
-<button on:click={() => girlyMode = !girlyMode}>Girly Mode</button>
 
 
 <style>
+	.game-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		height: 60vh;
+	}
 
-#game-container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
+	.game {
+		position: relative;
+		width: 800px;
+		height: 400px;
+		border: 1px solid black;
+	}
 
-#player-score {
-  font-size: 100px;
-  font-weight: bold;
-  color: rgb(6, 6, 6);
-  margin-left: 200px;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-}
+	.pad {
+		position: absolute;
+		width: 20px;
+		height: 80px;
+		background-color: black;
+	}
 
-#ai-score {
-  font-size: 100px;
-  font-weight: bold;
-  color: rgb(6, 6, 6);
-  margin-right: 200px;
-  text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
-}
+	.left-pad {
+		left: 10px;
+	}
 
-#pong-canvas {
-  border: 1px solid #fff;
-}
+	.right-pad {
+		right: 10px;
+	}
 
-button {
-  display: block;
-  margin: 20px auto;
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #ed4197;
-  color: rgb(16, 9, 9); 
-  border: none; 
-  border-radius: 20px; 
-  box-shadow: 0 0 20px rgba(58, 18, 38, 0.5);
-}
-
+	.ball {
+		position: absolute;
+		width: 10px;
+		height: 10px;
+		background-color: red;
+	}
 </style>
