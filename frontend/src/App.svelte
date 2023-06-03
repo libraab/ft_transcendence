@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
     import Login from "./component/login/Login.svelte";
     import DfaHomePage from "./component/dfa/dfaHomePage.svelte";
     import Header from "./component/Header.svelte";
@@ -91,14 +91,14 @@
 </script>
 
 
-<Header {img_path} />
 
 {#await fetchData()}
-	<center><p>Loading...</p></center>
+<center><p>Loading...</p></center>
 
 {:then dashboardData}
+	<Header {img_path} data={dashboardValue} />
 	{#if dashboardData && isDFAActive}
-		<DfaHomePage data={dashboardValue} on:updateVerification={ verified }/>
+		<DfaHomePage bind:isDFAActive={isDFAActive} data={dashboardValue} on:updateVerification={ verified }/>
 	{/if}
 	{#if dashboardData && !isDFAActive && Object.keys(dashboardData).length > 0}
 		<Tabs id={dashboardData.id}/>
@@ -107,7 +107,7 @@
 				{#if $page_shown == "/"}
 					<Dashboard data={dashboardValue} on:updateProfile={ newProfileData }/>
 				{:else if $page_shown == "game"}
-					<Game/>
+					<Game {id}/>
 				{:else if $page_shown == "chat"}
 					<Chat data={dashboardValue} socket={getSocket()}/>
 				{:else if $page_shown === "room"}
@@ -121,7 +121,7 @@
 	{/if}
 
 {:catch error}
-<Header {img_path} />
+	<Header {img_path} />
 	<h3>Error: {error.message}</h3>
 
 {/await}

@@ -7,11 +7,19 @@ import { DashboardModule } from './dashboard/dashboard.module';
 import { DatabaseModule } from './database/database.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
+import { GameModule } from './game/game.module';
+
 
 @Module({
-  imports: [ChatModule, AuthModule, DashboardModule, DatabaseModule, PrismaModule, ConfigModule.forRoot({
-    isGlobal: true,
-  })
+  imports: [ChatModule,
+            GameModule,
+            AuthModule,
+            DashboardModule,
+            DatabaseModule,
+            PrismaModule,
+            ConfigModule.forRoot({
+              isGlobal: true,
+            }),
   ],
   controllers: [AppController],
   providers: [AppService],

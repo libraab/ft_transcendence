@@ -76,7 +76,6 @@ model ClientStats {
 model Rooms {
   id    Int     @id @default(autoincrement())
   name  String  @db.VarChar(50)
-  name2 String? @db.VarChar(50)
 
   secu     Int
   password String?

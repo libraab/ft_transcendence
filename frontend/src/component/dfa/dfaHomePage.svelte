@@ -1,10 +1,11 @@
-<script>
+<script lang="ts">
     import { onMount } from "svelte";
     import { hostname } from "../../hostname"
     import { onDestroy } from "svelte";
 	  import { createEventDispatcher } from 'svelte';
 
     export let data;
+    export let isDFAActive;
     
 	  const dispatch = createEventDispatcher();
 
@@ -12,19 +13,35 @@
     let code = ""; // variable to store the user's 2FA code
   
     async function handleSubmit() {
-      const response = await fetch(`http://${hostname}:3000/auth/2fa/verify/${id}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-          body: JSON.stringify({ 
-            code, 
-            id: data.id
-        })
-      });
-      if (response.ok)
-        dispatch('updateVerification');
+      console.log(code);
+      const url = `http://${hostname}:3000/auth/2fa/verify/${id}`;
+      const params = {
+          method: "POST",
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+              code,
+              id: data.id
+          })
       }
+      fetch(url, params)
+          .then(async (res) => {
+              const value = await res.json();
+              if (res.status == 201) {
+                  console.log("ces good")
+                  isDFAActive = false;
+                  console.log("pas de catch");
+              } else {
+                  console.log("pas good")
+              }
+              console.log(value.message)
+          })
+          .catch((err) => {
+              console.log("ERROR: " + err);
+              console.error("Le back ne repond pas")
+          })
+  }
 
     onMount(() => {
       console.log('in Dfa');
