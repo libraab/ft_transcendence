@@ -74,11 +74,11 @@ export class ChatController {
         this.dto.name = data.roomName;
         this.dto.ownerid = data.iddata;
         if (data.roomType == "public")
-        this.dto.secu = 0;
+            this.dto.secu = 0;
         if (data.roomType == "protected")
-        this.dto.secu = 1;
+            this.dto.secu = 1;
         if (data.roomType == "private")
-        this.dto.secu = 2;
+            this.dto.secu = 2;
         
         if (this.dto.secu === 1) {
             const saltRounds = 10;
@@ -134,10 +134,6 @@ async joinRoom(@Body() data) {
     }
     console.log('->', member);
 
-    // if (member.status === 5) {
-    //     throw new Error('You are banned');
-    // }
-
     if (room.secu === 1) {
         console.log('->', member);
         console.log('This room is protected, password required');
@@ -174,9 +170,6 @@ async joinRoom(@Body() data) {
         if (member2) { // invited already member
             throw new Error('Already member');
         }
-        // if (member2.status === 5) { // invited is banned
-        //     throw new Error('You are banned');
-        // }
 
         await this.db.addMemberToRoom(data.roomId, invited.id, 2);
         return 'User joined the room';
@@ -197,16 +190,26 @@ async joinRoom(@Body() data) {
 
     @Post('/sendMsg')
     async sendMsg(@Body() data) {
-        const userId = await this.db.getClientById(data.iddata);
-        const newFriend = await this.db.getClientById(data.newFriendId);
-        
-        if (!newFriend){ 
-            throw new Error('User does not exist');
-        }
-        this.dto.name = "mp";
-        this.dto.ownerid = data.iddata;
 
-        // await this.db.sendMsg(userId.id,newFriend.id);
+        const userId = await this.db.getClientById(data.iddata);
+        const newInterlocutor = await this.db.getClientById(data.newFriendId);
+        
+        if (!newInterlocutor){ 
+            throw new Error('Interlocutor does not exist');
+        }
+        if (!userId){ 
+            throw new Error('You do not exist');
+        }
+        // TODO check if user or sender is not blocked 
+        this.dto.ownerid = userId.id;
+        this.dto.secu = 3;
+        this.dto.client2Id = newInterlocutor.id;
+
+        let Room = await this.db.createRooom(this.dto);
+        if (!Room)
+            console.log('Failed to create room');
+		this.db.addMemberToRoom(Room.id, userId.id, 0);
+		this.db.addMemberToRoom(Room.id, newInterlocutor.id, 1); // adding the second as an admin 
         return 'A private chat room has been created';
     }
 

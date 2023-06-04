@@ -195,22 +195,23 @@
 		}
 	};
 	//---------------------------------------------------------------------------//
-	const MP = async (newFriend) => {
-		// const response = await fetch(`http://${hostname}:3000/chat/addFriend`, {
-		// 	method: 'POST',
-		// 	headers: {
-		// 		'Content-Type': 'application/json'
-		// 	},
-		// 	body: JSON.stringify({
-		// 		newFriendId: newFriend.id,
-		// 		iddata: data.id
-		// 	})
-		// });
-		// if (response.ok) {
-		// 	console.log('Joined room:', room.name);
-		// } else {
-		// 	console.error('Failed to join room:', room.name);
-		// }
+	const MP = async (newFriendId) => {
+		console.log('here');
+		const response = await fetch(`http://${hostname}:3000/chat/sendMsg`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				newFriendId: newFriendId,
+				iddata: data.id
+			})
+		});
+		if (response.ok) {
+			console.log('Joined room:', room.name);
+		} else {
+			console.error('Failed to join room:', room.name);
+		}
 	};
 	//---------------------------------------------------------------------------//
 	const play = async (newFriend) => {
@@ -288,7 +289,7 @@
 					{targetName}<span style="margin-left: 10px;" ><ConnectStatus userId={targetId}/></span>
 				</h2>
 				<div class="button-container">
-    				<button class="button-profile" on:click={() => returnBackHome()}>My Profile</button>
+    				<button class="button-profile" on:click={() => returnBackHome()}>←</button>
     				<button class="button-profile" on:click={() => addFriend(targetId)}>Add Friend</button>
 					<button
 						class:active={!blocked}
@@ -305,7 +306,7 @@
 						>
 						  {blocked ? 'Unblock' : 'Block'}
       				</button>
-    				<button class="button-profile" on:click={() => MP()}>Send Msg</button>
+    				<button class="button-profile" on:click={() => MP(targetId)}>Send Msg</button>
     				<button class="button-profile" on:click={() => play()}>Play</button>
 				</div>
   			{/if}
