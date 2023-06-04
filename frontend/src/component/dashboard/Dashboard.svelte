@@ -5,6 +5,7 @@
 	import DeleteModal from './Delete.svelte';
 	import { hostname } from '../../hostname';
 	import axios from 'axios';
+	import ConnectStatus from "../../shared/connectStatus.svelte";
 
 	const dispatch = createEventDispatcher();
 
@@ -26,6 +27,7 @@
 	let targetId = data.id;
 	let targetName = data.name;
 	let targetImg = data.img;
+	
 
 	// stats are always target ones
 	let stats = {};
@@ -282,8 +284,9 @@
       				<!-- svelte-ignore a11y-missing-attribute -->
       				<img src={targetImg} alt="Avatar">
     			</div>
-    			<h2 class="shiny-text">{targetName}</h2>
-    			<p>(¬‿¬) (≖ ‿ ≖ ) I am watching you watching</p>
+				<h2 class="shiny-text" style="display: flex; align-items: center;">
+					{targetName}<span style="margin-left: 10px;" ><ConnectStatus userId={targetId}/></span>
+				</h2>
 				<div class="button-container">
     				<button class="button-profile" on:click={() => returnBackHome()}>My Profile</button>
     				<button class="button-profile" on:click={() => addFriend(targetId)}>Add Friend</button>
@@ -381,6 +384,7 @@
   	}
 
 	.shiny-text {
+		display: inline-block;
 		font-size: 36px; /* Increase the font size to make it bigger */
 		font-family: "Arial", sans-serif; /* Apply a specific font */
 		color: #333; /* Set a desired font color */
