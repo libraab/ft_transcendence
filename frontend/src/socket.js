@@ -3,6 +3,7 @@ import { hostname } from './hostname'
 import { get, writable } from 'svelte/store';
 
 export const rooms = writable([]);
+export let alertPopupOn = false;
 
 let socket = {chat: null, alert: null};
 let socketData;
@@ -31,6 +32,7 @@ export let defineSocketEvents = () =>
 {
 	socket.chat.on('serverAlertToChat', newMessage);
 	// socket.chat.on('clientRefreshRooms', reloadRooms);
+	
 }
 
 export let deleteSocketEvents = () =>
@@ -49,6 +51,8 @@ export let newMessage = (msg) =>
 	});
 	rooms.set(trythis);
 }
+
+
 
 let connectToRooms = () => {
 	get(rooms).forEach(room => {
