@@ -861,20 +861,18 @@ export class DatabaseService
 	async getMembersByRoomId(roomId: number) {
 		const roomMembers = await this.prisma.roomMembers.findMany({
 			where: { roomId },
-			select: {
+			include: {
 				member: true,
-				status: true,
 			},
 		});
 
-		const members = roomMembers.map((roomMember) => ({
+		const membersWithStatus = roomMembers.map((roomMember) => ({
 			member: roomMember.member,
 			status: roomMember.status,
 		}));
 
-		return members;
+		return membersWithStatus;
 	}
-
 
 	async getClientNamesListByTheirIds(ids: number[] | null): Promise<string[]> {
 		if (ids === null) {
