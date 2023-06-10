@@ -12,14 +12,15 @@ export class AuthService {
             client_secret: process.env.CLIENT_SECRET,
             redirect_uri: "http://"+process.env.HOSTNAME+":3000/auth",
         }
-        await axios
-            .post('https://api.intra.42.fr/oauth/token', data)
+        const response = axios.post('https://api.intra.42.fr/oauth/token', data);
+        const token = await response
             .then((res:any) => {
                 return res.data.access_token;
             })
             .catch((err: any) => {
                 return undefined;
             })
+        return token;
     }
 
     async get_user_info(access_token: string): Promise<User42Interface> {

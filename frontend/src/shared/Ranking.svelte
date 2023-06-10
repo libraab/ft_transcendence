@@ -77,6 +77,7 @@
 		top: 0;
 		left: 0;
 		background: rgba(0, 0, 0, 0.8);
+		z-index: 1;
 	}
 	.modal {
 		padding: 10px;

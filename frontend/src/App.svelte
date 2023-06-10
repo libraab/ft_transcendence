@@ -121,7 +121,7 @@
 	{/if}
 
 {:catch error}
-	<Header {img_path} />
+	<Header {img_path} data={null}/>
 	<h3>Error: {error.message}</h3>
 
 {/await}

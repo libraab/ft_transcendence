@@ -908,4 +908,16 @@ export class DatabaseService
 		return clientNames;
 	}
 
+	async getRoomsByOwnerId(ownerId: number): Promise<Rooms[]> {
+		const rooms = await this.prisma.rooms.findMany({
+			where: {
+				ownerid: ownerId,
+				secu: {
+					not: 3,
+				}
+			},
+		});
+
+		return rooms;
+	}
 }
