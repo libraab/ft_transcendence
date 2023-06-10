@@ -77,7 +77,7 @@ export class GameGateway
 		@ConnectedSocket() client: Socket,)
 
 	{
-		console.log(data);
+		// console.log(data);
 		// update in room
 		// update for opponent
 	}

@@ -13,6 +13,12 @@
 	import { hostname } from "./hostname"
 	import axios from 'axios';
 	import { getSocket, initializeSocket, rooms } from "./socket"
+<<<<<<< HEAD
+=======
+	import { onMount } from "svelte";
+    import AlertPopup from "./shared/AlertPopup.svelte";
+    import Invitation from "./shared/Invitation.svelte";
+>>>>>>> 10000b8aaf4b4430d87f4dd33a347d623277e45f
 
 	history.replaceState({"href_to_show":"/"}, "", "/");
 
@@ -25,10 +31,29 @@
 	let id;
 	let isDFAActive;
 	let dashboardValue = null;
+	let alertPopupOn = false
+	let invitationData = null;
 	
 	let alertNumber = 0; //nombres de messages reçu non lu
 	let dashboardData = fetchData();
-	initializeSocket(dashboardData);
+	
+	// ce qui est en dessous est une abomination
+	// c'est sans doute le Frankestein de notre generation
+	let done = initializeSocket(dashboardData);
+	async function setPopupToogleEvent()
+	{
+		await done;
+		getSocket().chat.on('invitationGame', invitationHandler);
+	}
+	setPopupToogleEvent();
+
+	let invitationHandler = (opponent_id) =>
+	{
+		alertPopupOn = true;
+		invitationData = opponent_id;
+	//alert("Some guy invited you to a game!");
+	}
+	// Le Frankenstein sarrete ici
 
 	async function fetchData() {
 		try {
@@ -113,8 +138,10 @@
 					<Rooms data={dashboardValue}/>
 				{/if}
 			</div>
+			{#if alertPopupOn}
+				<AlertPopup {invitationData} />
+			{/if}
 		</main>
-
 	{:else if !dashboardData }
 		<Login/>
 	{/if}

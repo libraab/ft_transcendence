@@ -15,7 +15,6 @@
 	let userStatus = 0
 	let intervalRefresh
 
-
 	onMount(() => {
 		intervalRefresh = setInterval(() => {
 			checkConnexion(userId);
@@ -27,13 +26,16 @@
 	})
 
 	async function checkConnexion(userId) {
-		try {
-			console.log("go");
+		try
+		{
+			if (!userId)
+				return;
 			const response = await fetch(`http://${hostname}:3000/chat/connected/${userId}`);
 			let status = await response.json();
 			userStatus = status;
 		}
-		catch (error) {
+		catch (error)
+		{
 			console.error(error);
 		}
 	}

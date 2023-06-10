@@ -176,7 +176,7 @@
 			{#await members}
 			<center><p>Loading...</p></center>
 			{:then members}
-				{#each members as member (member.id)}
+				{#each members as member}
 				<li class="one_member">
 					<strong>{member.member.name}</strong><ConnectStatus userId={member.member.id} />
 					{#if member.secu == 0}
@@ -185,16 +185,18 @@
 					♟
 					{/if}
 					<!-- si on est admin ou owner  -->
-					{#if whoami <2}
+					{#if member.member.id != data.id}
+						{#if whoami <2}
 						<button>kick</button>
 						<button>ban</button>
 						<button>mute</button>
-					{/if}
+						{/if}
 					<!-- si on est en plus owner -->
-					{#if whoami == 0}
+						{#if whoami == 0}
 						<button>be my pawn</button>
-					{/if}
+						{/if}
 					<Invitation socket={socket} data={data} opponent_id={member.member.id} />
+					{/if}
 				</li>
 				{/each}
 			{/await}

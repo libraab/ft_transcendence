@@ -75,6 +75,7 @@ export class ChatController {
         }
         this.dto.name = data.roomName;
         this.dto.ownerid = data.iddata;
+
         if (data.roomType == "public")
             this.dto.secu = 0;
         if (data.roomType == "protected")

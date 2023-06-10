@@ -8,7 +8,7 @@ import { UserConnectedService } from './user-connected-service.service';
 	path: '/chatsockets',
 	namespace: '/chat',
 	cors: {
-	  origin: '*',
+	  origin: 'http://localhost:8080',
 	},
   })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -45,6 +45,9 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	async handleMessage(client: Socket, message: {channel: string, sender: string, message: string, sender_id: number} ) {
 		this.logger.log(`A message was send by ${message.sender} --content--> ${message.message}`);
 		let client_id = await this.db.getClientById42(message.sender_id);
+		let room_exist = await this.db.getRoomById(Number(message.channel));
+		if (room_exist == null)
+			return ;
 		await this.addMessageToRoom({ id: message.channel, sender: client_id.id, msg: message.message});
 		this.wss.to(message.channel).emit('serverToChat', message);
 		this.wss.to(message.channel).emit('serverAlertToChat', message);
