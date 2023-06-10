@@ -155,7 +155,12 @@
 			{:then members}
 				{#each members as member (member.id)}
 				<li class="one_member">
-					<strong>{member.name}</strong><ConnectStatus userId={member.id} />
+					<strong>{member.member.name}</strong><ConnectStatus userId={member.member.id} />
+					{#if member.secu == 0}
+					♚
+					{:else if member.secu == 1}
+					♟
+					{/if}
 				</li>
 				{/each}
 			{/await}
