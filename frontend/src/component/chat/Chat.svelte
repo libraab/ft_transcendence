@@ -22,6 +22,7 @@
 	let messages_room_id = [];
 	let messages = [];
 	let members = [];
+	let whoami; // variable qui contient notre status dans la room (owner/admin/user)
 	//bind variable
 	let user_message = "";
 
@@ -64,8 +65,12 @@
 		try {
 			const response = await fetch(`http://${hostname}:3000/chat/room/${room_id}`);
 			let rjson = await response.json();
-			console.log("members");
 			console.log(rjson);
+			let me = rjson.find(el => el.member.id == data.id); // on cherche le member qui est nous meme pour en extraire la secu
+			if (me)
+				whoami = me.secu;
+			else
+				whoami = 6; // au cas ou
 			return rjson;
 		}
 		catch (error) {
@@ -160,6 +165,16 @@
 					♚
 					{:else if member.secu == 1}
 					♟
+					{/if}
+					<!-- si on est admin ou owner  -->
+					{#if whoami <2}
+						<button>kick</button>
+						<button>ban</button>
+						<button>mute</button>
+					{/if}
+					<!-- si on est en plus owner -->
+					{#if whoami == 0}
+						<button>be my pawn</button>
 					{/if}
 				</li>
 				{/each}
