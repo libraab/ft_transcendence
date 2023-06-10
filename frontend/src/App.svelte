@@ -13,7 +13,6 @@
 	import { hostname } from "./hostname"
 	import axios from 'axios';
 	import { getSocket, initializeSocket, rooms } from "./socket"
-	import { onMount } from "svelte";
 
 	history.replaceState({"href_to_show":"/"}, "", "/");
 
