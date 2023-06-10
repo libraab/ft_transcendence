@@ -6,6 +6,7 @@
     import { get } from 'svelte/store';
 	import { set_data } from 'svelte/internal';
 	import { writable } from 'svelte/store';
+	import Invitation from '../../shared/Invitation.svelte';
     import ConnectStatus from '../../shared/connectStatus.svelte';
 
 
@@ -193,6 +194,7 @@
 					{#if whoami == 0}
 						<button>be my pawn</button>
 					{/if}
+					<Invitation socket={socket} data={data} opponent_id={member.member.id} />
 				</li>
 				{/each}
 			{/await}

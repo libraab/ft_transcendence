@@ -52,6 +52,23 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
     	// return { event: 'msgToClient', data: text};
   	}
 
+	@SubscribeMessage('inviteToPlay')
+	async handleInvitation(client: Socket, data: {player_id: number, opponent_id: number}) { //utiliser le id via le token sinon on peux creer des invitations entre deux users sans leurs consantement
+		this.logger.log(`A invitation to play was send to opponent_id`);
+		let socket_id = this.usersConnected.findSocketId(data.opponent_id);
+		console.log(socket_id);
+		if (socket_id == "")
+		  	return ;
+		this.logger.log(`FOUND`);
+		this.wss.to(socket_id).emit('invitationGame', data.player_id);
+		//   let client_id = await this.db.getClientById42(message.sender_id);
+		//   await this.addMessageToRoom({ id: message.channel, sender: client_id.id, msg: message.message});
+		//   this.wss.to(message.channel).emit('serverToChat', message);
+		//   this.wss.to(message.channel).emit('serverAlertToChat', message);
+		  // WsResponse<string>
+		  // return { event: 'msgToClient', data: text};
+	}
+
 	@SubscribeMessage('joinChannel')
 	handleJoinChannel(client: Socket, channel: string)
 	{
@@ -68,7 +85,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		// check if client is a member of channel then proceed
 		// ask the chat service to delete the user from members
 		client.leave(channel);
-		
+
 		client.emit('leavedChannel', channel);
 	}
 

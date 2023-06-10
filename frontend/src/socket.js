@@ -31,6 +31,7 @@ export let defineSocketEvents = () =>
 {
 	socket.chat.on('serverAlertToChat', newMessage);
 	// socket.chat.on('clientRefreshRooms', reloadRooms);
+	socket.chat.on('invitationGame', invitationHandler);
 }
 
 export let deleteSocketEvents = () =>
@@ -48,6 +49,12 @@ export let newMessage = (msg) =>
 		return (item);
 	});
 	rooms.set(trythis);
+}
+
+let invitationHandler = (opponent_id) =>
+{
+	console.log("recu!!!");
+	alert("Some guy invited you to a game!");
 }
 
 let connectToRooms = () => {

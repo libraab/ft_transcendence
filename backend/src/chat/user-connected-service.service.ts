@@ -8,6 +8,7 @@ export class UserConnectedService {
 	addUser(user: Socket, userId: number): void
 	{
 		this.hmap.set(user.id, userId);
+		console.log(this.hmap);
 	}
 
 	deleteUser(user: Socket): void
@@ -24,5 +25,17 @@ export class UserConnectedService {
 				status = 1;
 		});
 		return (status);
+	}
+
+	findSocketId(id: number): string
+	{
+		let res = "";
+		console.log(id);
+		this.hmap.forEach((value, key, map) =>
+		{
+			if (value == id)
+				res = key;
+		});
+		return res;
 	}
 }
