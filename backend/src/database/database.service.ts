@@ -858,19 +858,18 @@ export class DatabaseService
 		return members;
 	}
 */
-	async getMembersByRoomId(roomId: number): Promise<{ member: Clients; secu: number }[]> {
+	async getMembersByRoomId(roomId: number) {
 		const roomMembers = await this.prisma.roomMembers.findMany({
 			where: { roomId },
-			include: { member: true, room: { select: { secu: true } } },
+			select: {
+				member: true,
+				status: true,
+			},
 		});
-
-		if (!roomMembers) {
-			throw new NotFoundException(`Room with ID ${roomId} not found`);
-		}
 
 		const members = roomMembers.map((roomMember) => ({
 			member: roomMember.member,
-			secu: roomMember.room.secu,
+			status: roomMember.status,
 		}));
 
 		return members;

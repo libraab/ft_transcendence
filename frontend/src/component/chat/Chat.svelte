@@ -154,9 +154,14 @@
 			<center><p>Loading...</p></center>
 			{:then members}
 				{#each members as member (member.id)}
-				<li class="one_member">
-					<strong>{member.name}</strong><ConnectStatus userId={member.id} />
-				</li>
+
+					<!-- IF NOT EMPTY -->
+						<li class="one_member"> 
+							<p>{member}</p>
+							<strong>{member.name}</strong><ConnectStatus userId={member.id} />
+						</li>
+					<!-- ENDIF-->
+
 				{/each}
 			{/await}
 		</ul>

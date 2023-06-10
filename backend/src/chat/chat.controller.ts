@@ -73,12 +73,13 @@ export class ChatController {
         }
         this.dto.name = data.roomName;
         this.dto.ownerid = data.iddata;
+
         if (data.roomType == "public")
-        this.dto.secu = 0;
+            this.dto.secu = 0;
         if (data.roomType == "protected")
-        this.dto.secu = 1;
+            this.dto.secu = 1;
         if (data.roomType == "private")
-        this.dto.secu = 2;
+            this.dto.secu = 2;
         
         if (this.dto.secu === 1) {
             const saltRounds = 10;
