@@ -41,6 +41,7 @@
 	onMount(() => {
 		deleteSocketEvents();
 		socket.chat.on('serverToChat', recieveMessage); // on defini le comportement lors de l'event mais cette en sauvegardant le message
+		socket.chat.on('serverMessage', recieveServerMessage);
 	});
 	
 
@@ -98,6 +99,22 @@
 			{
 				found = true;
 				e.msg_content.push({sender: msg.sender, message: msg.message});
+			}
+		});
+		messages = messages;
+		if (msg.channel != selected_room_id)
+			newMessage(msg);
+	}
+
+
+	let recieveServerMessage = (msg) => {
+		let found = false;
+		console.log(msg);
+		messages.forEach(e => {
+			if (e.room_id == msg.channel)
+			{
+				found = true;
+				e.msg_content.push({sender: "server", message: msg.message});
 			}
 		});
 		messages = messages;

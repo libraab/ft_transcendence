@@ -68,6 +68,7 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		// check if client is a member of channel then proceed
 		// ask the chat service to delete the user from members
 		client.leave(channel);
+		
 		client.emit('leavedChannel', channel);
 	}
 
@@ -75,4 +76,8 @@ export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		console.log(data);
         this.db.addMessageToRoom(data.id, data.sender, data.msg);
     }
+
+	async sendServerMsg(roomid: any, msg: any) {
+		this.wss.to(roomid).emit('serverMessage', {channel: roomid, sender: "server", message: msg, sender_id: 0});
+	}
 }

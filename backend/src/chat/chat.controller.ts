@@ -3,12 +3,14 @@ import { DatabaseService } from 'src/database/database.service';
 import {createRoomDto} from '../dashboard/dashboardDtos/createsTablesDtos'
 import * as bcrypt from 'bcrypt'
 import { UserConnectedService } from './user-connected-service.service';
+import { ChatGateway } from './chat.gateway';
 
 @Controller('chat')
 export class ChatController {
 	constructor(private db: DatabaseService,
                 private dto: createRoomDto, 
-				private usersConnected: UserConnectedService) {}
+				private usersConnected: UserConnectedService,
+                private gateway: ChatGateway) {}
     //----------------------------------------------------------------------//
     @Get(':id')
     async getAllUsersChat(@Param('id', ParseIntPipe) id: number)
