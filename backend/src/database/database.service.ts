@@ -866,12 +866,10 @@ export class DatabaseService
 			},
 		});
 
-		const membersWithStatus = roomMembers.map((roomMember) => ({
+		return roomMembers.map((roomMember) => ({
 			member: roomMember.member,
 			status: roomMember.status,
 		}));
-
-		return membersWithStatus;
 	}
 
 	async getClientNamesListByTheirIds(ids: number[] | null): Promise<string[]> {
