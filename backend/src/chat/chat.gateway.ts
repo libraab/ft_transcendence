@@ -8,7 +8,7 @@ import { UserConnectedService } from './user-connected-service.service';
 	path: '/chatsockets',
 	namespace: '/chat',
 	cors: {
-	  origin: 'http://localhost:8080',
+	  origin: '*',
 	},
   })
 export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {

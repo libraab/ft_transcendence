@@ -10,6 +10,8 @@
 	const dispatch = createEventDispatcher();
 
 	export let data;
+	export let socket;
+	export let opponent_id;
 
 	// display boolean
 	let id42NameInputNotEmpty = false;
@@ -252,6 +254,12 @@
 	{
 		deletePop = !deletePop;
 	}
+	function sendInvitation()
+	{
+		socket.chat.emit('inviteToPlay', {player_id: data.id, opponent_id: opponent_id});
+		//appeler une foncion de creation de la game + redirection vers la game
+		//mais je sais pas faire
+	}
 </script>
 
 <UpdateModal {updatePop} id={id} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
@@ -307,7 +315,7 @@
 						  {blocked ? 'Unblock' : 'Block'}
       				</button>
     				<button class="button-profile" on:click={() => MP(targetId)}>Send Msg</button>
-    				<button class="button-profile" on:click={() => play()}>Play</button>
+    				<button class="button-profile" on:click={sendInvitation}>Play</button>
 				</div>
   			{/if}
 		</div>

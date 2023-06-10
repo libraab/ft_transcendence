@@ -193,7 +193,6 @@ async joinRoom(@Body() data) {
 
     @Post('/sendMsg')
     async sendMsg(@Body() data) {
-
         const userId = await this.db.getClientById(data.iddata);
         const newInterlocutor = await this.db.getClientById(data.newFriendId);
         
@@ -207,7 +206,7 @@ async joinRoom(@Body() data) {
         this.dto.ownerid = userId.id;
         this.dto.secu = 3;
         this.dto.client2Id = newInterlocutor.id;
-
+        
         let Room = await this.db.createRooom(this.dto);
         if (!Room)
             console.log('Failed to create room');
