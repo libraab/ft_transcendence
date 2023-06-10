@@ -13,9 +13,12 @@
 	import { hostname } from "./hostname"
 	import axios from 'axios';
 	import { getSocket, initializeSocket, rooms } from "./socket"
+<<<<<<< HEAD
+=======
 	import { onMount } from "svelte";
     import AlertPopup from "./shared/AlertPopup.svelte";
     import Invitation from "./shared/Invitation.svelte";
+>>>>>>> 10000b8aaf4b4430d87f4dd33a347d623277e45f
 
 	history.replaceState({"href_to_show":"/"}, "", "/");
 

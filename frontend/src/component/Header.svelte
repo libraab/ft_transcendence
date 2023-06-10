@@ -13,7 +13,6 @@
 	<div class="image-container">
 		<img src={img_path} alt="logo" class="rick">
 	</div>
-	<ConnectStatus userId={id}/>
 	<div class="description">
 		<h1 class="glow-text">FT_TRANSCENDENCE</h1>
 		<p class="catch-phrase">A strange adventure into Pong Univers inside an Multiverse inside a jelly jar inside something else and go on ...</p>

@@ -147,7 +147,7 @@
 					<div class="alertBox" class:alertOn={room.newMsgCount !== 0}>{room.newMsgCount}</div>
 				</li>
 			{:else}
-			<p>you don't have friends</p>
+			<p>No Room</p>
 			{/each}
 		</ul>
 		{/await}
