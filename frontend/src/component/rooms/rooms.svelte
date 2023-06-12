@@ -138,6 +138,18 @@ const join = async (room) => {
 		inspectToggle();
 	}
 
+	async function deleteRoom()
+	{
+		console.log(choosenRoom, choosenRoomId);
+		inspectToggle();
+	}
+
+	async function resign()
+	{
+		console.log(choosenRoom, choosenRoomId);
+		inspectToggle();
+	}
+
 	let privateRoomMembers = null;
 	async function fetchprivateRoomMembers()
 	{
@@ -155,35 +167,135 @@ const join = async (room) => {
 		}
 	}
 
-	async function accept(id)
+	//let roomMembers = null;
+	let roomMembers = [
+		{ name: "John", status: 1, id: 1 },
+		{ name: "Alice", status: 2, id: 2 },
+		{ name: "Bob", status: 2, id: 3 },
+		{ name: "Eve", status: 1, id: 4 },
+		{ name: "Dave", status: 3, id: 5 }
+	];
+
+	async function fetchAllRoomMembers()
 	{
-		console.log('hey welcome');
+		try
+		{
+			const response = await fetch(`http://${hostname}:3000/rooms/allRoomMember/${choosenRoomId}/${data.id}`);
+			if (response.ok)
+				roomMembers = await response.json();
+			else
+				roomMembers = null;
+		}
+		catch (error)
+		{
+			console.error(error);
+		}
 	}
 
-	async function deny()
-	{
-		console.log('get the f out');
+	async function updateClientStatus(roomId, clientId, status) {
+		try {
+			const response = await fetch(`http://${hostname}:3000/rooms/updateStatus/${roomId}/${clientId}/${status}`, {
+				method: 'POST',
+			});
+
+			if (response.ok)
+			{
+				console.log(response);
+				console.log('Status updated successfully');
+			}
+			else
+			{
+				console.error('Failed to update status');
+			}
+		}
+		catch (error)
+		{
+			console.error('An error occurred', error);
+		}
 	}
 
-	async function promote()
+	async function accept(client) {
+		try {
+			const response = await fetch(`http://${hostname}:3000/acceptNewMember/${choosenRoomId}/${client.id}`, {
+				method: 'POST',
+			});
+
+			if (response.ok)
+			{
+				console.log('New member accepted');
+				// Mettez à jour votre état ou effectuez toute autre action nécessaire ici
+			}
+			else
+			{
+				const errorText = await response.text();
+				throw new Error(errorText);
+			}
+		}
+		catch (error)
+		{
+			console.error(error);
+		}
+	}
+
+	async function promote(client)
 	{
-		console.log('you ve been promoted congrats');
+		updateClientStatufetchAllRoomMemberss(choosenRoomId, client.id, 1);
+		fetchAllRoomMember();
 	}
 	
-	async function demote()
+	async function demote(client)
 	{
-		console.log('oooouh... you messed up...');
+		updateClientStatus(choosenRoomId, client.id, 2);
+		fetchAllRoomMember();
 	}
 	
-	async function ban()
+	async function ban(client)
 	{
-		console.log('t as des baskets tu sors');
+		updateClientStatus(choosenRoomId, client.id, 5);
+		fetchAllRoomMember();
 	}
 
-	async function mute()
+	async function kick(client)
 	{
-		console.log('mais shhhhhtt');
+		try {
+			const response = await fetch(`http://${hostname}:3000/rooms/kick/${choosenRoomId}/${client.id}`, {
+				method: 'POST',
+			});
+
+			if (response.ok)
+				console.log('client kicked');
+			else
+			{
+				const errorText = await response.text();
+				throw new Error(errorText);
+			}
+		}
+		catch (error)
+		{
+			throw new Error(error.message);
+		}
 	}
+
+	async function mute(client)
+	{
+		updateClientStatus(choosenRoomId, client.id, 3);
+		fetchAllRoomMember();
+	}
+
+	async function unmute(client)
+	{
+		updateClientStatus(choosenRoomId, client.id, 2);
+		fetchAllRoomMember();
+	}
+
+	const memberStatusLabels = {
+		1: 'admin',
+		2: 'member',
+		3: 'muted',
+		4: 'kicked',
+		5: 'banned',
+		6: 'pendant',
+	};
 </script>
 
 <div class="main_body">
@@ -265,7 +377,7 @@ const join = async (room) => {
 							<p>dummy{index}</p>
 							<div class="buttons">
 								<button on:click={() => accept(index)}>Accept</button>
-								<button on:click={() => deny(index)}>Deny</button>
+								<button on:click={() => kick(index)}>Deny</button>
 								<button on:click={() => ban(index)}>Block</button>
 							</div>
 						</div>
@@ -274,28 +386,59 @@ const join = async (room) => {
 			</div>
 		{/if}
 		
-		<div class="rooms-container">
-			<button class="toggle-btn">Room Members</button>
-			<div class="room-list">
-				{#each Array.from({ length: 6 }, (_, i) => i) as index}
-					<div class="room-item">
-						<p>dummy{index} - status</p>
-						<div class="buttons">
-							<button on:click={() => promote(index)}>Promote</button>
-							<button on:click={() => demote(index)}>Demote</button>
-							<button on:click={() => ban(index)}>Ban</button>
-							<button on:click={() => mute(index)}>mute</button>
-						</div>
-					</div>
-				{/each}
-			</div>
-		</div>
+<!--	{#if roomMembers && roomMembers.length !== 0}-->
+			<div class="rooms-container">
+				<button class="toggle-btn">Room Members</button>
+				<div class="room-list">
 
+					{#each roomMembers as member}
+						<div class="room-item">
+							<div>
+								<p>{member.name}</p>
+								<p>[{memberStatusLabels[member.status]}]</p>
+							</div>
+
+							<div class="buttons">
+								{#if member.status === 5}
+									<button on:click={() => kick(member)}>unban</button>
+								{:else}
+									{#if member.status === 2}
+										<button on:click={() => promote(member)}>Promote</button>
+									{:else if member.status === 1}
+										<button on:click={() => demote(member)}>Demote</button>
+									{/if}	
+
+									{#if member.status === 3}
+										<button on:click={() => unmute(member)}>unmute</button>
+									{:else}
+										<button on:click={() => mute(member)}>mute</button>
+									{/if}
+									<button on:click={() => kick(member)}>kick</button>
+									<button on:click={() => ban(member)}>Ban</button>
+								{/if}
+							</div>
+						</div>
+					{/each}
+
+				</div>
+			</div>
+
+<!--	{:else}
+			<div style="display: block; text-align: center;">
+				<p style="display: block;">feeling lonely ?</p>
+				<img src="https://media.giphy.com/media/1isQ04fzbwXbJKucVI/giphy.gif" style="display: block; margin: 0 auto;" alt="whtever">
+			</div>
+		{/if}
+-->
 		<div class="create-container">
-			<center><button class="toggle-btn" style="background-color: red;" on:click={() => inspectToggle()}>Delete Room</button></center>
+			<center><button class="toggle-btn" style="background-color: red;"
+				on:click={() => deleteRoom()}>Delete room
+			</button></center>
 			/̵͇̿̿/’̿’̿ ̿ ̿̿ ̿̿ ̿̿(╥﹏╥)
 
-			<button class="toggle-btn" style="background-color: red; margin-top: auto;" on:click={() => inspectToggle()}>Resign</button>
+			<button class="toggle-btn" style="background-color: red; margin-top: auto;"
+				on:click={() => resign()}>Resign
+			</button>
 			(¬ _¬)ﾉ ciao
 		</div>
 

@@ -159,7 +159,6 @@ export class DatabaseService
 				}
 				throw error;
 			}
-
 		}
 	}
 
@@ -193,7 +192,6 @@ export class DatabaseService
 				}
 				throw error;
 			}
-
 		}
 	}
 	
@@ -223,7 +221,6 @@ export class DatabaseService
 				}
 				throw error;
 			}
-
 		}
 	}
 
@@ -953,5 +950,103 @@ export class DatabaseService
 
 		return members.map((roomMember) => roomMember.member);
 	}
+
+	async getMembersByRoomIdExcludingClient(roomId: number, clientId: number): Promise<{ id: number, name: string, status: number }[]> {
+		const roomMembers = await this.prisma.roomMembers.findMany({
+			where: {
+				roomId,
+				NOT: {
+					memberId: clientId,
+				},
+			},
+			include: {
+				member: true,
+			},
+		});
+
+		if (!roomMembers) {
+			throw new NotFoundException(`Room with ID ${roomId} not found`);
+		}
+
+		const members = roomMembers.map((roomMember) => ({
+			id: roomMember.member.id,
+			name: roomMember.member.name,
+			status: roomMember.status,
+		}));
+
+		return members;
+	}
+
+	async changeMemberStatus(roomId: number, memberId: number, newStatus: number): Promise<void> {
+		try {
+			await this.prisma.roomMembers.update({
+				where: {
+					roomId_memberId: {
+						roomId,
+						memberId,
+					},
+				},
+				data: {
+					status: newStatus,
+				},
+			});
+		}
+		catch (error)
+		{
+			if (error instanceof Prisma.PrismaClientKnownRequestError)
+			{
+				if (error.code === 'P2025') {
+					throw new NotFoundException('User doesn\'t exist');
+				}
+				if (error.code === 'P2002') {
+					throw new ForbiddenException('Credentials taken');
+				}
+				throw error;
+			}
+		}
+	}
+
+	async removeClientFromRoom(roomId: number, memberId: number) {
+		try {
+			await this.prisma.roomMembers.delete({
+				where: {
+					
+					roomId_memberId: {
+						roomId,
+						memberId,
+					},
+
+				},
+			});
+		}
+		catch (error)
+		{
+			throw new Error('Failed to remove client from room');
+		}
+	}
+
+	async createMember(roomId: number, memberId: number) {
+		try {
+			const newMember = await this.prisma.roomMembers.create({
+				data: {
+					roomId,
+					memberId,
+					status: 2,
+				},
+			});
+
+			return newMember;
+		}
+		catch (error)
+		{
+			if (error instanceof Prisma.PrismaClientKnownRequestError)
+			{
+				if (error.code === 'P2002') {
+					throw new ForbiddenException('Credentials taken');
+				}
+			}
+			throw error;
+		}	
+	}	
 
 }
