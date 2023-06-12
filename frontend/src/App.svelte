@@ -32,6 +32,8 @@
 	initializeSocket(dashboardData);
 
 	async function fetchData() {
+		if (!document.cookie)
+			return;
 		try {
 			const cookieValue = document.cookie
 				.split('; ')

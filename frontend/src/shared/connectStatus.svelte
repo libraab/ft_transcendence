@@ -15,7 +15,13 @@
 	let userStatus = 0
 	let intervalRefresh
 
-	onMount(() => {
+	function sleep(ms){
+		return new Promise((resolve) => setTimeout(resolve, ms));
+	}
+
+	onMount(async () => {
+		await sleep(500); // Pause d'une 1/2 seconde
+
 		intervalRefresh = setInterval(() => {
 			checkConnexion(userId);
 		}, 1000);
@@ -23,13 +29,12 @@
 
 	onDestroy(() => {
 		clearInterval(intervalRefresh);
-	})
+	});
 
 	async function checkConnexion(userId) {
-		try
-		{
-			if (!userId)
-				return;
+		try {
+			if (!userId) return;
+
 			const response = await fetch(`http://${hostname}:3000/chat/connected/${userId}`);
 			let status = await response.json();
 			userStatus = status;
@@ -39,6 +44,7 @@
 			console.error(error);
 		}
 	}
+
 
 
 </script>

@@ -134,7 +134,25 @@ const join = async (room) => {
 	{
 		choosenRoom = room.name;
 		choosenRoomId = room.id;
+		fetchprivateRoomMembers();
 		inspectToggle();
+	}
+
+	let privateRoomMembers = null;
+	async function fetchprivateRoomMembers()
+	{
+		try
+		{
+			const response = await fetch(`http://${hostname}:3000/rooms/privateRoomMember/${choosenRoomId}`);
+			if (response.ok)
+				privateRoomMembers = await response.json();
+			else
+				privateRoomMembers = null;
+		}
+		catch (error)
+		{
+			console.error(error);
+		}
 	}
 
 	async function accept(id)
@@ -160,6 +178,11 @@ const join = async (room) => {
 	async function ban()
 	{
 		console.log('t as des baskets tu sors');
+	}
+
+	async function mute()
+	{
+		console.log('mais shhhhhtt');
 	}
 </script>
 
@@ -189,10 +212,13 @@ const join = async (room) => {
 				{#each rooms as room}
 					<div class="room-item">
 						{#if room.secu == 1}
+							<h3>❌ {room.name}</h3>
+							<button class="join-button" on:click={() => askForPassword(room)}>Protected</button>
+						{:else if room.secu == 2}
 							<h3>🔒 {room.name}</h3>
-							<button class="join-button" on:click={() => askForPassword(room)}>Join</button>
+							<button class="join-button" on:click={() => join(room)}>Ask to join</button>
 						{:else}
-							<h3>{room.name}</h3>
+							<h3>✅ {room.name}</h3>
 							<button class="join-button" on:click={() => join(room)}>Join</button>
 						{/if}
 					</div>
@@ -230,31 +256,35 @@ const join = async (room) => {
 			<center><button class="toggle-btn" on:click={() => inspectToggle()}>Back</button></center>
 		</div>
 
-		<div class="rooms-container">
-			<button class="toggle-btn">they wanna join</button>
-			<div class="room-list">
-				{#each Array.from({ length: 6 }, (_, i) => i) as index}
-					<div class="room-item">
-						<p>dummy{index}</p>
-						<div class="buttons">
-							<button on:click={() => accept(index)}>Accept</button>
-							<button on:click={() => deny(index)}>Deny</button>
+		{#if privateRoomMembers && privateRoomMembers.length !== 0}
+			<div class="rooms-container">
+				<button class="toggle-btn">they wanna join</button>
+				<div class="room-list">
+					{#each Array.from({ length: 6 }, (_, i) => i) as index}
+						<div class="room-item">
+							<p>dummy{index}</p>
+							<div class="buttons">
+								<button on:click={() => accept(index)}>Accept</button>
+								<button on:click={() => deny(index)}>Deny</button>
+								<button on:click={() => ban(index)}>Block</button>
+							</div>
 						</div>
-					</div>
-				{/each}
+					{/each}
+				</div>
 			</div>
-		</div>
+		{/if}
 		
 		<div class="rooms-container">
 			<button class="toggle-btn">Room Members</button>
 			<div class="room-list">
 				{#each Array.from({ length: 6 }, (_, i) => i) as index}
 					<div class="room-item">
-						<p>dummy{index}</p>
+						<p>dummy{index} - status</p>
 						<div class="buttons">
 							<button on:click={() => promote(index)}>Promote</button>
 							<button on:click={() => demote(index)}>Demote</button>
 							<button on:click={() => ban(index)}>Ban</button>
+							<button on:click={() => mute(index)}>mute</button>
 						</div>
 					</div>
 				{/each}
@@ -264,6 +294,9 @@ const join = async (room) => {
 		<div class="create-container">
 			<center><button class="toggle-btn" style="background-color: red;" on:click={() => inspectToggle()}>Delete Room</button></center>
 			/̵͇̿̿/’̿’̿ ̿ ̿̿ ̿̿ ̿̿(╥﹏╥)
+
+			<button class="toggle-btn" style="background-color: red; margin-top: auto;" on:click={() => inspectToggle()}>Resign</button>
+			(¬ _¬)ﾉ ciao
 		</div>
 
 	{/if}

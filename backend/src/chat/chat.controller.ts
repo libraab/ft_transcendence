@@ -103,6 +103,8 @@ export class ChatController {
     @Get()
     async getRooms(): Promise<{ id: number; name: string }[]> {
         return this.db.getRooms();
+        //TODO
+        //return this.db.getRoomsWhereUserIsNotMember(id);
     }
 //-----------------------------------------------------------------//
 @Post('/join')
@@ -112,7 +114,14 @@ async joinRoom(@Body() data) {
     if (!room) {
         throw new Error('Room does not exist');
     }
-    if (room.secu === 2 || room.secu === 3 ) {
+
+    if (room.secu === 2)
+    {
+        // await this.db.
+    }
+
+//TODO INVITATION PENDANT ICI IF ROOM.SECU === 2
+    if (room.secu === 3 ) {
         throw new Error('Cannot join a private room');
     }
     
@@ -156,6 +165,7 @@ async joinRoom(@Body() data) {
                 console.log("An error occurred during password comparison:", error);
             });
     }
+    console.log('test');
   }
 
     @Post('/invite')
