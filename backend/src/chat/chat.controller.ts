@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Post, ParseIntPipe, Put, Param, Body } from '@nestjs/common';
+import { Controller, Delete, Get, Post, ParseIntPipe, Put, Param, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import {createRoomDto} from '../dashboard/dashboardDtos/createsTablesDtos'
 import * as bcrypt from 'bcrypt'
@@ -106,30 +106,6 @@ export class ChatController {
         //TODO
         //return this.db.getRoomsWhereUserIsNotMember(id);
     }
-//-----------------------------------------------------------------//
-@Post('/join')
-async joinRoom(@Body() data) {
-    const room = await this.db.getRoomById(data.roomId);
-    
-    if (!room) {
-        throw new Error('Room does not exist');
-    }
-
-    if (room.secu === 2)
-    {
-        // await this.db.
-    }
-
-//TODO INVITATION PENDANT ICI IF ROOM.SECU === 2
-    if (room.secu === 3 ) {
-        throw new Error('Cannot join a private room');
-    }
-    
-    await this.db.addMemberToRoom(room.id, data.iddata, 2);
-    return 'User joined the room';
-}
-//-----------------------------------------------------------------//
-
 
   @Post('/verify-password')
   async joinProtectedRoom(@Body() data) {

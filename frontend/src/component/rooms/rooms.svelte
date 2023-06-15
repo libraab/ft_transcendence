@@ -48,7 +48,7 @@
 }
 //-------------------------LIST----ROOM-----------------------------//
 	const fetchRooms = async () => {
-		const response = await fetch(`http://${hostname}:3000/chat`);
+		const response = await fetch(`http://${hostname}:3000/rooms/valideRooms/${data.id}`);
 		if (response.ok) {
 			rooms = await response.json();
 		} else {
@@ -86,15 +86,8 @@ const askForPassword = (room) => {
 };
 //---------------------------JOIN----------NORMAL------------------//
 const join = async (room) => {
-	const response = await fetch(`http://${hostname}:3000/chat/join`, {
+	const response = await fetch(`http://${hostname}:3000/rooms/join/${room.id}/${data.id}`, {
 		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json'
-		},
-		body: JSON.stringify({
-			roomId: room.id,
-			iddata: data.id
-		})
 	});
 
 	if (response.ok) {
@@ -102,6 +95,7 @@ const join = async (room) => {
 	} else {
 		console.error('Failed to join room:', room.name);
 	}
+	fetchRooms();
 };
 
 //---------------------------OwnedRoom----------LIST------------------//
@@ -126,6 +120,13 @@ const join = async (room) => {
 	function inspectToggle()
 	{
 		inspectBoolean = !inspectBoolean;
+		if (!inspectBoolean)
+		{
+			choosenRoom = null;
+			choosenRoomId = null;
+			privateRoomMembers = null;
+			roomMembers = [];
+		}
 	}
 
 	let choosenRoom;
@@ -135,18 +136,17 @@ const join = async (room) => {
 		choosenRoom = room.name;
 		choosenRoomId = room.id;
 		fetchprivateRoomMembers();
+		fetchAllRoomMembers();
 		inspectToggle();
 	}
 
 	async function deleteRoom()
 	{
-		console.log(choosenRoom, choosenRoomId);
 		inspectToggle();
 	}
 
 	async function resign()
 	{
-		console.log(choosenRoom, choosenRoomId);
 		inspectToggle();
 	}
 
@@ -167,14 +167,7 @@ const join = async (room) => {
 		}
 	}
 
-	//let roomMembers = null;
-	let roomMembers = [
-		{ name: "John", status: 1, id: 1 },
-		{ name: "Alice", status: 2, id: 2 },
-		{ name: "Bob", status: 2, id: 3 },
-		{ name: "Eve", status: 1, id: 4 },
-		{ name: "Dave", status: 3, id: 5 }
-	];
+	let roomMembers = [];
 
 	async function fetchAllRoomMembers()
 	{
@@ -200,7 +193,6 @@ const join = async (room) => {
 
 			if (response.ok)
 			{
-				console.log(response);
 				console.log('Status updated successfully');
 			}
 			else
@@ -216,7 +208,7 @@ const join = async (room) => {
 
 	async function accept(client) {
 		try {
-			const response = await fetch(`http://${hostname}:3000/acceptNewMember/${choosenRoomId}/${client.id}`, {
+			const response = await fetch(`http://${hostname}:3000/rooms/acceptNewMember/${choosenRoomId}/${client.id}`, {
 				method: 'POST',
 			});
 
@@ -235,24 +227,27 @@ const join = async (room) => {
 		{
 			console.error(error);
 		}
+		await fetchAllRoomMembers();
+		await fetchprivateRoomMembers();
 	}
 
 	async function promote(client)
 	{
-		updateClientStatufetchAllRoomMemberss(choosenRoomId, client.id, 1);
-		fetchAllRoomMember();
+		await updateClientStatus(choosenRoomId, client.id, 1);
+		await fetchAllRoomMembers();
 	}
 	
 	async function demote(client)
 	{
-		updateClientStatus(choosenRoomId, client.id, 2);
-		fetchAllRoomMember();
+		await updateClientStatus(choosenRoomId, client.id, 2);
+		await fetchAllRoomMembers();
 	}
 	
 	async function ban(client)
 	{
-		updateClientStatus(choosenRoomId, client.id, 5);
-		fetchAllRoomMember();
+		await updateClientStatus(choosenRoomId, client.id, 5);
+		await fetchAllRoomMembers();
+		await fetchprivateRoomMembers();
 	}
 
 	async function kick(client)
@@ -274,18 +269,20 @@ const join = async (room) => {
 		{
 			throw new Error(error.message);
 		}
+		await fetchAllRoomMembers();
+		await fetchprivateRoomMembers();
 	}
 
 	async function mute(client)
 	{
-		updateClientStatus(choosenRoomId, client.id, 3);
-		fetchAllRoomMember();
+		await updateClientStatus(choosenRoomId, client.id, 3);
+		await fetchAllRoomMembers();
 	}
 
 	async function unmute(client)
 	{
-		updateClientStatus(choosenRoomId, client.id, 2);
-		fetchAllRoomMember();
+		await updateClientStatus(choosenRoomId, client.id, 2);
+		await fetchAllRoomMembers();
 	}
 
 	const memberStatusLabels = {
@@ -299,152 +296,152 @@ const join = async (room) => {
 </script>
 
 <div class="main_body">
-<main class="container">
+	<main class="container">
 
-	{#if !inspectBoolean}
-		{#if ownedRoom}
-			<div class="rooms-container">
-				<button class="toggle-btn">Your Rooms</button>
-				<div class="room-list">
-				
-					{#each ownedRoom as room}
-						<div class="room-item">
-							<h3>{room.name}</h3>
-							<button class="join-button" on:click={() => switchDisplay(room)}>Inspect</button>
-						</div>
-					{/each}
+		{#if !inspectBoolean}
+			{#if ownedRoom}
+				<div class="rooms-container">
+					<button class="toggle-btn">Your Rooms</button>
+					<div class="room-list">
+					
+						{#each ownedRoom as room}
+							<div class="room-item">
+								<h3>{room.name}</h3>
+								<button class="join-button" on:click={() => switchDisplay(room)}>Inspect</button>
+							</div>
+						{/each}
 
-				</div>
-			</div>
-		{/if}
-
-		<div class="rooms-container">
-			<button class="toggle-btn">List of Rooms</button>
-			<div class="room-list">
-				{#each rooms as room}
-					<div class="room-item">
-						{#if room.secu == 1}
-							<h3>❌ {room.name}</h3>
-							<button class="join-button" on:click={() => askForPassword(room)}>Protected</button>
-						{:else if room.secu == 2}
-							<h3>🔒 {room.name}</h3>
-							<button class="join-button" on:click={() => join(room)}>Ask to join</button>
-						{:else}
-							<h3>✅ {room.name}</h3>
-							<button class="join-button" on:click={() => join(room)}>Join</button>
-						{/if}
 					</div>
-				{/each}
-			</div>
-		</div>
-
-		<div class="create-container">
-			<button class="create-btn" on:click={toggleForm}>Create Room</button>
-			{#if isFormVisible}
-				<form on:submit={handleSubmit}>
-					<label for="room-name">Room Name:</label>
-					<input type="text" id="room-name" bind:value={roomName} />
-					<br />
-					<label for="room-type">Room Type:</label>
-					<select id="room-type" bind:value={roomType}>
-						<option value="public">Public</option>
-						<option value="private">Private</option>
-						<option value="protected">Protected</option>
-					</select>
-					{#if roomType === "protected"}
-						<br />
-						<label for="password">Password:</label>
-						<input type="password" id="password" bind:value={password} />
-					{/if}
-					<br />
-					<button type="submit">Create Room</button>
-				</form>
+				</div>
 			{/if}
-		</div>
 
-	{:else}
-		<div class="create-container">
-			<h1>{choosenRoom}</h1>
-			<center><button class="toggle-btn" on:click={() => inspectToggle()}>Back</button></center>
-		</div>
-
-		{#if privateRoomMembers && privateRoomMembers.length !== 0}
 			<div class="rooms-container">
-				<button class="toggle-btn">they wanna join</button>
+				<button class="toggle-btn">List of available rooms</button>
 				<div class="room-list">
-					{#each Array.from({ length: 6 }, (_, i) => i) as index}
+					{#each rooms as room}
 						<div class="room-item">
-							<p>dummy{index}</p>
-							<div class="buttons">
-								<button on:click={() => accept(index)}>Accept</button>
-								<button on:click={() => kick(index)}>Deny</button>
-								<button on:click={() => ban(index)}>Block</button>
-							</div>
+							{#if room.secu == 1}
+								<h3>❌ {room.name}</h3>
+								<button class="join-button" on:click={() => askForPassword(room)}>Protected</button>
+							{:else if room.secu == 2}
+								<h3>🔒 {room.name}</h3>
+								<button class="join-button" on:click={() => join(room)}>Ask to join</button>
+							{:else}
+								<h3>✅ {room.name}</h3>
+								<button class="join-button" on:click={() => join(room)}>Join</button>
+							{/if}
 						</div>
 					{/each}
 				</div>
 			</div>
-		{/if}
-		
-<!--	{#if roomMembers && roomMembers.length !== 0}-->
-			<div class="rooms-container">
-				<button class="toggle-btn">Room Members</button>
-				<div class="room-list">
 
-					{#each roomMembers as member}
-						<div class="room-item">
-							<div>
+			<div class="create-container">
+				<button class="create-btn" on:click={toggleForm}>Create Room</button>
+				{#if isFormVisible}
+					<form on:submit={handleSubmit}>
+						<label for="room-name">Room Name:</label>
+						<input type="text" id="room-name" bind:value={roomName} />
+						<br />
+						<label for="room-type">Room Type:</label>
+						<select id="room-type" bind:value={roomType}>
+							<option value="public">Public</option>
+							<option value="private">Private</option>
+							<option value="protected">Protected</option>
+						</select>
+						{#if roomType === "protected"}
+							<br />
+							<label for="password">Password:</label>
+							<input type="password" id="password" bind:value={password} />
+						{/if}
+						<br />
+						<button type="submit">Create Room</button>
+					</form>
+				{/if}
+			</div>
+
+		{:else}
+			<div class="create-container">
+				<h1>{choosenRoom}</h1>
+				<center><button class="toggle-btn" on:click={() => inspectToggle()}>Back</button></center>
+			</div>
+
+			{#if privateRoomMembers && privateRoomMembers.length !== 0}
+				<div class="rooms-container">
+					<button class="toggle-btn">they wanna join</button>
+					<div class="room-list">
+						{#each privateRoomMembers as member}
+							<div class="room-item">
 								<p>{member.name}</p>
-								<p>[{memberStatusLabels[member.status]}]</p>
-							</div>
-
-							<div class="buttons">
-								{#if member.status === 5}
-									<button on:click={() => kick(member)}>unban</button>
-								{:else}
-									{#if member.status === 2}
-										<button on:click={() => promote(member)}>Promote</button>
-									{:else if member.status === 1}
-										<button on:click={() => demote(member)}>Demote</button>
-									{/if}	
-
-									{#if member.status === 3}
-										<button on:click={() => unmute(member)}>unmute</button>
-									{:else}
-										<button on:click={() => mute(member)}>mute</button>
-									{/if}
-									<button on:click={() => kick(member)}>kick</button>
+								<div class="buttons">
+									<button on:click={() => accept(member)}>Accept</button>
+									<button on:click={() => kick(member)}>Deny</button>
 									<button on:click={() => ban(member)}>Ban</button>
-								{/if}
+								</div>
 							</div>
-						</div>
-					{/each}
-
+						{/each}
+					</div>
 				</div>
+			{/if}
+			
+	<!--	{#if roomMembers && roomMembers.length !== 0}-->
+				<div class="rooms-container">
+					<button class="toggle-btn">Room Members</button>
+					<div class="room-list">
+
+						{#each roomMembers as member}
+							<div class="room-item">
+								<div>
+									<p>{member.name}</p>
+									<p>[{memberStatusLabels[member.status]}]</p>
+								</div>
+
+								<div class="buttons">
+									{#if member.status === 5}
+										<button on:click={() => kick(member)}>unban</button>
+									{:else}
+										{#if member.status === 2}
+											<button on:click={() => promote(member)}>Promote</button>
+										{:else if member.status === 1}
+											<button on:click={() => demote(member)}>Demote</button>
+										{/if}	
+
+										{#if member.status === 3}
+											<button on:click={() => unmute(member)}>unmute</button>
+										{:else}
+											<button on:click={() => mute(member)}>mute</button>
+										{/if}
+										<button on:click={() => kick(member)}>kick</button>
+										<button on:click={() => ban(member)}>Ban</button>
+									{/if}
+								</div>
+							</div>
+						{/each}
+
+					</div>
+				</div>
+
+	<!--	{:else}
+				<div style="display: block; text-align: center;">
+					<p style="display: block;">feeling lonely ?</p>
+					<img src="https://media.giphy.com/media/1isQ04fzbwXbJKucVI/giphy.gif" style="display: block; margin: 0 auto;" alt="whtever">
+				</div>
+			{/if}
+	-->
+			<div class="create-container">
+				<center><button class="toggle-btn" style="background-color: red;"
+					on:click={() => deleteRoom()}>Delete room
+				</button></center>
+				/̵͇̿̿/’̿’̿ ̿ ̿̿ ̿̿ ̿̿(╥﹏╥)
+
+				<button class="toggle-btn" style="background-color: red; margin-top: auto;"
+					on:click={() => resign()}>Resign
+				</button>
+				(¬ _¬)ﾉ ciao
 			</div>
 
-<!--	{:else}
-			<div style="display: block; text-align: center;">
-				<p style="display: block;">feeling lonely ?</p>
-				<img src="https://media.giphy.com/media/1isQ04fzbwXbJKucVI/giphy.gif" style="display: block; margin: 0 auto;" alt="whtever">
-			</div>
 		{/if}
--->
-		<div class="create-container">
-			<center><button class="toggle-btn" style="background-color: red;"
-				on:click={() => deleteRoom()}>Delete room
-			</button></center>
-			/̵͇̿̿/’̿’̿ ̿ ̿̿ ̿̿ ̿̿(╥﹏╥)
 
-			<button class="toggle-btn" style="background-color: red; margin-top: auto;"
-				on:click={() => resign()}>Resign
-			</button>
-			(¬ _¬)ﾉ ciao
-		</div>
-
-	{/if}
-
-</main>
+	</main>
 </div>
 
 <style>
