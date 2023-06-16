@@ -53,6 +53,8 @@
 	// Le Frankenstein sarrete ici
 
 	async function fetchData() {
+		if (!document.cookie)
+			return;
 		try {
 			const cookieValue = document.cookie
 				.split('; ')
@@ -144,7 +146,7 @@
 	{/if}
 
 {:catch error}
-	<Header {img_path} />
+	<Header {img_path} data={null}/>
 	<h3>Error: {error.message}</h3>
 
 {/await}

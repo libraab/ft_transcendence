@@ -176,6 +176,7 @@
 			{#await members}
 			<center><p>Loading...</p></center>
 			{:then members}
+<<<<<<< HEAD
 				{#each members as member}
 				<li class="one_member">
 					<strong>{member.member.name}</strong><ConnectStatus userId={member.member.id} />
@@ -189,6 +190,17 @@
 						<Invitation socket={socket} data={data} opponent_id={member.member.id} />
 					{/if}
 				</li>
+=======
+				{#each members as member (member.id)}
+
+					<!-- IF NOT EMPTY -->
+						<li class="one_member"> 
+							<p>{member}</p>
+							<strong>{member.name}</strong><ConnectStatus userId={member.id} />
+						</li>
+					<!-- ENDIF-->
+
+>>>>>>> silas
 				{/each}
 			{/await}
 		</ul>
