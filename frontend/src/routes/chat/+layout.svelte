@@ -148,6 +148,28 @@
 			<button>send</button>
 		</form>
 	</div>
+	<div class="members">
+		<ul>
+			{#await members}
+			<center><p>Loading...</p></center>
+			{:then members}
+				{#each members as member}
+				<li class="one_member">
+					<strong>{member.member.name}</strong><ConnectStatus userId={member.member.id} />
+					{#if member.secu == 0}
+					♚
+					{:else if member.secu == 1}
+					♟
+					{/if}
+					<!-- si on est admin ou owner  -->
+					{#if member.member.id != data.id}
+						<Invitation socket={socket} data={data} opponent_id={member.member.id} />
+					{/if}
+				</li>
+				{/each}
+			{/await}
+		</ul>
+	</div>
 </div>
 -->
 <p>layout 2</p>
