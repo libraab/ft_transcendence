@@ -186,16 +186,7 @@
 					{/if}
 					<!-- si on est admin ou owner  -->
 					{#if member.member.id != data.id}
-						{#if whoami <2}
-						<button>kick</button>
-						<button>ban</button>
-						<button>mute</button>
-						{/if}
-					<!-- si on est en plus owner -->
-						{#if whoami == 0}
-						<button>be my pawn</button>
-						{/if}
-					<Invitation socket={socket} data={data} opponent_id={member.member.id} />
+						<Invitation socket={socket} data={data} opponent_id={member.member.id} />
 					{/if}
 				</li>
 				{/each}
