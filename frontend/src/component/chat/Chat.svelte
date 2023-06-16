@@ -176,13 +176,12 @@
 			{#await members}
 			<center><p>Loading...</p></center>
 			{:then members}
-<<<<<<< HEAD
 				{#each members as member}
 				<li class="one_member">
 					<strong>{member.member.name}</strong><ConnectStatus userId={member.member.id} />
-					{#if member.secu == 0}
+					{#if member.status == 0}
 					♚
-					{:else if member.secu == 1}
+					{:else if member.status == 1}
 					♟
 					{/if}
 					<!-- si on est admin ou owner  -->
@@ -190,17 +189,6 @@
 						<Invitation socket={socket} data={data} opponent_id={member.member.id} />
 					{/if}
 				</li>
-=======
-				{#each members as member (member.id)}
-
-					<!-- IF NOT EMPTY -->
-						<li class="one_member"> 
-							<p>{member}</p>
-							<strong>{member.name}</strong><ConnectStatus userId={member.id} />
-						</li>
-					<!-- ENDIF-->
-
->>>>>>> silas
 				{/each}
 			{/await}
 		</ul>
