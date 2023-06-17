@@ -107,7 +107,7 @@
 				{#if $page_shown == "/"}
 					<Dashboard data={dashboardValue} on:updateProfile={ newProfileData }/>
 				{:else if $page_shown == "game"}
-					<Game {id}/>
+					<Game socket={getSocket()}/>
 				{:else if $page_shown == "chat"}
 					<Chat data={dashboardValue} socket={getSocket()}/>
 				{:else if $page_shown === "room"}
