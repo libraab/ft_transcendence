@@ -10,6 +10,7 @@
 	const dispatch = createEventDispatcher();
 
 	export let data;
+	export let targetId;
 
 	// display boolean
 	let id42NameInputNotEmpty = false;
@@ -24,9 +25,9 @@
 	let searchRes = [];
 
 	// Target to inspect
-	let targetId = data.id;
-	let targetName = data.name;
-	let targetImg = data.img;
+	// let targetId = data.id;
+	let targetName = name;
+	let targetImg = img;
 	
 
 	// stats are always target ones
@@ -46,6 +47,7 @@
 
 	onMount(async () =>
 	{
+		await fetchTargetData();
 		await getTargetStats();
 	});
 	
@@ -58,7 +60,23 @@
 			name = data.name;
 			img = data.img;
 			returnBackHome();
+			return data;
+		}
+		catch (error)
+		{
+			console.error(error);
+		}
+	}
 
+	async function fetchTargetData()
+	{
+		try
+		{
+			const response = await fetch(`http://${hostname}:3000/dashboard/42/${targetId}`);
+			data = await response.json();
+			targetName = data.name;
+			targetImg = data.img;
+			// returnBackHome();
 			return data;
 		}
 		catch (error)
@@ -103,7 +121,7 @@
 	{
 		try
 		{
-			const response = await fetch(`http://${hostname}:3000/dashboard/stats/${id}`)
+			const response = await fetch(`http://${hostname}:3000/dashboard/stats/${targetId}`)
 			if (response)
 				stats = await response.json();
 			else

@@ -128,7 +128,7 @@
 		<main>
 			<div class="main_body">
 				{#if $page_shown == "/"}
-					<Dashboard data={dashboardValue} on:updateProfile={ newProfileData }/>
+					<Dashboard data={dashboardValue} targetId={dashboardData.id} on:updateProfile={ newProfileData }/>
 				{:else if $page_shown == "game"}
 					<Game {id}/>
 				{:else if $page_shown == "chat"}
