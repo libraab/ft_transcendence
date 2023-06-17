@@ -1,0 +1,173 @@
+<script lang="ts">
+    import Login from "./component/login/Login.svelte";
+    import DfaHomePage from "./component/dfa/dfaHomePage.svelte";
+    import Header from "./component/Header.svelte";
+    import Footer from "./component/Footer.svelte";
+	import Tabs from "./shared/Tabs.svelte";
+	import Dashboard from "./component/dashboard/Dashboard.svelte";
+	import Chat from "./component/chat/Chat.svelte";
+	import Game from "./component/game/pong.svelte"
+	import Rooms from "./component/rooms/rooms.svelte";
+	import { userId42 } from "./stores";
+	import { page_shown } from "./stores"
+	import { hostname } from "./hostname"
+	import axios from 'axios';
+	import { getSocket, initializeSocket, rooms } from "./socket"
+	import { onMount } from "svelte";
+    import AlertPopup from "./shared/AlertPopup.svelte";
+    import Invitation from "./shared/Invitation.svelte";
+
+	history.replaceState({"href_to_show":"/"}, "", "/");
+
+	window.addEventListener("popstate", e => {
+		console.log(e.state.href_to_show)
+		$page_shown = e.state.href_to_show
+	})
+
+	let img_path;
+	let id;
+	let isDFAActive;
+	let dashboardValue = null;
+	let alertPopupOn = false
+	let invitationData = null;
+	
+	let alertNumber = 0; //nombres de messages reçu non lu
+	let dashboardData = fetchData();
+	
+	// ce qui est en dessous est une abomination
+	// c'est sans doute le Frankestein de notre generation
+	let done = initializeSocket(dashboardData);
+	async function setPopupToogleEvent()
+	{
+		await done;
+		getSocket().chat.on('invitationGame', invitationHandler);
+	}
+	setPopupToogleEvent();
+
+	let invitationHandler = (opponent_id) =>
+	{
+		alertPopupOn = true;
+		invitationData = opponent_id;
+	//alert("Some guy invited you to a game!");
+	}
+	// Le Frankenstein sarrete ici
+
+	async function fetchData() {
+		if (!document.cookie)
+			return;
+		try {
+			const cookieValue = document.cookie
+				.split('; ')
+				.find(cookie => cookie.startsWith('jwt_cookie'))
+				.split('=')[1];
+
+			const id42 = document.cookie
+				.split('; ')
+				.find(cookie => cookie.startsWith('id42'))
+				.split('=')[1];
+			$userId42 = id42;
+			const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {
+				headers: { 'Authorization': `Bearer ${cookieValue}` }
+			});
+			if (response.ok)
+			{
+				const data = await response.json();
+				if (data.img !== "undefined")
+					img_path = data.img;
+				else
+    				img_path = "img/il_794xN.3892173164_egqv.avif";
+
+				dashboardValue = data;
+				id = data.id;
+				isDFAActive = data.Dfa;
+				return data;
+			} else {
+				throw new Error('Failed to fetch dashboard data');
+			}
+		} catch (error) {
+			console.error(error);
+		}
+	}
+	
+	const newProfileData = (event) => {
+		console.log(event.detail);
+		dashboardValue = event.detail;
+		img_path = dashboardValue.img;
+	}
+	
+	async function verified() {
+		await toggleDFAState();
+		dashboardValue = await fetchData();
+		isDFAActive = false;
+	}
+
+	async function toggleDFAState() {
+		isDFAActive = true;
+		try {
+			const response = await axios.post(`http://${hostname}:3000/auth/2fa/${id}`, { isDFAActive });
+			console.log('DFA status updated in the database to true');
+		} catch (error) {
+			console.error('Failed to update DFA status: ', error);
+		}
+	}
+
+</script>
+
+
+
+{#await fetchData()}
+<center><p>Loading...</p></center>
+
+{:then dashboardData}
+	<Header {img_path} data={dashboardValue} />
+	{#if dashboardData && isDFAActive}
+		<DfaHomePage bind:isDFAActive={isDFAActive} data={dashboardValue} on:updateVerification={ verified }/>
+	{/if}
+	{#if dashboardData && !isDFAActive && Object.keys(dashboardData).length > 0}
+		<Tabs id={dashboardData.id}/>
+		<main>
+			<div class="main_body">
+				{#if $page_shown == "/"}
+					<Dashboard data={dashboardValue} targetId={dashboardData.id} on:updateProfile={ newProfileData }/>
+				{:else if $page_shown == "game"}
+					<Game {id}/>
+				{:else if $page_shown == "chat"}
+					<Chat data={dashboardValue} socket={getSocket()}/>
+				{:else if $page_shown === "room"}
+					<Rooms data={dashboardValue}/>
+				{/if}
+			</div>
+			{#if alertPopupOn}
+				<AlertPopup {invitationData} />
+			{/if}
+		</main>
+	{:else if !dashboardData }
+		<Login/>
+	{/if}
+
+{:catch error}
+	<Header {img_path} data={null}/>
+	<h3>Error: {error.message}</h3>
+
+{/await}
+
+<Footer/>
+
+
+<style>
+	main{
+		background: #ececec;
+		padding: 20px 0px;;
+		width: 100%;
+	}
+	.main_body {
+		/* height: 50vh; 33% de la hauteur de la fenêtre */
+		width: 100%; /* 100% de la largeur de la fenêtre */
+		/* background: url('path/to/img.png') center/cover no-repeat, blue; */
+
+		/* color: white; */
+		margin: 0 auto;
+		font-size: 6px;
+		font-size: 1vw;
+	}
+</style>

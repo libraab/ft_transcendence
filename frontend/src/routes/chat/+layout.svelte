@@ -163,6 +163,7 @@
 					{/if}
 					<!-- si on est admin ou owner  -->
 					{#if member.member.id != data.id}
+						<button>Profil</button>
 						<Invitation socket={socket} data={data} opponent_id={member.member.id} />
 					{/if}
 				</li>
