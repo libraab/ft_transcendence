@@ -46,6 +46,8 @@ export class RoomsController
 		if (!room || !client) {
 			throw new HttpException("room id or client id onvalid", HttpStatus.BAD_REQUEST);
 		}
+		if (await this.db.checkRoomMember(roomId, clientId))
+			return HttpStatus.NO_CONTENT;
 
 		if (room.secu === 2) {
 			try {
