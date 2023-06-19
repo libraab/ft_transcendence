@@ -1,6 +1,6 @@
 <script>
     import { onDestroy, onMount } from "svelte";
-	import { defineGameSocketEvents, deleteGameSocketEvents, getSocket } from "../../socket";
+	import { defineGameSocketEvents, getSocket } from "../../socket";
   
 	export let socket;;
 
@@ -31,7 +31,7 @@
 
 	onDestroy(() => {
 //		deleteGameSocketEvents();
-	})
+	});
 
     let canvas;
     let ctx;

@@ -398,6 +398,19 @@ export class DatabaseService
 					throw new BadRequestException("client2Id spécifié n'existe pas");
 				}
 
+				const existingRoom = await this.prisma.rooms.findFirst({
+					where: {
+						OR: [
+							{ ownerid, client2Id },
+							{ ownerid: client2Id, client2Id: ownerid },
+						],
+					},
+				});
+
+				if (existingRoom) {
+					return existingRoom;
+				}
+
 				const room = await this.prisma.rooms.create({
 					data: {
 						name: client2.name,
@@ -439,6 +452,7 @@ export class DatabaseService
 			}
 		}
 	}
+
 	async getRooms(): Promise<{ id: number; name: string; secu: number}[]> {
 		const rooms = await this.prisma.rooms.findMany({
 			where: {
@@ -858,24 +872,20 @@ export class DatabaseService
 		return members;
 	}
 */
-	async getMembersByRoomId(roomId: number): Promise<{ member: Clients; secu: number }[]> {
+
+	async getMembersByRoomId(roomId: number) {
 		const roomMembers = await this.prisma.roomMembers.findMany({
 			where: { roomId },
-			include: { member: true, room: { select: { secu: true } } },
+			include: {
+				member: true,
+			},
 		});
 
-		if (!roomMembers) {
-			throw new NotFoundException(`Room with ID ${roomId} not found`);
-		}
-
-		const members = roomMembers.map((roomMember) => ({
+		return roomMembers.map((roomMember) => ({
 			member: roomMember.member,
-			secu: roomMember.room.secu,
+			status: roomMember.status,
 		}));
-
-		return members;
 	}
-
 
 	async getClientNamesListByTheirIds(ids: number[] | null): Promise<string[]> {
 		if (ids === null) {

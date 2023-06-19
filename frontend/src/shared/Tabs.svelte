@@ -46,10 +46,11 @@
 	<a href="chat" on:click|preventDefault={show_page} number={newMessage} class:active={$page_shown == "chat"} class:newMessage={newMessage}>Chat</a>
 	<a href="room" on:click|preventDefault={show_page} class:active={$page_shown == "room"}>Room</a>	
 </nav>
-<center><button class="round-button"
-	on:click={() => toggleFlTab()}>Friend List</button>
-<button class="round-button" on:click={() => toggleRanksTab()}>Ranking</button>
-<button class="round-button">Match history</button></center>
+<center>
+	<button class="round-button" on:click={() => toggleFlTab()}>Friend List</button>
+	<button class="round-button" on:click={() => toggleRanksTab()}>Ranking</button>
+	<button class="round-button">Match history</button>
+</center>
 
 
 <style>

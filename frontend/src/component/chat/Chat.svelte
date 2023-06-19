@@ -6,6 +6,7 @@
     import { get } from 'svelte/store';
 	import { set_data } from 'svelte/internal';
 	import { writable } from 'svelte/store';
+	import Invitation from '../../shared/Invitation.svelte';
     import ConnectStatus from '../../shared/connectStatus.svelte';
 
 
@@ -22,6 +23,7 @@
 	let messages_room_id = [];
 	let messages = [];
 	let members = [];
+	let whoami; // variable qui contient notre status dans la room (owner/admin/user)
 	//bind variable
 	let user_message = "";
 
@@ -40,6 +42,7 @@
 	onMount(() => {
 		deleteSocketEvents();
 		socket.chat.on('serverToChat', recieveMessage); // on defini le comportement lors de l'event mais cette en sauvegardant le message
+		socket.chat.on('serverMessage', recieveServerMessage);
 	});
 	
 
@@ -64,8 +67,12 @@
 		try {
 			const response = await fetch(`http://${hostname}:3000/chat/room/${room_id}`);
 			let rjson = await response.json();
-			console.log("members");
 			console.log(rjson);
+			let me = rjson.find(el => el.member.id == data.id); // on cherche le member qui est nous meme pour en extraire la secu
+			if (me)
+				whoami = me.secu;
+			else
+				whoami = 6; // au cas ou
 			return rjson;
 		}
 		catch (error) {
@@ -93,6 +100,22 @@
 			{
 				found = true;
 				e.msg_content.push({sender: msg.sender, message: msg.message});
+			}
+		});
+		messages = messages;
+		if (msg.channel != selected_room_id)
+			newMessage(msg);
+	}
+
+
+	let recieveServerMessage = (msg) => {
+		let found = false;
+		console.log(msg);
+		messages.forEach(e => {
+			if (e.room_id == msg.channel)
+			{
+				found = true;
+				e.msg_content.push({sender: "server", message: msg.message});
 			}
 		});
 		messages = messages;
@@ -153,9 +176,27 @@
 			{#await members}
 			<center><p>Loading...</p></center>
 			{:then members}
-				{#each members as member (member.id)}
+				{#each members as member}
 				<li class="one_member">
-					<strong>{member.name}</strong><ConnectStatus userId={member.id} />
+					<strong>{member.member.name}</strong><ConnectStatus userId={member.member.id} />
+					{#if member.secu == 0}
+					♚
+					{:else if member.secu == 1}
+					♟
+					{/if}
+					<!-- si on est admin ou owner  -->
+					{#if member.member.id != data.id}
+						{#if whoami <2}
+						<button>kick</button>
+						<button>ban</button>
+						<button>mute</button>
+						{/if}
+					<!-- si on est en plus owner -->
+						{#if whoami == 0}
+						<button>be my pawn</button>
+						{/if}
+					<Invitation socket={socket} data={data} opponent_id={member.member.id} />
+					{/if}
 				</li>
 				{/each}
 			{/await}
