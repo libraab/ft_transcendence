@@ -8,6 +8,7 @@ import { DatabaseModule } from './database/database.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { GameModule } from './game/game.module';
+import { PongModule } from './pong/pong.module';
 
 
 @Module({
@@ -20,6 +21,7 @@ import { GameModule } from './game/game.module';
             ConfigModule.forRoot({
               isGlobal: true,
             }),
+            PongModule,
   ],
   controllers: [AppController],
   providers: [AppService],

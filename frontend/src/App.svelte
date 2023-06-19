@@ -54,11 +54,12 @@
 
 	async function fetchData() {
 		try {
+			console.log(document.cookie); 
 			const cookieValue = document.cookie
-				.split('; ')
+				.split('; ') 
 				.find(cookie => cookie.startsWith('jwt_cookie'))
 				.split('=')[1];
-
+			
 			const id42 = document.cookie
 				.split('; ')
 				.find(cookie => cookie.startsWith('id42'))
@@ -128,7 +129,7 @@
 				{#if $page_shown == "/"}
 					<Dashboard data={dashboardValue} on:updateProfile={ newProfileData }/>
 				{:else if $page_shown == "game"}
-					<Game {id}/>
+					<Game socket={getSocket()}/>
 				{:else if $page_shown == "chat"}
 					<Chat data={dashboardValue} socket={getSocket()}/>
 				{:else if $page_shown === "room"}
