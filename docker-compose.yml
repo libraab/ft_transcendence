@@ -13,6 +13,8 @@ services:
       frontend_network:
         aliases:
           - frontend
+    volumes:
+      - frontend:/app
 
   backend:
     build:
@@ -32,6 +34,8 @@ services:
       backend_network:
         aliases:
           - backend
+      volumes:
+      - backend:/app
 
   database:
     image: postgres
@@ -51,3 +55,17 @@ networks:
     driver: bridge
   backend_network:
     driver: bridge
+
+volumes:
+  backend:
+    driver: local
+    driver_opts:
+      type: none
+      device: backend
+      o: bind
+  frontend:
+    driver: local
+    driver_opts:
+      type: none
+      device: frontend
+      o: bind

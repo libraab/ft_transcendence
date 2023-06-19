@@ -11,7 +11,7 @@ export class AuthService {
             code,
             client_id: process.env.CLIENT_ID,
             client_secret: process.env.CLIENT_SECRET,
-            redirect_uri: 'http://'+process.env.HOSTNAME+':3000/auth',
+            redirect_uri: "http://"+process.env.HOSTNAME+":3000/auth"
         }
         const response = axios.post('https://api.intra.42.fr/oauth/token', data);
         const token = await response
