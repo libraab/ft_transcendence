@@ -23,8 +23,10 @@ export class AuthController {
 							@Res({ passthrough: true }) response: FastifyReply): Promise<string> {
 		const { code } = query;
 		const access_token = await this.authService.get_token(code);
+		console.log(code);
+		console.log(access_token);
 		if (access_token == undefined)
-			throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+			throw new HttpException('Forbidden access token', HttpStatus.FORBIDDEN);
 		const user_info: User42Interface = await this.authService.get_user_info(access_token);
 		let user = await this.databaseService.getClientById42(user_info.id);
 		if (!user) {

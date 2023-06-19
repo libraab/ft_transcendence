@@ -10,6 +10,8 @@ let socketData;
 
 export async function initializeSocket(data) {
   socketData = await data;
+  if (!socketData)
+  	return;
   socket.chat = io(hostname+':3000/chat', {path: '/chatsockets'});//, auth: {token: }});
   socket.chat.emit('whoAmI', socketData.id);
 

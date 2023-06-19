@@ -179,23 +179,15 @@
 				{#each members as member}
 				<li class="one_member">
 					<strong>{member.member.name}</strong><ConnectStatus userId={member.member.id} />
-					{#if member.secu == 0}
+					{#if member.status == 0}
 					♚
-					{:else if member.secu == 1}
+					{:else if member.status == 1}
 					♟
 					{/if}
 					<!-- si on est admin ou owner  -->
 					{#if member.member.id != data.id}
-						{#if whoami <2}
-						<button>kick</button>
-						<button>ban</button>
-						<button>mute</button>
-						{/if}
-					<!-- si on est en plus owner -->
-						{#if whoami == 0}
-						<button>be my pawn</button>
-						{/if}
-					<Invitation socket={socket} data={data} opponent_id={member.member.id} />
+						<button>Profil</button>
+						<Invitation socket={socket} data={data} opponent_id={member.member.id} />
 					{/if}
 				</li>
 				{/each}

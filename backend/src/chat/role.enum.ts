@@ -4,4 +4,5 @@ export enum Role {
 	Member = 'member',
 	Kicked = 'kicked',
 	Banned = 'banned',
-  }
+	Pendant = 'pendant',
+}

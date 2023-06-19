@@ -95,16 +95,15 @@ model Rooms {
 }
 
 model RoomMembers {
-  id          Int       @id @default(autoincrement())
-
-  roomId  Int
-  room    Rooms    @relation("RoomMembersToRooms", fields: [roomId], references: [id])
-  memberId Int
-  member  Clients  @relation("ClientRoomMembers", fields: [memberId], references: [id])
-
-  status      Int
+  id        Int      @id @default(autoincrement())
+  roomId    Int
+  room      Rooms    @relation("RoomMembersToRooms", fields: [roomId], references: [id])
+  memberId  Int
+  member    Clients  @relation("ClientRoomMembers", fields: [memberId], references: [id])
+  status    Int
 
   @@map("room_members")
+  @@unique([roomId, memberId])
 }
 
 model MessagesRooms {

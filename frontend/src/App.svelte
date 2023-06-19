@@ -53,6 +53,8 @@
 	// Le Frankenstein sarrete ici
 
 	async function fetchData() {
+		if (!document.cookie)
+			return;
 		try {
 			console.log(document.cookie); 
 			const cookieValue = document.cookie
@@ -127,7 +129,7 @@
 		<main>
 			<div class="main_body">
 				{#if $page_shown == "/"}
-					<Dashboard data={dashboardValue} on:updateProfile={ newProfileData }/>
+					<Dashboard data={dashboardValue} targetId={dashboardData.id} on:updateProfile={ newProfileData }/>
 				{:else if $page_shown == "game"}
 					<Game socket={getSocket()}/>
 				{:else if $page_shown == "chat"}
@@ -145,7 +147,7 @@
 	{/if}
 
 {:catch error}
-	<Header {img_path} />
+	<Header {img_path} data={null}/>
 	<h3>Error: {error.message}</h3>
 
 {/await}
