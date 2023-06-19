@@ -1168,4 +1168,41 @@ export class DatabaseService
 
 		return roomMember;
 	}
+
+	async getRoomReplacementMembers(roomId: number) {
+		const roomMembers = await this.prisma.roomMembers.findMany({
+			where: {
+				roomId: roomId,
+			},
+			select: {
+				member: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+				status: true,
+			},
+		});
+
+		const admins = roomMembers.filter((member) => member.status === 1);
+		const members = roomMembers.filter((member) => member.status === 2);
+
+		const adminsList = admins.map((member) => ({
+			id: member.member.id,
+			name: member.member.name,
+		}));
+
+		const membersList = members.map((member) => ({
+			id: member.member.id,
+			name: member.member.name,
+		}));
+
+		return {
+			admins: adminsList,
+			members: membersList,
+		};
+	}
+
+
 }

@@ -1,7 +1,10 @@
 <script>
 	import { onMount } from 'svelte';
 	import { hostname } from "../../hostname"
+	import DelModal from './delete_resign.svelte'
+
 	export let data;
+
 	let rooms = [];
 	let isFormVisible = false;
 	let roomName = '';
@@ -293,7 +296,26 @@ const join = async (room) => {
 		5: 'banned',
 		6: 'pendant',
 	};
+
+	let delTab = null;
+	function toggleDel(source)
+	{
+		delTab = source;
+	}
+
+	function delReturn() {
+		delTab = null;
+		fetchOwnedRoom();
+		fetchRooms();
+		inspectToggle();
+	}
 </script>
+
+{#if delTab}
+	<DelModal {delTab} roomId={choosenRoomId} id={data.id}
+		on:click={()=> toggleDel(null)}
+		on:validationClick={ delReturn }/>
+{/if}
 
 <div class="main_body">
 	<main class="container">
@@ -429,12 +451,12 @@ const join = async (room) => {
 	-->
 			<div class="create-container">
 				<center><button class="toggle-btn" style="background-color: red;"
-					on:click={() => deleteRoom()}>Delete room
+					on:click={() => toggleDel('del')}>Delete room
 				</button></center>
 				/̵͇̿̿/’̿’̿ ̿ ̿̿ ̿̿ ̿̿(╥﹏╥)
 
 				<button class="toggle-btn" style="background-color: red; margin-top: auto;"
-					on:click={() => resign()}>Resign
+					on:click={() => toggleDel('res')}>Resign
 				</button>
 				(¬ _¬)ﾉ ciao
 			</div>

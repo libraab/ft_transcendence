@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, HttpStatus, Param, ParseArrayPipe, ParseIntPipe, Post } from '@nestjs/common';
+import { Controller, Get, HttpException, HttpStatus, Param, ParseArrayPipe, ParseBoolPipe, ParseIntPipe, Post } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 
 @Controller('rooms')
@@ -35,6 +35,20 @@ export class RoomsController
 	async getRoomAdmins(@Param('roomId', ParseIntPipe) roomId: number)
 	{
 		return this.db.getRoomAdmins(roomId);
+	}
+
+	@Get('/replacementList/:id')
+	async getReplacements(@Param('id', ParseIntPipe) roomId: number)
+	{
+		try
+		{
+			return this.db.getRoomReplacementMembers(roomId);
+		}
+		catch (error)
+		{
+			throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+		}
+
 	}
 
 	@Post('/join/:roomId/:clientId')
@@ -120,13 +134,14 @@ export class RoomsController
 	@Post('/delete/:roomId')
 	async deleteRoom(@Param('roomId', ParseIntPipe) roomId: number)
 	{
-
+		
 	}
 
-	@Post('/resign/:roomId/:ownerId/:adminId')
+	@Post('/resign/:roomId/:ownerId/:adminId/:stay')
 	async resign(@Param('roomId', ParseIntPipe) roomId: number,
 				@Param('ownerId', ParseIntPipe) ownerId: number,
-				@Param('adminId', ParseIntPipe) adminId: number)
+				@Param('adminId', ParseIntPipe) adminId: number,
+				@Param('stay', ParseBoolPipe) stay: boolean)
 	{
 		const ownerCheck = await this.db.checkRoomOwner(roomId, ownerId);
 		const roomUserCheck = await this.db.checkRoomMember(roomId, adminId);
@@ -140,6 +155,10 @@ export class RoomsController
 			await this.db.changeMemberStatus(roomId, ownerId, 1);
 			await this.db.changeMemberStatus(roomId, adminId, 0);
 			await this.db.changeRoomOwner(roomId, adminId);
+
+			//if (!stay)
+			//	erase member from room
+
 			return HttpStatus.NO_CONTENT;
 		}
 		catch (error)
