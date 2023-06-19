@@ -35,13 +35,13 @@ export class ChatController {
     async getConnectedStatus(@Param('id', ParseIntPipe) id: number)
     {
         // let json = await this.db.getRoomMessagesById(id);
-        let res : number;
+        // let res : number;
 		return this.usersConnected.checkStatus(id);
         // await Promise.all(json.map(async (e) => {
         //     res.push({ sender: e.clientName, message: e.message});
         // }));
         // console.log(res);
-		return res;
+		// return res;
     }
 
 	@Get('/room/:id')

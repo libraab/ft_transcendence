@@ -1063,6 +1063,7 @@ export class DatabaseService
 		return rooms.map((room) => ({ id: room.id, name: room.name }));
 	}
 
+/*
 	async getRoomsExcludingWhereClientIsMember(clientId: number) {
 		const rooms = await this.prisma.rooms.findMany({
 			where: {
@@ -1071,6 +1072,32 @@ export class DatabaseService
 						some: {
 							memberId: clientId,
 						},
+					},
+				},
+			},
+			select: {
+				id: true,
+				name: true,
+			},
+		});
+
+		return rooms.map((room) => ({ id: room.id, name: room.name }));
+	}
+*/	
+
+	async getRoomsExcludingWhereClientIsMember(clientId: number) {
+		const rooms = await this.prisma.rooms.findMany({
+			where: {
+				NOT: {
+					members: {
+						some: {
+							memberId: clientId,
+						},
+					},
+				},
+				owner: {
+					NOT: {
+						id: clientId,
 					},
 				},
 			},
