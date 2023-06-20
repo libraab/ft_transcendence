@@ -143,16 +143,6 @@ const join = async (room) => {
 		inspectToggle();
 	}
 
-	async function deleteRoom()
-	{
-		inspectToggle();
-	}
-
-	async function resign()
-	{
-		inspectToggle();
-	}
-
 	let privateRoomMembers = null;
 	async function fetchprivateRoomMembers()
 	{

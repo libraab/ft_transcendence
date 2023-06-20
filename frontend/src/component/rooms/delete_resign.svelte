@@ -52,29 +52,56 @@
 		dispatch('validationClick');
 	}
 
-	function resign(client)
+	async function resign(client)
 	{
+		let stay;
+		if (stayOption === 'stay')
+			stay = true;
+		else
+			stay = false;
 		try
 		{
-			if (stayOption === 'stay')
+			const response = await fetch
+			(`http://${hostname}:3000/rooms/resign/${roomId}/${id}/${client.id}/${stay}`,{
+					method: 'POST',
+				});
+			if (response.ok)
 			{
 				console.log(client.name, client.id, stayOption);
+				handleValidationClick();
 			}
 			else
 			{
-				console.log(client.name, client.id, stayOption);
+				console.error('failed on resign');
 			}
 		}
 		catch (error)
 		{
 			console.error('ERROR: falied on resign', error.message);
 		}
-		handleValidationClick();
 	}
 
-	function eraseRoom()
+	async function eraseRoom()
 	{
-		console.log(roomId);
+		try
+		{
+			const response = await fetch(`http://${hostname}:3000/rooms/delete/${roomId}`,{
+					method: 'POST',
+				});
+			if (response.ok)
+			{
+				console.log('room id:', roomId, 'deleted');
+				handleValidationClick();
+			}
+			else
+			{
+				console.error('failed on delete', error.message);
+			}
+		}
+		catch (error)
+		{
+			console.error('ERROR: falied on delete', error.message);
+		}
 	}
 </script>
 
@@ -93,7 +120,7 @@
 					<h1>empty room</h1>
 					<p>do you want to delete it ?</p>
 					<button on:click={()=> eraseRoom()}>yes</button>
-					<button on:click={()=> handleValidationClick()}>no</button>
+					<button on:click>no</button>
 				</div>
 			</div>
 			
@@ -101,9 +128,9 @@
 			{#if delTab === 'del'}
 				<div class="backdrop" on:click|self on:keypress>
 				<div class="modal">
-					<h1>are you sure ?</h1>
+					<h1>Are you sure ?</h1>
 					<button on:click={()=> eraseRoom()}>yes</button>
-					<button on:click={()=> handleValidationClick()}>no</button>
+					<button on:click>no</button>
 				</div>
 			</div>
 

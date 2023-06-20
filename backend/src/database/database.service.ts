@@ -1025,24 +1025,6 @@ export class DatabaseService
 		}
 	}
 
-	async removeClientFromRoom(roomId: number, memberId: number) {
-		try {
-			await this.prisma.roomMembers.delete({
-				where: {
-					
-					roomId_memberId: {
-						roomId,
-						memberId,
-					},
-
-				},
-			});
-		}
-		catch (error)
-		{
-			throw new Error('Failed to remove client from room');
-		}
-	}
 
 	async getRoomsExcludingBannedOnes(clientId: number) {
 		const rooms = await this.prisma.rooms.findMany({
@@ -1204,5 +1186,47 @@ export class DatabaseService
 		};
 	}
 
+	async removeClientFromRoom(roomId: number, memberId: number) {
+		try {
+			await this.prisma.roomMembers.delete({
+				where: {
+					roomId_memberId: {
+						roomId,
+						memberId,
+					},
 
+				},
+			});
+		}
+		catch (error)
+		{
+			throw new Error('Failed to remove client from room');
+		}
+	}
+
+	async deleteRoomWithMembers(roomId: number): Promise<void> {
+
+		console.log(roomId);
+		const room = await this.prisma.rooms.findUnique({
+			where: {
+				id: roomId
+			}
+		});
+		if (!room) {
+			throw new NotFoundException('Room not found');
+		}
+
+		console.log('1');
+		// Supprimer les roomMembers associés à la room
+		await this.prisma.roomMembers.deleteMany({
+			where: { roomId }
+		});
+
+		console.log('2');
+		// Supprimer la room
+		await this.prisma.rooms.delete({
+			where: { id: roomId }
+		});
+		console.log('3');
+	}
 }

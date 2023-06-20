@@ -73,7 +73,6 @@ export class RoomsController
 			}
 		}
 
-		//TODO INVITATION PENDANT ICI IF ROOM.SECU === 2
 		if (room.secu === 3) {
 			throw new Error('Cannot join a private room');
 		}
@@ -134,7 +133,15 @@ export class RoomsController
 	@Post('/delete/:roomId')
 	async deleteRoom(@Param('roomId', ParseIntPipe) roomId: number)
 	{
-		
+		try
+		{
+			await this.db.deleteRoomWithMembers(roomId);
+			return HttpStatus.NO_CONTENT;
+		}
+		catch(error)
+		{
+			throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+		}
 	}
 
 	@Post('/resign/:roomId/:ownerId/:adminId/:stay')
@@ -152,12 +159,12 @@ export class RoomsController
 		
 		try
 		{
-			await this.db.changeMemberStatus(roomId, ownerId, 1);
-			await this.db.changeMemberStatus(roomId, adminId, 0);
-			await this.db.changeRoomOwner(roomId, adminId);
+			await this.db.changeMemberStatus(roomId, ownerId, 1); // owner becomes admin |__ > table roomMembers
+			await this.db.changeMemberStatus(roomId, adminId, 0); // admin becomes owner |
+			await this.db.changeRoomOwner(roomId, adminId); // pass admin as owner in table Rooms
 
-			//if (!stay)
-			//	erase member from room
+			if (!stay) // is resign is decided with leaving the room
+				await this.db.removeClientFromRoom(roomId, ownerId); 
 
 			return HttpStatus.NO_CONTENT;
 		}
