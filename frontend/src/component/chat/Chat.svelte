@@ -8,6 +8,7 @@
 	import { writable } from 'svelte/store';
 	import Invitation from '../../shared/Invitation.svelte';
     import ConnectStatus from '../../shared/connectStatus.svelte';
+	import Verif from './leave_verif.svelte';
 
 
 	// extern variable
@@ -133,7 +134,25 @@
 	    });
 	}
 
+	let verifTab = false;
+	function verification()
+	{
+		verifTab = !verifTab;
+	}
+
+	let roomId;
+	async function leaveRoom(room)
+	{
+		roomId = room.roomId;
+//		await reloadRooms();
+		verification();
+	}
+
 </script>
+
+<Verif id={data.id} {roomId} {verifTab}
+	on:leaving={() => verification()}
+	on:click={() => verification()}/>
 
 <div class="container">
 	<div class="list_box">
@@ -144,6 +163,9 @@
 			{#each $rooms as room (room.roomId)}
 				<li class:activeroom={room.roomId === selected_room_id} class="one_room" on:click={() => changeSelectedId(room.roomId)} on:keypress>
 					{room.roomName}
+					{#if room.secu !== 3}
+						<button style="float: right;" on:click={() => leaveRoom(room)}>leave</button>
+					{/if}
 					<div class="alertBox" class:alertOn={room.newMsgCount !== 0}>{room.newMsgCount}</div>
 				</li>
 			{:else}
@@ -171,37 +193,47 @@
 			<button>send</button>
 		</form>
 	</div>
-	<div class="members">
+<!--	<div class="members">
 		<ul>
 			{#await members}
 			<center><p>Loading...</p></center>
 			{:then members}
+
+				{#each members as member (member.id)}
+
+					<!-- IF NOT EMPTY 
+						<li class="one_member"> 
+							<p>{member}</p>
+							<strong>{member.name}</strong><ConnectStatus userId={member.id} />
+						</li>
+					<!-- ENDIF
+
 				{#each members as member}
-				<li class="one_member">
-					<strong>{member.member.name}</strong><ConnectStatus userId={member.member.id} />
-					{#if member.secu == 0}
-					♚
-					{:else if member.secu == 1}
-					♟
-					{/if}
-					<!-- si on est admin ou owner  -->
-					{#if member.member.id != data.id}
-						{#if whoami <2}
-						<button>kick</button>
-						<button>ban</button>
-						<button>mute</button>
+					<li class="one_member">
+						<strong>{member.member.name}</strong><ConnectStatus userId={member.member.id} />
+						{#if member.secu == 0}
+						♚
+						{:else if member.secu == 1}
+						♟
 						{/if}
-					<!-- si on est en plus owner -->
-						{#if whoami == 0}
-						<button>be my pawn</button>
+						<!-- si on est admin ou owner
+						{#if member.member.id != data.id}
+							{#if whoami <2}
+							<button>kick</button>
+							<button>ban</button>
+							<button>mute</button>
+							{/if}
+						<!-- si on est en plus owner
+							{#if whoami == 0}
+							<button>be my pawn</button>
+							{/if}
+						<Invitation socket={socket} data={data} opponent_id={member.member.id} />
 						{/if}
-					<Invitation socket={socket} data={data} opponent_id={member.member.id} />
-					{/if}
-				</li>
+					</li>
 				{/each}
 			{/await}
 		</ul>
-	</div>
+	</div> -->
 </div>
 
 <style>

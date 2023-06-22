@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Post, ParseIntPipe, Put, Param, Body } from '@nestjs/common';
+import { Controller, Delete, Get, Post, ParseIntPipe, Put, Param, Body, HttpException, HttpStatus } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import {createRoomDto} from '../dashboard/dashboardDtos/createsTablesDtos'
 import * as bcrypt from 'bcrypt'
@@ -37,13 +37,13 @@ export class ChatController {
     async getConnectedStatus(@Param('id', ParseIntPipe) id: number)
     {
         // let json = await this.db.getRoomMessagesById(id);
-        let res : number;
+        // let res : number;
 		return this.usersConnected.checkStatus(id);
         // await Promise.all(json.map(async (e) => {
         //     res.push({ sender: e.clientName, message: e.message});
         // }));
         // console.log(res);
-		return res;
+		// return res;
     }
 
 	@Get('/room/:id')
@@ -105,24 +105,9 @@ export class ChatController {
     @Get()
     async getRooms(): Promise<{ id: number; name: string }[]> {
         return this.db.getRooms();
+        //TODO
+        //return this.db.getRoomsWhereUserIsNotMember(id);
     }
-//-----------------------------------------------------------------//
-@Post('/join')
-async joinRoom(@Body() data) {
-    const room = await this.db.getRoomById(data.roomId);
-    
-    if (!room) {
-        throw new Error('Room does not exist');
-    }
-    if (room.secu === 2 || room.secu === 3 ) {
-        throw new Error('Cannot join a private room');
-    }
-    
-    await this.db.addMemberToRoom(room.id, data.iddata, 2);
-    return 'User joined the room';
-}
-//-----------------------------------------------------------------//
-
 
   @Post('/verify-password')
   async joinProtectedRoom(@Body() data) {
@@ -154,6 +139,7 @@ async joinRoom(@Body() data) {
                 console.log("An error occurred during password comparison:", error);
             });
     }
+    console.log('test');
   }
 
     @Post('/invite')

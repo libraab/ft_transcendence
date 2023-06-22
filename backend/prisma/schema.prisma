@@ -83,9 +83,9 @@ model Rooms {
   messages MessagesRooms[]
 
   client2Id Int?
-  client2   Clients? @relation("RoomClients", fields: [client2Id], references: [id])
+  client2   Clients? @relation("RoomClients", fields: [client2Id], references: [id], onDelete: Cascade)
   ownerid   Int
-  owner     Clients  @relation("RoomsOwned", fields: [ownerid], references: [id])
+  owner     Clients  @relation("RoomsOwned", fields: [ownerid], references: [id], onDelete: Cascade)
 
   members  RoomMembers[] @relation("RoomMembersToRooms")
 
@@ -95,16 +95,15 @@ model Rooms {
 }
 
 model RoomMembers {
-  id          Int       @id @default(autoincrement())
-
-  roomId  Int
-  room    Rooms    @relation("RoomMembersToRooms", fields: [roomId], references: [id])
-  memberId Int
-  member  Clients  @relation("ClientRoomMembers", fields: [memberId], references: [id])
-
-  status      Int
+  id        Int      @id @default(autoincrement())
+  roomId    Int
+  room      Rooms    @relation("RoomMembersToRooms", fields: [roomId], references: [id])
+  memberId  Int
+  member    Clients  @relation("ClientRoomMembers", fields: [memberId], references: [id])
+  status    Int
 
   @@map("room_members")
+  @@unique([roomId, memberId])
 }
 
 model MessagesRooms {
@@ -113,7 +112,7 @@ model MessagesRooms {
   time DateTime @default(now())
 
   roomId  Int
-  room    Rooms     @relation(fields: [roomId], references: [id])
+  room      Rooms    @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   clientId Int
   client   Clients @relation(fields: [clientId], references: [id])

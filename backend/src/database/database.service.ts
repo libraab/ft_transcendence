@@ -159,7 +159,6 @@ export class DatabaseService
 				}
 				throw error;
 			}
-
 		}
 	}
 
@@ -193,7 +192,6 @@ export class DatabaseService
 				}
 				throw error;
 			}
-
 		}
 	}
 	
@@ -223,7 +221,6 @@ export class DatabaseService
 				}
 				throw error;
 			}
-
 		}
 	}
 
@@ -455,9 +452,26 @@ export class DatabaseService
 
 	async getRooms(): Promise<{ id: number; name: string; secu: number}[]> {
 		const rooms = await this.prisma.rooms.findMany({
+			select: {
+				id: true,
+				name: true,
+				secu: true,
+			},
+		});
+
+		return rooms;
+	}
+
+	async getRoomsWhereUserIsNotMember
+	(userId: number): Promise<{ id: number; name: string; secu: number }[]> {
+		const rooms = await this.prisma.rooms.findMany({
 			where: {
-				secu: {
-					not: 2,
+				NOT: {
+					members: {
+						some: {
+							memberId: userId,
+						},
+					},
 				},
 			},
 			select: {
@@ -586,7 +600,7 @@ export class DatabaseService
 		throw new Error("Room not Found");
 	}
 */
-	async addMemberToRoom(roomId: number, memberId: number, status: number): Promise<RoomMembers | null> {
+	async addMemberToRoom(roomId: number, memberId: number, status: number = 2): Promise<RoomMembers | null> {
 		try {
 			const existingMember = await this.prisma.roomMembers.findFirst({
 				where: {
@@ -596,6 +610,8 @@ export class DatabaseService
 			});
 
 			if (existingMember) {
+				if (existingMember.status !== status)
+					this.changeMemberStatus(roomId, memberId, status);
 				return null; // Membre déjà membre de la salle, retourne null
 			}
 
@@ -608,7 +624,9 @@ export class DatabaseService
 			});
 
 			return roomMember;
-		} catch (error) {
+		}
+		catch (error)
+		{
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				if (error.code === 'P2025') {
 					throw new NotFoundException("L'utilisateur n'existe pas");
@@ -908,4 +926,307 @@ export class DatabaseService
 		return clientNames;
 	}
 
+	async getRoomsByOwnerId(ownerId: number): Promise<Rooms[]> {
+		const rooms = await this.prisma.rooms.findMany({
+			where: {
+				ownerid: ownerId,
+				secu: {
+					not: 3,
+				}
+			},
+		});
+
+		return rooms;
+	}
+
+	async getMembersForPrivateRoom(roomId: number): Promise<{ id: number, name: string }[]> {
+		const members = await this.prisma.roomMembers.findMany({
+			where: {
+				roomId: roomId,
+				status: 6,
+				room: {
+					secu: 2,
+				},
+			},
+			select: {
+				member: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+			},
+		});
+
+		return members.map((roomMember) => ({
+			id: roomMember.member.id,
+			name: roomMember.member.name,
+		}));
+	}
+
+	async getMembersByRoomIdExcludingClient(roomId: number, clientId: number): Promise<{ id: number, name: string, status: number }[]> {
+		const roomMembers = await this.prisma.roomMembers.findMany({
+			where: {
+				roomId,
+				NOT: {
+					memberId: clientId,
+				},
+				status: {
+					not: 6,
+				}
+			},
+			include: {
+				member: true,
+			},
+			orderBy: {
+				status: 'asc',
+			},
+		});
+
+		if (!roomMembers) {
+			throw new NotFoundException(`Room with ID ${roomId} not found`);
+		}
+
+		const members = roomMembers.map((roomMember) => ({
+			id: roomMember.member.id,
+			name: roomMember.member.name,
+			status: roomMember.status,
+		}));
+
+		return members;
+	}
+
+	async changeMemberStatus(roomId: number, memberId: number, newStatus: number): Promise<void> {
+		try {
+			await this.prisma.roomMembers.update({
+				where: {
+					roomId_memberId: {
+						roomId,
+						memberId,
+					},
+				},
+				data: {
+					status: newStatus,
+				},
+			});
+		}
+		catch (error)
+		{
+			if (error instanceof Prisma.PrismaClientKnownRequestError)
+			{
+				if (error.code === 'P2025') {
+					throw new NotFoundException('User doesn\'t exist');
+				}
+				if (error.code === 'P2002') {
+					throw new ForbiddenException('Credentials taken');
+				}
+				throw error;
+			}
+		}
+	}
+
+
+	async getRoomsExcludingBannedOnes(clientId: number) {
+		const rooms = await this.prisma.rooms.findMany({
+			where: {
+				members: {
+					none: {
+						memberId: clientId,
+						status: 5,
+					},
+				},
+			},
+			select: {
+				id: true,
+				name: true,
+			},
+		});
+
+		return rooms.map((room) => ({ id: room.id, name: room.name }));
+	}
+
+/*
+	async getRoomsExcludingWhereClientIsMember(clientId: number) {
+		const rooms = await this.prisma.rooms.findMany({
+			where: {
+				NOT: {
+					members: {
+						some: {
+							memberId: clientId,
+						},
+					},
+				},
+			},
+			select: {
+				id: true,
+				name: true,
+			},
+		});
+
+		return rooms.map((room) => ({ id: room.id, name: room.name }));
+	}
+*/	
+
+	async getRoomsExcludingWhereClientIsMember(clientId: number) {
+		const rooms = await this.prisma.rooms.findMany({
+			where: {
+				NOT: {
+					members: {
+						some: {
+							memberId: clientId,
+						},
+					},
+				},
+				owner: {
+					NOT: {
+						id: clientId,
+					},
+				},
+			},
+			select: {
+				id: true,
+				name: true,
+			},
+		});
+
+		return rooms.map((room) => ({ id: room.id, name: room.name }));
+	}
+	
+	async getRoomAdmins(roomId: number): Promise<{ id: number, name: string }[]> {
+		const roomMembers = await this.prisma.roomMembers.findMany({
+			where: {
+				roomId: roomId,
+				status: 1,
+			},
+			select: {
+				member: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+			},
+		});
+
+		const members = roomMembers.map((roomMember) => ({
+			id: roomMember.member.id,
+			name: roomMember.member.name,
+		}));
+
+		return members;
+	}
+
+	async changeRoomOwner(roomId: number, newOwnerId: number): Promise<Rooms | null> {
+		const room = await this.prisma.rooms.update({
+			where: {
+				id: roomId,
+			},
+			data: {
+				ownerid: newOwnerId,
+			},
+		});
+
+		return room;
+	}
+
+	async checkRoomOwner(roomId: number, ownerId: number): Promise<Rooms | null> {
+		const room = await this.prisma.rooms.findFirst({
+			where: {
+				id: roomId,
+				ownerid: ownerId,
+			},
+		});
+
+		return room;
+	}
+
+	async checkRoomMember(roomId: number, memberId: number): Promise<RoomMembers | null> {
+		const roomMember = await this.prisma.roomMembers.findFirst({
+			where: {
+				roomId,
+				memberId,
+			},
+		});
+
+		return roomMember;
+	}
+
+	async getRoomReplacementMembers(roomId: number) {
+		const roomMembers = await this.prisma.roomMembers.findMany({
+			where: {
+				roomId: roomId,
+			},
+			select: {
+				member: {
+					select: {
+						id: true,
+						name: true,
+					},
+				},
+				status: true,
+			},
+		});
+
+		const admins = roomMembers.filter((member) => member.status === 1);
+		const members = roomMembers.filter((member) => member.status === 2);
+
+		const adminsList = admins.map((member) => ({
+			id: member.member.id,
+			name: member.member.name,
+		}));
+
+		const membersList = members.map((member) => ({
+			id: member.member.id,
+			name: member.member.name,
+		}));
+
+		return {
+			admins: adminsList,
+			members: membersList,
+		};
+	}
+
+	async removeClientFromRoom(roomId: number, memberId: number) {
+		try {
+			await this.prisma.roomMembers.delete({
+				where: {
+					roomId_memberId: {
+						roomId,
+						memberId,
+					},
+
+				},
+			});
+		}
+		catch (error)
+		{
+			throw new Error('Failed to remove client from room');
+		}
+	}
+
+	async deleteRoomWithMembers(roomId: number): Promise<void> {
+
+		console.log(roomId);
+		const room = await this.prisma.rooms.findUnique({
+			where: {
+				id: roomId
+			}
+		});
+		if (!room) {
+			throw new NotFoundException('Room not found');
+		}
+
+		console.log('1');
+		// Supprimer les roomMembers associés à la room
+		await this.prisma.roomMembers.deleteMany({
+			where: { roomId }
+		});
+
+		console.log('2');
+		// Supprimer la room
+		await this.prisma.rooms.delete({
+			where: { id: roomId }
+		});
+		console.log('3');
+	}
 }
