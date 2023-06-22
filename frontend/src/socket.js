@@ -3,8 +3,9 @@ import { hostname } from './hostname'
 import { get, writable } from 'svelte/store';
 
 export const rooms = writable([]);
+export let alertPopupOn = false;
 
-let socket = {chat: null, alert: null};
+let socket = {chat: null, game: null};
 let socketData;
 
 export async function initializeSocket(data) {
@@ -13,8 +14,11 @@ export async function initializeSocket(data) {
   	return;
   socket.chat = io(hostname+':3000/chat', {path: '/chatsockets'});//, auth: {token: }});
   socket.chat.emit('whoAmI', socketData.id);
+
+  socket.game = io(hostname+':3000/pong', {path: '/pongsockets'});//, auth: {token: }});
   reloadRooms();
   defineSocketEvents();
+  defineGameSocketEvents();
 //   await new Promise(r => setTimeout(r, 3000)); //TEST
 //   socket.chat.disconnect();
 }
@@ -29,10 +33,12 @@ export function getSocket() {
   return socket;
 }
 
+
 export let defineSocketEvents = () =>
 {
 	socket.chat.on('serverAlertToChat', newMessage);
 	// socket.chat.on('clientRefreshRooms', reloadRooms);
+	
 }
 
 export let deleteSocketEvents = () =>
@@ -40,6 +46,22 @@ export let deleteSocketEvents = () =>
 	socket.chat.off('serverAlertToChat', newMessage);
 }
 
+export let defineGameSocketEvents = () =>
+{
+	socket.game.on('testSeverToClient', (data) => {
+		console.log(data)
+	});
+
+	socket.game.on('mvtpad', (data) => {
+
+	});
+}
+/*
+export let deleteGameSocketEvents = () =>
+{
+	socket.chat.off('testSeverToClient');
+}
+*/
 export let newMessage = (msg) =>
 {
 	let trythis = get(rooms);
@@ -51,6 +73,8 @@ export let newMessage = (msg) =>
 	});
 	rooms.set(trythis);
 }
+
+
 
 let connectToRooms = () => {
 	get(rooms).forEach(room => {
@@ -75,3 +99,4 @@ async function fetchData() {
 		console.error(error);
 	}
 }
+

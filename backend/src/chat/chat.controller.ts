@@ -3,12 +3,14 @@ import { DatabaseService } from 'src/database/database.service';
 import {createRoomDto} from '../dashboard/dashboardDtos/createsTablesDtos'
 import * as bcrypt from 'bcrypt'
 import { UserConnectedService } from './user-connected-service.service';
+import { ChatGateway } from './chat.gateway';
 
 @Controller('chat')
 export class ChatController {
 	constructor(private db: DatabaseService,
                 private dto: createRoomDto, 
-				private usersConnected: UserConnectedService) {}
+				private usersConnected: UserConnectedService,
+                private gateway: ChatGateway) {}
     //----------------------------------------------------------------------//
     @Get(':id')
     async getAllUsersChat(@Param('id', ParseIntPipe) id: number)
@@ -120,10 +122,6 @@ export class ChatController {
     }
     console.log('->', member);
 
-    // if (member.status === 5) {
-    //     throw new Error('You are banned');
-    // }
-
     if (room.secu === 1) {
         console.log('->', member);
         console.log('This room is protected, password required');
@@ -161,9 +159,6 @@ export class ChatController {
         if (member2) { // invited already member
             throw new Error('Already member');
         }
-        // if (member2.status === 5) { // invited is banned
-        //     throw new Error('You are banned');
-        // }
 
         await this.db.addMemberToRoom(data.roomId, invited.id, 2);
         return 'User joined the room';
@@ -185,15 +180,24 @@ export class ChatController {
     @Post('/sendMsg')
     async sendMsg(@Body() data) {
         const userId = await this.db.getClientById(data.iddata);
-        const newFriend = await this.db.getClientById(data.newFriendId);
+        const newInterlocutor = await this.db.getClientById(data.newFriendId);
         
-        if (!newFriend){ 
-            throw new Error('User does not exist');
+        if (!newInterlocutor){ 
+            throw new Error('Interlocutor does not exist');
         }
-        this.dto.name = "mp";
-        this.dto.ownerid = data.iddata;
-
-        // await this.db.sendMsg(userId.id,newFriend.id);
+        if (!userId){ 
+            throw new Error('You do not exist');
+        }
+        // TODO check if user or sender is not blocked 
+        this.dto.ownerid = userId.id;
+        this.dto.secu = 3;
+        this.dto.client2Id = newInterlocutor.id;
+        
+        let Room = await this.db.createRooom(this.dto);
+        if (!Room)
+            console.log('Failed to create room');
+		this.db.addMemberToRoom(Room.id, userId.id, 0);
+		this.db.addMemberToRoom(Room.id, newInterlocutor.id, 1); // adding the second as an admin 
         return 'A private chat room has been created';
     }
 

@@ -14,6 +14,8 @@
 	import axios from 'axios';
 	import { getSocket, initializeSocket, rooms } from "./socket"
 	import { onMount } from "svelte";
+    import AlertPopup from "./shared/AlertPopup.svelte";
+    import Invitation from "./shared/Invitation.svelte";
 
 	history.replaceState({"href_to_show":"/"}, "", "/");
 
@@ -26,20 +28,40 @@
 	let id;
 	let isDFAActive;
 	let dashboardValue = null;
+	let alertPopupOn = false
+	let invitationData = null;
 	
 	let alertNumber = 0; //nombres de messages reçu non lu
 	let dashboardData = fetchData();
-	initializeSocket(dashboardData);
+	
+	// ce qui est en dessous est une abomination
+	// c'est sans doute le Frankestein de notre generation
+	let done = initializeSocket(dashboardData);
+	async function setPopupToogleEvent()
+	{
+		await done;
+		getSocket().chat.on('invitationGame', invitationHandler);
+	}
+	setPopupToogleEvent();
+
+	let invitationHandler = (opponent_id) =>
+	{
+		alertPopupOn = true;
+		invitationData = opponent_id;
+	//alert("Some guy invited you to a game!");
+	}
+	// Le Frankenstein sarrete ici
 
 	async function fetchData() {
 		if (!document.cookie)
 			return;
 		try {
+			console.log(document.cookie); 
 			const cookieValue = document.cookie
-				.split('; ')
+				.split('; ') 
 				.find(cookie => cookie.startsWith('jwt_cookie'))
 				.split('=')[1];
-
+			
 			const id42 = document.cookie
 				.split('; ')
 				.find(cookie => cookie.startsWith('id42'))
@@ -109,15 +131,17 @@
 				{#if $page_shown == "/"}
 					<Dashboard data={dashboardValue} on:updateProfile={ newProfileData }/>
 				{:else if $page_shown == "game"}
-					<Game {id}/>
+					<Game socket={getSocket()}/>
 				{:else if $page_shown == "chat"}
 					<Chat data={dashboardValue} socket={getSocket()}/>
 				{:else if $page_shown === "room"}
 					<Rooms data={dashboardValue}/>
 				{/if}
 			</div>
+			{#if alertPopupOn}
+				<AlertPopup {invitationData} />
+			{/if}
 		</main>
-
 	{:else if !dashboardData }
 		<Login/>
 	{/if}

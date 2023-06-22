@@ -5,10 +5,13 @@
 	import DeleteModal from './Delete.svelte';
 	import { hostname } from '../../hostname';
 	import axios from 'axios';
+	import ConnectStatus from "../../shared/connectStatus.svelte";
 
 	const dispatch = createEventDispatcher();
 
 	export let data;
+	export let socket;
+	export let opponent_id;
 
 	// display boolean
 	let id42NameInputNotEmpty = false;
@@ -26,6 +29,7 @@
 	let targetId = data.id;
 	let targetName = data.name;
 	let targetImg = data.img;
+	
 
 	// stats are always target ones
 	let stats = {};
@@ -193,22 +197,23 @@
 		}
 	};
 	//---------------------------------------------------------------------------//
-	const MP = async (newFriend) => {
-		// const response = await fetch(`http://${hostname}:3000/chat/addFriend`, {
-		// 	method: 'POST',
-		// 	headers: {
-		// 		'Content-Type': 'application/json'
-		// 	},
-		// 	body: JSON.stringify({
-		// 		newFriendId: newFriend.id,
-		// 		iddata: data.id
-		// 	})
-		// });
-		// if (response.ok) {
-		// 	console.log('Joined room:', room.name);
-		// } else {
-		// 	console.error('Failed to join room:', room.name);
-		// }
+	const MP = async (newFriendId) => {
+		console.log('here');
+		const response = await fetch(`http://${hostname}:3000/chat/sendMsg`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				newFriendId: newFriendId,
+				iddata: data.id
+			})
+		});
+		if (response.ok) {
+			console.log('Joined room:', room.name);
+		} else {
+			console.error('Failed to join room:', room.name);
+		}
 	};
 	//---------------------------------------------------------------------------//
 	const play = async (newFriend) => {
@@ -249,6 +254,12 @@
 	{
 		deletePop = !deletePop;
 	}
+	function sendInvitation()
+	{
+		socket.chat.emit('inviteToPlay', {player_id: data.id, opponent_id: opponent_id});
+		//appeler une foncion de creation de la game + redirection vers la game
+		//mais je sais pas faire
+	}
 </script>
 
 <UpdateModal {updatePop} id={id} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
@@ -282,10 +293,11 @@
       				<!-- svelte-ignore a11y-missing-attribute -->
       				<img src={targetImg} alt="Avatar">
     			</div>
-    			<h2 class="shiny-text">{targetName}</h2>
-    			<p>(¬‿¬) (≖ ‿ ≖ ) I am watching you watching</p>
+				<h2 class="shiny-text" style="display: flex; align-items: center;">
+					{targetName}<span style="margin-left: 10px;" ><ConnectStatus userId={targetId}/></span>
+				</h2>
 				<div class="button-container">
-    				<button class="button-profile" on:click={() => returnBackHome()}>My Profile</button>
+    				<button class="button-profile" on:click={() => returnBackHome()}>←</button>
     				<button class="button-profile" on:click={() => addFriend(targetId)}>Add Friend</button>
 					<button
 						class:active={!blocked}
@@ -302,8 +314,8 @@
 						>
 						  {blocked ? 'Unblock' : 'Block'}
       				</button>
-    				<button class="button-profile" on:click={() => MP()}>Send Msg</button>
-    				<button class="button-profile" on:click={() => play()}>Play</button>
+    				<button class="button-profile" on:click={() => MP(targetId)}>Send Msg</button>
+    				<button class="button-profile" on:click={sendInvitation}>Play</button>
 				</div>
   			{/if}
 		</div>
@@ -381,6 +393,7 @@
   	}
 
 	.shiny-text {
+		display: inline-block;
 		font-size: 36px; /* Increase the font size to make it bigger */
 		font-family: "Arial", sans-serif; /* Apply a specific font */
 		color: #333; /* Set a desired font color */

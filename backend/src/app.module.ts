@@ -9,7 +9,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { GameModule } from './game/game.module';
 import { RoomsModule } from './rooms/rooms.module';
-
+import { PongModule } from './pong/pong.module';
 
 @Module({
   imports: [ChatModule,
@@ -22,6 +22,7 @@ import { RoomsModule } from './rooms/rooms.module';
               isGlobal: true,
             }),
             RoomsModule,
+            PongModule,
   ],
   controllers: [AppController],
   providers: [AppService],
