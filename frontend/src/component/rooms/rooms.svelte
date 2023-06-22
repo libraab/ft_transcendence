@@ -102,7 +102,7 @@ const join = async (room) => {
 };
 
 //---------------------------OwnedRoom----------LIST------------------//
-	let ownedRoom = null;
+	let ownedRoom = [];
 	async function fetchOwnedRoom()
 	{
 		try
@@ -111,7 +111,8 @@ const join = async (room) => {
 			if (response.ok)
 				ownedRoom = await response.json();
 			else
-				ownedRoom = null;
+				ownedRoom = [];
+			console.log(ownedRoom);
 		}
 		catch (error)
 		{
@@ -134,10 +135,12 @@ const join = async (room) => {
 
 	let choosenRoom;
 	let choosenRoomId;
-	async function switchDisplay(room)
+	let status;
+	async function switchDisplay(room, roomStatus)
 	{
 		choosenRoom = room.name;
 		choosenRoomId = room.id;
+		status = roomStatus;
 		fetchprivateRoomMembers();
 		fetchAllRoomMembers();
 		inspectToggle();
@@ -161,12 +164,17 @@ const join = async (room) => {
 	}
 
 	let roomMembers = [];
-
 	async function fetchAllRoomMembers()
 	{
+		let url;
+		if (status === 0)
+			url = `http://${hostname}:3000/rooms/allRoomMember/${choosenRoomId}/${data.id}`;
+		else
+			url = `http://${hostname}:3000/rooms/allRoomMemberForAdmins/${choosenRoomId}/${data.id}`;
+
 		try
 		{
-			const response = await fetch(`http://${hostname}:3000/rooms/allRoomMember/${choosenRoomId}/${data.id}`);
+			const response = await fetch(url);
 			if (response.ok)
 				roomMembers = await response.json();
 			else
@@ -311,15 +319,25 @@ const join = async (room) => {
 	<main class="container">
 
 		{#if !inspectBoolean}
-			{#if ownedRoom}
+			{#if ownedRoom && ownedRoom.length > 0}
 				<div class="rooms-container">
 					<button class="toggle-btn">Your Rooms</button>
 					<div class="room-list">
 					
-						{#each ownedRoom as room}
+						{#each ownedRoom as roomList}
 							<div class="room-item">
-								<h3>{room.name}</h3>
-								<button class="join-button" on:click={() => switchDisplay(room)}>Inspect</button>
+								{#if roomList.status === 0}
+									<p>[owner]</p>
+								{:else}
+									<p>[admin]</p>
+								{/if}
+								
+								<h3>{roomList.room.name}</h3>
+								<button class="join-button"
+									on:click={() => switchDisplay
+										(roomList.room, roomList.status)}>
+									Inspect
+								</button>
 							</div>
 						{/each}
 
@@ -396,6 +414,7 @@ const join = async (room) => {
 			{/if}
 			
 	<!--	{#if roomMembers && roomMembers.length !== 0}-->
+	   
 				<div class="rooms-container">
 					<button class="toggle-btn">Room Members</button>
 					<div class="room-list">

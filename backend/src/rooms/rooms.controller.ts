@@ -25,6 +25,14 @@ export class RoomsController
 		return this.db.getMembersByRoomIdExcludingClient(idRoom, idMember);
 	}
 
+	@Get('/allRoomMemberForAdmins/:idRoom/:idMember')
+	async getAllRoomMembeForAdmins(@Param('idRoom', ParseIntPipe) idRoom: number,
+							@Param('idMember', ParseIntPipe) idMember: number)
+	{
+		return this.db.getMembersByRoomIdExcludingClientForAdmins(idRoom, idMember);
+	}
+
+
 	@Get('valideRooms/:id')
 	async getAuthorizedRoomsForId(@Param('id', ParseIntPipe) id: number)
 	{
@@ -56,6 +64,9 @@ export class RoomsController
 					@Param('roomId', ParseIntPipe) roomId: number) {
 		const room = await this.db.getRoomById(roomId);
 		const client = await this.db.getClientById(clientId);
+
+		console.log(room);
+		console.log(client);
 
 		if (!room || !client) {
 			throw new HttpException("room id or client id onvalid", HttpStatus.BAD_REQUEST);
