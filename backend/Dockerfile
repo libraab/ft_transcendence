@@ -1,4 +1,4 @@
-FROM node:18
+FROM node:latest
 
 # Create app directory
 WORKDIR /app
@@ -7,6 +7,10 @@ WORKDIR /app
 COPY . .
 
 # Install app dependencies
+RUN npm install -g npm@latest
 RUN npm install
+RUN npm run start:dev
+
+EXPOSE 3000 5432
 
 ENTRYPOINT "./entrypoint.sh"
