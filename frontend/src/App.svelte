@@ -1,4 +1,4 @@
-<script lang="ts">
+<script>
     import Login from "./component/login/Login.svelte";
     import DfaHomePage from "./component/dfa/dfaHomePage.svelte";
     import Header from "./component/Header.svelte";
