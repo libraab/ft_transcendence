@@ -1,5 +1,5 @@
 <script>
-	import { userId42, id} from './../../stores.js';
+	import { userId42, id} from '../../stores.js';
 	// Vos logiques et données pour la page "about"
 </script>
   

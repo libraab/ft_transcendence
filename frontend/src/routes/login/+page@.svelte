@@ -1,9 +1,14 @@
-<script lang="ts">
+<script>
     import { hostname } from "../../hostname"
 
     const url = `https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-a5af938705ebd0c4b5b8a782f8b8026fb20fae93ce976a067e4d2033ee47c4d9&redirect_uri=http%3A%2F%2F${hostname}%3A3000%2Fauth&response_type=code`
-
 </script>
+
+<form>
+    <a href={url} class="login-button">
+        Sign in with 42
+    </a>
+</form>
 
 <style>
 
@@ -37,9 +42,3 @@
         background-color: #0062cc;
     }
 </style>
-
-<form>
-    <a href={url} class="login-button">
-        Sign in with 42
-    </a>
-</form>
