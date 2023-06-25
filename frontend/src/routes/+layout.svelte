@@ -1,6 +1,30 @@
-
 <script>
-	import { img_path } from "../stores";
+	import { onMount } from "svelte";
+	import { hostname } from "../hostname";
+	import { img_path, userId42, clientName } from "../stores";
+
+	export let data;
+
+	onMount(async () => {
+		try
+		{
+			const response = await fetch(`http://${hostname}:3000/dashboard/${data.userId42}`);
+			if (response.ok)
+			{
+				let vals = await response.json();
+				$clientName = vals.name;
+				$img_path = data.img_path;
+				$userId42 = data.userId42;
+			}
+			else
+				console.error("layout");
+
+		}
+		catch (error)
+		{
+			console.error("layout" , error);
+		}
+	});
 </script>
 
 
@@ -8,29 +32,27 @@
 	<div class="image-container">
 		<img src={$img_path} alt="logo" class="rick">
 	</div>
-	<a href="/">&#8592; my profile</a>
 	<div class="description">
 		<h1 class="glow-text">FT_TRANSCENDENCE</h1>
 		<p class="catch-phrase">A strange adventure into Pong Univers inside an Multiverse inside a jelly jar inside something else and go on ...</p>
 	</div>
-	<div>
-		<nav class="tabs">
-		<!--	<a href="/" on:click|preventDefault={show_page} class:active={$page_shown == "/"}>DashBoard</a>
-			<a href="game" on:click|preventDefault={show_page} class:active={$page_shown == "game"}>Game</a>
-			<a href="chat" on:click|preventDefault={show_page} number={newMessage} class:active={$page_shown == "chat"} class:newMessage={newMessage}>Chat</a>
-			<a href="room" on:click|preventDefault={show_page} class:active={$page_shown == "room"}>Room</a>	
-		-->
-			<a href="dashboard">DashBoard</a>
-			<a href="game">Game</a>
-			<a href="chat">Chat</a>
-			<a href="room">Room</a>	
-		</nav>
-	</div>
 </header>
 
+<div>
+	<nav class="tabs">
+		<a href="dashboard">DashBoard</a>
+		<a href="game">Game</a>
+		<a href="chat">Chat</a>
+		<a href="room">Room</a>	
+	</nav>
+</div>
+
 <main>
-	<!--page content-->
-	<slot></slot>
+	<a href="/" style="color: black;">&#8592; my profile</a>
+
+	<div class="main_body">
+		<slot></slot>
+	</div>
 </main>
 
 <footer>
@@ -75,5 +97,38 @@
 		margin-right: 20px;
 		object-fit: cover;
 		box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+	}
+	.main_body {
+		/* height: 50vh; 33% de la hauteur de la fenêtre */
+		width: 100%; /* 100% de la largeur de la fenêtre */
+		/* background: url('path/to/img.png') center/cover no-repeat, blue; */
+
+		/* color: white; */
+		margin: 0 auto;
+		font-size: 6px;
+		font-size: 1vw;
+	}
+	header {
+		background: no-repeat center/100% url('https://profile.intra.42.fr/assets/background_login-a4e0666f73c02f025f590b474b394fd86e1cae20e95261a6e4862c2d0faa1b04.jpg');
+		padding: 20px 200px;
+		display: flex;
+		justify-content: flex-start;
+	}
+	.description {
+		max-width: 500px;
+		color: whitesmoke;
+		padding: 20px;
+		display: flex;
+		flex-direction: column;
+		justify-content: end;
+	}
+	.catch-phrase {
+		font-style: italic;
+	}
+	.image-container {
+		position: relative;
+	}
+	.glow-text {
+		text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
 	}
 </style>
