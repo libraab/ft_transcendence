@@ -72,7 +72,7 @@ export class ChatController {
         const existingRooms = await this.db.getRooms();
         const roomNames = existingRooms.map((room) => room.name);
         if (roomNames.includes(data.roomName)) {
-            throw new Error('Room name already exists');
+            throw new HttpException("Room name already exists", HttpStatus.BAD_REQUEST);
         }
         this.dto.name = data.roomName;
         this.dto.ownerid = data.iddata;
@@ -80,7 +80,12 @@ export class ChatController {
         if (data.roomType == "public")
             this.dto.secu = 0;
         if (data.roomType == "protected")
+        {
+            console.log(data.password);
+            if (!data.password || data.password === "")
+                throw new HttpException("no password on protected room", HttpStatus.BAD_REQUEST);
             this.dto.secu = 1;
+        }
         if (data.roomType == "private")
             this.dto.secu = 2;
         
@@ -92,6 +97,7 @@ export class ChatController {
         let Room = await this.db.createRooom(this.dto);
         
 		this.db.addMemberToRoom(Room.id, this.dto.ownerid, 0);
+        return HttpStatus.NO_CONTENT;
     }
     //----------------------------------------------------------------------//
 	/*
@@ -140,7 +146,6 @@ export class ChatController {
                 console.log("An error occurred during password comparison:", error);
             });
     }
-    console.log('test');
   }
 
     @Post('/invite')

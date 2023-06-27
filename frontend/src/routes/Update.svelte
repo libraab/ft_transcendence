@@ -29,7 +29,6 @@
 				});
 				if (!response.ok)
 				{
-					console.log('nop');
 					indexBadUpdate += 1;
 					badUpdate = true;
 				}
@@ -49,7 +48,6 @@
 				});
 				if (!response.ok)
 				{
-					console.log('nop2');
 					indexBadUpdate += 2;
 					badUpdate = true;
 				}

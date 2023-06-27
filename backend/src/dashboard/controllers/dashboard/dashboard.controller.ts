@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, HttpException, Param, ParseIntPipe, Post, StreamableFile} from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, Param, ParseIntPipe, Post, StreamableFile} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
@@ -30,6 +30,21 @@ export class DashboardController
 		}
 		catch (error)
 		{
+			throw new HttpException("userNotFound", 404);
+		}
+	}
+	
+	@Get('getTargetWithRelation/:id/:name')
+	async getTarget(@Param('id', ParseIntPipe) id: number,
+					@Param('name') name: string)
+	{
+		try
+		{
+			return this.db.getTarget(id, name);
+		}
+		catch (error)
+		{
+			console.error(error);
 			throw new HttpException("userNotFound", 404);
 		}
 	}
@@ -108,7 +123,23 @@ export class DashboardController
 
 
 
+	@Post('/supprFriendship/:id1/:id2')
+	async supprFriendship(@Param('id1', ParseIntPipe) id1: number,
+							@Param('id2', ParseIntPipe) id2: number)
+	{
+		if (id1 === id2)
+			throw new HttpException("you so funny Larry", HttpStatus.BAD_REQUEST);
 
+		try {
+			await this.db.removeClientsFromClient(id1, id2);
+			return HttpStatus.NO_CONTENT;
+		}
+		catch (error)
+		{
+			console.error(error);
+			throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+		}
+	}
 
 	@Post('/create')
 	async createClient(@Body() dto: ClientDto)

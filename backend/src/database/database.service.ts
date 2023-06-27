@@ -90,6 +90,42 @@ export class DatabaseService
 	}
 */
 
+	async getTarget(clientId: number, name: string) {
+		const client = await this.prisma.clients.findUnique({
+			where: {
+				name,
+			},
+			select: {
+				name: true,
+				img: true,
+				id: true,
+				client1: {
+					select: {
+						status: true,
+					},
+					where: {
+						client2: {
+							id42: clientId
+						}
+					},
+				},
+				client2: {
+					select: {
+						status: true,
+					},
+					where: {
+						client1: {
+							id42: clientId
+						}
+					}
+				}
+			},
+		});
+
+		return client;
+	}
+
+
 	async getClientByName(clientId: number, name: string) {
 		const client = await this.prisma.clients.findUnique({
 			where: {
@@ -869,7 +905,6 @@ export class DatabaseService
 	}
 
 	async addClientsToClient(id1: number, id2: number, status: number): Promise<void> {
-        console.log(1);
 		const existingBlockedRelation = await this.prisma.clientToClient.findFirst({
 			where: {
 				OR: [
@@ -879,7 +914,6 @@ export class DatabaseService
 			},
 		});
 
-        console.log(2);
 		if (!existingBlockedRelation)
 		{
 			try
@@ -1417,7 +1451,6 @@ export class DatabaseService
 
 	async deleteRoomWithMembers(roomId: number): Promise<void> {
 
-		console.log(roomId);
 		const room = await this.prisma.rooms.findUnique({
 			where: {
 				id: roomId
@@ -1427,17 +1460,14 @@ export class DatabaseService
 			throw new NotFoundException('Room not found');
 		}
 
-		console.log('1');
 		// Supprimer les roomMembers associés à la room
 		await this.prisma.roomMembers.deleteMany({
 			where: { roomId }
 		});
 
-		console.log('2');
 		// Supprimer la room
 		await this.prisma.rooms.delete({
 			where: { id: roomId }
 		});
-		console.log('3');
 	}
 }

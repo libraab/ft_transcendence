@@ -1,6 +1,29 @@
 import { hostname } from '../../../hostname.js';
 import { redirect } from '@sveltejs/kit'; 
 
+async function fetchDataSupp(id42, targetName)
+{
+	try
+	{
+		const response = await fetch(`http://${hostname}:3000/dashboard/getTargetWithRelation/${id42}/${targetName}`)
+		if (response.ok)
+		{
+			const data = await response.json();
+			return data;
+		}
+		else
+		{
+			console.error("failed to fetch target data");
+		}
+	}
+	catch (error)
+	{
+		console.error(error);
+	}
+
+	return null;
+}
+
 export async function load( {cookies, fetch, params} ) {
 	const authToken = cookies.get('jwt_cookie');
 	
@@ -23,9 +46,11 @@ export async function load( {cookies, fetch, params} ) {
 				isClient = true;
 			return {
 				id: data.id,
+				id42: id42,
 				resOk: true,
 				target: params.userName,
-				targetMyself: isClient
+				targetMyself: isClient,
+				supp: await fetchDataSupp(id42, params.userName)
 			}
 		}
 		else

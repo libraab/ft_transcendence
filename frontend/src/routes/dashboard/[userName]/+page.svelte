@@ -31,7 +31,39 @@
 		}
 	}
 
+	async function fetchDataSupp(id42: number, targetName: string)
+	{
+		try
+		{
+			const response = await fetch(`http://${hostname}:3000/dashboard/getTargetWithRelation/${id42}/${targetName}`)
+			if (response.ok)
+			{
+				const data = await response.json();
+				return data;
+			}
+			else
+			{
+				console.error("failed to fetch target data");
+			}
+		}
+		catch (error)
+		{
+			console.error(error);
+		}
+
+		return null;
+	}
+
+	let befriended: boolean;
 	onMount(async () => {
+		if (data.supp.client2 && data.supp.client2.length > 0 && data.supp.client2[0].status === 1)
+			blocked = true;
+		else
+			blocked = false;
+		if (data.supp.client1 && data.supp.client1.length > 0)
+			befriended = true;
+		else
+			befriended = false;
 		fetchTarget(data.target);
 	});
 
@@ -91,14 +123,29 @@
 		} else {
 			console.error('Failed to unblock user');
 		}
+		befriended = false;
+		blocked = false;
 	};
 
 	function toggleBlockState() {
 		blocked = !blocked;
 	}
 
-	function clearInput(client: any)
+	async function refreshInput(client: any)
 	{
+		const newdata = await fetchDataSupp(data.id42, client.name);
+		if (newdata)
+		{
+			if (newdata.client2 && newdata.client2.length > 0 && newdata.client2[0].status === 1)
+				blocked = true;
+			else
+				blocked = false;
+			if (newdata.client1 && newdata.client1.length > 0)
+				befriended = true;
+			else
+				befriended = false;
+		}
+
 		document.getElementById('id42-name-input').value = "";
 		searchRes = [];
 		id42NameInputNotEmpty = null;
@@ -115,7 +162,31 @@
 				iddata: data.id
 			})
 		});
+		befriended = true;
 	};
+
+	async function deleteFriendship(id2: number)
+	{
+		try{
+
+			const response = await fetch(`http://${hostname}:3000/dashboard/supprFriendship/${data.id}/${id2}`, {
+				method: "POST",
+			});
+			if (response.ok)
+			{
+				befriended = false;
+				blocked = false;
+			}
+			else
+			{
+				console.error("failed to erase friendshipe you re in forever");
+			}
+		}
+		catch(error)
+		{
+			console.error(error);
+		}
+	}
 	
 	function sendInvitation()
 	{
@@ -125,7 +196,7 @@
 	}
 	
 	const MP = async (newFriendId: number) => {
-/*		console.log('here');
+/*
 		const response = await fetch(`http://${hostname}:3000/chat/sendMsg`, {
 			method: 'POST',
 			headers: {
@@ -149,17 +220,18 @@
 <!-- ---------------------------------------------------------------------------- -->
 	<div class="profile-container">
 		{#if data.targetMyself}
-			<h2 class="shiny-text">Me Myself and I &lt;3</h2>
+			<h2 class="shiny-text">↖ Me Myself and I &lt;3</h2>
 		{:else if vals}
 			{#await vals}
 				<p>Loading...</p>
 			{:then _}
-				{vals.client2[0] && vals.client2[0].status === 1 ? blocked = true: blocked = false}
 				<h2 class="shiny-text">{vals.name}</h2>
 
 				<div class="button-container">
-					{#if !vals.client2[0] || (vals.client2[0] && vals.client2[0].status !== 0)}
+					{#if !befriended && !blocked}
 						<button class="button-profile" on:click={() => addFriend(vals.id)}>Add Friend</button>
+					{:else if !blocked}
+						<button class="button-profile" on:click={() => deleteFriendship(vals.id)}>Remove</button>
 					{/if}
 					<button
 						class:active={!blocked}
@@ -176,8 +248,10 @@
 						>
 							{blocked ? 'Unblock' : 'Block'}
 					</button>
-					<button class="button-profile" on:click={() => MP(vals.id)}>Send Msg</button>
-					<button class="button-profile" on:click={sendInvitation}>Play</button>
+					{#if !blocked}
+						<button class="button-profile" on:click={() => MP(vals.id)}>Send Msg</button>
+						<button class="button-profile" on:click={sendInvitation}>Play</button>
+					{/if}
 				</div>
 
 			{:catch error}
@@ -217,7 +291,7 @@
 								<a href="/dashboard/{client.name}"
 									style="text-decoration: none;"
 									on:click={() => fetchTarget(client.name)}
-									on:click={() => clearInput(client)}>{client.name}</a>
+									on:click={() => refreshInput(client)}>{client.name}</a>
 							</p>
 						{/each}
 					</div>
@@ -231,16 +305,6 @@
 	
   
 <style>
-	.dashboard {
-		/* height: 50vh; 33% de la hauteur de la fenêtre */
-		width: 100%; /* 100% de la largeur de la fenêtre */
-		/* background: url('path/to/img.png') center/cover no-repeat, blue; */
-
-		/* color: white; */
-		margin: 0 auto;
-		font-size: 6px;
-		font-size: 1vw;
-	}
 	.link {
 		text-decoration: none;
 		transition: background-color 0.3s ease;
@@ -312,12 +376,6 @@
 		font-family: "Arial", sans-serif; /* Apply a specific font */
 		color: #333; /* Set a desired font color */
 		text-shadow: none; /* Remove the text shadow */
-	}
-
-	.profile-info {
-		display: flex;
-		align-items: center;
-		justify-content: center;
 	}
 
 	.container {
