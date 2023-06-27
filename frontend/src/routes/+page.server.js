@@ -22,13 +22,13 @@ export async function load( {cookies, fetch} ) {
 			if (data.img !== "undefined")
 				img_path = data.img;
 			else
-				img_path = "/il_794xN.3892173164_egqv.avif";
+				img_path = "";
 			return {
 				isDFAActive: data.Dfa,
-				img_path: img_path,
 				id: data.id,
 				userId42: id42,
-				resOk: true
+				resOk: true,
+				img_path: img_path,
 			}
 		}
 		else
@@ -43,3 +43,5 @@ export async function load( {cookies, fetch} ) {
 		throw redirect(307, "/login");
 	}
 }
+
+

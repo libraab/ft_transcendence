@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from "svelte";
 	import { hostname } from "../../hostname";
-	import { img_path, userId42, clientName, id } from "../../stores";
+	import { img_path, userId42, clientName } from "../../stores";
 
 	export let data;
 
@@ -30,7 +30,7 @@
 <main>
 	<div class="game">
 		<h2>game</h2>
-		<h5>{$id} {$userId42}</h5>
+		<h5>{$userId42}</h5>
 		<p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Animi corrupti tempora unde placeat commodi dicta quia omnis a odit. Repudiandae hic optio, exercitationem ipsam at iste cupiditate sint debitis vero.</p>
 	</div>
 </main>

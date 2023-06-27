@@ -1,9 +1,10 @@
-import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpCode, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientDto } from './dtos/dbBaseDto';
 import { ClientStats, ClientToClient, Clients, MessagesRooms, Prisma, RoomMembers, Rooms } from '@prisma/client';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 import { createRelationsDto, createRoomDto, createStatsDto, updateStatDto } from 'src/dashboard/dashboardDtos/createsTablesDtos';
+import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 
 @Injectable()
 export class DatabaseService
@@ -59,9 +60,70 @@ export class DatabaseService
 			clientStats,
 		};*/
 	}
+/*
+	async getClientByName(name: string) {
+		const client = await this.prisma.clients.findUnique({
+			where: {
+				name,
+			},
+			select: {
+				name: true,
+				img: true,
+				id: true,
+				clientStats: {
+					select: {
+						played: true,
+						won: true,
+						score: true,
+						title: true,
+						hf: true,
+					}
+				}
+			},
+		});
 
+		if (!client) {
+			throw new HttpErrorByCode[404];
+		}
 
+		return client;
+	}
+*/
 
+	async getClientByName(clientId: number, name: string) {
+		const client = await this.prisma.clients.findUnique({
+			where: {
+				name,
+			},
+			select: {
+				name: true,
+				img: true,
+				id: true,
+				clientStats: true,
+				client1: {
+					select: {
+						status: true,
+					},
+					where: {
+						client2Id: clientId,
+					},
+				},
+				client2: {
+					select: {
+						status: true,
+					},
+					where: {
+						client1Id: clientId,
+					}
+				}
+			},
+		});
+
+		if (!client || client.client1.some((c) => c.status === 1)) {
+			throw new HttpErrorByCode[404];
+		}
+		return client;
+	}
 
 	async getClientById(id: number): Promise<Clients | null>
 	{
@@ -103,7 +165,7 @@ export class DatabaseService
 		
 		return client?.id42 || null;
 	}
-	
+/*
 	async findClientsByName(name: string): Promise<Clients[]> {
 		return await this.prisma.clients.findMany({
 		  where: {
@@ -112,6 +174,43 @@ export class DatabaseService
 				},
 			},
 		});
+	}
+*/
+	
+	async findClientsByName(clientId: number, name: string) {
+		const clients = await this.prisma.clients.findMany({
+			where: {
+				name: {
+					contains: name
+				},
+				NOT: {
+					OR: [
+						{
+							client2: {
+								some: {
+									AND: [
+										{ client1Id: clientId },
+										{ status: 1 }
+									]
+								}
+							}
+						},
+						{
+							client1: {
+								some: {
+									AND: [
+										{ client2Id: clientId },
+										{ status: 1 }
+									]
+								}
+							}
+						}
+					]
+				}
+			}
+		});
+
+		return clients;
 	}
 
 	async createClient(dto: ClientDto): Promise<Clients>
@@ -770,6 +869,7 @@ export class DatabaseService
 	}
 
 	async addClientsToClient(id1: number, id2: number, status: number): Promise<void> {
+        console.log(1);
 		const existingBlockedRelation = await this.prisma.clientToClient.findFirst({
 			where: {
 				OR: [
@@ -779,6 +879,7 @@ export class DatabaseService
 			},
 		});
 
+        console.log(2);
 		if (!existingBlockedRelation)
 		{
 			try
@@ -792,6 +893,7 @@ export class DatabaseService
 			}
 			catch (error)
 			{
+        console.log(error);
 				if (error instanceof Prisma.PrismaClientKnownRequestError)
 				{
 					if (error.code === 'P2025') {

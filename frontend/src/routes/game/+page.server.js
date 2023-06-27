@@ -12,8 +12,6 @@ export async function load( {cookies, fetch} ) {
 	try
 	{
 		let img_path;
-		let id;
-		let isDFAActive;
 		const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {
 				headers: { 'Authorization': `Bearer ${authToken}` }
 			});
@@ -24,11 +22,10 @@ export async function load( {cookies, fetch} ) {
 			if (data.img !== "undefined")
 				img_path = data.img;
 			else
-				img_path = "/il_794xN.3892173164_egqv.avif";
-			isDFAActive = data.Dfa;
+				img_path = "";
 			return {
-				isDFAActive: isDFAActive,
-				id: id,
+				isDFAActive: data.Dfa,
+				id: data.id,
 				userId42: id42,
 				resOk: true,
 				img_path: img_path,

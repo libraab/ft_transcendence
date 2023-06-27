@@ -157,7 +157,7 @@
 				{#each fl as friend}
 					{#if friend.status == 0}
 						<div class="friend-container">
-							<a href="/dashboard" style="text-decoration: none;"><h2>{friend.client.name}</h2></a>
+							<a href="/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name}</h2></a>
 							<p>&nbsp;&nbsp;&nbsp;</p>
 							<div class="emoji-container">
 								<span>connected</span>
@@ -172,7 +172,7 @@
 							</div>
 						</div>
 					{:else}
-						<h3> {friend.client.name} ⛔️ </h3>
+						<a href="/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name} ⛔️ </h2></a>
 					{/if}
 				{/each}
 <!--		{:else}

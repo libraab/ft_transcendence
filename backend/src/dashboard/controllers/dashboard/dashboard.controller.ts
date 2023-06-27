@@ -20,6 +20,20 @@ export class DashboardController
 		return this.db.getClientById42Dashboard(id);
 	}
 
+	@Get('/getByName/:id/:userName')
+	async getByName(@Param('id', ParseIntPipe) id: number,
+					@Param('userName') userName: string)
+	{
+		try
+		{
+			return this.db.getClientByName(id, userName);
+		}
+		catch (error)
+		{
+			throw new HttpException("userNotFound", 404);
+		}
+	}
+
 	@Get('/stats/:id')
 	async getStatsbyId(@Param('id', ParseIntPipe) id: number)
 	{
@@ -85,10 +99,11 @@ export class DashboardController
 		return this.db.getClientByCookie(cookie);
 	}
 
-	@Get('/name/:name')
-	async searchFor(@Param('name') name: string)
+	@Get('/name/:id/:name')
+	async searchFor(@Param('id', ParseIntPipe) id: number,
+					@Param('name') name: string)
 	{
-		return this.db.findClientsByName(name);
+		return this.db.findClientsByName(id, name);
 	}
 
 

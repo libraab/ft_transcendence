@@ -16,10 +16,10 @@
 
 <div>
 	<nav class="tabs">
-		<a href="dashboard">DashBoard</a>
-		<a href="game">Game</a>
-		<a href="chat">Chat</a>
-		<a href="room">Room</a>	
+		<a href="/dashboard">DashBoard</a>
+		<a href="/game">Game</a>
+		<a href="/chat">Chat</a>
+		<a href="/room">Room</a>	
 	</nav>
 </div>
 
