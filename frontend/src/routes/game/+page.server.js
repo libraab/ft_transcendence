@@ -1,4 +1,4 @@
-import { hostname } from '../hostname.js';
+import { hostname } from '../../hostname.js';
 import { redirect } from '@sveltejs/kit'; 
 
 export async function load( {cookies, fetch} ) {
@@ -12,6 +12,8 @@ export async function load( {cookies, fetch} ) {
 	try
 	{
 		let img_path;
+		let id;
+		let isDFAActive;
 		const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {
 				headers: { 'Authorization': `Bearer ${authToken}` }
 			});
@@ -23,12 +25,13 @@ export async function load( {cookies, fetch} ) {
 				img_path = data.img;
 			else
 				img_path = "/il_794xN.3892173164_egqv.avif";
+			isDFAActive = data.Dfa;
 			return {
-				isDFAActive: data.Dfa,
-				img_path: img_path,
-				id: data.id,
+				isDFAActive: isDFAActive,
+				id: id,
 				userId42: id42,
-				resOk: true
+				resOk: true,
+				img_path: img_path,
 			}
 		}
 		else

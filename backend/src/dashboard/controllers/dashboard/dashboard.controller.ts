@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, StreamableFile} from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpException, Param, ParseIntPipe, Post, StreamableFile} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
@@ -7,6 +7,7 @@ import { createRelationsDto, createStatsDto, updateStatDto } from 'src/dashboard
 import { FastifyRequest } from 'fastify';
 import { v4 as uuidv4 } from 'uuid'
 import * as fs from 'fs';
+import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 
 @Controller('dashboard')
 export class DashboardController
@@ -16,7 +17,7 @@ export class DashboardController
 	@Get(':id')
 	async getByid42(@Param('id', ParseIntPipe) id: number)
 	{
-		return this.db.getClientById42(id);
+		return this.db.getClientById42Dashboard(id);
 	}
 
 	@Get('/stats/:id')
@@ -33,8 +34,15 @@ export class DashboardController
 
 	@Get('/getfile/:filename')
 	getFile(@Param('filename') fileName: string ): StreamableFile {
-		const file = fs.createReadStream(process.cwd() + "/uploads/" + fileName);
-		return new StreamableFile(file);
+		try
+		{
+			const file = fs.createReadStream(process.cwd() + "/uploads/" + fileName);
+			return new StreamableFile(file);
+		}
+		catch (error)
+		{
+			throw new HttpException(error, 404);
+		}
 	}
 
 	@Post('/update/:id')

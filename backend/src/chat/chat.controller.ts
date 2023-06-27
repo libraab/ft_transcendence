@@ -20,6 +20,7 @@ export class ChatController {
         console.log(json);
 		return json;
     }
+
     //----------------------------------------------------------------------//
     @Get('/messages/:id')
     async getAllMessages(@Param('id', ParseIntPipe) id: number)

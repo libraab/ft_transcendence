@@ -12,6 +12,12 @@ export class RoomsController
 		return this.db.getRoomsByOwnerId(id);
 	}
 
+	@Get('/client/:id')
+	async getClientForRoom(@Param('id', ParseIntPipe) id: number)
+	{
+		//return this.db.
+	}
+
 	@Get('/privateRoomMember/:id')
 	async getPrivateRoomMembers(@Param('id', ParseIntPipe) id: number)
 	{

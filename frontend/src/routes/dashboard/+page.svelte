@@ -1,5 +1,30 @@
 <script>
-	import { userId42, id} from '../../stores.js';
+	import { onMount } from "svelte";
+	import { hostname } from "../../hostname";
+	import { img_path, userId42, clientName, id } from "../../stores";
+
+	export let data;
+
+	onMount(async () => {
+		try
+		{
+			const response = await fetch(`http://${hostname}:3000/dashboard/${data.userId42}`);
+			if (response.ok)
+			{
+				let vals = await response.json();
+				$clientName = vals.name;
+				$img_path = data.img_path;
+				$userId42 = data.userId42;
+			}
+			else
+				console.error("layout");
+
+		}
+		catch (error)
+		{
+			console.error("layout" , error);
+		}
+	});
 </script>
 
 <main>

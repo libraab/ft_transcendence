@@ -88,13 +88,13 @@ export class AuthController {
 	@Post('/2fa/:id')
 	async activateDfa(
 		@Param('id', ParseIntPipe) id: number,
-		@Body() body: { isDFAActive: boolean }): Promise<{ qrCodeImageUrl?: string }>
+		@Body() body: { Dfa: boolean }): Promise<{ qrCodeImageUrl?: string }>
 	{
-		const { isDFAActive } = body;
+		const { Dfa } = body;
 		let user: UpdateClientDto = new UpdateClientDto;
-		console.log('DFA is ', isDFAActive);
+		console.log('DFA is ', Dfa);
 		// if user activate the dfa
-		if (isDFAActive) {
+		if (Dfa) {
 			console.log('dfa is now activated in database');
 			user.dfa = true;
 			user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key

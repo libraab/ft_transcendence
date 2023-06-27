@@ -21,6 +21,48 @@ export class DatabaseService
 		return client || null;
 	}
 
+	async getClientById42Dashboard(id42: number){
+		const client = await this.prisma.clients.findUnique({
+			where: {
+				id42: id42,
+			},
+			select: {
+				id: true,
+				name: true,
+				img: true,
+				Dfa: true,
+				clientStats: {
+					select: {
+						played: true,
+						won: true,
+						score: true,
+						title: true,
+						hf: true,
+					},
+				},
+			},
+		});
+
+		if (!client) {
+			return null;
+		}
+
+		return client;
+/*
+		const { id, name, img, Dfa, clientStats } = client;
+
+		return {
+			id,
+			name,
+			img,
+			Dfa,
+			clientStats,
+		};*/
+	}
+
+
+
+
 	async getClientById(id: number): Promise<Clients | null>
 	{
 		const client = await this.prisma.clients.findUnique({

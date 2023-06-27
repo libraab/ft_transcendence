@@ -25,10 +25,7 @@
 
 <main>
 	<a href="/" style="color: black;">&#8592; my profile</a>
-
-	<div class="main_body">
-		<slot></slot>
-	</div>
+	<slot class="main_body"></slot>
 </main>
 
 <footer>

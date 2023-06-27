@@ -63,7 +63,7 @@ model ClientStats {
   id     Int    @id @default(autoincrement())
   played Int
   won    Int
-  score  Int
+  score  Int      // score dans l'absolue -> rank
   title  String? @db.VarChar(50)
   hf     String? @db.VarChar(100)
 
