@@ -1,5 +1,6 @@
-import { Controller, Get, HttpException, HttpStatus, Param, ParseArrayPipe, ParseBoolPipe, ParseIntPipe, Post } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, InternalServerErrorException, Param, ParseArrayPipe, ParseBoolPipe, ParseIntPipe, Post, UnauthorizedException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
+import * as bcrypt from 'bcrypt'
 
 @Controller('rooms')
 export class RoomsController
@@ -12,12 +13,13 @@ export class RoomsController
 		return this.db.getRoomsByOwnerId(id);
 	}
 
-	@Get('/client/:id')
-	async getClientForRoom(@Param('id', ParseIntPipe) id: number)
+	@Get('/allMemberwithStatus/:id42/:rommName')
+	async getAllRoomMember(@Param('id42', ParseIntPipe) id42: number,
+							@Param('roomName') roomName: string)
 	{
-		//return this.db.
+		return this.db.getAllRoomMembers(id42, roomName);
 	}
-
+/*
 	@Get('/privateRoomMember/:id')
 	async getPrivateRoomMembers(@Param('id', ParseIntPipe) id: number)
 	{
@@ -37,8 +39,7 @@ export class RoomsController
 	{
 		return this.db.getMembersByRoomIdExcludingClientForAdmins(idRoom, idMember);
 	}
-
-
+*/
 	@Get('valideRooms/:id')
 	async getAuthorizedRoomsForId(@Param('id', ParseIntPipe) id: number)
 	{
@@ -67,35 +68,64 @@ export class RoomsController
 
 	@Post('/join/:roomId/:clientId')
 	async joinRoom(@Param('clientId', ParseIntPipe) clientId: number,
-					@Param('roomId', ParseIntPipe) roomId: number) {
+					@Param('roomId', ParseIntPipe) roomId: number,
+					@Body() data: any) {
 		const room = await this.db.getRoomById(roomId);
 		const client = await this.db.getClientById(clientId);
 
-		console.log(room);
-		console.log(client);
-
+		//Si room n'existe pas ou client n'existe pas bad request
 		if (!room || !client) {
 			throw new HttpException("room id or client id onvalid", HttpStatus.BAD_REQUEST);
 		}
+		// si clientId déjà memebre de la room 
+		// on ne fait rien et NO CONTENT return.
 		if (await this.db.checkRoomMember(roomId, clientId))
 			return HttpStatus.NO_CONTENT;
 
-		if (room.secu === 2) {
-			try {
+		// si room est protected par mot de passe
+		if (room.secu === 1)
+		{
+			// check password
+			await bcrypt.compare(data.password, room.password)
+            .then((passwordsMatch) => {
+                if (passwordsMatch) { // valid case
+                    this.db.addMemberToRoom(room.id, data.iddata, 2);
+
+					// check password
+					return HttpStatus.NO_CONTENT;
+                }
+				else // error case
+				{
+					throw new UnauthorizedException('Access Denied');
+                }
+            })
+            .catch((error) =>
+			{
+				throw new InternalServerErrorException(error);
+            });
+		}
+		// si room est publique
+		else if (room.secu === 2) {
+			try
+			{
 				await this.db.addMemberToRoom(roomId, clientId, 6);
 				return HttpStatus.NO_CONTENT;
 			}
-			catch (error) {
-				throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+			catch (error)
+			{
+				throw new BadRequestException(error);
 			}
 		}
-
-		if (room.secu === 3) {
-			throw new Error('Cannot join a private room');
+		// si room est one on one conversation
+		else if (room.secu === 3)
+		{
+			throw new Error('Cannot join a conversation room');
 		}
 
+		// ça y était en théorie on ne passe plus ici,
+		// mais la flemme de check l'ensemble des cas de figure donc ça reste
 		await this.db.addMemberToRoom(roomId, clientId, 2);
-		return 'User joined the room';
+		return HttpStatus.NO_CONTENT;
 	}
 
 	@Post('updateStatus/:id/:client/:status')

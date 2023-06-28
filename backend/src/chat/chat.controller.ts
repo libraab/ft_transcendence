@@ -81,7 +81,6 @@ export class ChatController {
             this.dto.secu = 0;
         if (data.roomType == "protected")
         {
-            console.log(data.password);
             if (!data.password || data.password === "")
                 throw new HttpException("no password on protected room", HttpStatus.BAD_REQUEST);
             this.dto.secu = 1;
@@ -92,7 +91,6 @@ export class ChatController {
         if (this.dto.secu === 1) {
             const saltRounds = 10;
             this.dto.password = await bcrypt.hash(data.password, saltRounds);
-            console.log('a protected room has been created');
         }
         let Room = await this.db.createRooom(this.dto);
         

@@ -24,7 +24,6 @@ export async function load( {cookies, fetch} ) {
 			else
 				img_path = "";
 			return {
-				isDFAActive: data.Dfa,
 				id: data.id,
 				userId42: id42,
 				resOk: true,

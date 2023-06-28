@@ -1,7 +1,27 @@
-import { hostname } from '../../hostname.js';
+import { hostname } from '../../../hostname.js';
 import { redirect } from '@sveltejs/kit'; 
 
-export async function load( {cookies, fetch} ) {
+	// @ts-ignore
+	async function fetchAllRoomMembers(id42, roomName)
+	{
+		try
+		{
+			const response = await fetch(`http://${hostname}/allMemberwithStatus/${id42}/${roomName}`);
+			if (response.ok)
+				return await response.json();
+			else
+			{
+				console.error("room server.js: couldn't fetch room members");
+				return null;
+			}
+		}
+		catch (error)
+		{
+			console.error(error);
+		}
+	}
+
+export async function load( {cookies, fetch, params} ) {
 	const authToken = cookies.get('jwt_cookie');
 	
 	if (authToken === undefined)
@@ -24,11 +44,11 @@ export async function load( {cookies, fetch} ) {
 			else
 				img_path = "";
 			return {
-				isDFAActive: data.Dfa,
 				id: data.id,
 				userId42: id42,
 				resOk: true,
 				img_path: img_path,
+				members: await fetchAllRoomMembers(id42, params.salon)
 			}
 		}
 		else

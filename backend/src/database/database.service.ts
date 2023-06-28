@@ -1331,10 +1331,11 @@ export class DatabaseService
 			select: {
 				id: true,
 				name: true,
+				secu: true,
 			},
 		});
 
-		return rooms.map((room) => ({ id: room.id, name: room.name }));
+		return rooms;
 	}
 	
 	async getRoomAdmins(roomId: number): Promise<{ id: number, name: string }[]> {
@@ -1469,5 +1470,50 @@ export class DatabaseService
 		await this.prisma.rooms.delete({
 			where: { id: roomId }
 		});
+	}
+
+	async getAllRoomMembers(clientId42:number, roomName: string)
+	{
+		const members = await this.prisma.roomMembers.findMany({
+			where: {
+				room:{
+					name: roomName
+				},
+				OR: [{
+					room: {
+						owner:{
+							id42: clientId42
+						}
+					}},
+					{
+						member:{
+							id42: clientId42,
+						},
+						status: 1 
+					}
+				],
+			},
+			select: {
+				member:{
+					select:{
+						name: true,
+						id: true,
+						id42: true,
+					}
+				},
+				status: true,
+			}
+		});
+
+		const userStatus = members.find(member => member.member.id42 === clientId42)?.status || null;
+
+		const retMembers = members
+			.filter(member => member.member.id42 !== clientId42)
+			.map(member => ({
+				name: member.member.name,
+				id: member.member.id,
+			}));
+
+		return { retMembers, userStatus };
 	}
 }

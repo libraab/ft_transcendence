@@ -84,6 +84,43 @@
 		fetchRooms();
 		fetchOwnedRoom();
 	}
+
+	const askForPassword = (room: any) => {
+		const placeholder = prompt('Enter the password:');
+		if (placeholder === null)
+			return
+		else if (placeholder === "") {
+			alert("Please enter a password");
+			return;
+		}
+		else if (placeholder)
+			password = placeholder;
+		join(room);
+	};
+
+	const join = async (room: any) => {
+		const response = await fetch(`http://${hostname}:3000/rooms/join/${room.id}/${data.id}`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({ password })
+		});
+
+		if (response.ok)
+		{
+			console.log('Joined room:', room.name);
+		} 
+		else if (response.status === 401)
+		{
+			alert("wrong password");
+		}
+		else
+		{
+			console.error('Failed to join room:', room.name);
+		}
+		fetchRooms();
+	};
 	
 	onMount(fetchRooms);
 	onMount(fetchOwnedRoom);
@@ -116,9 +153,9 @@
 							{/if}
 							
 							<h3>{roomList.room.name}</h3>
-							<button class="join-button">
+							<a href="/room/{roomList.room.name}"><button class="join-button">
 								Inspect
-							</button>
+							</button></a>
 						</div>
 					{/each}
 
@@ -131,15 +168,16 @@
 			<div class="room-list">
 				{#each rooms as room}
 					<div class="room-item">
+						<p>{JSON.stringify(room)}</p>
 						{#if room.secu == 1}
 							<h3>❌ {room.name}</h3>
-							<button class="join-button">Protected</button>
+							<button class="join-button" on:click={() => askForPassword(room)}>Protected</button>
 						{:else if room.secu == 2}
 							<h3>🔒 {room.name}</h3>
-							<button class="join-button">Ask to join</button>
+							<button class="join-button" on:click={() => join(room)}>Ask to join</button>
 						{:else}
 							<h3>✅ {room.name}</h3>
-							<button class="join-button">Join</button>
+							<button class="join-button" on:click={() => join(room)}>Join</button>
 						{/if}
 					</div>
 				{/each}
@@ -169,88 +207,6 @@
 				</form>
 			{/if}
 		</div>
-<!--
-		{:else}
-			<div class="create-container">
-				<h1>{choosenRoom}</h1>
-				<center><button class="toggle-btn" on:click={() => inspectToggle()}>Back</button></center>
-			</div>
-
-			{#if privateRoomMembers && privateRoomMembers.length !== 0}
-				<div class="rooms-container">
-					<button class="toggle-btn">they wanna join</button>
-					<div class="room-list">
-						{#each privateRoomMembers as member}
-							<div class="room-item">
-								<p>{member.name}</p>
-								<div class="buttons">
-									<button on:click={() => accept(member)}>Accept</button>
-									<button on:click={() => kick(member)}>Deny</button>
-									<button on:click={() => ban(member)}>Ban</button>
-								</div>
-							</div>
-						{/each}
-					</div>
-				</div>
-			{/if}
-	
-			{#if roomMembers && roomMembers.length !== 0}
-	   
-				<div class="rooms-container">
-					<button class="toggle-btn">Room Members</button>
-					<div class="room-list">
-
-						{#each roomMembers as member}
-							<div class="room-item">
-								<div>
-									<p>{member.name}</p>
-									<p>[{memberStatusLabels[member.status]}]</p>
-								</div>
-
-								<div class="buttons">
-									{#if member.status === 5}
-										<button on:click={() => kick(member)}>unban</button>
-									{:else}
-										{#if member.status === 2}
-											<button on:click={() => promote(member)}>Promote</button>
-										{:else if member.status === 1}
-											<button on:click={() => demote(member)}>Demote</button>
-										{/if}	
-
-										{#if member.status === 3}
-											<button on:click={() => unmute(member)}>unmute</button>
-										{:else}
-											<button on:click={() => mute(member)}>mute</button>
-										{/if}
-										<button on:click={() => kick(member)}>kick</button>
-										<button on:click={() => ban(member)}>Ban</button>
-									{/if}
-								</div>
-							</div>
-						{/each}
-
-					</div>
-				</div>
-
-		{:else}
-				<div style="display: block; text-align: center;">
-					<p style="display: block;">feeling lonely ?</p>
-					<img src="https://media.giphy.com/media/1isQ04fzbwXbJKucVI/giphy.gif" style="display: block; margin: 0 auto;" alt="whtever">
-				</div>
-			{/if}
-	
-			<div class="create-container">
-				<center><button class="toggle-btn" style="background-color: red;"
-					on:click={() => toggleDel('del')}>Delete room
-				</button></center>
-				/̵͇̿̿/’̿’̿ ̿ ̿̿ ̿̿ ̿̿(╥﹏╥)
-
-				<button class="toggle-btn" style="background-color: red; margin-top: auto;"
-					on:click={() => toggleDel('res')}>Resign
-				</button>
-				(¬ _¬)ﾉ ciao
-			</div>
--->
 	</main>
 </div>
 
