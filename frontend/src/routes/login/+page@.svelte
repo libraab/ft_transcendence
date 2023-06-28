@@ -1,7 +1,7 @@
 <script>
     import { hostname } from "../../hostname"
 
-    const url = `https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-a5af938705ebd0c4b5b8a782f8b8026fb20fae93ce976a067e4d2033ee47c4d9&redirect_uri=http%3A%2F%2F${hostname}%3A3000%2Fauth&response_type=code`
+    const url = `https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-5f3017b6c9c5313f82e40ad0ba0c8d67624aa36701a58f08c855f4439334c62d&redirect_uri=http%3A%2F%2F${hostname}%3A3000%2Fauth&response_type=code`
 </script>
 
 <form>

@@ -17,7 +17,7 @@ export class AuthController {
 					private databaseService: DatabaseService) {}
 	
 	@Get()
-	@Header ('Content-Type', 'text/html')
+	@Header ('Content-Type', 'application/json')
 	// https://api.intra.42.fr/apidoc/guides/web_application_flow
 	async getAccessToken(	@Query() query: any,
 							@Res({ passthrough: true }) response: FastifyReply): Promise<string> {
@@ -26,7 +26,9 @@ export class AuthController {
 		console.log(code);
 		console.log(access_token);
 		if (access_token == undefined)
+		{
 			throw new HttpException('Forbidden access token', HttpStatus.FORBIDDEN);
+		}
 		const user_info: User42Interface = await this.authService.get_user_info(access_token);
 		let user = await this.databaseService.getClientById42(user_info.id);
 		if (!user) {
@@ -40,14 +42,6 @@ export class AuthController {
 		}
 		else 
 			console.log('We already know this person');
-		
-		console.log('--------------------------');
-		console.log('user id is -->', user.id);
-		console.log('user 42_id is -->', user.id42);
-		console.log('user name is -->', user.name);
-		console.log('user dfa is -->', user.Dfa);
-		console.log('img link is -->', user.img);
-		console.log('--------------------------');
 
 		let add_cookie: UpdateClientDto = new UpdateClientDto;
 		// generetate the jwt

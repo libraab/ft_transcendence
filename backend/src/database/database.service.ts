@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, HttpCode, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpCode, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientDto } from './dtos/dbBaseDto';
 import { ClientStats, ClientToClient, Clients, MessagesRooms, Prisma, RoomMembers, Rooms } from '@prisma/client';
@@ -1474,46 +1474,52 @@ export class DatabaseService
 
 	async getAllRoomMembers(clientId42:number, roomName: string)
 	{
+		const roomId = await this.prisma.rooms.findUnique({
+			where:{
+				name: roomName
+			},
+			select:{
+				id: true
+			}
+		});
+		if (!roomId)
+			throw new NotFoundException("Object Not Found");
+
 		const members = await this.prisma.roomMembers.findMany({
-			where: {
-				room:{
-					name: roomName
-				},
-				OR: [{
-					room: {
-						owner:{
-							id42: clientId42
-						}
-					}},
-					{
-						member:{
-							id42: clientId42,
-						},
-						status: 1 
-					}
-				],
+			where:{
+				room: {
+					name: roomName,
+				}
 			},
 			select: {
+				status: true,
 				member:{
-					select:{
+					select: {
 						name: true,
 						id: true,
 						id42: true,
 					}
 				},
-				status: true,
+				room:{
+					select:{
+						id: true
+					}
+				}
 			}
-		});
+		})
 
-		const userStatus = members.find(member => member.member.id42 === clientId42)?.status || null;
+		const userStatus = members.find(obj => obj.member.id42 === clientId42)?.status;
+		if (userStatus !== 1 && userStatus !== 0)
+			throw new UnauthorizedException("acces denied");
 
 		const retMembers = members
 			.filter(member => member.member.id42 !== clientId42)
 			.map(member => ({
 				name: member.member.name,
 				id: member.member.id,
+				status: member.status
 			}));
-
-		return { retMembers, userStatus };
+		
+		return { retMembers, userStatus, roomId };
 	}
 }

@@ -5,12 +5,10 @@
 
 	export let data;
 
-	let choosenRoom: string;
-	let choosenRoomId: number;
+	let delTab: string;
 
 	onMount(async () => {
 		console.log(data);
-		choosenRoom = data.room;
 		$img_path = data.img_path;
 		$userId42 = data.userId42;
 
@@ -38,14 +36,14 @@
 		inspectBoolean = !inspectBoolean;
 		if (!inspectBoolean)
 		{
-			choosenRoom = "";
-			choosenRoomId = -1;
+			choosenRoom = null;
+			choosenRoomId = null;
 			privateRoomMembers = null;
 			roomMembers = [];
 		}
 	}
 
-	let privateRoomMembers: any = null;
+	let privateRoomMembers = null;
 	async function fetchprivateRoomMembers()
 	{
 		try
@@ -62,11 +60,11 @@
 		}
 	}
 
-	let roomMembers: any = [];
+	let roomMembers = [];
 	async function fetchAllRoomMembers()
 	{
 		let url;
-		if (data.members.userStatus === 0)
+		if (status === 0)
 			url = `http://${hostname}:3000/rooms/allRoomMember/${choosenRoomId}/${data.id}`;
 		else
 			url = `http://${hostname}:3000/rooms/allRoomMemberForAdmins/${choosenRoomId}/${data.id}`;
@@ -185,21 +183,6 @@
 		await updateClientStatus(choosenRoomId, client.id, 2);
 		await fetchAllRoomMembers();
 	}
-
-	let delTab: string = "";
-	function toggleDel(source: string)
-	{
-		delTab = source;
-	}
-
-	const memberStatusLabels: any = {
-		1: 'admin',
-		2: 'member',
-		3: 'muted',
-		4: 'kicked',
-		5: 'banned',
-		6: 'pendant',
-	};
 </script>
   
 <div class="main_body">

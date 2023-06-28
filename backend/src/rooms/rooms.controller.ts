@@ -13,9 +13,9 @@ export class RoomsController
 		return this.db.getRoomsByOwnerId(id);
 	}
 
-	@Get('/allMemberwithStatus/:id42/:rommName')
+	@Get('/allMemberwithStatus/:id42/:name')
 	async getAllRoomMember(@Param('id42', ParseIntPipe) id42: number,
-							@Param('roomName') roomName: string)
+							@Param('name') roomName: string)
 	{
 		return this.db.getAllRoomMembers(id42, roomName);
 	}

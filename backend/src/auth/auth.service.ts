@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios'; // import default without scopes
 import type User42Interface from './user42.interface';
+import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 
 @Injectable()
 export class AuthService {
@@ -12,14 +13,16 @@ export class AuthService {
             client_secret: process.env.CLIENT_SECRET,
             redirect_uri: 'http://'+process.env.HOSTNAME+':3000/auth',
         }
-        console.log(data.redirect_uri);
         const response = axios.post('https://api.intra.42.fr/oauth/token', data);
         const token = await response
-            .then((res:any) => {
+            .then((res:any) =>
+            {
                 return res.data.access_token;
             })
-            .catch((err: any) => {
-                return undefined;
+            .catch((err: any) =>
+            {
+                console.error(err);
+                throw new HttpErrorByCode[err.response.status];
             })
         return token;
     }
