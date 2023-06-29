@@ -14,12 +14,12 @@ export class RoomsController
 	}
 
 	@Get('/allMemberwithStatus/:id42/:name')
-	async getAllRoomMember(@Param('id42', ParseIntPipe) id42: number,
+	async loadAllRoomMember(@Param('id42', ParseIntPipe) id42: number,
 							@Param('name') roomName: string)
 	{
 		return this.db.getAllRoomMembers(id42, roomName);
 	}
-/*
+
 	@Get('/privateRoomMember/:id')
 	async getPrivateRoomMembers(@Param('id', ParseIntPipe) id: number)
 	{
@@ -39,7 +39,7 @@ export class RoomsController
 	{
 		return this.db.getMembersByRoomIdExcludingClientForAdmins(idRoom, idMember);
 	}
-*/
+
 	@Get('valideRooms/:id')
 	async getAuthorizedRoomsForId(@Param('id', ParseIntPipe) id: number)
 	{
@@ -80,7 +80,7 @@ export class RoomsController
 		// si clientId déjà memebre de la room 
 		// on ne fait rien et NO CONTENT return.
 		if (await this.db.checkRoomMember(roomId, clientId))
-			return HttpStatus.NO_CONTENT;
+			return HttpStatus.ACCEPTED;
 
 		// si room est protected par mot de passe
 		if (room.secu === 1)
@@ -133,6 +133,10 @@ export class RoomsController
 							@Param('client', ParseIntPipe) clientId: number,
 							@Param('status', ParseIntPipe) status: number)
 	{
+
+		const ownerCheck = await this.db.checkRoomOwner(roomId, clientId);
+		if (ownerCheck)
+			throw new UnauthorizedException();
 		try
 		{
 			await this.db.changeMemberStatus(roomId, clientId, status);
@@ -158,7 +162,7 @@ export class RoomsController
 		}
 		catch (error)
 		{
-			console.log(error);
+			console.error(error);
 			throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -199,10 +203,12 @@ export class RoomsController
 	{
 		const ownerCheck = await this.db.checkRoomOwner(roomId, ownerId);
 		const roomUserCheck = await this.db.checkRoomMember(roomId, adminId);
-		if (!ownerCheck || !roomUserCheck)
+		if (!ownerCheck || !roomUserCheck) {
 			throw new HttpException("invalid client for specified room", HttpStatus.BAD_REQUEST);
-		if (ownerId === adminId)
+		}
+		if (ownerId === adminId) {
 			throw new HttpException("you so funny Larry", HttpStatus.BAD_REQUEST);
+		}
 		
 		try
 		{
@@ -215,8 +221,7 @@ export class RoomsController
 
 			return HttpStatus.NO_CONTENT;
 		}
-		catch (error)
-		{
+		catch (error) {
 			throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
 		}
 	}

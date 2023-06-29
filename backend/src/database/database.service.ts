@@ -121,6 +121,8 @@ export class DatabaseService
 				}
 			},
 		});
+		if (!client)
+			throw new NotFoundException("Client does not exist");
 
 		return client;
 	}
@@ -1471,7 +1473,7 @@ export class DatabaseService
 			where: { id: roomId }
 		});
 	}
-
+/*
 	async getAllRoomMembers(clientId42:number, roomName: string)
 	{
 		const roomId = await this.prisma.rooms.findUnique({
@@ -1521,5 +1523,36 @@ export class DatabaseService
 			}));
 		
 		return { retMembers, userStatus, roomId };
+	}
+*/
+	async getAllRoomMembers(clientId42:number, roomName: string)
+	{
+		const roomId = await this.prisma.rooms.findUnique({
+			where:{
+				name: roomName
+			},
+			select:{
+				id: true
+			}
+		});
+		if (!roomId)
+			throw new NotFoundException("Object Not Found");
+
+		const userStatus = await this.prisma.roomMembers.findFirst({
+			where: {
+				room: {
+					name: roomName,
+				},
+				member: {
+					id42: clientId42
+				}
+			},
+			select: {
+				status: true,
+			}
+		})
+		if (userStatus.status !== 1 && userStatus.status !== 0)
+			throw new UnauthorizedException("acces denied");
+		return { status: userStatus.status, roomId: roomId };
 	}
 }

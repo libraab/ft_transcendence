@@ -1,5 +1,6 @@
-import { hostname } from '../../hostname.js';
+import { hostname } from '../hostname.js';
 import { redirect } from '@sveltejs/kit'; 
+import { initializeSocket } from '../socket.js';
 
 export async function load( {cookies, fetch} ) {
 	const authToken = cookies.get('jwt_cookie');
@@ -19,14 +20,17 @@ export async function load( {cookies, fetch} ) {
 		if (response.ok)
 		{
 			const data = await response.json();
+			await initializeSocket(data);
 			if (data.img !== "undefined")
 				img_path = data.img;
 			else
 				img_path = "";
 			return {
-				img_path: img_path,
+				isDFAActive: data.Dfa,
 				id: data.id,
 				userId42: id42,
+				resOk: true,
+				img_path: img_path,
 			}
 		}
 		else
@@ -41,3 +45,5 @@ export async function load( {cookies, fetch} ) {
 		throw redirect(307, "/login");
 	}
 }
+
+

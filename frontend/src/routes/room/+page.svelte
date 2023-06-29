@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { hostname } from "../../hostname";
-	import { img_path, userId42, clientName } from "../../stores";
-	import { error } from "@sveltejs/kit";
 
 	export let data;
 	let rooms: any = [];
@@ -168,7 +166,6 @@
 			<div class="room-list">
 				{#each rooms as room}
 					<div class="room-item">
-						<p>{JSON.stringify(room)}</p>
 						{#if room.secu == 1}
 							<h3>❌ {room.name}</h3>
 							<button class="join-button" on:click={() => askForPassword(room)}>Protected</button>

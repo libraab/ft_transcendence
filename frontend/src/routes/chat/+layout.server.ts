@@ -1,11 +1,11 @@
-import { hostname } from '../hostname.js';
+import { hostname } from '../../hostname.js';
 import { redirect } from '@sveltejs/kit'; 
 
 export async function load( {cookies, fetch} ) {
 	const authToken = cookies.get('jwt_cookie');
 	
 	if (authToken === undefined)
-		throw redirect(307, "/login");
+		throw redirect(306, "/login");
 
 	const id42 = cookies.get('id42');
 
@@ -24,24 +24,21 @@ export async function load( {cookies, fetch} ) {
 			else
 				img_path = "";
 			return {
-				isDFAActive: data.Dfa,
 				id: data.id,
 				userId42: id42,
-				resOk: true,
+				name: data.name,
 				img_path: img_path,
 			}
 		}
 		else
 		{
 			console.error("smthing went wrong: cannot fetch data");
-			throw redirect(307, "/login");
+			throw redirect(306, "/login");
 		}
 	}
 	catch (error)
 	{
 		console.error(error);
-		throw redirect(307, "/login");
+		throw redirect(306, "/login");
 	}
 }
-
-

@@ -2,17 +2,25 @@
 	import { onMount } from "svelte";
 	import { hostname } from "../../../hostname";
 	import { img_path, userId42, clientName } from "../../../stores";
+	import DelModal from './delete_resign.svelte'
+	import { goto } from '$app/navigation';
 
 	export let data;
 
 	let choosenRoom: string;
 	let choosenRoomId: number;
+	let owned: boolean;
 
+	let roomMembers: any = [];
 	onMount(async () => {
-		console.log(data);
 		choosenRoom = data.room;
+		choosenRoomId = data.members.roomId.id;
 		$img_path = data.img_path;
-		$userId42 = data.userId42;
+		$userId42 = parseInt(data.userId42, 10);
+		owned = data.members.userStatus === 0;
+
+		await fetchprivateRoomMembers();
+		await fetchAllRoomMembers();
 
 		try
 		{
@@ -32,20 +40,7 @@
 		}
 	});
 
-	let inspectBoolean = false;
-	function inspectToggle()
-	{
-		inspectBoolean = !inspectBoolean;
-		if (!inspectBoolean)
-		{
-			choosenRoom = "";
-			choosenRoomId = -1;
-			privateRoomMembers = null;
-			roomMembers = [];
-		}
-	}
-
-	let privateRoomMembers: any = null;
+	let privateRoomMembers: any = [];
 	async function fetchprivateRoomMembers()
 	{
 		try
@@ -62,14 +57,15 @@
 		}
 	}
 
-	let roomMembers: any = [];
 	async function fetchAllRoomMembers()
 	{
 		let url;
-		if (data.members.userStatus === 0)
+		if (owned) {
 			url = `http://${hostname}:3000/rooms/allRoomMember/${choosenRoomId}/${data.id}`;
-		else
+		}
+		else {
 			url = `http://${hostname}:3000/rooms/allRoomMemberForAdmins/${choosenRoomId}/${data.id}`;
+		}
 
 		try
 		{
@@ -77,7 +73,7 @@
 			if (response.ok)
 				roomMembers = await response.json();
 			else
-				roomMembers = null;
+				roomMembers = [];
 		}
 		catch (error)
 		{
@@ -122,6 +118,7 @@
 			}
 			else
 			{
+				console.error(response.statusText);
 				console.error('Failed to update status');
 			}
 		}
@@ -132,21 +129,21 @@
 	}
 
 
-	async function promote(client: any)
+	async function promote(member: any)
 	{
-		await updateClientStatus(choosenRoomId, client.id, 1);
+		await updateClientStatus(choosenRoomId, member.id, 1);
 		await fetchAllRoomMembers();
 	}
 	
-	async function demote(client: any)
+	async function demote(member: any)
 	{
-		await updateClientStatus(choosenRoomId, client.id, 2);
+		await updateClientStatus(choosenRoomId, member.id, 2);
 		await fetchAllRoomMembers();
 	}
 	
-	async function ban(client: any)
+	async function ban(member: any)
 	{
-		await updateClientStatus(choosenRoomId, client.id, 5);
+		await updateClientStatus(choosenRoomId, member.id, 5);
 		await fetchAllRoomMembers();
 		await fetchprivateRoomMembers();
 	}
@@ -192,6 +189,11 @@
 		delTab = source;
 	}
 
+	function delReturn() {
+		delTab = "";
+		goto("/room");
+	}
+
 	const memberStatusLabels: any = {
 		1: 'admin',
 		2: 'member',
@@ -201,12 +203,19 @@
 		6: 'pendant',
 	};
 </script>
+
+{#if delTab !== ""}
+	<DelModal {delTab} roomId={choosenRoomId} id={data.id}
+		on:click={()=> toggleDel("")}
+		on:validationClick={ delReturn }/>
+{/if}
   
 <div class="main_body">
 	<main class="container">
 		<div class="create-container">
 			<h1>{choosenRoom}</h1>
-			<center><button class="toggle-btn" on:click={() => inspectToggle()}>Back</button></center>
+			<a href="/room"><center><button class="toggle-btn">Back</button></center></a>
+
 		</div>
 
 		{#if privateRoomMembers && privateRoomMembers.length !== 0}
@@ -227,13 +236,12 @@
 			</div>
 		{/if}
 		
-<!--	{#if roomMembers && roomMembers.length !== 0}-->
+		<div class="rooms-container">
+			<button class="toggle-btn">Room Members</button>
+			<div class="room-list">
 
-			<div class="rooms-container">
-				<button class="toggle-btn">Room Members</button>
-				<div class="room-list">
-
-					{#each roomMembers as member}
+				{#each roomMembers as member}
+					{#if member.status !== 6}
 						<div class="room-item">
 							<div>
 								<p>{member.name}</p>
@@ -260,29 +268,25 @@
 								{/if}
 							</div>
 						</div>
-					{/each}
+					{/if}
+				{/each}
 
-				</div>
 			</div>
+		</div>
 
-<!--	{:else}
-			<div style="display: block; text-align: center;">
-				<p style="display: block;">feeling lonely ?</p>
-				<img src="https://media.giphy.com/media/1isQ04fzbwXbJKucVI/giphy.gif" style="display: block; margin: 0 auto;" alt="whtever">
+		{#if owned}
+			<div class="create-container">
+				<center><button class="toggle-btn" style="background-color: red;"
+					on:click={() => toggleDel('del')}>Delete room
+				</button></center>
+				/̵͇̿̿/’̿’̿ ̿ ̿̿ ̿̿ ̿̿(╥﹏╥)
+
+				<button class="toggle-btn" style="background-color: red; margin-top: auto;"
+					on:click={() => toggleDel('res')}>Resign
+				</button>
+				(¬ _¬)ﾉ ciao
 			</div>
 		{/if}
--->
-		<div class="create-container">
-			<center><button class="toggle-btn" style="background-color: red;"
-				on:click={() => toggleDel('del')}>Delete room
-			</button></center>
-			/̵͇̿̿/’̿’̿ ̿ ̿̿ ̿̿ ̿̿(╥﹏╥)
-
-			<button class="toggle-btn" style="background-color: red; margin-top: auto;"
-				on:click={() => toggleDel('res')}>Resign
-			</button>
-			(¬ _¬)ﾉ ciao
-		</div>
 	</main>
 </div>
   
