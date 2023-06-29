@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, StreamableFile} from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, Param, ParseIntPipe, Post, StreamableFile} from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
@@ -7,6 +7,7 @@ import { createRelationsDto, createStatsDto, updateStatDto } from 'src/dashboard
 import { FastifyRequest } from 'fastify';
 import { v4 as uuidv4 } from 'uuid'
 import * as fs from 'fs';
+import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 
 @Controller('dashboard')
 export class DashboardController
@@ -16,7 +17,36 @@ export class DashboardController
 	@Get(':id')
 	async getByid42(@Param('id', ParseIntPipe) id: number)
 	{
-		return this.db.getClientById42(id);
+		return this.db.getClientById42Dashboard(id);
+	}
+
+	@Get('/getByName/:id/:userName')
+	async getByName(@Param('id', ParseIntPipe) id: number,
+					@Param('userName') userName: string)
+	{
+		try
+		{
+			return this.db.getClientByName(id, userName);
+		}
+		catch (error)
+		{
+			throw new HttpException("userNotFound", 404);
+		}
+	}
+	
+	@Get('getTargetWithRelation/:id/:name')
+	async getTarget(@Param('id', ParseIntPipe) id: number,
+					@Param('name') name: string)
+	{
+		try
+		{
+			return this.db.getTarget(id, name);
+		}
+		catch (error)
+		{
+			console.error(error);
+			throw new HttpException("userNotFound", 404);
+		}
 	}
 
 	@Get('/42/:id')
@@ -39,8 +69,15 @@ export class DashboardController
 
 	@Get('/getfile/:filename')
 	getFile(@Param('filename') fileName: string ): StreamableFile {
-		const file = fs.createReadStream(process.cwd() + "/uploads/" + fileName);
-		return new StreamableFile(file);
+		try
+		{
+			const file = fs.createReadStream(process.cwd() + "/uploads/" + fileName);
+			return new StreamableFile(file);
+		}
+		catch (error)
+		{
+			throw new HttpException(error, 404);
+		}
 	}
 
 	@Post('/update/:id')
@@ -83,15 +120,32 @@ export class DashboardController
 		return this.db.getClientByCookie(cookie);
 	}
 
-	@Get('/name/:name')
-	async searchFor(@Param('name') name: string)
+	@Get('/name/:id/:name')
+	async searchFor(@Param('id', ParseIntPipe) id: number,
+					@Param('name') name: string)
 	{
-		return this.db.findClientsByName(name);
+		return this.db.findClientsByName(id, name);
 	}
 
 
 
+	@Post('/supprFriendship/:id1/:id2')
+	async supprFriendship(@Param('id1', ParseIntPipe) id1: number,
+							@Param('id2', ParseIntPipe) id2: number)
+	{
+		if (id1 === id2)
+			throw new HttpException("you so funny Larry", HttpStatus.BAD_REQUEST);
 
+		try {
+			await this.db.removeClientsFromClient(id1, id2);
+			return HttpStatus.NO_CONTENT;
+		}
+		catch (error)
+		{
+			console.error(error);
+			throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+		}
+	}
 
 	@Post('/create')
 	async createClient(@Body() dto: ClientDto)

@@ -63,7 +63,7 @@ model ClientStats {
   id     Int    @id @default(autoincrement())
   played Int
   won    Int
-  score  Int
+  score  Int      // score dans l'absolue -> rank
   title  String? @db.VarChar(50)
   hf     String? @db.VarChar(100)
 
@@ -83,9 +83,9 @@ model Rooms {
   messages MessagesRooms[]
 
   client2Id Int?
-  client2   Clients? @relation("RoomClients", fields: [client2Id], references: [id])
+  client2   Clients? @relation("RoomClients", fields: [client2Id], references: [id], onDelete: Cascade)
   ownerid   Int
-  owner     Clients  @relation("RoomsOwned", fields: [ownerid], references: [id])
+  owner     Clients  @relation("RoomsOwned", fields: [ownerid], references: [id], onDelete: Cascade)
 
   members  RoomMembers[] @relation("RoomMembersToRooms")
 
@@ -112,7 +112,7 @@ model MessagesRooms {
   time DateTime @default(now())
 
   roomId  Int
-  room    Rooms     @relation(fields: [roomId], references: [id])
+  room      Rooms    @relation(fields: [roomId], references: [id], onDelete: Cascade)
 
   clientId Int
   client   Clients @relation(fields: [clientId], references: [id])

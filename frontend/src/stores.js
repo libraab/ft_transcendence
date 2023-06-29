@@ -1,9 +1,6 @@
 import { writable } from "svelte/store";
 
-const id42 = document.cookie ? document.cookie
-    .split('; ')
-    .find(cookie => cookie.startsWith('id42'))
-    .split('=')[1] : null;
-
-export const userId42 = writable(id42);
+export const userId42 = writable(0);
 export let page_shown = writable("/")
+export let img_path = writable("");
+export let clientName = writable("")

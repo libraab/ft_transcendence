@@ -8,9 +8,8 @@ import { DatabaseModule } from './database/database.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ConfigModule } from '@nestjs/config';
 import { GameModule } from './game/game.module';
-import { PongModule } from './pong/pong.module';
 import { RoomsModule } from './rooms/rooms.module';
-
+import { PongModule } from './pong/pong.module';
 
 @Module({
   imports: [ChatModule,
@@ -22,8 +21,8 @@ import { RoomsModule } from './rooms/rooms.module';
             ConfigModule.forRoot({
               isGlobal: true,
             }),
-            PongModule,
             RoomsModule,
+            PongModule,
   ],
   controllers: [AppController],
   providers: [AppService],
