@@ -11,6 +11,6 @@ RUN npm install -g npm@latest
 RUN npm install
 RUN npm run start:dev
 
-EXPOSE 3000 5432
+EXPOSE 3000 5432 3001
 
 ENTRYPOINT "./entrypoint.sh"
