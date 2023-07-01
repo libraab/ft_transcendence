@@ -1,4 +1,4 @@
-<script>
+<!-- <script>
 	import { onMount } from "svelte";
 	import { hostname } from "../../hostname";
 	import { img_path, userId42, clientName } from "../../stores";
@@ -41,4 +41,321 @@
 		display: block;
 		margin: 20px auto;
 	}
+</style> -->
+
+<script lang="ts" >
+    import { browser } from '$app/environment';
+	import { Client } from 'colyseus.js'
+	import { onMount } from 'svelte';
+
+	let client: any;
+	let name: any;
+	let input: string;
+	let initialScreen: any;
+	let canvas: any;
+	let ctx: any;
+	let game: any;
+	let pong: any;
+	let room: any;
+	let gameActive: boolean = false;
+	let promise: any;
+	let gameCode: any;
+	let playerNumber: number;
+	if (browser) {
+		client = new Client("ws://" + location.hostname + ":3001");
+	}
+
+	async function createGame() {
+		try {
+			room = await client?.joinOrCreate("my_room"); // this will create "my_room" if it doesn't exist already or join it if it does exist
+			name = room.id;
+			return room.id;
+		} catch(e) {
+			console.error(e);
+		}
+	}
+
+	const handleCreateGame = () => {
+		promise = createGame();
+	}
+
+	async function joinGame() {
+		try {
+			console.log(input);
+			room = await client?.joinById(input);
+		} catch(e) {
+			console.error(e);
+		}
+	}
+
+	const handleJoinGame = () => {
+		promise = joinGame();
+	}
+	
+	 function init() {
+		console.log("dans init");
+		initialScreen.style.display = "none";
+    	game.style.display = "block";
+    	canvas = pong;
+    	ctx = canvas.getContext('2d');
+		gameCode = document.getElementById('gameCode');
+		gameCode.innerText = name;
+		gameActive = true;
+		console.log(gameCode);
+    	document.addEventListener('keydown', keydown);
+    	document.addEventListener('keyup', keyup);
+    	//gameActive = true;
+	}
+
+	function keydown(e: any) {
+		console.log("keydown");
+		console.log(e.keyCode);
+		if (e.keyCode === 38) {
+			if (playerNumber == 1)
+				room.send("keydown38player1");
+			else
+				room.send("keydown38player2");
+		}
+		if (e.keyCode === 40) {
+			if (playerNumber == 1)
+				room.send("keydown40player1");
+			else
+				room.send("keydown40player2");
+		}
+	}
+
+	function keyup(e: any) {
+		console.log("keyup");
+		console.log(e.keyCode);
+		if (e.keyCode === 38) {
+			if (playerNumber == 1)
+				room.send("keyup38player1");
+			else
+				room.send("keyup38player2");
+		}
+		if (e.keyCode === 40) {
+			if (playerNumber == 1)
+				room.send("keyup40player1");
+			else
+				room.send("keyup40player2");
+		}
+	}
+
+	const initGame = () => {
+		// room?.send("init");
+		promise = init();
+		console.log(name);
+	}
+
+	$: if (room) {
+		room.onMessage("init", (j: number) => {
+			playerNumber = j;
+			console.log(playerNumber);
+			//console.log('test init22! ' + name + ' ' + room.id);
+			//console.log("client id: " + client.id);
+			console.log('init');
+		});
+		room.onMessage("gameState", (gameState: any) => 
+		{
+			//console.log('test gameState');
+			gameState = JSON.parse(gameState);
+    		requestAnimationFrame(() => trender(gameState));
+		});
+		room.onMessage("gameOver", (data: any) => {
+			let date = JSON.parse(data);
+    		if (date.winner === playerNumber) {
+        		alert('You win!');
+    		}
+    		else {
+      			alert('You lose!');
+    		}
+			});
+		}
+
+	
+
+	//function setupMessageHandlers() {
+		// room?.onMessage("gameState", handleGameState);
+		// room?.onMessage("gameCode", handleGameCode);
+		// room?.onMessage("unknownCode", handleUnknownCode);
+		// room?.onMessage("tooManyPlayers", handleTooManyPlayers);
+		// room?.onMessage("playerNumber", handlePlayerNumber);
+	//}
+	
+	// room?.onMessage("init2", () => {
+	// 	console.log('test init2!')
+	// });
+
+
+function drawRect(x: number, y: number, w: number, h: number, color: any) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+}
+
+function drawArc(x: number, y: number, r: number, color: any) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2, true);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawNet(statenet: any) {
+    for (let i = 0; i <= canvas.height; i += 15) {
+        drawRect(statenet.net.x, statenet.net.y + i, statenet.net.width, statenet.net.height, statenet.net.color);
+    }
+}
+
+function drawText(text: string, x: number, y: number) {
+    ctx.fillStyle = "#FFF";
+    ctx.font = "75px fantasy";
+    ctx.fillText(text, x, y);
+}
+
+function trender(state: any) {    
+    drawRect(0, 0, canvas.width, canvas.height, "#000");
+
+    drawText(state.user.score, canvas.width / 4, canvas.height / 5);
+
+    drawText(state.com.score, 3 * canvas.width / 4, canvas.height / 5);
+
+    drawNet(state);
+
+    drawRect(state.user.x, state.user.y, state.user.width, state.user.height, state.user.color);
+
+    drawRect(state.com.x, state.com.y, state.com.width, state.com.height, state.com.color);
+
+    drawArc(state.ball.x, state.ball.y, state.ball.radius, state.ball.color);
+}
+
+function handleGameState(gameState: any) {
+    if (!gameActive) {
+        return;
+    }
+    gameState = JSON.parse(gameState);
+    requestAnimationFrame(() => trender(gameState));
+}
+
+</script>
+
+{#await promise}
+	<p>attente</p>
+{:then test} 
+	<button on:click={initGame}>init game</button>
+{/await}
+
+<main>
+	<body>
+	<div bind:this={initialScreen} class="h-100">
+        <div class="d-flex flex-column align-items-center justify-content-center h-100">
+            <h1>Multiplayer Pong Game</h1>
+            <button on:click={handleCreateGame} class="btn btn-success" id="newGameBtn">
+                Create New Game
+            </button>
+            <div>OR</div>
+            <div class="form-group">
+				<input bind:value={input} placeholder="enter your name" />
+            </div>
+            <button on:click={handleJoinGame} class="btn btn-success" id="joinGameBtn">
+                Join Game
+            </button>
+        </div>
+    </div>
+    <div bind:this={game} id="game">
+
+			<h1>Your game code is: <span id="gameCode"></span></h1>
+
+        <canvas bind:this={pong} id ="pong" width="600" height="400"></canvas>
+    </div>
+	</body>
+</main>
+
+<style>
+	#game {
+            display: none;
+        }
+	body {
+            background-color: dimgray;
+        }
+
+        #pong {
+            border: 2px solid #FFF;
+            position: absolute;
+            margin: auto;
+            top: 0;
+            right: 0;
+            left: 0;
+            bottom: 0;
+        }
 </style>
+
+
+<!-- 
+	EXPLICATION DANS LE DETAIL DU CODE DE LA PAGE :
+
+	1. On importe les modules nécessaires à la page :
+		- Client de colyseus pour se connecter au serveur
+		- onMount pour lancer une fonction au chargement de la page
+
+	2. On déclare les variables nécessaires à la page :
+		- client : le client de colyseus
+		- name : le nom de la room
+		- input : l'input de l'utilisateur
+		- initialScreen : l'écran d'accueil
+		- canvas : le canvas du jeu
+		- ctx : le contexte du canvas
+		- game : la div du jeu
+		- pong : le canvas du jeu
+		- room : la room
+		- gameActive : booléen pour savoir si le jeu est actif ou non
+		- promise : la promesse de la fonction init
+		- gameCode : le code de la room
+		- playerNumber : le numéro du joueur
+
+	3. On initialise le client de colyseus au chargement de la page 
+	( onMount(async () => { client = await Client.connect('ws://localhost:2567'); }); )
+
+	4. On déclare les fonctions nécessaires à la page :
+		- createGame : créer une room
+		- joinGame : rejoindre une room
+		- init : initialiser le jeu
+		- drawRect : dessiner un rectangle
+		- drawArc : dessiner un cercle
+		- drawNet : dessiner le filet
+		- drawText : dessiner du texte
+		- trender : dessiner le jeu
+		- handleGameState : gérer l'état du jeu
+
+	5. On déclare les fonctions qui seront appelées par les boutons :
+		- handleCreateGame : créer une room
+		- handleJoinGame : rejoindre une room
+		- initGame : initialiser le jeu
+
+	6. On déclare le code HTML de la page :
+		- await promise : on attend que la promesse soit résolue
+		- then : on affiche le bouton pour initialiser le jeu
+		- main : on déclare le contenu de la page
+		- body : on déclare le contenu du body
+		- div : on déclare le contenu de la div
+		- button : on déclare le contenu du bouton
+		- canvas : on déclare le contenu du canvas
+		- style : on déclare le contenu du style
+	
+	7. On déclare le style de la page :
+		- body : on déclare le style du body
+		- pong : on déclare le style du canvas
+
+	8. On déclare le script de la page :
+		- onMount : on initialise le client de colyseus au chargement de la page
+		- createGame : on créer une room
+		- joinGame : on rejoint une room
+		- init : on initialise le jeu
+		- drawRect : on dessine un rectangle
+		- drawArc : on dessine un cercle
+		- drawNet : on dessine le filet
+		- drawText : on dessine du texte
+		- trender : on dessine le jeu
+		- handleGameState : on gère l'état du jeu
+
+	
+ -->

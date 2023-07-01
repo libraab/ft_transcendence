@@ -17,9 +17,11 @@ export async function load( {cookies, fetch} ) {
 	{
 		console.log(`http://${hostname}:3000/dashboard/${id42}`);
 		let img_path;
+		console.log(1);
 		const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {
 				headers: { 'Authorization': `Bearer ${authToken}` }
 			});
+<<<<<<< HEAD:frontend/src/routes/+page.server.ts
 
 		console.log('-----------------------');
 		console.log(response);
@@ -28,6 +30,13 @@ export async function load( {cookies, fetch} ) {
 		if (response.ok)
 		{
 			const data = await response.json();
+=======
+			console.log(2);
+		if (response.ok)
+		{
+			const data = await response.json();
+			//await initializeSocket(data);
+>>>>>>> 28f4e1c... fastify:frontend/src/routes/+page.server.js
 			if (data.img !== "undefined")
 				img_path = data.img;
 			else
@@ -42,7 +51,7 @@ export async function load( {cookies, fetch} ) {
 		}
 		else
 		{
-			console.error("smthing went wrong: cannot fetch data");
+			console.error(response.status,response.statusText);
 			throw redirect(307, "/login");
 		}
 	}
