@@ -17,17 +17,14 @@ export class AuthController {
 					private databaseService: DatabaseService) {}
 	
 	@Get()
-	@Header ('Content-Type', 'application/json')
+	@Header ('Content-Type', 'text/html')
 	// https://api.intra.42.fr/apidoc/guides/web_application_flow
 	async getAccessToken(	@Query() query: any,
 							@Res({ passthrough: true }) response: FastifyReply): Promise<string> {
-		
 		const { code } = query;
 		const access_token = await this.authService.get_token(code);
 		if (access_token == undefined)
-		{
-			throw new HttpException('Forbidden access token', HttpStatus.FORBIDDEN);
-		}
+			throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
 		const user_info: User42Interface = await this.authService.get_user_info(access_token);
 		let user = await this.databaseService.getClientById42(user_info.id);
 		if (!user) {
@@ -41,6 +38,14 @@ export class AuthController {
 		}
 		else 
 			console.log('We already know this person');
+		
+		console.log('--------------------------');
+		console.log('user id is -->', user.id);
+		console.log('user 42_id is -->', user.id42);
+		console.log('user name is -->', user.name);
+		console.log('user dfa is -->', user.Dfa);
+		console.log('img link is -->', user.img);
+		console.log('--------------------------');
 
 		let add_cookie: UpdateClientDto = new UpdateClientDto;
 		// generetate the jwt
@@ -52,7 +57,9 @@ export class AuthController {
 		await this.databaseService.updateCookie(user.id42, add_cookie); // not good
 		// https://docs.nestjs.com/techniques/cookies
 
-		return response.redirect(302, "http://"+process.env.HOSTNAME+":8080");
+		console.log(process.env.HOSTNAME);
+		return response.redirect("http://"+process.env.HOSTNAME+":8080");
+
 		// response is a Fastify Reply object and not an Express Response object that is why we have to redirect redirect with Fastify by giving the status
 	}
 
@@ -81,13 +88,13 @@ export class AuthController {
 	@Post('/2fa/:id')
 	async activateDfa(
 		@Param('id', ParseIntPipe) id: number,
-		@Body() body: { Dfa: boolean }): Promise<{ qrCodeImageUrl?: string }>
+		@Body() body: { isDFAActive: boolean }): Promise<{ qrCodeImageUrl?: string }>
 	{
-		const { Dfa } = body;
+		const { isDFAActive } = body;
 		let user: UpdateClientDto = new UpdateClientDto;
-		console.log('DFA is ', Dfa);
+		console.log('DFA is ', isDFAActive);
 		// if user activate the dfa
-		if (Dfa) {
+		if (isDFAActive) {
 			console.log('dfa is now activated in database');
 			user.dfa = true;
 			user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key
@@ -106,5 +113,4 @@ export class AuthController {
 		return {};
 	}
 }
-
 

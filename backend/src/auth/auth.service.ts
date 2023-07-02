@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios'; // import default without scopes
 import type User42Interface from './user42.interface';
-import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 
 @Injectable()
 export class AuthService {
@@ -15,14 +14,18 @@ export class AuthService {
         }
         const response = axios.post('https://api.intra.42.fr/oauth/token', data);
         const token = await response
-            .then((res:any) =>
-            {
+            .then((res:any) => {
                 return res.data.access_token;
             })
+<<<<<<< HEAD
             .catch((err: any) =>
             {
                 console.error(err.message);
                 throw new HttpErrorByCode[err.response.status];
+=======
+            .catch((err: any) => {
+                return undefined;
+>>>>>>> d4b3c72... authentification fonctionnelle A NE PAS MODIFIER SVP
             })
         return token;
     }
