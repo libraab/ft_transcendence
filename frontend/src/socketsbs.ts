@@ -79,15 +79,22 @@ let connectToRooms = () => {
 async function fetchData() {
 	let data = socketData;
 	let curr_rooms = get(rooms);
+	console.log(`http://${hostname}:3000/chat/${get(userId42)}`);
 	try {
 		const response = await fetch(`http://${hostname}:3000/chat/${get(userId42)}`);
-		let tmp_rooms = await response.json();
-		tmp_rooms.forEach((el: any) =>
+		if (response.ok)
 		{
-			if (curr_rooms.find((room: any) => (room.roomId == el.roomId)) == undefined)
-				curr_rooms = [...curr_rooms, { ...el, newMsgCount: 0}];
-		});
-		return curr_rooms;
+			let tmp_rooms = await response.json();
+			tmp_rooms.forEach((el: any) =>
+			{
+				if (curr_rooms.find((room: any) => (room.roomId == el.roomId)) == undefined)
+					curr_rooms = [...curr_rooms, { ...el, newMsgCount: 0}];
+			});
+			return curr_rooms;
+		}
+		else
+			console.error(response.status, response.statusText);
+		return null;
 	}
 	catch (error) {
 		console.error(error);

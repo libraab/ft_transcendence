@@ -22,7 +22,7 @@ import { PongModule } from './pong/pong.module';
               isGlobal: true,
             }),
             RoomsModule,
-            PongModule,
+//            PongModule,
   ],
   controllers: [AppController],
   providers: [AppService],

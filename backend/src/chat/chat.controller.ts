@@ -1,4 +1,4 @@
-import { Controller, Delete, Get, Post, ParseIntPipe, Put, Param, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Delete, Get, Post, ParseIntPipe, Put, Param, Body, HttpException, HttpStatus, BadRequestException } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import {createRoomDto} from '../dashboard/dashboardDtos/createsTablesDtos'
 import * as bcrypt from 'bcrypt'
@@ -15,6 +15,8 @@ export class ChatController {
     @Get(':id')
     async getAllUsersChat(@Param('id', ParseIntPipe) id: number)
     {
+        if (id <= 0)
+            throw new BadRequestException("invalid user");
         let client = await this.db.getClientById42(id);
 		let json = await this.db.getRoomIdsAndNamesByClientId(client.id);
         console.log(json);

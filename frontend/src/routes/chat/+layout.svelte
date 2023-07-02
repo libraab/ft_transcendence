@@ -1,4 +1,5 @@
 <script lang="ts">
+	/*
 	import { onMount } from "svelte";
 	import { hostname } from "../../hostname";
 	import { img_path, userId42, clientName } from "../../stores";
@@ -103,8 +104,10 @@
 //		await reloadRooms();
 		verification();
 	}
+*/
 </script>
-  
+ 
+<!--
 <div class="container">
 	<div class="list_box">
 		{#await reloadRooms()}
@@ -112,7 +115,7 @@
 		{:then}
 		<ul>
 			{#each $rooms as room (room.roomId)}
-				<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+				<!-- svelte-ignore a11y-no-noninteractive-element-interactions
 				<li class:activeroom={room.roomId === selected_room_id} class="one_room" on:click={() => changeSelectedId(room.roomId)} on:keypress>
 					{room.roomName}
 					{#if room.secu !== 3}
@@ -146,7 +149,8 @@
 		</form>
 	</div>
 </div>
-
+-->
+<p>layout 2</p>
 <slot></slot>
   
 <style>
