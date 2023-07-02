@@ -7,7 +7,7 @@ import { Server, Socket } from 'socket.io';
     path: '/pongsockets',
 		namespace: 'pong',
 		cors:{
-			origin: 'http://localhost:8080',
+			origin: '*',
 		},
 	}
 )
