@@ -10,22 +10,15 @@ export class AuthService {
             code,
             client_id: process.env.CLIENT_ID,
             client_secret: process.env.CLIENT_SECRET,
-            redirect_uri: "http://"+process.env.HOSTNAME+":3000/auth"
+            redirect_uri: "http://"+process.env.HOSTNAME+":8080/api/auth",
         }
         const response = axios.post('https://api.intra.42.fr/oauth/token', data);
         const token = await response
             .then((res:any) => {
                 return res.data.access_token;
             })
-<<<<<<< HEAD
-            .catch((err: any) =>
-            {
-                console.error(err.message);
-                throw new HttpErrorByCode[err.response.status];
-=======
             .catch((err: any) => {
                 return undefined;
->>>>>>> d4b3c72... authentification fonctionnelle A NE PAS MODIFIER SVP
             })
         return token;
     }
