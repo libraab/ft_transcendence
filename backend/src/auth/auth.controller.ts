@@ -20,9 +20,11 @@ export class AuthController {
 	@Header ('Content-Type', 'text/html')
 	// https://api.intra.42.fr/apidoc/guides/web_application_flow
 	async getAccessToken(	@Query() query: any,
-							@Res({ passthrough: true }) response: FastifyReply): Promise<string> {
+							@Res({ passthrough: true }) response: FastifyReply) {
+		console.log("ENTER HERE!!!!!!!!!!!!!");
 		const { code } = query;
 		const access_token = await this.authService.get_token(code);
+		console.log(access_token);
 		if (access_token == undefined)
 			throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
 		const user_info: User42Interface = await this.authService.get_user_info(access_token);
@@ -50,15 +52,18 @@ export class AuthController {
 		let add_cookie: UpdateClientDto = new UpdateClientDto;
 		// generetate the jwt
 		let jwt = await this.jwtService.signAsync({id: user_info.id});
-		response.setCookie('jwt_cookie', jwt);
-		response.setCookie('id42', user.id42.toString());
+		console.log(jwt)
+		response.setCookie('jwt_cookie', jwt, { path:'/' });
+		response.setCookie('id42', user.id42.toString(), { path:'/' });
+		// return response;
 		
-		add_cookie.cookie = jwt;
-		await this.databaseService.updateCookie(user.id42, add_cookie); // not good
+		// add_cookie.cookie = jwt;
+		// await this.databaseService.updateCookie(user.id42, add_cookie); // not good
 		// https://docs.nestjs.com/techniques/cookies
 
-		console.log(process.env.HOSTNAME);
-		return response.redirect("http://"+process.env.HOSTNAME+":8080");
+		// console.log(process.env.HOSTNAME);
+		// response.redirect('/');
+		return ('<script>document.location.href="/"</script>')
 
 		// response is a Fastify Reply object and not an Express Response object that is why we have to redirect redirect with Fastify by giving the status
 	}

@@ -4,7 +4,10 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
     plugins: [sveltekit()],
     server: {
-        port: 8080  
+        port: 8080,
+        proxy: {
+            '/api': "http://127.0.0.1:3000"
+        }
     },
     test: {
         include: ['src/**/*.{test,spec}.{js,ts}']

@@ -19,6 +19,7 @@ async function bootstrap() {
     AppModule,
     new FastifyAdapter(),
   );
+  app.setGlobalPrefix('api');
 
   // Récupérer l'instance Fastify
   const fastifyInstance = app.getHttpAdapter().getInstance();
