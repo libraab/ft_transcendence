@@ -21,7 +21,7 @@ export class AuthService {
             })
             .catch((err: any) =>
             {
-                console.error(err);
+                console.error(err.message);
                 throw new HttpErrorByCode[err.response.status];
             })
         return token;
