@@ -7,7 +7,7 @@
 
 	async function checkBackend()
 	{
-		const response = await fetch("http://backend:3000/");
+		const response = await fetch("http://localhost:3000/");
 		if (response.ok)
 		{
 			retData = await response.json()

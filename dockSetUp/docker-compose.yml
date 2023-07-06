@@ -10,10 +10,10 @@ services:
       - SECRET_TEST_FRT=${TEST_FRT}
     networks:
       frontend_network:
+        aliases:
+          - frontend
 
   backend:
-    container_name:
-      testbckend
     build:
       context: backend
       dockerfile: Dockerfile
@@ -25,6 +25,8 @@ services:
       - ./.env
     networks:
       frontend_network:
+        aliases:
+          - backend
 
   database:
     image: postgres
@@ -32,8 +34,7 @@ services:
       - ./.env
     ports:
       - "7001:5432"
-    networks:
-      frontend_network:
 
 networks:
   frontend_network:
+    driver: bridge

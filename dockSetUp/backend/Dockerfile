@@ -1,5 +1,7 @@
 FROM node:18
 
+RUN apt update && apt upgrade -y
+
 WORKDIR /app
 
 COPY . .

@@ -1,6 +1,5 @@
 import { hostname } from '../hostname.js';
 import { redirect } from '@sveltejs/kit'; 
-//import { initializeSocket } from '../socket';
 
 export async function load( {cookies, fetch} ) {
 	const authToken = cookies.get('jwt_cookie');
@@ -20,7 +19,6 @@ export async function load( {cookies, fetch} ) {
 		if (response.ok)
 		{
 			const data = await response.json();
-	//		await initializeSocket(data);
 			if (data.img !== "undefined")
 				img_path = data.img;
 			else
