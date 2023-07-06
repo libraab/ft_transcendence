@@ -1,6 +1,7 @@
 import { hostname } from '../hostname.js';
 import { redirect } from '@sveltejs/kit'; 
 
+/** @type {import('./$types').PageServerLoad} */
 export async function load( {cookies, fetch} ) {
 	const authToken = cookies.get('jwt_cookie');
 	
