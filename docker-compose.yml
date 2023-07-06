@@ -1,26 +1,54 @@
-version: '3.8'
+version: '3'
 services:
-  database:
-    image: postgres
-    env_file:
-      - ./backend/.env
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
     ports:
-      - "7001:5432"
+      - 8080:3000
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_DB: ft_transcendence
-      POSTGRES_PASSWORD: 123
+      - PORT_DB=${PORT_DB}
+      - HOSTNAME=${HOSTNAME}
+    networks:
+      frontend_network:
+        aliases:
+          - frontend
+
   backend:
     build:
-      context: ./backend
+      context: backend
       dockerfile: Dockerfile
     ports:
       - 3000:3000
     depends_on:
       - database
-  frontend:
-    build: ./frontend
+    env_file:
+      - ./.env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${PORT_DB}/${POSTGRES_DB}?schema=public
+    networks:
+      frontend_network:
+        aliases:
+          - backend
+      backend_network:
+        aliases:
+          - backend
+
+  database:
+    image: postgres
     ports:
-      - "8080:8080"
+      - ${PORT_DB}:5432
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    networks:
+      backend_network:
+        aliases:
+          - db
+
 networks:
-  peterPan:
+  frontend_network:
+    driver: bridge
+  backend_network:
+    driver: bridge
