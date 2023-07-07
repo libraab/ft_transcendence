@@ -1,7 +1,5 @@
 FROM node:18
 
-RUN apt update && apt upgrade -y
-
 WORKDIR /app
 
 COPY . .
@@ -13,4 +11,4 @@ RUN npm run build
 # If you are building your code for production
 RUN npm ci --omit=dev
 
-CMD [ "node", "dist/main" ]
+CMD [ "/bin/bash", "entrypoint.sh" ]

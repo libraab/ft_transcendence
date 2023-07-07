@@ -7,14 +7,23 @@ export async function load( {cookies, fetch} ) {
 	if (authToken === undefined)
 		throw redirect(307, "/login");
 
+	console.log(authToken);
+
 	const id42 = cookies.get('id42');
+	
+	console.log(id42);
 
 	try
 	{
+		console.log(`http://${hostname}:3000/dashboard/${id42}`);
 		let img_path;
 		const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {
 				headers: { 'Authorization': `Bearer ${authToken}` }
 			});
+
+		console.log('-----------------------');
+		console.log(response);
+		console.log('-----------------------');
 
 		if (response.ok)
 		{

@@ -17,6 +17,7 @@ export class DashboardController
 	@Get(':id')
 	async getByid42(@Param('id', ParseIntPipe) id: number)
 	{
+		console.log("HAAAAAAAAAAAAAAAAAAAAAAAA");
 		return this.db.getClientById42Dashboard(id);
 	}
 
@@ -38,6 +39,7 @@ export class DashboardController
 	async getTarget(@Param('id', ParseIntPipe) id: number,
 					@Param('name') name: string)
 	{
+		console.log("i shouldn't be here");
 		try
 		{
 			return this.db.getTarget(id, name);

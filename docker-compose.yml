@@ -18,14 +18,13 @@ services:
     build:
       context: backend
       dockerfile: Dockerfile
+    restart: always
     ports:
       - 3000:3000
     depends_on:
       - database
     env_file:
       - ./.env
-    environment:
-      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:${PORT_DB}/${POSTGRES_DB}?schema=public
     networks:
       frontend_network:
         aliases:

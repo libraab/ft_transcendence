@@ -7,11 +7,10 @@ export class PrismaService extends PrismaClient
 {
 	constructor(config: ConfigService)
 	{
-		console.log(config.get<string>('DATABASE_URL'));
 		super({
 			datasources:{
 				db:{
-					url: config.get<string>('DATABASE_URL'),
+					url: process.env.DATABASE_URL,
 				}
 			}
 		})

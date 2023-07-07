@@ -1,8 +1,6 @@
 # stage build
 FROM node:18
 
-RUN apt update && apt upgrade -y
-
 ARG HOSTNAME
 ENV HOSTNAME ${HOSTNAME}
 
