@@ -57,12 +57,6 @@ export class DashboardController
 		return this.db.getClientById(id);
 	}
 
-	@Get('/42/:id')
-	async getByid(@Param('id', ParseIntPipe) id: number)
-	{
-		return this.db.getClientById(id);
-	}
-
 	@Get('/stats/:id')
 	async getStatsbyId(@Param('id', ParseIntPipe) id: number)
 	{

@@ -9,7 +9,6 @@ WORKDIR /app
 # copy everything to the container
 
 RUN npm install -g npm@latest
-RUN npm install
 
 # clean install all dependencies
 # RUN npm ci
@@ -20,4 +19,4 @@ RUN npm install
 
 # CMD ["node", "build/index.js"]
 
-ENTRYPOINT [ "npm", "run", "dev" ]
+ENTRYPOINT [ "/bin/bash", "entrypoint.sh"]

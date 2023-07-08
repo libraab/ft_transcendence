@@ -21,22 +21,11 @@ export async function load( {cookies, fetch} ) {
 		const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {
 				headers: { 'Authorization': `Bearer ${authToken}` }
 			});
-<<<<<<< HEAD:frontend/src/routes/+page.server.ts
-
-		console.log('-----------------------');
-		console.log(response);
-		console.log('-----------------------');
-
-		if (response.ok)
-		{
-			const data = await response.json();
-=======
 			console.log(2);
 		if (response.ok)
 		{
 			const data = await response.json();
 			//await initializeSocket(data);
->>>>>>> 28f4e1c... fastify:frontend/src/routes/+page.server.js
 			if (data.img !== "undefined")
 				img_path = data.img;
 			else

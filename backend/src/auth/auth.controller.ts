@@ -21,8 +21,8 @@ export class AuthController {
 	// https://api.intra.42.fr/apidoc/guides/web_application_flow
 	async getAccessToken(	@Query() query: any,
 							@Res({ passthrough: true }) response: FastifyReply) {
-		console.log("ENTER HERE!!!!!!!!!!!!!");
 		const { code } = query;
+		console.log('code', code);
 		const access_token = await this.authService.get_token(code);
 		console.log(access_token);
 		if (access_token == undefined)

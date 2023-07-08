@@ -13,13 +13,18 @@ export class AuthService {
             redirect_uri: "http://"+process.env.HOSTNAME+":8080/api/auth",
         }
         const response = axios.post('https://api.intra.42.fr/oauth/token', data);
+        console.log(process.env.CLIENT_ID);
+        console.log(process.env.CLIENT_SECRET);
         const token = await response
             .then((res:any) => {
+                console.log(res.data.access_token);
                 return res.data.access_token;
             })
             .catch((err: any) => {
+                console.error(err);
                 return undefined;
             })
+        console.log(token);
         return token;
     }
 

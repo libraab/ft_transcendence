@@ -1,6 +1,5 @@
-<script>
-	import { hostname } from "../hostname";
-	import { img_path, userId42, clientName } from "../stores";
+<script lang="ts">
+	import { img_path } from "../stores";
 </script>
 
 

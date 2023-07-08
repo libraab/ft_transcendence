@@ -7,13 +7,8 @@ import { ValidationPipe } from '@nestjs/common';
 import cors from 'cors';
 import fastifyMultipart from '@fastify/multipart';
 import { Logger } from '@nestjs/common';
-<<<<<<< HEAD
-//import { Room, Server } from "colyseus";
-//import { MyRoom } from "./pong/MyRoom";
-=======
 import { Room, Server } from "colyseus";
-import { MyRoom } from "./pong/MyRoom";
->>>>>>> 28f4e1c... fastify
+// import { MyRoom } from "./pong/MyRoom";
 import fastifyCookie from '@fastify/cookie';
 
 require('dotenv').config()
@@ -45,19 +40,11 @@ async function bootstrap() {
   });
   app.use(cors({origin: "http://"+process.env.HOSTNAME+":8080"}));
 
-<<<<<<< HEAD
- /* const gameServer = new Server();
-
-  gameServer.define("my_room", MyRoom);
-  gameServer.listen(3001);
-*/
-=======
   const gameServer = new Server();
 
-  gameServer.define("my_room", MyRoom);
-  gameServer.listen(3001);
+  // gameServer.define("my_room", MyRoom);
+  // gameServer.listen(3001);
 
->>>>>>> 28f4e1c... fastify
   await app.listen(3000, '0.0.0.0', () => {
     logger.log("L'application est en cours d'écoute sur le port 3000"); // Utilisez le logger pour enregistrer un message de log
   });
