@@ -5,7 +5,7 @@ import { DatabaseService } from 'src/database/database.service';
 import { Lobby } from './lobby';
 
 @Module({
-	controllers: [GameController],
-	providers: [GameGateway, DatabaseService, Lobby],
+  controllers: [GameController],
+  providers: [GameGateway, DatabaseService, Lobby],
 })
 export class GameModule {}

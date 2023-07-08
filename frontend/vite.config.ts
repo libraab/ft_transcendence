@@ -6,7 +6,8 @@ export default defineConfig({
     server: {
         port: 8080,
         proxy: {
-            '/api': "http://backend:3000"
+            '/api': "http://backend:3000",
+            '/ws' : "http://backend:3001"
         }
     },
     test: {

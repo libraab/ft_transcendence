@@ -6,25 +6,25 @@
 	export let data;
 
 	onMount(async () => {
-		$img_path = data.img_path;
-		$userId42 = data.userId42;
+		// $img_path = data.img_path;
+		// $userId42 = data.userId42;
 
-		try
-		{
-			const response = await fetch(`http://${hostname}:3000/dashboard/${data.userId42}`);
-			if (response.ok)
-			{
-				let vals = await response.json();
-				$clientName = vals.name;
-			}
-			else
-				console.error("layout");
+		// try
+		// {
+		// 	const response = await fetch(`http://${hostname}:3000/dashboard/${data.userId42}`);
+		// 	if (response.ok)
+		// 	{
+		// 		let vals = await response.json();
+		// 		$clientName = vals.name;
+		// 	}
+		// 	else
+		// 		console.error("layout");
 
-		}
-		catch (error)
-		{
-			console.error("layout" , error);
-		}
+		// }
+		// catch (error)
+		// {
+		// 	console.error("layout" , error);
+		// }
 	});
 
 	let id42NameInputNotEmpty: any;

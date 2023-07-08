@@ -1,6 +1,8 @@
 <script lang="ts">
     import {PUBLIC_API_42, PUBLIC_DOMAIN_BACK} from '$env/static/public';
-    import {jwt_cookie} from "../../stores";
+	import { onMount } from 'svelte';
+    import {jwt_cookie, img_path} from "../../stores";
+	import { goto } from '$app/navigation';
     export let data;
 
 
@@ -13,6 +15,23 @@
 
     if (!$jwt_cookie)
         jwt_cookie.set(data.myJwtCookie);
+
+    onMount(() => {
+        if ($jwt_cookie){
+            fetch('/api/dashboard', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${$jwt_cookie}`
+                }
+            }).then(async(data) => {
+                const values = await data.json();
+                img_path.set(values.img);
+                goto('/dashboard');
+            }).catch(err => {
+                console.log(err);
+            });
+        }
+    });
 
     
 

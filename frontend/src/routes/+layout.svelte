@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { img_path } from "../stores";
+	import { goto } from '$app/navigation';
+
 </script>
 
 
@@ -15,10 +17,10 @@
 
 <div>
 	<nav class="tabs">
-		<a href="/dashboard">DashBoard</a>
-		<a href="/game">Game</a>
-		<a href="/chat">Chat</a>
-		<a href="/room">Room</a>	
+		<button on:click={ () => goto('/dashboard') } >DashBoard</button>
+		<button on:click={ () => goto('/game') } >Game</button>
+		<button on:click={ () => goto('/chat') } >Chat</button>
+		<button on:click={ () => goto('/room') } >Room</button>
 	</nav>
 </div>
 
@@ -50,7 +52,7 @@
 		background-color: #292d39;
 		color: lightgray
 	}
-	a{
+	button{
 		position: relative;
 		text-decoration: none;
 		color: rgb(148, 146, 193);
@@ -58,6 +60,9 @@
 		width: 120px;
 		margin: 5px 20px;
 		list-style-type: none;
+		background: none;
+		border: none;
+		cursor: pointer;
 	}
 	.image-container {
 		position: relative;

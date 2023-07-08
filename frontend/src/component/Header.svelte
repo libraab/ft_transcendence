@@ -1,7 +1,7 @@
 <script>
     import { dataset_dev } from "svelte/internal";
 	import ConnectStatus from "../shared/connectStatus.svelte";
-	export let img_path;
+	import { img_path} from "../stores";
 	export let data;
 
 	let id = -1;
@@ -11,7 +11,7 @@
 
 <header>
 	<div class="image-container">
-		<img src={img_path} alt="logo" class="rick">
+		<img src={$img_path} alt="logo" class="rick">
 	</div>
 	<!-- <ConnectStatus userId={id}/> -->
 	<div class="description">

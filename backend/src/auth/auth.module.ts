@@ -12,10 +12,10 @@ import { DatabaseModule } from 'src/database/database.module';
     DatabaseModule,
     JwtModule.register({
       global: true,
-      secret: jwtConstants.secret
+      secret: jwtConstants.secret,
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, AuthGuard]
+  providers: [AuthService, AuthGuard],
 })
 export class AuthModule {}

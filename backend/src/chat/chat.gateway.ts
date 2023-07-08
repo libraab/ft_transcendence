@@ -1,103 +1,133 @@
-import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from '@nestjs/websockets';
+import {
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  OnGatewayInit,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+  WsResponse,
+} from '@nestjs/websockets';
 import { Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { DatabaseService } from 'src/database/database.service';
 import { UserConnectedService } from './user-connected-service.service';
 
 @WebSocketGateway({
-	path: '/chatsockets',
-	namespace: '/chat',
-	cors: {
-	  origin: '*',
-	},
-  })
-export class ChatGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
-	@WebSocketServer() wss: Server;
-	constructor(private db: DatabaseService, private usersConnected: UserConnectedService) {}
-	
-	private logger: Logger = new Logger('ChatGateway');
-	
-	afterInit(server: Server) {
-		this.logger.log('Initialized');
-	}
-	handleConnection(client: Socket, ...args: any[]) {
-		this.logger.log(`Client connected : ${client.id}`);
-	}
-	handleDisconnect(client: Socket) {
-		this.logger.log(`Client disconnected : ${client.id}`);
-		this.usersConnected.deleteUser(client);
-	}
+  path: '/chatsockets',
+  namespace: '/chat',
+  cors: {
+    origin: '*',
+  },
+})
+export class ChatGateway
+  implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
+{
+  @WebSocketServer() wss: Server;
+  constructor(
+    private db: DatabaseService,
+    private usersConnected: UserConnectedService,
+  ) {}
 
-	@SubscribeMessage('whoAmI')
-	addToUsers(user: Socket, id: number)
-	{
-		this.usersConnected.addUser(user, id);
-	}
+  private logger: Logger = new Logger('ChatGateway');
 
-	// @SubscribeMessage('setUsername')
-  	// handleSetUsername(socket: Socket, username: string) {
-    // 	this.logger.log(`Received username: ${username}`);
-    // 	socket.username = username; // Store the username in the socket object
-  	// }
-	
+  afterInit(server: Server) {
+    this.logger.log('Initialized');
+  }
+  handleConnection(client: Socket, ...args: any[]) {
+    this.logger.log(`Client connected : ${client.id}`);
+  }
+  handleDisconnect(client: Socket) {
+    this.logger.log(`Client disconnected : ${client.id}`);
+    this.usersConnected.deleteUser(client);
+  }
 
-	@SubscribeMessage('chatToServer')
-	async handleMessage(client: Socket, message: {channel: string, sender: string, message: string, sender_id: number} ) {
-		this.logger.log(`A message was send by ${message.sender} --content--> ${message.message}`);
-		let client_id = await this.db.getClientById42(message.sender_id);
-		let room_exist = await this.db.getRoomById(Number(message.channel));
-		if (room_exist == null)
-			return ;
-		await this.addMessageToRoom({ id: message.channel, sender: client_id.id, msg: message.message});
-		this.wss.to(message.channel).emit('serverToChat', message);
-		this.wss.to(message.channel).emit('serverAlertToChat', message);
-		// WsResponse<string>
-    	// return { event: 'msgToClient', data: text};
-  	}
+  @SubscribeMessage('whoAmI')
+  addToUsers(user: Socket, id: number) {
+    this.usersConnected.addUser(user, id);
+  }
 
-	@SubscribeMessage('inviteToPlay')
-	async handleInvitation(client: Socket, data: {player_id: number, opponent_id: number}) { //utiliser le id via le token sinon on peux creer des invitations entre deux users sans leurs consantement
-		this.logger.log(`A invitation to play was send to opponent_id`);
-		let socket_id = this.usersConnected.findSocketId(data.opponent_id);
-		console.log(socket_id);
-		if (socket_id == "")
-		  	return ;
-		this.logger.log(`FOUND`);
-		this.wss.to(socket_id).emit('invitationGame', data.player_id);
-		//   let client_id = await this.db.getClientById42(message.sender_id);
-		//   await this.addMessageToRoom({ id: message.channel, sender: client_id.id, msg: message.message});
-		//   this.wss.to(message.channel).emit('serverToChat', message);
-		//   this.wss.to(message.channel).emit('serverAlertToChat', message);
-		  // WsResponse<string>
-		  // return { event: 'msgToClient', data: text};
-	}
+  // @SubscribeMessage('setUsername')
+  // handleSetUsername(socket: Socket, username: string) {
+  // 	this.logger.log(`Received username: ${username}`);
+  // 	socket.username = username; // Store the username in the socket object
+  // }
 
-	@SubscribeMessage('joinChannel')
-	handleJoinChannel(client: Socket, channel: string)
-	{
-		// check if channel id is existing if not do nothing
-		// check if client is a member of channel then proceed
-		client.join(channel);
-		client.emit('joinedChannel', channel);
-	}
+  @SubscribeMessage('chatToServer')
+  async handleMessage(
+    client: Socket,
+    message: {
+      channel: string;
+      sender: string;
+      message: string;
+      sender_id: number;
+    },
+  ) {
+    this.logger.log(
+      `A message was send by ${message.sender} --content--> ${message.message}`,
+    );
+    const client_id = await this.db.getClientById42(message.sender_id);
+    const room_exist = await this.db.getRoomById(Number(message.channel));
+    if (room_exist == null) return;
+    await this.addMessageToRoom({
+      id: message.channel,
+      sender: client_id.id,
+      msg: message.message,
+    });
+    this.wss.to(message.channel).emit('serverToChat', message);
+    this.wss.to(message.channel).emit('serverAlertToChat', message);
+    // WsResponse<string>
+    // return { event: 'msgToClient', data: text};
+  }
 
-	@SubscribeMessage('leaveChannel')
-	handleLeaveChannel(client: Socket, channel: string)
-	{
-		// check if channel id is existing if not do nothing
-		// check if client is a member of channel then proceed
-		// ask the chat service to delete the user from members
-		client.leave(channel);
+  @SubscribeMessage('inviteToPlay')
+  async handleInvitation(
+    client: Socket,
+    data: { player_id: number; opponent_id: number },
+  ) {
+    //utiliser le id via le token sinon on peux creer des invitations entre deux users sans leurs consantement
+    this.logger.log(`A invitation to play was send to opponent_id`);
+    const socket_id = this.usersConnected.findSocketId(data.opponent_id);
+    console.log(socket_id);
+    if (socket_id == '') return;
+    this.logger.log(`FOUND`);
+    this.wss.to(socket_id).emit('invitationGame', data.player_id);
+    //   let client_id = await this.db.getClientById42(message.sender_id);
+    //   await this.addMessageToRoom({ id: message.channel, sender: client_id.id, msg: message.message});
+    //   this.wss.to(message.channel).emit('serverToChat', message);
+    //   this.wss.to(message.channel).emit('serverAlertToChat', message);
+    // WsResponse<string>
+    // return { event: 'msgToClient', data: text};
+  }
 
-		client.emit('leavedChannel', channel);
-	}
+  @SubscribeMessage('joinChannel')
+  handleJoinChannel(client: Socket, channel: string) {
+    // check if channel id is existing if not do nothing
+    // check if client is a member of channel then proceed
+    client.join(channel);
+    client.emit('joinedChannel', channel);
+  }
 
-	async addMessageToRoom(data: any) {
-		console.log(data);
-        this.db.addMessageToRoom(data.id, data.sender, data.msg);
-    }
+  @SubscribeMessage('leaveChannel')
+  handleLeaveChannel(client: Socket, channel: string) {
+    // check if channel id is existing if not do nothing
+    // check if client is a member of channel then proceed
+    // ask the chat service to delete the user from members
+    client.leave(channel);
 
-	async sendServerMsg(roomid: any, msg: any) {
-		this.wss.to(roomid).emit('serverMessage', {channel: roomid, sender: "server", message: msg, sender_id: 0});
-	}
+    client.emit('leavedChannel', channel);
+  }
+
+  async addMessageToRoom(data: any) {
+    console.log(data);
+    this.db.addMessageToRoom(data.id, data.sender, data.msg);
+  }
+
+  async sendServerMsg(roomid: any, msg: any) {
+    this.wss.to(roomid).emit('serverMessage', {
+      channel: roomid,
+      sender: 'server',
+      message: msg,
+      sender_id: 0,
+    });
+  }
 }

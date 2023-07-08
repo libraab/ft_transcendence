@@ -45,7 +45,7 @@
 
 <script lang="ts" >
     import { browser } from '$app/environment';
-	import { Client } from 'colyseus.js'
+	import { Client } from 'colyseus'
 	import { onMount } from 'svelte';
 
 	let client: any;

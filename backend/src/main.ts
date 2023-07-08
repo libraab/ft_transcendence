@@ -1,17 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
+import {
+  FastifyAdapter,
+  NestFastifyApplication,
+} from '@nestjs/platform-fastify';
 import { AuthGuard } from './auth/auth.guard';
 import { JwtService } from '@nestjs/jwt';
 import { ValidationPipe } from '@nestjs/common';
 import cors from 'cors';
 import fastifyMultipart from '@fastify/multipart';
 import { Logger } from '@nestjs/common';
-import { Room, Server } from "colyseus";
+import { Room, Server } from 'colyseus';
 // import { MyRoom } from "./pong/MyRoom";
 import fastifyCookie from '@fastify/cookie';
 
-require('dotenv').config()
+require('dotenv').config();
 
 async function bootstrap() {
   const logger = new Logger('Application');
@@ -24,7 +27,7 @@ async function bootstrap() {
   // Récupérer l'instance Fastify
   const fastifyInstance = app.getHttpAdapter().getInstance();
 
-  // Register plugins avec línstance Fastify 
+  // Register plugins avec línstance Fastify
   fastifyInstance.register(fastifyCookie, {
     secret: 'my-secret', // cryptage cookies
   });
@@ -35,10 +38,10 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe());
 
   app.enableCors({
-    origin: "http://"+process.env.HOSTNAME+":8080",
-    credentials: true
+    origin: 'http://' + process.env.HOSTNAME + ':8080',
+    credentials: true,
   });
-  app.use(cors({origin: "http://"+process.env.HOSTNAME+":8080"}));
+  app.use(cors({ origin: 'http://' + process.env.HOSTNAME + ':8080' }));
 
   const gameServer = new Server();
 

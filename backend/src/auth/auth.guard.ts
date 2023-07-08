@@ -1,6 +1,12 @@
-import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
+import {
+  Injectable,
+  CanActivate,
+  ExecutionContext,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { FastifyRequest } from 'fastify';
+import { jwtConstants } from './auth.constants';
+import { Request } from 'express';
 
 // https://docs.nestjs.com/guards
 // guards can be controller-scoped, method-scoped, or global-scoped
@@ -8,22 +14,29 @@ import { FastifyRequest } from 'fastify';
 
 @Injectable()
 export class AuthGuard implements CanActivate {
-    constructor(private jwtService: JwtService) {}
+  constructor(private jwtService: JwtService) {}
 
-	canActivate(context: ExecutionContext): boolean {
-		const req: FastifyRequest = context.switchToHttp().getRequest();
-		const jwt: string = req.cookies['jwt_cookie'];
-		try {
-			const payload = await this.jwtService.verifyAsync(token, {
-				secret: this.configService.get<string>('SECRET_JWT'),
-			});
-			
-			const decoded = this.jwtService.verify(jwt);
-            console.log('yummy, good cookie');
-			return true; // Return true to allow access
-		} catch (err) {
-            console.log('beurk, bad cookie');
-			return false; // Return false to deny access
-		}
-	}
+  async canActivate(context: ExecutionContext): Promise<boolean> {
+    const req = context.switchToHttp().getRequest();
+    const token = this.extractTokenFromHeader(req);
+    if (!token) {
+      throw new UnauthorizedException('JWT not found');
+    }
+
+    try {
+      const payload = await this.jwtService.verifyAsync(token, {
+        secret: jwtConstants.secret,
+      });
+      req['user'] = payload; // Attach the user object to the request
+      console.log('yummy, good cookie');
+      return true; // Return true to allow access
+    } catch (err) {
+      console.log('beurk, bad cookie');
+      return false; // Return false to deny access
+    }
+  }
+  private extractTokenFromHeader(request: Request): string | undefined {
+    const [type, token] = request.headers.authorization?.split(' ') ?? [];
+    return type === 'Bearer' ? token : undefined;
+  }
 }
