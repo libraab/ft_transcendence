@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { img_path } from "../stores";
+	import { img_path, clientName } from "../stores";
 	import { goto } from '$app/navigation';
 
 </script>
@@ -8,6 +8,7 @@
 <header>
 	<div class="image-container">
 		<img src={$img_path} alt="logo" class="rick">
+		<p><strong>{$clientName}</strong></p>
 	</div>
 	<div class="description">
 		<h1 class="glow-text">FT_TRANSCENDENCE</h1>

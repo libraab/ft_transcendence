@@ -1,12 +1,19 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
+interface Room {
+	roomId: number;
+	roomName: String;
+	newMsgCount: number;
+  }
+export let rooms = writable<Room[]>([]);
+
 /*
 	pour set la value il faudras juste faire imgUser.set(value); au moment voulus
 	bon site qui explique un peut la chose: https://rodneylab.com/using-local-storage-sveltekit/
 */
 //----------------------------------------------------------------//
-const persitedImg_path: string = browser ? localStorage.getItem('img_path') ?? "" : "";
+const persitedImg_path: string = browser ? localStorage.getItem('img_path') ?? "/il_794xN.3892173164_egqv.avif" : "/il_794xN.3892173164_egqv.avif";
 export const img_path = writable(persitedImg_path);
 
 img_path.subscribe((value: string) => {
@@ -15,12 +22,12 @@ img_path.subscribe((value: string) => {
 	}
 })
 //----------------------------------------------------------------//
-const persitedUserId42: number = browser ? localStorage.getItem('userId42') ?? 0 : 0;
+const persitedUserId42: number = browser ? parseInt(localStorage.getItem('userId42') ?? 0, 10) : 0;
 export const userId42 = writable(persitedUserId42);
 
 userId42.subscribe((value: number) => {
     if (browser) {
-        window.localStorage.setItem('userId42', value);
+        window.localStorage.setItem('userId42', value.toString());
 	}
 })
 //----------------------------------------------------------------//

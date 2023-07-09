@@ -11,6 +11,7 @@ import {
   StreamableFile,
   UseGuards,
   Request,
+  Logger,
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
@@ -32,15 +33,16 @@ import IJWT from 'src/interfaces/jwt.interface';
 export class DashboardController {
   constructor(private db: DatabaseService) {}
 
+
   @UseGuards(AuthGuard)
   @Get()
   async getByid42(
     @Request() req: { user: IJWT },
   ) {
-    console.log(req.user);
+    console.log("User Dashboard Request for id :", req.user);
     let ppp = await this.db.getClientById42Dashboard(+req.user.id);
-	console.log(ppp);
-	return ppp;
+	  console.log(ppp);
+	  return ppp;
   }
 
   @Get('/getByName/:id/:userName')

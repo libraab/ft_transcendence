@@ -1,5 +1,18 @@
 import { hostname } from '../../hostname.js';
 import { redirect } from '@sveltejs/kit'; 
+import { clientName, img_path } from '../../stores.js';
+
+// interface data {
+// 	title: string,
+// 	score: number,
+// 	won: number,
+// 	played: number,
+// 	hf: string,
+// 	Dfa: boolean,
+// 	id: number,
+// 	stats: any,
+// 	fl: any[],
+// }
 
 export async function load( {cookies, fetch} ) {
 	const authToken = cookies.get('jwt_cookie');
@@ -11,23 +24,16 @@ export async function load( {cookies, fetch} ) {
 
 	try
 	{
-		let img_path;
 		const response = await fetch(`http://${hostname}:8080/api/dashboard`, {
 				headers: { 'Authorization': `Bearer ${authToken}` }
 			});
-
 		if (response.ok)
 		{
-			const data = await response.json();
-			if (data.img !== "undefined")
-				img_path = data.img;
-			else
-				img_path = "";
-			return {
-				img_path: img_path,
-				id: data.id,
-				userId42: id42,
-			}
+			let vals = await response.json();
+			// img_path.set(vals.img);
+			// console.log("image path is : ", $img_path);
+			// clientName.set(vals.name);
+			return vals;
 		}
 		else
 		{

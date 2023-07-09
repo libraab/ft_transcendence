@@ -5,14 +5,14 @@ export async function load( {cookies, fetch} ) {
 	const authToken = cookies.get('jwt_cookie');
 	
 	if (authToken === undefined)
-		throw redirect(306, "/login");
+		throw redirect(306, "/");
 
 	const id42 = cookies.get('id42');
 
 	try
 	{
 		let img_path;
-		const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {
+		const response = await fetch(`http://${hostname}:8080/api/dashboard`, {
 				headers: { 'Authorization': `Bearer ${authToken}` }
 			});
 
@@ -33,12 +33,12 @@ export async function load( {cookies, fetch} ) {
 		else
 		{
 			console.error("smthing went wrong: cannot fetch data");
-			throw redirect(306, "/login");
+			throw redirect(306, "/");
 		}
 	}
 	catch (error)
 	{
 		console.error(error);
-		throw redirect(306, "/login");
+		throw redirect(306, "/");
 	}
 }
