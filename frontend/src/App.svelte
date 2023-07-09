@@ -66,7 +66,7 @@
 				.find(cookie => cookie.startsWith('id42'))
 				.split('=')[1];
 			$userId42 = id42;
-			const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {
+			const response = await fetch(`http://${hostname}:8080/api/dashboard/${id42}`, {
 				headers: { 'Authorization': `Bearer ${cookieValue}` }
 			});
 			if (response.ok)
@@ -104,7 +104,7 @@
 	async function toggleDFAState() {
 		isDFAActive = true;
 		try {
-			const response = await axios.post(`http://${hostname}:3000/auth/2fa/${id}`, { isDFAActive });
+			const response = await axios.post(`http://${hostname}:8080/api/auth/2fa/${id}`, { isDFAActive });
 			console.log('DFA status updated in the database to true');
 		} catch (error) {
 			console.error('Failed to update DFA status: ', error);

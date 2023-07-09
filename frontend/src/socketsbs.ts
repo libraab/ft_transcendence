@@ -79,9 +79,9 @@ let connectToRooms = () => {
 async function fetchData() {
 	let data = socketData;
 	let curr_rooms = get(rooms);
-	console.log(`http://${hostname}:3000/chat/${get(userId42)}`);
+	console.log(`http://${hostname}:8080/api/chat/${get(userId42)}`);
 	try {
-		const response = await fetch(`http://${hostname}:3000/chat/${get(userId42)}`);
+		const response = await fetch(`http://${hostname}:8080/api/chat/${get(userId42)}`);
 		if (response.ok)
 		{
 			let tmp_rooms = await response.json();

@@ -18,7 +18,7 @@
 
     onMount(() => {
         if ($jwt_cookie){
-            fetch('/api/dashboard', {
+            fetch('http://localhost:8080/api/dashboard', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${$jwt_cookie}`

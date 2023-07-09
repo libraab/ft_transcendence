@@ -18,7 +18,7 @@ export async function load( {cookies, fetch} ) {
 		console.log(`http://${hostname}:3000/dashboard/${id42}`);
 		let img_path;
 		console.log(1);
-		const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {
+		const response = await fetch(`http://${hostname}:8080/api/dashboard`, {
 				headers: { 'Authorization': `Bearer ${authToken}` }
 			});
 			console.log(2);
