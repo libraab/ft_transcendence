@@ -7,6 +7,11 @@ import { UserConnectedService } from './user-connected-service.service';
 
 @Module({
   controllers: [ChatController],
-  providers: [ChatGateway, DatabaseService, createRoomDto, UserConnectedService],
+  providers: [
+    ChatGateway,
+    DatabaseService,
+    createRoomDto,
+    UserConnectedService,
+  ],
 })
 export class ChatModule {}

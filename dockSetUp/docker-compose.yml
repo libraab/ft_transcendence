@@ -1,0 +1,40 @@
+version: '3'
+services:
+  frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+    ports:
+      - 8080:3000
+    environment:
+      - SECRET_TEST_FRT=${TEST_FRT}
+    networks:
+      frontend_network:
+        aliases:
+          - frontend
+
+  backend:
+    build:
+      context: backend
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    depends_on:
+      - database
+    env_file:
+      - ./.env
+    networks:
+      frontend_network:
+        aliases:
+          - backend
+
+  database:
+    image: postgres
+    env_file:
+      - ./.env
+    ports:
+      - "7001:5432"
+
+networks:
+  frontend_network:
+    driver: bridge

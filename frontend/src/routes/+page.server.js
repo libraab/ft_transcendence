@@ -8,10 +8,15 @@ export async function load( {cookies, fetch} ) {
 	if (authToken === undefined)
 		throw redirect(307, "/login");
 
+	console.log(authToken);
+
 	const id42 = cookies.get('id42');
+	
+	console.log(id42);
 
 	try
 	{
+		console.log(`http://${hostname}:3000/dashboard/${id42}`);
 		let img_path;
 		console.log(1);
 		const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {

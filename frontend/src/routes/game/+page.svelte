@@ -1,6 +1,6 @@
 <!-- <script>
 	import { onMount } from "svelte";
-	import { hostname } from "../../hostname";
+	import { hostname } from "../../lib/hostname";
 	import { img_path, userId42, clientName } from "../../stores";
 
 	export let data;
@@ -45,7 +45,7 @@
 
 <script lang="ts" >
     import { browser } from '$app/environment';
-	import { Client } from 'colyseus.js'
+	import { Client } from 'colyseus'
 	import { onMount } from 'svelte';
 
 	let client: any;

@@ -12,17 +12,18 @@ import { RoomsModule } from './rooms/rooms.module';
 import { PongModule } from './pong/pong.module';
 
 @Module({
-  imports: [ChatModule,
-            GameModule,
-            AuthModule,
-            DashboardModule,
-            DatabaseModule,
-            PrismaModule,
-            ConfigModule.forRoot({
-              isGlobal: true,
-            }),
-            RoomsModule,
-            PongModule,
+  imports: [
+    ChatModule,
+    GameModule,
+    AuthModule,
+    DashboardModule,
+    DatabaseModule,
+    PrismaModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    RoomsModule,
+    //            PongModule,
   ],
   controllers: [AppController],
   providers: [AppService],

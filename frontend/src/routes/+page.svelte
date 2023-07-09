@@ -18,7 +18,6 @@
 	let fl: any = [];
 
 	async function fetchData() {
-
 		try
 		{
 			const response = await fetch(`http://${hostname}:3000/dashboard/${data.userId42}`);

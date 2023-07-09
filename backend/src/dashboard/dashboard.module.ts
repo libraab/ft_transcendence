@@ -5,6 +5,6 @@ import { DatabaseService } from 'src/database/database.service';
 
 @Module({
   controllers: [DashboardController],
-  providers: [DashboardService, DatabaseService, ]
+  providers: [DashboardService, DatabaseService],
 })
 export class DashboardModule {}

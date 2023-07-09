@@ -1,3 +1,4 @@
+/*
 import http from "http";
 import { Room, Client, Delayed } from "colyseus";
 import { createGameState, gameLoop } from "./MyGame";
@@ -21,7 +22,7 @@ export class MyRoom extends Room<any> {
   }
 
   // Authorize client based on provided options before WebSocket handshake is complete
-  /*onAuth (client: Client, options: any, request: http.IncomingMessage) { }*/
+  //onAuth (client: Client, options: any, request: http.IncomingMessage) { }
 
   // When client successfully join the room
   onJoin(client: Client, options: any, auth: any) {
@@ -88,7 +89,7 @@ export class MyRoom extends Room<any> {
         }
       }
       this.broadcast("gameState", JSON.stringify(state[this.roomId]));
-    }, 1000 / 50);*/
+    }, 1000 / 50)
   }
 
   emitgamestate() {
@@ -133,3 +134,4 @@ export class MyRoom extends Room<any> {
   onDispose() {
   }
 }
+*/

@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class DashboardService
-{
-	/*
+export class DashboardService {
+  /*
 
 	// => mettre dans data-base/service/data-base.ts
 

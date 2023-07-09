@@ -1,55 +1,73 @@
-import { BadRequestException, ForbiddenException, HttpCode, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  HttpCode,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { ClientDto } from './dtos/dbBaseDto';
-import { ClientStats, ClientToClient, Clients, MessagesRooms, Prisma, RoomMembers, Rooms } from '@prisma/client';
+import {
+  ClientStats,
+  ClientToClient,
+  Clients,
+  MessagesRooms,
+  Prisma,
+  RoomMembers,
+  Rooms,
+} from '@prisma/client';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
-import { createRelationsDto, createRoomDto, createStatsDto, updateStatDto } from 'src/dashboard/dashboardDtos/createsTablesDtos';
+import {
+  createRelationsDto,
+  createRoomDto,
+  createStatsDto,
+  updateStatDto,
+} from 'src/dashboard/dashboardDtos/createsTablesDtos';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 
 @Injectable()
-export class DatabaseService
-{
-	constructor(private prisma: PrismaService) {}
+export class DatabaseService {
+  constructor(private prisma: PrismaService) {}
 
-	async getClientById42(id42: number): Promise <Clients | null>
-	{
-		const client = await this.prisma.clients.findUnique({
-			where:{
-				id42: id42,
-			}
-		});
+  async getClientById42(id42: number): Promise<Clients | null> {
+    const client = await this.prisma.clients.findUnique({
+      where: {
+        id42: id42,
+      },
+    });
 
-		return client || null;
-	}
+    return client || null;
+  }
 
-	async getClientById42Dashboard(id42: number){
-		const client = await this.prisma.clients.findUnique({
-			where: {
-				id42: id42,
-			},
-			select: {
-				id: true,
-				name: true,
-				img: true,
-				Dfa: true,
-				clientStats: {
-					select: {
-						played: true,
-						won: true,
-						score: true,
-						title: true,
-						hf: true,
-					},
-				},
-			},
-		});
+  async getClientById42Dashboard(id42: number) {
+    const client = await this.prisma.clients.findUnique({
+      where: {
+        id42: id42,
+      },
+      select: {
+        id: true,
+        name: true,
+        img: true,
+        Dfa: true,
+        clientStats: {
+          select: {
+            played: true,
+            won: true,
+            score: true,
+            title: true,
+            hf: true,
+          },
+        },
+      },
+    });
 
-		if (!client) {
-			return null;
-		}
+    if (!client) {
+      return null;
+    }
 
-		return client;
-/*
+    return client;
+    /*
 		const { id, name, img, Dfa, clientStats } = client;
 
 		return {
@@ -59,8 +77,8 @@ export class DatabaseService
 			Dfa,
 			clientStats,
 		};*/
-	}
-/*
+  }
+  /*
 	async getClientByName(name: string) {
 		const client = await this.prisma.clients.findUnique({
 			where: {
@@ -90,120 +108,115 @@ export class DatabaseService
 	}
 */
 
-	async getTarget(clientId: number, name: string) {
-		const client = await this.prisma.clients.findUnique({
-			where: {
-				name,
-			},
-			select: {
-				name: true,
-				img: true,
-				id: true,
-				client1: {
-					select: {
-						status: true,
-					},
-					where: {
-						client2: {
-							id42: clientId
-						}
-					},
-				},
-				client2: {
-					select: {
-						status: true,
-					},
-					where: {
-						client1: {
-							id42: clientId
-						}
-					}
-				}
-			},
-		});
-		if (!client)
-			throw new NotFoundException("Client does not exist");
+  async getTarget(clientId: number, name: string) {
+    const client = await this.prisma.clients.findUnique({
+      where: {
+        name,
+      },
+      select: {
+        name: true,
+        img: true,
+        id: true,
+        client1: {
+          select: {
+            status: true,
+          },
+          where: {
+            client2: {
+              id42: clientId,
+            },
+          },
+        },
+        client2: {
+          select: {
+            status: true,
+          },
+          where: {
+            client1: {
+              id42: clientId,
+            },
+          },
+        },
+      },
+    });
+    if (!client) throw new NotFoundException('Client does not exist');
 
-		return client;
-	}
+    return client;
+  }
 
+  async getClientByName(clientId: number, name: string) {
+    const client = await this.prisma.clients.findUnique({
+      where: {
+        name,
+      },
+      select: {
+        name: true,
+        img: true,
+        id: true,
+        clientStats: true,
+        client1: {
+          select: {
+            status: true,
+          },
+          where: {
+            client2Id: clientId,
+          },
+        },
+        client2: {
+          select: {
+            status: true,
+          },
+          where: {
+            client1Id: clientId,
+          },
+        },
+      },
+    });
 
-	async getClientByName(clientId: number, name: string) {
-		const client = await this.prisma.clients.findUnique({
-			where: {
-				name,
-			},
-			select: {
-				name: true,
-				img: true,
-				id: true,
-				clientStats: true,
-				client1: {
-					select: {
-						status: true,
-					},
-					where: {
-						client2Id: clientId,
-					},
-				},
-				client2: {
-					select: {
-						status: true,
-					},
-					where: {
-						client1Id: clientId,
-					}
-				}
-			},
-		});
+    if (!client || client.client1.some((c) => c.status === 1)) {
+      throw new HttpErrorByCode[404]();
+    }
+    return client;
+  }
 
-		if (!client || client.client1.some((c) => c.status === 1)) {
-			throw new HttpErrorByCode[404];
-		}
-		return client;
-	}
+  async getClientById(id: number): Promise<Clients | null> {
+    const client = await this.prisma.clients.findUnique({
+      where: {
+        id: id,
+      },
+    });
 
-	async getClientById(id: number): Promise<Clients | null>
-	{
-		const client = await this.prisma.clients.findUnique({
-			where:{
-				id: id,
-			}
-		});
+    return client || null;
+  }
 
-		return client || null;
-	}
-	
-	async getClientByCookie(cookie: string): Promise<Clients | null> {
-		const client = await this.prisma.clients.findUnique({
-				where: {
-				cookie: cookie,
-			},
-		});
+  async getClientByCookie(cookie: string): Promise<Clients | null> {
+    const client = await this.prisma.clients.findUnique({
+      where: {
+        cookie: cookie,
+      },
+    });
 
-		return client || null;
-	}
-	
-	async getClientIdFromId42(id42: number): Promise<number | null>
-	{
-		const client = await this.prisma.clients.findUnique({
-			select: { id: true },
-			where: { id42: id42 },
-		});
-		
-		return client?.id || null;
-	}
-	
-	async getClientId42FromId(id: number): Promise<number | null>
-	{
-		const client = await this.prisma.clients.findUnique({
-			select: { id42: true },
-			where: { id: id },
-		});
-		
-		return client?.id42 || null;
-	}
-/*
+    return client || null;
+  }
+
+  async getClientIdFromId42(id42: number): Promise<number | null> {
+    const client = await this.prisma.clients.findUnique({
+      select: { id: true },
+      where: { id42: id42 },
+    });
+
+    return client?.id || null;
+  }
+
+  async getClientId42FromId(id: number): Promise<number | null> {
+    const client = await this.prisma.clients.findUnique({
+      select: { id42: true },
+      where: { id: id },
+    });
+
+    return client?.id42 || null;
+  }
+  /*
 	async findClientsByName(name: string): Promise<Clients[]> {
 		return await this.prisma.clients.findMany({
 		  where: {
@@ -214,319 +227,294 @@ export class DatabaseService
 		});
 	}
 */
-	
-	async findClientsByName(clientId: number, name: string) {
-		const clients = await this.prisma.clients.findMany({
-			where: {
-				name: {
-					contains: name
-				},
-				NOT: {
-					OR: [
-						{
-							client2: {
-								some: {
-									AND: [
-										{ client1Id: clientId },
-										{ status: 1 }
-									]
-								}
-							}
-						},
-						{
-							client1: {
-								some: {
-									AND: [
-										{ client2Id: clientId },
-										{ status: 1 }
-									]
-								}
-							}
-						}
-					]
-				}
-			}
-		});
 
-		return clients;
-	}
+  async findClientsByName(clientId: number, name: string) {
+    const clients = await this.prisma.clients.findMany({
+      where: {
+        name: {
+          contains: name,
+        },
+        NOT: {
+          OR: [
+            {
+              client2: {
+                some: {
+                  AND: [{ client1Id: clientId }, { status: 1 }],
+                },
+              },
+            },
+            {
+              client1: {
+                some: {
+                  AND: [{ client2Id: clientId }, { status: 1 }],
+                },
+              },
+            },
+          ],
+        },
+      },
+    });
 
-	async createClient(dto: ClientDto): Promise<Clients>
-	{
-		try
-		{
-			const client = await this.prisma.clients.create({
-				data:{
-					id42: dto.id42,
-					name: dto.name,
-					cookie: dto.cookie,
-					img: dto.img,
-					Dfa: false
-				},
-			});
+    return clients;
+  }
 
-			return client;
-		}
-		catch (error)
-		{
-			if (error instanceof Prisma.PrismaClientKnownRequestError)
-			{
-				if (error.code === 'P2002') {
-					throw new ForbiddenException('Credentials taken');
-				}
-			}
-			throw error;
-		}
-	}
+  async createClient(dto: ClientDto): Promise<Clients> {
+    try {
+      const client = await this.prisma.clients.create({
+        data: {
+          id42: dto.id42,
+          name: dto.name,
+          cookie: dto.cookie,
+          img: dto.img,
+          Dfa: false,
+        },
+      });
 
-	async createClientStat(dto: createStatsDto): Promise<ClientStats> {
-		try
-		{
-			const { clientId, played, won, score, hf } = dto;
+      return client;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
+      }
+      throw error;
+    }
+  }
 
-			const clientStat = await this.prisma.clientStats.create({
-				data: {
-					played,
-					won,
-					score,
-					hf,
-					clientId
-				},
-			});
+  async createClientStat(dto: createStatsDto): Promise<ClientStats> {
+    try {
+      const { clientId, played, won, score, hf } = dto;
 
-			return clientStat;
-		}
-		catch (error)
-		{
-			if (error instanceof Prisma.PrismaClientKnownRequestError)
-			{
-				if (error.code === 'P2002') {
-					throw new ForbiddenException('Credentials taken');
-				}
-			}
-			throw error;
-		}
-	}
+      const clientStat = await this.prisma.clientStats.create({
+        data: {
+          played,
+          won,
+          score,
+          hf,
+          clientId,
+        },
+      });
 
-	async updateStat(clientId: number, data: updateStatDto): Promise<ClientStats>
-	{
-		try{
-			const updateData: Prisma.ClientStatsUpdateInput = {
-				played: data.played ? { set: data.played } : undefined,
-				won: data.won ? { set: data.won } : undefined,
-				title: data.title ? { set: data.title } : undefined,
-				score: data.score ? { set: data.score } : undefined,
-				hf: data.hf ? { set: data.hf } : undefined,
-			};
+      return clientStat;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
+      }
+      throw error;
+    }
+  }
 
-			const updatedClient = await this.prisma.clientStats.update({
-				where: { clientId },
-				data: updateData,
-			});
-			
-			return updatedClient;
-		}
-		catch (error)
-		{
-			if (error instanceof Prisma.PrismaClientKnownRequestError)
-			{
-				if (error.code === 'P2025') {
-					throw new NotFoundException('User doesn\'t exist');
-				}
-				if (error.code === 'P2002') {
-					throw new ForbiddenException('Credentials taken');
-				}
-				throw error;
-			}
-		}
-	}
+  async updateStat(
+    clientId: number,
+    data: updateStatDto,
+  ): Promise<ClientStats> {
+    try {
+      const updateData: Prisma.ClientStatsUpdateInput = {
+        played: data.played ? { set: data.played } : undefined,
+        won: data.won ? { set: data.won } : undefined,
+        title: data.title ? { set: data.title } : undefined,
+        score: data.score ? { set: data.score } : undefined,
+        hf: data.hf ? { set: data.hf } : undefined,
+      };
 
-	async updateClient(id: number, data: UpdateClientDto): Promise<Clients>
-	{
-		try{
-			const updateData: Prisma.ClientsUpdateInput = {
-				img: data.img ? { set: data.img } : undefined,
-				name: data.name ? { set: data.name } : undefined,
-				Dfa: data.dfa,
-				DfaSecret: data.dfaSecret? { set: data.dfaSecret} : undefined,
-			};
-			
-			const updatedClient = await this.prisma.clients.update({
-				where: { id },
-				data: updateData,
-			});
+      const updatedClient = await this.prisma.clientStats.update({
+        where: { clientId },
+        data: updateData,
+      });
 
-			return updatedClient;
-		}
-		catch (error)
-		{
-			console.log(error);
-			if (error instanceof Prisma.PrismaClientKnownRequestError)
-			{
-				if (error.code === 'P2025') {
-					throw new NotFoundException('User doesn\'t exist');
-				}
-				if (error.code === 'P2002') {
-					throw new ForbiddenException('Credentials taken');
-				}
-				throw error;
-			}
-		}
-	}
-	
-	async updateCookie(id: number, data: UpdateClientDto): Promise<Clients>
-	{
-		try{
-			const updateData: Prisma.ClientsUpdateInput = {
-				cookie: data.cookie ? { set: data.cookie } : undefined,
-			};
+      return updatedClient;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException("User doesn't exist");
+        }
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
+        throw error;
+      }
+    }
+  }
 
-			const updatedClient = await this.prisma.clients.update({
-				where: { id42: id },
-				data: updateData,
-			});
-			
-			return updatedClient;
-		}
-		catch (error)
-		{
-			if (error instanceof Prisma.PrismaClientKnownRequestError)
-			{
-				if (error.code === 'P2025') {
-					throw new NotFoundException('User doesn\'t exist');
-				}
-				if (error.code === 'P2002') {
-					throw new ForbiddenException('Credentials taken');
-				}
-				throw error;
-			}
-		}
-	}
+  async updateClient(id: number, data: UpdateClientDto): Promise<Clients> {
+    try {
+      const updateData: Prisma.ClientsUpdateInput = {
+        img: data.img ? { set: data.img } : undefined,
+        name: data.name ? { set: data.name } : undefined,
+        Dfa: data.dfa,
+        DfaSecret: data.dfaSecret ? { set: data.dfaSecret } : undefined,
+      };
 
-	async getClientStatsById(id: number): Promise<ClientStats>
-	{
-		const clientStats = await this.prisma.clientStats.findUnique({
-			where: { clientId: id },
-			include: { client: true },
-		});
+      const updatedClient = await this.prisma.clients.update({
+        where: { id },
+        data: updateData,
+      });
 
-	   return clientStats;
-	}
+      return updatedClient;
+    } catch (error) {
+      console.log(error);
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException("User doesn't exist");
+        }
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
+        throw error;
+      }
+    }
+  }
 
-	async getTop100Scores(): Promise<ClientStats[]> {
-		const top100Scores = await this.prisma.clientStats.findMany({
-			orderBy: {
-				score: 'asc',
-			},
-			take: 100,
-		});
+  async updateCookie(id: number, data: UpdateClientDto): Promise<Clients> {
+    try {
+      const updateData: Prisma.ClientsUpdateInput = {
+        cookie: data.cookie ? { set: data.cookie } : undefined,
+      };
 
-		return top100Scores;
-	}
+      const updatedClient = await this.prisma.clients.update({
+        where: { id42: id },
+        data: updateData,
+      });
 
-	async getRelationsByClientId1(id1: number): Promise<{ client: Clients | null; status: number }[]> {
-		const clientRelations = await this.prisma.clientToClient.findMany({
-			where: {
-				client1Id: id1,
-			},
-			orderBy: [
-				{
-					status: 'asc',
-				},
-				{
-					client2: {
-						name: 'asc',
-					},
-				},
-			],
-			select: {
-				client2: {
-					select: {
-						id: true,
-						name: true,
-						id42: true,
-						img: true,
-						cookie: true,
-						Dfa: true,
-						DfaSecret: true
-					},
-				},
-				status: true,
-			},
-		});
+      return updatedClient;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException("User doesn't exist");
+        }
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
+        throw error;
+      }
+    }
+  }
 
-		const formattedRelations: { client: Clients | null; status: number }[] = clientRelations.map((relation) => ({
-			client: {
-				id: relation.client2?.id,
-				name: relation.client2?.name,
-				id42: relation.client2?.id42, 
-				img: relation.client2?.img,
-				cookie: relation.client2?.cookie,
-				Dfa: relation.client2?.Dfa,
-				DfaSecret: relation.client2?.DfaSecret,
-			},
-			status: relation.status,
-		}));
+  async getClientStatsById(id: number): Promise<ClientStats> {
+    const clientStats = await this.prisma.clientStats.findUnique({
+      where: { clientId: id },
+      include: { client: true },
+    });
 
-		return formattedRelations;
-	}
+    return clientStats;
+  }
 
-	async getRoomsByUserId(userId: number): Promise<Rooms[]> {
-		return await this.prisma.rooms.findMany({
-			where: {
-				members: {
-					some: {
-						id: userId,
-					},
-				},
-			},
-		});
-	}
+  async getTop100Scores(): Promise<ClientStats[]> {
+    const top100Scores = await this.prisma.clientStats.findMany({
+      orderBy: {
+        score: 'asc',
+      },
+      take: 100,
+    });
 
-	async getLastNMessagesByRoomId(roomId: number, n: number): Promise<[string, string][]> {
-		const messages = await this.prisma.messagesRooms.findMany({
-			where: {
-				roomId,
-			},
-			orderBy: {
-				time: 'desc',
-			},
-			take: n,
-			include: {
-				client: true,
-			},
-		});
+    return top100Scores;
+  }
 
-		return messages.map((message) => [message.client.name, message.msg]);
-	}
+  async getRelationsByClientId1(
+    id1: number,
+  ): Promise<{ client: Clients | null; status: number }[]> {
+    const clientRelations = await this.prisma.clientToClient.findMany({
+      where: {
+        client1Id: id1,
+      },
+      orderBy: [
+        {
+          status: 'asc',
+        },
+        {
+          client2: {
+            name: 'asc',
+          },
+        },
+      ],
+      select: {
+        client2: {
+          select: {
+            id: true,
+            name: true,
+            id42: true,
+            img: true,
+            cookie: true,
+            Dfa: true,
+            DfaSecret: true,
+          },
+        },
+        status: true,
+      },
+    });
 
+    const formattedRelations: { client: Clients | null; status: number }[] =
+      clientRelations.map((relation) => ({
+        client: {
+          id: relation.client2?.id,
+          name: relation.client2?.name,
+          id42: relation.client2?.id42,
+          img: relation.client2?.img,
+          cookie: relation.client2?.cookie,
+          Dfa: relation.client2?.Dfa,
+          DfaSecret: relation.client2?.DfaSecret,
+        },
+        status: relation.status,
+      }));
 
-	async createRelation(dto: createRelationsDto): Promise<ClientToClient>
-	{
-		try
-		{
-			const relation = await this.prisma.clientToClient.create({
-				data:{
-					client1Id: dto.idClient1,
-					status: dto.status,
-					client2Id: dto.idClient2
-				},
-			});
+    return formattedRelations;
+  }
 
-			return relation;
-		}
-		catch (error)
-		{
-			if (error instanceof Prisma.PrismaClientKnownRequestError)
-			{
-				if (error.code === 'P2002') {
-					throw new ForbiddenException('Credentials taken');
-				}
-			}
-			throw error;
-		}
-	}
-/*
+  async getRoomsByUserId(userId: number): Promise<Rooms[]> {
+    return await this.prisma.rooms.findMany({
+      where: {
+        members: {
+          some: {
+            id: userId,
+          },
+        },
+      },
+    });
+  }
+
+  async getLastNMessagesByRoomId(
+    roomId: number,
+    n: number,
+  ): Promise<[string, string][]> {
+    const messages = await this.prisma.messagesRooms.findMany({
+      where: {
+        roomId,
+      },
+      orderBy: {
+        time: 'desc',
+      },
+      take: n,
+      include: {
+        client: true,
+      },
+    });
+
+    return messages.map((message) => [message.client.name, message.msg]);
+  }
+
+  async createRelation(dto: createRelationsDto): Promise<ClientToClient> {
+    try {
+      const relation = await this.prisma.clientToClient.create({
+        data: {
+          client1Id: dto.idClient1,
+          status: dto.status,
+          client2Id: dto.idClient2,
+        },
+      });
+
+      return relation;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
+      }
+      throw error;
+    }
+  }
+  /*
 	async createRooom(dto: createRoomDto): Promise<Rooms>
 	{
 		try
@@ -556,187 +544,194 @@ export class DatabaseService
 		}
 	}
 */
-	async createRooom(dto: createRoomDto): Promise<Rooms> {
-		try {
-			const { name, ownerid, secu, password, client2Id } = dto;
+  async createRooom(dto: createRoomDto): Promise<Rooms> {
+    try {
+      const { name, ownerid, secu, password, client2Id } = dto;
 
-			if (secu === 3) {
-				if (!client2Id) {
-					throw new BadRequestException("client2Id est obligatoire lorsque secu est égal à 3");
-				}
+      if (secu === 3) {
+        if (!client2Id) {
+          throw new BadRequestException(
+            'client2Id est obligatoire lorsque secu est égal à 3',
+          );
+        }
 
-				const client2 = await this.prisma.clients.findUnique({
-					where: { id: client2Id },
-					select: { name: true },
-				});
+        const client2 = await this.prisma.clients.findUnique({
+          where: { id: client2Id },
+          select: { name: true },
+        });
 
-				if (!client2) {
-					throw new BadRequestException("client2Id spécifié n'existe pas");
-				}
+        if (!client2) {
+          throw new BadRequestException("client2Id spécifié n'existe pas");
+        }
 
-				const existingRoom = await this.prisma.rooms.findFirst({
-					where: {
-						OR: [
-							{ ownerid, client2Id },
-							{ ownerid: client2Id, client2Id: ownerid },
-						],
-					},
-				});
+        const existingRoom = await this.prisma.rooms.findFirst({
+          where: {
+            OR: [
+              { ownerid, client2Id },
+              { ownerid: client2Id, client2Id: ownerid },
+            ],
+          },
+        });
 
-				if (existingRoom) {
-					return existingRoom;
-				}
+        if (existingRoom) {
+          return existingRoom;
+        }
 
-				const room = await this.prisma.rooms.create({
-					data: {
-						name: client2.name,
-						ownerid,
-						secu,
-						password,
-						client2Id,
-					},
-				});
+        const room = await this.prisma.rooms.create({
+          data: {
+            name: client2.name,
+            ownerid,
+            secu,
+            password,
+            client2Id,
+          },
+        });
 
-				return room;
-			}
-			else
-			{
-				const room = await this.prisma.rooms.create({
-					data: {
-						name,
-						ownerid,
-						secu,
-						password,
-						client2Id,
-					},
-				});
+        return room;
+      } else {
+        const room = await this.prisma.rooms.create({
+          data: {
+            name,
+            ownerid,
+            secu,
+            password,
+            client2Id,
+          },
+        });
 
-				return room;
-			}
-		}
-		catch (error)
-		{
-			if (error instanceof Prisma.PrismaClientKnownRequestError)
-			{
-				if (error.code === 'P2025') {
-					throw new NotFoundException('User doesn\'t exist');
-				}
-				if (error.code === 'P2002') {
-					throw new ForbiddenException('Credentials taken');
-				}
-				throw error;
-			}
-		}
-	}
+        return room;
+      }
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException("User doesn't exist");
+        }
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
+        throw error;
+      }
+    }
+  }
 
-	async getRooms(): Promise<{ id: number; name: string; secu: number}[]> {
-		const rooms = await this.prisma.rooms.findMany({
-			select: {
-				id: true,
-				name: true,
-				secu: true,
-			},
-		});
+  async getRooms(): Promise<{ id: number; name: string; secu: number }[]> {
+    const rooms = await this.prisma.rooms.findMany({
+      select: {
+        id: true,
+        name: true,
+        secu: true,
+      },
+    });
 
-		return rooms;
-	}
+    return rooms;
+  }
 
-	async getRoomsWhereUserIsNotMember
-	(userId: number): Promise<{ id: number; name: string; secu: number }[]> {
-		const rooms = await this.prisma.rooms.findMany({
-			where: {
-				NOT: {
-					members: {
-						some: {
-							memberId: userId,
-						},
-					},
-				},
-			},
-			select: {
-				id: true,
-				name: true,
-				secu: true,
-			},
-		});
+  async getRoomsWhereUserIsNotMember(
+    userId: number,
+  ): Promise<{ id: number; name: string; secu: number }[]> {
+    const rooms = await this.prisma.rooms.findMany({
+      where: {
+        NOT: {
+          members: {
+            some: {
+              memberId: userId,
+            },
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        secu: true,
+      },
+    });
 
-		return rooms;
-	}
+    return rooms;
+  }
 
-	async getRoomIdsAndNamesByClientId(clientId: number): Promise<{ roomId: number; roomName: string }[]> {
-		const roomMembers = await this.prisma.roomMembers.findMany({
-			where: {
-				memberId: clientId,
-			},
-			select: {
-				room: {
-					select: {
-						id: true,
-						name: true,
-					},
-				},
-			},
-		});
+  async getRoomIdsAndNamesByClientId(
+    clientId: number,
+  ): Promise<{ roomId: number; roomName: string }[]> {
+    const roomMembers = await this.prisma.roomMembers.findMany({
+      where: {
+        memberId: clientId,
+      },
+      select: {
+        room: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
 
-		const roomIdsAndNames = roomMembers.map((roomMember) => ({
-			roomId: roomMember.room.id,
-			roomName: roomMember.room.name,
-		}));
+    const roomIdsAndNames = roomMembers.map((roomMember) => ({
+      roomId: roomMember.room.id,
+      roomName: roomMember.room.name,
+    }));
 
-		return roomIdsAndNames;
-	}
+    return roomIdsAndNames;
+  }
 
-	async getRoomDetailsByClientId(clientId: number):
-	Promise<{ roomId: number; roomName: string; client2: Clients | null; owner: Clients | null; secu: number | null }[]> {
-		const roomMembers = await this.prisma.roomMembers.findMany({
-			where: {
-				memberId: clientId,
-			},
-			select: {
-				room: {
-					select: {
-						id: true,
-						name: true,
-						client2: {
-							select: {
-								id: true,
-								name: true,
-								id42: true,
-								img: true,
-								cookie: true,
-								Dfa: true,
-								DfaSecret: true
-							},
-						},
-						owner: {
-							select: {
-								id: true,
-								name: true,
-								id42: true,
-								img: true,
-								cookie: true,
-								Dfa: true,
-								DfaSecret: true
-							},
-						},
-						secu: true,
-					},
-				},
-			},
-		});
+  async getRoomDetailsByClientId(clientId: number): Promise<
+    {
+      roomId: number;
+      roomName: string;
+      client2: Clients | null;
+      owner: Clients | null;
+      secu: number | null;
+    }[]
+  > {
+    const roomMembers = await this.prisma.roomMembers.findMany({
+      where: {
+        memberId: clientId,
+      },
+      select: {
+        room: {
+          select: {
+            id: true,
+            name: true,
+            client2: {
+              select: {
+                id: true,
+                name: true,
+                id42: true,
+                img: true,
+                cookie: true,
+                Dfa: true,
+                DfaSecret: true,
+              },
+            },
+            owner: {
+              select: {
+                id: true,
+                name: true,
+                id42: true,
+                img: true,
+                cookie: true,
+                Dfa: true,
+                DfaSecret: true,
+              },
+            },
+            secu: true,
+          },
+        },
+      },
+    });
 
-		const roomDetails = roomMembers.map((roomMember) => ({
-			roomId: roomMember.room.id,
-			roomName: roomMember.room.name,
-			client2: roomMember.room.client2 ?? null,
-			owner: roomMember.room.owner ?? null,
-			secu: roomMember.room.secu ?? null,
-		}));
+    const roomDetails = roomMembers.map((roomMember) => ({
+      roomId: roomMember.room.id,
+      roomName: roomMember.room.name,
+      client2: roomMember.room.client2 ?? null,
+      owner: roomMember.room.owner ?? null,
+      secu: roomMember.room.secu ?? null,
+    }));
 
-		return roomDetails;
-	}
+    return roomDetails;
+  }
 
-/*
+  /*
 	async getRoomIdsAndNamesByClientId(clientId: number): Promise<{ roomId: number; roomName: string }[]> {
 		const roomWithOwner = await this.prisma.rooms.findFirst({
 			where: {
@@ -779,282 +774,282 @@ export class DatabaseService
 		throw new Error("Room not Found");
 	}
 */
-	async addMemberToRoom(roomId: number, memberId: number, status: number = 2): Promise<RoomMembers | null> {
-		try {
-			const existingMember = await this.prisma.roomMembers.findFirst({
-				where: {
-					roomId,
-					memberId,
-				},
-			});
+  async addMemberToRoom(
+    roomId: number,
+    memberId: number,
+    status = 2,
+  ): Promise<RoomMembers | null> {
+    try {
+      const existingMember = await this.prisma.roomMembers.findFirst({
+        where: {
+          roomId,
+          memberId,
+        },
+      });
 
-			if (existingMember) {
-				if (existingMember.status !== status)
-					this.changeMemberStatus(roomId, memberId, status);
-				return null; // Membre déjà membre de la salle, retourne null
-			}
+      if (existingMember) {
+        if (existingMember.status !== status)
+          this.changeMemberStatus(roomId, memberId, status);
+        return null; // Membre déjà membre de la salle, retourne null
+      }
 
-			const roomMember = await this.prisma.roomMembers.create({
-				data: {
-					roomId,
-					memberId,
-					status,
-				},
-			});
+      const roomMember = await this.prisma.roomMembers.create({
+        data: {
+          roomId,
+          memberId,
+          status,
+        },
+      });
 
-			return roomMember;
-		}
-		catch (error)
-		{
-			if (error instanceof Prisma.PrismaClientKnownRequestError) {
-				if (error.code === 'P2025') {
-					throw new NotFoundException("L'utilisateur n'existe pas");
-				}
-				if (error.code === 'P2002') {
-					throw new ForbiddenException('Credentials taken');
-				}
-				throw error;
-			}
-		}
-	}
+      return roomMember;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException("L'utilisateur n'existe pas");
+        }
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
+        throw error;
+      }
+    }
+  }
 
-	async getRoomById(roomId: number): Promise<Rooms | null> {
-		try
-		{
-			const room = await this.prisma.rooms.findUnique({
-				where: {
-					id: roomId,
-				},
-			});
+  async getRoomById(roomId: number): Promise<Rooms | null> {
+    try {
+      const room = await this.prisma.rooms.findUnique({
+        where: {
+          id: roomId,
+        },
+      });
 
-			return room || null;
-		}
-		catch (error)
-		{
-			throw error;
-		}
-	}
+      return room || null;
+    } catch (error) {
+      throw error;
+    }
+  }
 
-	async addMessageToRoom(roomId: number, clientId: number, message: string): Promise<MessagesRooms> {
-		try
-		{
-			const newMessage = await this.prisma.messagesRooms.create({
-				data: {
-					msg: message,
-					time: new Date(),
-					roomId: roomId,
-					clientId: clientId,
-				},
-			});
+  async addMessageToRoom(
+    roomId: number,
+    clientId: number,
+    message: string,
+  ): Promise<MessagesRooms> {
+    try {
+      const newMessage = await this.prisma.messagesRooms.create({
+        data: {
+          msg: message,
+          time: new Date(),
+          roomId: roomId,
+          clientId: clientId,
+        },
+      });
 
-			return newMessage;
-		}
-		catch (error)
-		{
-			throw error;
-		}
-	}
+      return newMessage;
+    } catch (error) {
+      throw error;
+    }
+  }
 
-	async getRoomByClientIdAndRoomId(clientId: number, roomId: number)
-	: Promise<{ roomId: number; clientId: number; status: number; password: string } | null>  {
-		const roomMember = await this.prisma.roomMembers.findFirst({
-			where: {
-				roomId,
-				memberId: clientId,
-			},
-			select: {
-				roomId: true,
-				memberId: true,
-				status: true,
-				room: {
-					select: {
-						password: true,
-					},
-				},
-			},
-		});
+  async getRoomByClientIdAndRoomId(
+    clientId: number,
+    roomId: number,
+  ): Promise<{
+    roomId: number;
+    clientId: number;
+    status: number;
+    password: string;
+  } | null> {
+    const roomMember = await this.prisma.roomMembers.findFirst({
+      where: {
+        roomId,
+        memberId: clientId,
+      },
+      select: {
+        roomId: true,
+        memberId: true,
+        status: true,
+        room: {
+          select: {
+            password: true,
+          },
+        },
+      },
+    });
 
-		if (roomMember) {
-			const { roomId, status, room } = roomMember;
-			const password = room?.password || ""; // Accès au mot de passe
-			return { roomId, clientId , status, password };
-		}
+    if (roomMember) {
+      const { roomId, status, room } = roomMember;
+      const password = room?.password || ''; // Accès au mot de passe
+      return { roomId, clientId, status, password };
+    }
 
-		return null;
-	}
+    return null;
+  }
 
-	async getRoomMessagesById(roomId: number): Promise<any[]> {
-		const messages = await this.prisma.messagesRooms.findMany({
-			where: {
-				roomId: roomId,
-			},
-			select: {
-				msg: true,
-				client: {
-					select: {
-						name: true,
-						id: true,
-					},
-				},
-			},
-		});
+  async getRoomMessagesById(roomId: number): Promise<any[]> {
+    const messages = await this.prisma.messagesRooms.findMany({
+      where: {
+        roomId: roomId,
+      },
+      select: {
+        msg: true,
+        client: {
+          select: {
+            name: true,
+            id: true,
+          },
+        },
+      },
+    });
 
-		return messages.map((message) => ({
-			message: message.msg,
-			clientId: message.client.id,
-			clientName: message.client.name,
-		}));
-	}
+    return messages.map((message) => ({
+      message: message.msg,
+      clientId: message.client.id,
+      clientName: message.client.name,
+    }));
+  }
 
-	async addClientsToClient(id1: number, id2: number, status: number): Promise<void> {
-		const existingBlockedRelation = await this.prisma.clientToClient.findFirst({
-			where: {
-				OR: [
-					{ client1Id: id1, client2Id: id2, status: 1 },
-					{ client1Id: id2, client2Id: id1, status: 1 },
-				],
-			},
-		});
+  async addClientsToClient(
+    id1: number,
+    id2: number,
+    status: number,
+  ): Promise<void> {
+    const existingBlockedRelation = await this.prisma.clientToClient.findFirst({
+      where: {
+        OR: [
+          { client1Id: id1, client2Id: id2, status: 1 },
+          { client1Id: id2, client2Id: id1, status: 1 },
+        ],
+      },
+    });
 
-		if (!existingBlockedRelation)
-		{
-			try
-			{
-				await this.prisma.clientToClient.createMany({
-					data: [
-						{ client1Id: id1, client2Id: id2, status},
-						{ client1Id: id2, client2Id: id1, status},
-					],
-				});
-			}
-			catch (error)
-			{
+    if (!existingBlockedRelation) {
+      try {
+        await this.prisma.clientToClient.createMany({
+          data: [
+            { client1Id: id1, client2Id: id2, status },
+            { client1Id: id2, client2Id: id1, status },
+          ],
+        });
+      } catch (error) {
         console.log(error);
-				if (error instanceof Prisma.PrismaClientKnownRequestError)
-				{
-					if (error.code === 'P2025') {
-						throw new NotFoundException('User doesn\'t exist');
-					}
-					if (error.code === 'P2002') {
-						throw new ForbiddenException('Credentials taken');
-					}
-					throw error;
-				}
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          if (error.code === 'P2025') {
+            throw new NotFoundException("User doesn't exist");
+          }
+          if (error.code === 'P2002') {
+            throw new ForbiddenException('Credentials taken');
+          }
+          throw error;
+        }
+      }
+    }
+  }
 
-			}
-		}
-	}
+  async removeClientsFromClient(id1: number, id2: number): Promise<void> {
+    const existingFriendRelation1 = await this.prisma.clientToClient.findFirst({
+      where: {
+        client1Id: id1,
+        client2Id: id2,
+        status: 0,
+      },
+    });
 
-	async removeClientsFromClient(id1: number, id2: number): Promise<void> {
-		const existingFriendRelation1 = await this.prisma.clientToClient.findFirst({
-			where: {
-				client1Id: id1,
-				client2Id: id2,
-				status: 0,
-			},
-		});
+    const existingFriendRelation2 = await this.prisma.clientToClient.findFirst({
+      where: {
+        client1Id: id2,
+        client2Id: id1,
+        status: 0,
+      },
+    });
 
-		const existingFriendRelation2 = await this.prisma.clientToClient.findFirst({
-			where: {
-				client1Id: id2,
-				client2Id: id1,
-				status: 0,
-			},
-		});
+    if (existingFriendRelation1 && existingFriendRelation2) {
+      try {
+        await this.prisma.clientToClient.deleteMany({
+          where: {
+            client1Id: id1,
+            client2Id: id2,
+          },
+        });
 
-		if (existingFriendRelation1 && existingFriendRelation2) {
-			try {
-				await this.prisma.clientToClient.deleteMany({
-					where: {
-						client1Id: id1,
-						client2Id: id2,
-					},
-				});
+        await this.prisma.clientToClient.deleteMany({
+          where: {
+            client1Id: id2,
+            client2Id: id1,
+          },
+        });
+      } catch (error) {
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+          if (error.code === 'P2025') {
+            throw new NotFoundException("User doesn't exist");
+          }
+          if (error.code === 'P2002') {
+            throw new ForbiddenException('Credentials taken');
+          }
+          throw error;
+        }
+      }
+    }
+  }
 
-				await this.prisma.clientToClient.deleteMany({
-					where: {
-						client1Id: id2,
-						client2Id: id1,
-					},
-				});
-			}
-			catch (error)
-			{
-				if (error instanceof Prisma.PrismaClientKnownRequestError)
-				{
-					if (error.code === 'P2025') {
-						throw new NotFoundException('User doesn\'t exist');
-					}
-					if (error.code === 'P2002') {
-						throw new ForbiddenException('Credentials taken');
-					}
-					throw error;
-				}
+  async createBlockedRelation(
+    id1: number,
+    id2: number,
+  ): Promise<ClientToClient> {
+    const existingFriendRelation = await this.prisma.clientToClient.findFirst({
+      where: {
+        client1Id: id1,
+        client2Id: id2,
+        status: 0,
+      },
+    });
 
-			}
-		}
-	}
+    if (existingFriendRelation) {
+      // Supprimer les relations existantes
+      await this.removeClientsFromClient(id1, id2);
+    }
+    try {
+      const relation = await this.prisma.clientToClient.create({
+        data: {
+          client1Id: id1,
+          client2Id: id2,
+          status: 1,
+        },
+      });
 
-	async createBlockedRelation(id1: number, id2: number): Promise<ClientToClient> {
-		const existingFriendRelation = await this.prisma.clientToClient.findFirst({
-			where: {
-				client1Id: id1,
-				client2Id: id2,
-				status: 0,
-			},
-		});
+      return relation;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException("User doesn't exist");
+        }
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
+        throw error;
+      }
+    }
+  }
 
-		if (existingFriendRelation) {
-			// Supprimer les relations existantes
-			await this.removeClientsFromClient(id1, id2);
-		}
-		try {
-			const relation = await this.prisma.clientToClient.create({
-				data: {
-					client1Id: id1,
-					client2Id: id2,
-					status: 1,
-				},
-			});
+  async unblockClient(id1: number, id2: number): Promise<void> {
+    await this.prisma.clientToClient.deleteMany({
+      where: {
+        client1Id: id1,
+        client2Id: id2,
+        status: 1,
+      },
+    });
+  }
 
-			return relation;
-		}
-		catch (error)
-		{
-			if (error instanceof Prisma.PrismaClientKnownRequestError)
-			{
-				if (error.code === 'P2025') {
-					throw new NotFoundException('User doesn\'t exist');
-				}
-				if (error.code === 'P2002') {
-					throw new ForbiddenException('Credentials taken');
-				}
-				throw error;
-			}
+  async getClientRelations(id1: number): Promise<ClientToClient[]> {
+    const clientRelations = await this.prisma.clientToClient.findMany({
+      where: {
+        client1Id: id1,
+      },
+    });
 
-		}
-	}
-
-	async unblockClient(id1: number, id2: number): Promise<void> {
-		await this.prisma.clientToClient.deleteMany({
-			where: {
-				client1Id: id1,
-				client2Id: id2,
-				status: 1,
-			},
-		});
-	}
-
-	async getClientRelations(id1: number): Promise<ClientToClient[]> {
-		const clientRelations = await this.prisma.clientToClient.findMany({
-			where: {
-				client1Id: id1,
-			},
-		});
-
-		return clientRelations;
-	}
-/*
+    return clientRelations;
+  }
+  /*
 	async getMembersByRoomId(roomId: number): Promise<Clients[]> {
 		const roomMembers = await this.prisma.roomMembers.findMany({
 			where: { roomId },
@@ -1071,41 +1066,41 @@ export class DatabaseService
 	}
 */
 
-	async getMembersByRoomId(roomId: number) {
-		const roomMembers = await this.prisma.roomMembers.findMany({
-			where: { roomId },
-			include: {
-				member: true,
-			},
-		});
+  async getMembersByRoomId(roomId: number) {
+    const roomMembers = await this.prisma.roomMembers.findMany({
+      where: { roomId },
+      include: {
+        member: true,
+      },
+    });
 
-		return roomMembers.map((roomMember) => ({
-			member: roomMember.member,
-			status: roomMember.status,
-		}));
-	}
+    return roomMembers.map((roomMember) => ({
+      member: roomMember.member,
+      status: roomMember.status,
+    }));
+  }
 
-	async getClientNamesListByTheirIds(ids: number[] | null): Promise<string[]> {
-		if (ids === null) {
-			return null;
-		}
+  async getClientNamesListByTheirIds(ids: number[] | null): Promise<string[]> {
+    if (ids === null) {
+      return null;
+    }
 
-		const clients = await this.prisma.clients.findMany({
-			where: {
-				id: {
-					in: ids,
-				},
-			},
-			select: {
-				name: true,
-			},
-		});
+    const clients = await this.prisma.clients.findMany({
+      where: {
+        id: {
+          in: ids,
+        },
+      },
+      select: {
+        name: true,
+      },
+    });
 
-		const clientNames = clients.map((client) => client.name);
+    const clientNames = clients.map((client) => client.name);
 
-		return clientNames;
-	}
-/*
+    return clientNames;
+  }
+  /*
 	async getRoomsByOwnerId(ownerId: number): Promise<Rooms[]> {
 		const rooms = await this.prisma.rooms.findMany({
 			where: {
@@ -1120,179 +1115,189 @@ export class DatabaseService
 	}
 */
 
-	async getRoomsByOwnerId(ownerId: number): Promise<{ room: Rooms, status: number }[]> {
-		const rooms = await this.prisma.rooms.findMany({
-			where: {
-				OR: [
-					{
-						ownerid: ownerId,
-						secu: {
-							not: 3,
-						},
-					},
-					{
-						members: {
-							some: {
-								memberId: ownerId,
-								status: 1,
-							},
-						},
-					},
-				],
-			},
-			include: {
-				members: true,
-			},
-		});
+  async getRoomsByOwnerId(
+    ownerId: number,
+  ): Promise<{ room: Rooms; status: number }[]> {
+    const rooms = await this.prisma.rooms.findMany({
+      where: {
+        OR: [
+          {
+            ownerid: ownerId,
+            secu: {
+              not: 3,
+            },
+          },
+          {
+            members: {
+              some: {
+                memberId: ownerId,
+                status: 1,
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        members: true,
+      },
+    });
 
-		const result = rooms.map(room => {
-			const member = room.members.find(member => member.memberId === ownerId);
-			const status = member ? member.status : null;
-			return { room, status };
-		});
+    const result = rooms.map((room) => {
+      const member = room.members.find((member) => member.memberId === ownerId);
+      const status = member ? member.status : null;
+      return { room, status };
+    });
 
-		return result;
-	}
+    return result;
+  }
 
-	async getMembersForPrivateRoom(roomId: number): Promise<{ id: number, name: string }[]> {
-		const members = await this.prisma.roomMembers.findMany({
-			where: {
-				roomId: roomId,
-				status: 6,
-				room: {
-					secu: 2,
-				},
-			},
-			select: {
-				member: {
-					select: {
-						id: true,
-						name: true,
-					},
-				},
-			},
-		});
+  async getMembersForPrivateRoom(
+    roomId: number,
+  ): Promise<{ id: number; name: string }[]> {
+    const members = await this.prisma.roomMembers.findMany({
+      where: {
+        roomId: roomId,
+        status: 6,
+        room: {
+          secu: 2,
+        },
+      },
+      select: {
+        member: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
 
-		return members.map((roomMember) => ({
-			id: roomMember.member.id,
-			name: roomMember.member.name,
-		}));
-	}
+    return members.map((roomMember) => ({
+      id: roomMember.member.id,
+      name: roomMember.member.name,
+    }));
+  }
 
-	async getMembersByRoomIdExcludingClient(roomId: number, clientId: number): Promise<{ id: number, name: string, status: number }[]> {
-		const roomMembers = await this.prisma.roomMembers.findMany({
-			where: {
-				roomId,
-				NOT: {
-					memberId: clientId,
-				},
-				status: {
-					not: 6,
-				}
-			},
-			include: {
-				member: true,
-			},
-			orderBy: {
-				status: 'asc',
-			},
-		});
+  async getMembersByRoomIdExcludingClient(
+    roomId: number,
+    clientId: number,
+  ): Promise<{ id: number; name: string; status: number }[]> {
+    const roomMembers = await this.prisma.roomMembers.findMany({
+      where: {
+        roomId,
+        NOT: {
+          memberId: clientId,
+        },
+        status: {
+          not: 6,
+        },
+      },
+      include: {
+        member: true,
+      },
+      orderBy: {
+        status: 'asc',
+      },
+    });
 
-		if (!roomMembers) {
-			throw new NotFoundException(`Room with ID ${roomId} not found`);
-		}
+    if (!roomMembers) {
+      throw new NotFoundException(`Room with ID ${roomId} not found`);
+    }
 
-		const members = roomMembers.map((roomMember) => ({
-			id: roomMember.member.id,
-			name: roomMember.member.name,
-			status: roomMember.status,
-		}));
+    const members = roomMembers.map((roomMember) => ({
+      id: roomMember.member.id,
+      name: roomMember.member.name,
+      status: roomMember.status,
+    }));
 
-		return members;
-	}
+    return members;
+  }
 
-	async getMembersByRoomIdExcludingClientForAdmins(roomId: number, clientId: number): Promise<{ id: number, name: string, status: number }[]> {
-		const roomMembers = await this.prisma.roomMembers.findMany({
-			where: {
-				roomId,
-				NOT: {
-					memberId: clientId,
-				},
-				status: {
-					notIn: [0, 1],
-				},
-			},
-			include: {
-				member: true,
-			},
-			orderBy: {
-				status: 'asc',
-			},
-		});
+  async getMembersByRoomIdExcludingClientForAdmins(
+    roomId: number,
+    clientId: number,
+  ): Promise<{ id: number; name: string; status: number }[]> {
+    const roomMembers = await this.prisma.roomMembers.findMany({
+      where: {
+        roomId,
+        NOT: {
+          memberId: clientId,
+        },
+        status: {
+          notIn: [0, 1],
+        },
+      },
+      include: {
+        member: true,
+      },
+      orderBy: {
+        status: 'asc',
+      },
+    });
 
-		if (!roomMembers) {
-			throw new NotFoundException(`Room with ID ${roomId} not found`);
-		}
+    if (!roomMembers) {
+      throw new NotFoundException(`Room with ID ${roomId} not found`);
+    }
 
-		const members = roomMembers.map((roomMember) => ({
-			id: roomMember.member.id,
-			name: roomMember.member.name,
-			status: roomMember.status,
-		}));
+    const members = roomMembers.map((roomMember) => ({
+      id: roomMember.member.id,
+      name: roomMember.member.name,
+      status: roomMember.status,
+    }));
 
-		return members;
-	}
+    return members;
+  }
 
-	async changeMemberStatus(roomId: number, memberId: number, newStatus: number): Promise<void> {
-		try {
-			await this.prisma.roomMembers.update({
-				where: {
-					roomId_memberId: {
-						roomId,
-						memberId,
-					},
-				},
-				data: {
-					status: newStatus,
-				},
-			});
-		}
-		catch (error)
-		{
-			if (error instanceof Prisma.PrismaClientKnownRequestError)
-			{
-				if (error.code === 'P2025') {
-					throw new NotFoundException('User doesn\'t exist');
-				}
-				if (error.code === 'P2002') {
-					throw new ForbiddenException('Credentials taken');
-				}
-				throw error;
-			}
-		}
-	}
+  async changeMemberStatus(
+    roomId: number,
+    memberId: number,
+    newStatus: number,
+  ): Promise<void> {
+    try {
+      await this.prisma.roomMembers.update({
+        where: {
+          roomId_memberId: {
+            roomId,
+            memberId,
+          },
+        },
+        data: {
+          status: newStatus,
+        },
+      });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException("User doesn't exist");
+        }
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
+        throw error;
+      }
+    }
+  }
 
+  async getRoomsExcludingBannedOnes(clientId: number) {
+    const rooms = await this.prisma.rooms.findMany({
+      where: {
+        members: {
+          none: {
+            memberId: clientId,
+            status: 5,
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+      },
+    });
 
-	async getRoomsExcludingBannedOnes(clientId: number) {
-		const rooms = await this.prisma.rooms.findMany({
-			where: {
-				members: {
-					none: {
-						memberId: clientId,
-						status: 5,
-					},
-				},
-			},
-			select: {
-				id: true,
-				name: true,
-			},
-		});
+    return rooms.map((room) => ({ id: room.id, name: room.name }));
+  }
 
-		return rooms.map((room) => ({ id: room.id, name: room.name }));
-	}
-
-/*
+  /*
 	async getRoomsExcludingWhereClientIsMember(clientId: number) {
 		const rooms = await this.prisma.rooms.findMany({
 			where: {
@@ -1312,168 +1317,170 @@ export class DatabaseService
 
 		return rooms.map((room) => ({ id: room.id, name: room.name }));
 	}
-*/	
+*/
 
-	async getRoomsExcludingWhereClientIsMember(clientId: number) {
-		const rooms = await this.prisma.rooms.findMany({
-			where: {
-				NOT: {
-					members: {
-						some: {
-							memberId: clientId,
-						},
-					},
-				},
-				owner: {
-					NOT: {
-						id: clientId,
-					},
-				},
-			},
-			select: {
-				id: true,
-				name: true,
-				secu: true,
-			},
-		});
+  async getRoomsExcludingWhereClientIsMember(clientId: number) {
+    const rooms = await this.prisma.rooms.findMany({
+      where: {
+        NOT: {
+          members: {
+            some: {
+              memberId: clientId,
+            },
+          },
+        },
+        owner: {
+          NOT: {
+            id: clientId,
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        secu: true,
+      },
+    });
 
-		return rooms;
-	}
-	
-	async getRoomAdmins(roomId: number): Promise<{ id: number, name: string }[]> {
-		const roomMembers = await this.prisma.roomMembers.findMany({
-			where: {
-				roomId: roomId,
-				status: 1,
-			},
-			select: {
-				member: {
-					select: {
-						id: true,
-						name: true,
-					},
-				},
-			},
-		});
+    return rooms;
+  }
 
-		const members = roomMembers.map((roomMember) => ({
-			id: roomMember.member.id,
-			name: roomMember.member.name,
-		}));
+  async getRoomAdmins(roomId: number): Promise<{ id: number; name: string }[]> {
+    const roomMembers = await this.prisma.roomMembers.findMany({
+      where: {
+        roomId: roomId,
+        status: 1,
+      },
+      select: {
+        member: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+      },
+    });
 
-		return members;
-	}
+    const members = roomMembers.map((roomMember) => ({
+      id: roomMember.member.id,
+      name: roomMember.member.name,
+    }));
 
-	async changeRoomOwner(roomId: number, newOwnerId: number): Promise<Rooms | null> {
-		const room = await this.prisma.rooms.update({
-			where: {
-				id: roomId,
-			},
-			data: {
-				ownerid: newOwnerId,
-			},
-		});
+    return members;
+  }
 
-		return room;
-	}
+  async changeRoomOwner(
+    roomId: number,
+    newOwnerId: number,
+  ): Promise<Rooms | null> {
+    const room = await this.prisma.rooms.update({
+      where: {
+        id: roomId,
+      },
+      data: {
+        ownerid: newOwnerId,
+      },
+    });
 
-	async checkRoomOwner(roomId: number, ownerId: number): Promise<Rooms | null> {
-		const room = await this.prisma.rooms.findFirst({
-			where: {
-				id: roomId,
-				ownerid: ownerId,
-			},
-		});
+    return room;
+  }
 
-		return room;
-	}
+  async checkRoomOwner(roomId: number, ownerId: number): Promise<Rooms | null> {
+    const room = await this.prisma.rooms.findFirst({
+      where: {
+        id: roomId,
+        ownerid: ownerId,
+      },
+    });
 
-	async checkRoomMember(roomId: number, memberId: number): Promise<RoomMembers | null> {
-		const roomMember = await this.prisma.roomMembers.findFirst({
-			where: {
-				roomId,
-				memberId,
-			},
-		});
+    return room;
+  }
 
-		return roomMember;
-	}
+  async checkRoomMember(
+    roomId: number,
+    memberId: number,
+  ): Promise<RoomMembers | null> {
+    const roomMember = await this.prisma.roomMembers.findFirst({
+      where: {
+        roomId,
+        memberId,
+      },
+    });
 
-	async getRoomReplacementMembers(roomId: number) {
-		const roomMembers = await this.prisma.roomMembers.findMany({
-			where: {
-				roomId: roomId,
-			},
-			select: {
-				member: {
-					select: {
-						id: true,
-						name: true,
-					},
-				},
-				status: true,
-			},
-		});
+    return roomMember;
+  }
 
-		const admins = roomMembers.filter((member) => member.status === 1);
-		const members = roomMembers.filter((member) => member.status === 2);
+  async getRoomReplacementMembers(roomId: number) {
+    const roomMembers = await this.prisma.roomMembers.findMany({
+      where: {
+        roomId: roomId,
+      },
+      select: {
+        member: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        status: true,
+      },
+    });
 
-		const adminsList = admins.map((member) => ({
-			id: member.member.id,
-			name: member.member.name,
-		}));
+    const admins = roomMembers.filter((member) => member.status === 1);
+    const members = roomMembers.filter((member) => member.status === 2);
 
-		const membersList = members.map((member) => ({
-			id: member.member.id,
-			name: member.member.name,
-		}));
+    const adminsList = admins.map((member) => ({
+      id: member.member.id,
+      name: member.member.name,
+    }));
 
-		return {
-			admins: adminsList,
-			members: membersList,
-		};
-	}
+    const membersList = members.map((member) => ({
+      id: member.member.id,
+      name: member.member.name,
+    }));
 
-	async removeClientFromRoom(roomId: number, memberId: number) {
-		try {
-			await this.prisma.roomMembers.delete({
-				where: {
-					roomId_memberId: {
-						roomId,
-						memberId,
-					},
+    return {
+      admins: adminsList,
+      members: membersList,
+    };
+  }
 
-				},
-			});
-		}
-		catch (error)
-		{
-			throw new Error('Failed to remove client from room');
-		}
-	}
+  async removeClientFromRoom(roomId: number, memberId: number) {
+    try {
+      await this.prisma.roomMembers.delete({
+        where: {
+          roomId_memberId: {
+            roomId,
+            memberId,
+          },
+        },
+      });
+    } catch (error) {
+      throw new Error('Failed to remove client from room');
+    }
+  }
 
-	async deleteRoomWithMembers(roomId: number): Promise<void> {
+  async deleteRoomWithMembers(roomId: number): Promise<void> {
+    const room = await this.prisma.rooms.findUnique({
+      where: {
+        id: roomId,
+      },
+    });
+    if (!room) {
+      throw new NotFoundException('Room not found');
+    }
 
-		const room = await this.prisma.rooms.findUnique({
-			where: {
-				id: roomId
-			}
-		});
-		if (!room) {
-			throw new NotFoundException('Room not found');
-		}
+    // Supprimer les roomMembers associés à la room
+    await this.prisma.roomMembers.deleteMany({
+      where: { roomId },
+    });
 
-		// Supprimer les roomMembers associés à la room
-		await this.prisma.roomMembers.deleteMany({
-			where: { roomId }
-		});
-
-		// Supprimer la room
-		await this.prisma.rooms.delete({
-			where: { id: roomId }
-		});
-	}
-/*
+    // Supprimer la room
+    await this.prisma.rooms.delete({
+      where: { id: roomId },
+    });
+  }
+  /*
 	async getAllRoomMembers(clientId42:number, roomName: string)
 	{
 		const roomId = await this.prisma.rooms.findUnique({
@@ -1525,34 +1532,32 @@ export class DatabaseService
 		return { retMembers, userStatus, roomId };
 	}
 */
-	async getAllRoomMembers(clientId42:number, roomName: string)
-	{
-		const roomId = await this.prisma.rooms.findUnique({
-			where:{
-				name: roomName
-			},
-			select:{
-				id: true
-			}
-		});
-		if (!roomId)
-			throw new NotFoundException("Object Not Found");
+  async getAllRoomMembers(clientId42: number, roomName: string) {
+    const roomId = await this.prisma.rooms.findUnique({
+      where: {
+        name: roomName,
+      },
+      select: {
+        id: true,
+      },
+    });
+    if (!roomId) throw new NotFoundException('Object Not Found');
 
-		const userStatus = await this.prisma.roomMembers.findFirst({
-			where: {
-				room: {
-					name: roomName,
-				},
-				member: {
-					id42: clientId42
-				}
-			},
-			select: {
-				status: true,
-			}
-		})
-		if (userStatus.status !== 1 && userStatus.status !== 0)
-			throw new UnauthorizedException("acces denied");
-		return { status: userStatus.status, roomId: roomId };
-	}
+    const userStatus = await this.prisma.roomMembers.findFirst({
+      where: {
+        room: {
+          name: roomName,
+        },
+        member: {
+          id42: clientId42,
+        },
+      },
+      select: {
+        status: true,
+      },
+    });
+    if (userStatus.status !== 1 && userStatus.status !== 0)
+      throw new UnauthorizedException('acces denied');
+    return { status: userStatus.status, roomId: roomId };
+  }
 }

@@ -1,47 +1,47 @@
 import { Logger, ParseFloatPipe } from '@nestjs/common';
-import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway, WebSocketServer } from '@nestjs/websockets';
+import {
+  ConnectedSocket,
+  MessageBody,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+} from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
 
-@WebSocketGateway(
-	{
-    path: '/pongsockets',
-		namespace: 'pong',
-		cors:{
-			origin: '*',
-		},
-	}
-)
+@WebSocketGateway({
+  path: '/pongsockets',
+  namespace: 'pong',
+  cors: {
+    origin: '*',
+  },
+})
 export class PongGateway {
   @WebSocketServer()
   server: Server;
 
   private logger: Logger = new Logger('PongGateway');
-	
-	afterInit(server: Server)
-	{
-		this.logger.log('Initialized');
-	}
 
-  handleConnection(client: Socket, ...args: any[])
-	{
-		this.logger.log(`Client connected : ${client.id}`);
-	}
-	
-	async handleDisconnect(client: Socket)
-	{
+  afterInit(server: Server) {
+    this.logger.log('Initialized');
+  }
+
+  handleConnection(client: Socket, ...args: any[]) {
+    this.logger.log(`Client connected : ${client.id}`);
+  }
+
+  async handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected : ${client.id}`);
-	}
+  }
 
   @SubscribeMessage('test')
-	async lobbyStatus(@MessageBody() data: string,
-    @ConnectedSocket() client: Socket)
-	{
+  async lobbyStatus(
+    @MessageBody() data: string,
+    @ConnectedSocket() client: Socket,
+  ) {
     console.log(data);
-		client.emit('testSeverToClient' , "success");
-	}
-} 
-
-
+    client.emit('testSeverToClient', 'success');
+  }
+}
 
 // export class PongGateway {
 //   @WebSocketServer() server;
@@ -55,7 +55,7 @@ export class PongGateway {
 //   afterInit(server: Server) {
 //     this.logger.log('Init');
 //   }
-  
+
 //   handleDisconnect(client: Socket, ...args: any[]) {
 //     this.logger.log(`Client disconnected: ${client.id}`);
 //     const roomName = this.clientRooms[client.id];
@@ -81,7 +81,7 @@ export class PongGateway {
 //     if (!roomName) {
 //       return;
 //     }
-    
+
 //     try {
 //       keyCode = parseInt(keyCode);
 //     } catch (e) {
@@ -105,7 +105,7 @@ export class PongGateway {
 //             this.state[roomName].user.y++;
 //             i--;
 //           }
-//         } 
+//         }
 //       }
 //     } else if (client.number == 2) {
 //       if (keyCode === 38) {
@@ -288,5 +288,3 @@ export class PongGateway {
 //   // }
 
 // }
-
-

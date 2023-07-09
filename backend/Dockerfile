@@ -1,16 +1,13 @@
-FROM node:latest
+FROM node:18
 
-# Create app directory
 WORKDIR /app
 
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-COPY . .
 
-# Install app dependencies
 RUN npm install -g npm@latest
-RUN npm install
-RUN npm run start:dev
+# RUN npm install
 
-EXPOSE 3000 5432 3001
+# RUN npm run build
+# If you are building your code for production
+# RUN npm ci --omit=dev 
 
-ENTRYPOINT "./entrypoint.sh"
+CMD [ "/bin/bash", "entrypoint.sh" ]

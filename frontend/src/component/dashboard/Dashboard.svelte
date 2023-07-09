@@ -331,7 +331,7 @@
 						  {blocked ? 'Unblock' : 'Block'}
       				</button>
     				<button class="button-profile" on:click={() => MP(targetId)}>Send Msg</button>
-    				<button class="button-profile" on:click={sendInvitation}>Play</button>
+    				<button class="button-profile" on:click={() => play()}>Play</button>
 				</div>
   			{/if}
 		</div>
