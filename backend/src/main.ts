@@ -11,8 +11,9 @@ import cors from 'cors';
 import fastifyMultipart from '@fastify/multipart';
 import { Logger } from '@nestjs/common';
 import { Room, Server } from 'colyseus';
-// import { MyRoom } from "./pong/MyRoom";
+import { MyRoom } from "./game/MyRoom";
 import fastifyCookie from '@fastify/cookie';
+import { matchMaking } from './game/MatchMaking';
 
 require('dotenv').config();
 
@@ -45,12 +46,17 @@ async function bootstrap() {
 
   const gameServer = new Server();
 
+  gameServer.define("my_room", MyRoom); // Créer une instance de MyRoom et l'associer à la route /my_room
+  gameServer.define("matchMaking", matchMaking);
+  gameServer.listen(3001);
   // gameServer.define("my_room", MyRoom);
   // gameServer.listen(3001);
 
   await app.listen(3000, '0.0.0.0', () => {
     logger.log("L'application est en cours d'écoute sur le port 3000"); // Utilisez le logger pour enregistrer un message de log
   });
+
+
 }
 
 bootstrap();

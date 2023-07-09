@@ -1,53 +1,10 @@
-<!-- <script>
-	import { onMount } from "svelte";
-	import { hostname } from "../../lib/hostname";
-	import { img_path, userId42, clientName } from "../../stores";
-
-	export let data;
-
-	onMount(async () => {
-		try
-		{
-			const response = await fetch(`http://${hostname}:3000/dashboard/${data.userId42}`);
-			if (response.ok)
-			{
-				let vals = await response.json();
-				$clientName = vals.name;
-				$img_path = data.img_path;
-				$userId42 = data.userId42;
-			}
-			else
-				console.error("layout");
-
-		}
-		catch (error)
-		{
-			console.error("layout" , error);
-		}
-	});
-</script>
-  
-<main>
-	<div class="game">
-		<h2>game</h2>
-		<h5>{$userId42}</h5>
-		<p>Lorem ipsum dolor sit amet consectetur, adipisicing elit. Animi corrupti tempora unde placeat commodi dicta quia omnis a odit. Repudiandae hic optio, exercitationem ipsam at iste cupiditate sint debitis vero.</p>
-	</div>
-</main>
-  
-<style>
-	.game {
-		text-align: center;
-		display: block;
-		margin: 20px auto;
-	}
-</style> -->
-
 <script lang="ts" >
     import { browser } from '$app/environment';
-	import { Client } from 'colyseus'
-	import { onMount } from 'svelte';
+	import { Client } from 'colyseus.js'
 
+	let matches: any;
+	//let width: any;
+	//let height: any;
 	let client: any;
 	let name: any;
 	let input: string;
@@ -57,12 +14,13 @@
 	let game: any;
 	let pong: any;
 	let room: any;
+	let matchroom: any;
 	let gameActive: boolean = false;
 	let promise: any;
 	let gameCode: any;
 	let playerNumber: number;
 	if (browser) {
-		client = new Client("ws://" + location.hostname + ":3001");
+		client = new Client("ws://" + location.hostname + ":8080/ws");
 	}
 
 	async function createGame() {
@@ -97,6 +55,11 @@
 		initialScreen.style.display = "none";
     	game.style.display = "block";
     	canvas = pong;
+		const { width, height } = canvas.getBoundingClientRect();
+		canvas.width = width;
+		canvas.height = height;
+		console.log(canvas.width);
+		console.log(canvas.height);
     	ctx = canvas.getContext('2d');
 		gameCode = document.getElementById('gameCode');
 		gameCode.innerText = name;
@@ -165,13 +128,35 @@
 			let date = JSON.parse(data);
     		if (date.winner === playerNumber) {
         		alert('You win!');
+				
     		}
     		else {
       			alert('You lose!');
     		}
 			});
+			//room.send("canvas", 1000);
 		}
 
+		$: if (matchroom) {
+			matchroom.onMessage("seat", (ticket: any) => {
+				consumeticket(ticket);
+			});
+		}
+		
+		async function consumeticket(ticket : any) {
+			try {
+				  room = await client?.consumeSeatReservation(ticket.ticket);
+				  console.log("joined successfully", room);
+				} catch (e) {
+					  console.error("join error", e);
+				}
+		}
+
+		/*
+			faire changer la taille du canvas.
+			envoyer dans le back tout le temps la taille du canvas !
+			dans le back recuperer la taille du canvas et faire les calculs dynamique.
+		*/
 	
 
 	//function setupMessageHandlers() {
@@ -236,6 +221,20 @@ function handleGameState(gameState: any) {
     requestAnimationFrame(() => trender(gameState));
 }
 
+async function joinMatchMaking() {
+	try {
+		matchroom = await client?.joinOrCreate("matchMaking"); // this will create "my_room" if it doesn't exist already or join it if it does exist
+		console.log('client join match maiking!');
+		return (matchroom);
+	} catch(e) {
+		console.error(e);
+	}
+}
+
+function matchMaking() {
+	promise = joinMatchMaking();
+}
+
 </script>
 
 {#await promise}
@@ -259,13 +258,16 @@ function handleGameState(gameState: any) {
             <button on:click={handleJoinGame} class="btn btn-success" id="joinGameBtn">
                 Join Game
             </button>
+			<button on:click={matchMaking} class="btn btn-success" id="matchMaking">
+				Match Making
+			</button>
         </div>
     </div>
     <div bind:this={game} id="game">
 
 			<h1>Your game code is: <span id="gameCode"></span></h1>
 
-        <canvas bind:this={pong} id ="pong" width="600" height="400"></canvas>
+        <canvas bind:this={pong} id="pong" width=600 height=400></canvas>
     </div>
 	</body>
 </main>
@@ -287,6 +289,19 @@ function handleGameState(gameState: any) {
             left: 0;
             bottom: 0;
         }
+		/*@media (min-width: 1px) and (max-width: 1000px) {
+			canvas {
+				width: 600px;
+				height: 400px;
+			}
+		}
+
+		@media(min-width: 1001px) {
+			canvas {
+				width: 1200px;
+				height: 800px;
+			}
+		}*/
 </style>
 
 
