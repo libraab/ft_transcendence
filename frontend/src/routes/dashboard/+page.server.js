@@ -5,7 +5,7 @@ export async function load( {cookies, fetch} ) {
 	const authToken = cookies.get('jwt_cookie');
 	
 	if (authToken === undefined)
-		throw redirect(307, "/login");
+		throw redirect(307, "/");
 
 	const id42 = cookies.get('id42');
 
@@ -32,12 +32,12 @@ export async function load( {cookies, fetch} ) {
 		else
 		{
 			console.error("smthing went wrong: cannot fetch data");
-			throw redirect(307, "/login");
+			throw redirect(307, "/");
 		}
 	}
 	catch (error)
 	{
 		console.error(error);
-		throw redirect(307, "/login");
+		throw redirect(307, "/");
 	}
 }

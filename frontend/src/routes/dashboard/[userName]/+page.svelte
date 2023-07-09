@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { hostname } from "../../hostname";
+	import { hostname } from "../../../hostname";
 	import { img_path } from "../../../stores";
 
 	export let data;
