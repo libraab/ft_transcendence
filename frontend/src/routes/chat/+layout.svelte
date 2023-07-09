@@ -1,25 +1,33 @@
 <script lang='ts'>
 	import { rooms } from '../../stores'
 	import { goto } from '$app/navigation';
-	// import { Link } from 'svelte-spa-router';
-
+	import { onMount } from 'svelte';
+	import {jwt_cookie} from "../../stores";
+	import { hostname } from '../../hostname';
 	
-	let selected_room_id: number;
-
-	let changeSelectedId = (id: number) => {
-		selected_room_id = id;
-		deleteAlertOn(id);
-	};
-
-	let deleteAlertOn = (roomId: number) =>
+	onMount( () =>
 	{
-		$rooms = $rooms.map((item: any) => 
-		{
-			if (item.roomId === roomId)
-				return { ...item, newMsgCount: 0 };
-			return (item);
-	    });
+		fetchData();
+	})
+
+	async function fetchData() {
+	try {
+		const response = await fetch(`http://${hostname}:8080/api/chat`, {
+				headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
+			});
+		let tmp_rooms = await response.json();
+		// tmp_rooms.forEach((el: any) =>
+		// {
+		// 	if ($rooms.find((room) => (room.roomId == el.roomId)) == undefined)
+		// 		$rooms = [...$rooms, { ...el, newMsgCount: 0}];
+		// });
+		console.log(tmp_rooms);
+		$rooms = tmp_rooms;
 	}
+	catch (error) {
+		console.error(error);
+	}
+}
 
 </script>
 
@@ -28,7 +36,7 @@
 		<ul>
 			{#each $rooms as room (room.roomId)}
 				<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-				<li class:activeroom={room.roomId === selected_room_id} class="one_room" on:click={() => goto('chat/${room.roomId}')} on:keypress>
+				<li class="one_room" on:click={() => goto('chat/${room.roomId}')} on:keypress>
 					<a href={`chat/${room.roomId}`}>{room.roomName}</a>
 					<!-- {#if room.secu !== 3}
 						<button style="float: right;" on:click={() => leaveRoom(room)}>leave</button>
@@ -44,5 +52,141 @@
 </div>
 
 <style>
+	.container {
+		background-color: white;
+		border-radius: 10px;
+		border: solid;
+		border-color: #eaeaea;
+		border-width: 1px 0px 0px 1px;
 
+		color: black;
+		/* height: 100%; occupe 100% de la hauteur de main_body */
+		margin: 0px 200px;
+		max-width: 80wv;
+		min-height: 50vh;
+
+		display: flex;
+		flex-direction: row;
+		justify-content: flex-start;
+		overflow: hidden;
+	}
+
+	.list_box {
+		color: whitesmoke;
+		background-color: #292d39;
+		width: 200px;
+		max-height: 60vh;
+		overflow: scroll;
+	}
+
+	.alertBox {
+		position: absolute;
+		top: 15px;
+		right: 15px;
+		width: 20px;
+		height: 20px;
+		background-color: red;
+		color: white;
+		border-radius: 50%;
+		text-align: center;
+		line-height: 20px;
+		font-size: 12px;
+		display: none;
+	}
+
+	.alertOn
+	{
+		display: block;
+	}
+
+	.one_room {
+		position: relative;
+		font-size: 18px;
+		padding: 15px;
+		cursor: pointer;
+		border-bottom: 1px #898f9f solid;
+	}
+	/* .alertBox
+	{
+		width: 10px;
+		height: 10px;
+		background-color: brown;
+		border-radius: 5px;
+		display: none;
+	} */
+
+	.one_room:hover {
+		background-color: #505668;
+	}
+
+	/* .activeroom {
+		background-color: #898f9f;
+	} */
+
+	li {
+		list-style: none;
+	}
+
+	/* .room_wrap {
+		width: 100%;
+		// max-height: 60vh;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		background: #ffffff;
+		color: #292d39;
+		padding: 5px;
+		max-height: 60vh;
+	}
+
+	.component_send_box {
+		border: solid 1px lightseagreen;
+		border-radius: 50px;
+		overflow: hidden;
+		margin: 0px 20px;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: baseline;
+	}
+
+	.component_send_box input {
+		border: none;
+		width: 100%;
+		max-width: 80%;
+	}
+
+	input:focus {
+    	outline: none;
+	}
+
+	.component_send_box button {
+		border: none;
+		border-radius: 0px;
+		width: 100px;
+		height: 100%;
+		background: lightseagreen;
+	}
+
+	.messages {
+		max-height: 50vh;
+		overflow: scroll;
+	}
+
+	.one_message {
+		padding: 2px;
+	}
+
+	.servermsg {
+		color: gray;
+	}
+	.servermsg strong {
+		color: rgb(190, 43, 29);
+	}
+
+	.info {
+		width: 100%;
+		color: gray;
+		text-align: center;
+	} */
 </style>
