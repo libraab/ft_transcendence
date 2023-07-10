@@ -17,54 +17,59 @@
 	let stats: any = null;
 	let fl: any = [];
 
-	async function fetchData() {
-		try
-		{
-			const response = await fetch(`http://${hostname}:3000/dashboard/${data.userId42}`);
-			if (response.ok)
-			{
-				let vals = await response.json();
-				$clientName = vals.name;
+	// async function fetchData() {
+	// 	try
+	// 	{
+	// 		const response = await fetch(`http://${hostname}:8080/api/dashboard`);
+	// 		if (response.ok)
+	// 		{
+	// 			let vals = await response.json();
+	// 			$clientName = vals.name;
 
-				$img_path = vals.img;
-				stats = vals.clientStats;
-				title = vals.clientStats.title;
-				score = vals.clientStats.score;
-				won = vals.clientStats.won;
-				played = vals.clientStats.played;
-				hf = vals.clientStats.hf;
-				Dfa = vals.Dfa;
-				id = vals.id;
-			}
-			else
-				console.error("layout");
-		}
-		catch (error)
-		{
-			console.error("layout" , error);
-		}
-	}
+	// 			img_path.set(vals.img);
+	// 			stats = vals.clientStats;
+	// 			title = vals.clientStats.title;
+	// 			score = vals.clientStats.score;
+	// 			won = vals.clientStats.won;
+	// 			played = vals.clientStats.played;
+	// 			hf = vals.clientStats.hf;
+	// 			Dfa = vals.Dfa;
+	// 			id = vals.id;
+	// 		}
+	// 		else
+	// 			console.error("fetch didnt worked well");
+	// 	}
+	// 	catch (error)
+	// 	{
+	// 		console.error("layout" , error);
+	// 	}
+	// }
 
-	async function getFlforId() {
-		try {
-			const response = await fetch(`http://${hostname}:3000/dashboard/fl/${id}`)
-			if (response)
-			{
-				fl = await response.json();
-			}
-			else
-				fl = [];
-		}
-		catch (error) {
-			console.error(error);
-		}
-	}
+	// async function getFlforId() {
+	// 	try {
+	// 		const response = await fetch(`http://${hostname}:8080/api/dashboard/fl/${id}`)
+	// 		if (response)
+	// 		{
+	// 			fl = await response.json();
+	// 		}
+	// 		else
+	// 			fl = [];
+	// 	}
+	// 	catch (error) {
+	// 		console.error(error);
+	// 	}
+	// }
 
-	onMount(async () => {		
-		$userId42 = data.userId42;
-		$img_path = data.img;
-		await fetchData();
-		await getFlforId();
+	onMount(async () => {
+		Dfa = data.Dfa
+		id = data.id;
+		img_path.set(data.img);
+		console.log("image path is : ", $img_path);
+		clientName.set(data.name);
+		// $userId42 = data.userId42;
+		// $img_path = data.img;
+		// await fetchData();
+		// await getFlforId();
 	});
 
 	let qrCodeImageUrl = "";	
@@ -99,10 +104,10 @@
 	function toggleRanksTab(){
 		ranksTab = !ranksTab;
 	}
-	async function profileUpdate()
-	{
-		fetchData();
-	}
+	// async function profileUpdate()
+	// {
+	// 	fetchData();
+	// }
 </script>
 
 <!-- <UpdateModal {updatePop} id={id} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
@@ -174,10 +179,8 @@
 						<a href="/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name} ⛔️ </h2></a>
 					{/if}
 				{/each}
-<!--		{:else}
-				<h1>┌∩┐(◕_◕)┌∩┐</h1>
-				<p>No friend</p>
-				<p>nobody loves you...</p> -->
+			{:else}
+				<p>Here you will your Friends.</p>
 			{/if}
 		</div>
 	</main>

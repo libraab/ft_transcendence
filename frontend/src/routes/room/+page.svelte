@@ -14,7 +14,7 @@
 	}
 
 	const fetchRooms = async () => {
-		const response = await fetch(`http://${hostname}:3000/rooms/valideRooms/${data.id}`);
+		const response = await fetch(`http://${hostname}:8080/api/rooms/valideRooms/${data.id}`);
 		if (response.ok) {
 			rooms = await response.json();
 		} else {
@@ -27,7 +27,7 @@
 	{
 		try
 		{
-			const response = await fetch(`http://${hostname}:3000/rooms/${data.id}`);
+			const response = await fetch(`http://${hostname}:8080/api/rooms/${data.id}`);
 			if (response.ok)
 				ownedRoom = await response.json();
 			else
@@ -55,7 +55,7 @@
 			password = "";
 		console.log(password);
 		// ici je fais api call  au back
-		const response = await fetch(`http://${hostname}:3000/chat`, {
+		const response = await fetch(`http://${hostname}:8080/api/chat`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

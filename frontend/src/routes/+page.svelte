@@ -3,7 +3,8 @@
 	import { onMount } from 'svelte';
     import {jwt_cookie, img_path} from "../stores";
 	import { goto } from '$app/navigation';
-    export let data;
+
+    export let data: any; //exported data is the cookie
 
 
     // const url = `https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-a5af938705ebd0c4b5b8a782f8b8026fb20fae93ce976a067e4d2033ee47c4d9&redirect_uri=http%3A%2F%2F${hostname}%3A3000%2Fauth&response_type=code`
@@ -15,26 +16,24 @@
 
     if (!$jwt_cookie)
         jwt_cookie.set(data.myJwtCookie);
-
-    onMount(() => {
-        if ($jwt_cookie){
-            fetch('http://localhost:8080/api/dashboard', {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${$jwt_cookie}`
-                }
-            }).then(async(data) => {
-                const values = await data.json();
-                img_path.set(values.img);
-                goto('/dashboard');
-            }).catch(err => {
-                console.log(err);
-            });
-        }
-    });
-
-    
-
+    if ($jwt_cookie){
+        fetch('http://localhost:8080/api/dashboard', {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${$jwt_cookie}`
+            }
+        }).then(async(data) => {
+            const values = await data.json();
+            // if (values.img)
+            // {
+            //     img_path.set(values.img);
+            //     console.log("image path is : ", $img_path);
+            // }
+            goto('/dashboard');
+        }).catch(err => {
+            console.log(err);
+        });
+    }
 </script>
 
 <form>

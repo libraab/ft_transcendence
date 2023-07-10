@@ -10,12 +10,16 @@ import {
   HttpException,
   HttpStatus,
   BadRequestException,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { createRoomDto } from '../dashboard/dashboardDtos/createsTablesDtos';
 import * as bcrypt from 'bcrypt';
 import { UserConnectedService } from './user-connected-service.service';
 import { ChatGateway } from './chat.gateway';
+import { AuthGuard } from 'src/auth/auth.guard';
+import IJWT from 'src/interfaces/jwt.interface';
 
 @Controller('chat')
 export class ChatController {
@@ -26,14 +30,28 @@ export class ChatController {
     private gateway: ChatGateway,
   ) {}
   //----------------------------------------------------------------------//
-  @Get(':id')
-  async getAllUsersChat(@Param('id', ParseIntPipe) id: number) {
-    if (id <= 0) throw new BadRequestException('invalid user');
-    const client = await this.db.getClientById42(id);
-    const json = await this.db.getRoomIdsAndNamesByClientId(client.id);
-    console.log(json);
-    return json;
-  }
+  // @Get(':id')
+  // async getAllUsersChatBadOne(@Param('id', ParseIntPipe) id: number) {
+  //   if (id <= 0) throw new BadRequestException('invalid user');
+  //   const client = await this.db.getClientById42(id);
+  //   const json = await this.db.getRoomIdsAndNamesByClientId(client.id);
+  //   console.log(json);
+  //   return json;
+  // }
+
+   //----------------------------------------------------------------------//
+  @UseGuards(AuthGuard)
+  @Get()
+  async getAllUsersChat(
+    @Request() req: { user: IJWT },
+  ) {
+    //  if (id <= 0) throw new BadRequestException('invalid user');
+      console.log("User Chat Request for id :", req.user);
+     const client = await this.db.getClientById42(req.user.id);
+     const json = await this.db.getRoomIdsAndNamesByClientId(client.id);
+     console.log(json);
+     return json;
+   }
 
   //----------------------------------------------------------------------//
   @Get('/messages/:id')
@@ -122,12 +140,12 @@ export class ChatController {
 	5 - banned
 	*/
   //----------------------------------------------------------------------//
-  @Get()
-  async getRooms(): Promise<{ id: number; name: string }[]> {
-    return this.db.getRooms();
-    //TODO
-    //return this.db.getRoomsWhereUserIsNotMember(id);
-  }
+  // @Get()
+  // async getRooms(): Promise<{ id: number; name: string }[]> {
+  //   return this.db.getRooms();
+  //   //TODO
+  //   //return this.db.getRoomsWhereUserIsNotMember(id);
+  // }
 
   @Post('/verify-password')
   async joinProtectedRoom(@Body() data) {
