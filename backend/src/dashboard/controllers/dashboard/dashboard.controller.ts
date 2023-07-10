@@ -142,10 +142,10 @@ export class DashboardController {
     return this.db.getTop100Scores();
   }
 
-  @Get('/cookie/:cookie')
-  async getByCookie(@Param('cookie') cookie: string) {
-    return this.db.getClientByCookie(cookie);
-  }
+  // @Get('/cookie/:cookie')
+  // async getByCookie(@Param('cookie') cookie: string) {
+  //   return this.db.getClientByCookie(cookie);
+  // }
 
   @Get('/name/:id/:name')
   async searchFor(

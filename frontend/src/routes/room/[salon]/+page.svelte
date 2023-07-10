@@ -15,29 +15,29 @@
 	onMount(async () => {
 		choosenRoom = data.room;
 		choosenRoomId = data.members.roomId.id;
-		$img_path = data.img_path;
-		$userId42 = parseInt(data.userId42, 10);
+		// $img_path = data.img_path;
+		// $userId42 = parseInt(data.userId42, 10);
 		owned = data.members.userStatus === 0;
 
 		await fetchprivateRoomMembers();
 		await fetchAllRoomMembers();
 
-		try
-		{
-			const response = await fetch(`http://${hostname}:3000/dashboard/${data.userId42}`);
-			if (response.ok)
-			{
-				let vals = await response.json();
-				$clientName = vals.name;
-			}
-			else
-				console.error("layout");
+		// try
+		// {
+		// 	const response = await fetch(`http://${hostname}:3000/dashboard/${data.userId42}`);
+		// 	if (response.ok)
+		// 	{
+		// 		let vals = await response.json();
+		// 		$clientName = vals.name;
+		// 	}
+		// 	else
+		// 		console.error("layout");
 
-		}
-		catch (error)
-		{
-			console.error("layout" , error);
-		}
+		// }
+		// catch (error)
+		// {
+		// 	console.error("layout" , error);
+		// }
 	});
 
 	let privateRoomMembers: any = [];
@@ -45,7 +45,7 @@
 	{
 		try
 		{
-			const response = await fetch(`http://${hostname}:3000/rooms/privateRoomMember/${choosenRoomId}`);
+			const response = await fetch(`http://${hostname}:8080/api/rooms/privateRoomMember/${choosenRoomId}`);
 			if (response.ok)
 				privateRoomMembers = await response.json();
 			else
@@ -61,10 +61,10 @@
 	{
 		let url;
 		if (owned) {
-			url = `http://${hostname}:3000/rooms/allRoomMember/${choosenRoomId}/${data.id}`;
+			url = `http://${hostname}:8080/api/rooms/allRoomMember/${choosenRoomId}/${data.id}`;
 		}
 		else {
-			url = `http://${hostname}:3000/rooms/allRoomMemberForAdmins/${choosenRoomId}/${data.id}`;
+			url = `http://${hostname}:8080/api/rooms/allRoomMemberForAdmins/${choosenRoomId}/${data.id}`;
 		}
 
 		try
@@ -83,7 +83,7 @@
 
 	async function accept(client: any) {
 		try {
-			const response = await fetch(`http://${hostname}:3000/rooms/acceptNewMember/${choosenRoomId}/${client.id}`, {
+			const response = await fetch(`http://${hostname}:8080/api/rooms/acceptNewMember/${choosenRoomId}/${client.id}`, {
 				method: 'POST',
 			});
 
@@ -108,7 +108,7 @@
 
 	async function updateClientStatus(roomId: number, clientId: number, status: number) {
 		try {
-			const response = await fetch(`http://${hostname}:3000/rooms/updateStatus/${roomId}/${clientId}/${status}`, {
+			const response = await fetch(`http://${hostname}:8080/api/rooms/updateStatus/${roomId}/${clientId}/${status}`, {
 				method: 'POST',
 			});
 
@@ -151,7 +151,7 @@
 	async function kick(client: any)
 	{
 		try {
-			const response = await fetch(`http://${hostname}:3000/rooms/kick/${choosenRoomId}/${client.id}`, {
+			const response = await fetch(`http://${hostname}:8080/api/rooms/kick/${choosenRoomId}/${client.id}`, {
 				method: 'POST',
 			});
 
@@ -205,7 +205,7 @@
 </script>
 
 {#if delTab !== ""}
-	<DelModal {delTab} roomId={choosenRoomId} id={data.id}
+	<DelModal {delTab} roomId={choosenRoomId} id={$userId42}
 		on:click={()=> toggleDel("")}
 		on:validationClick={ delReturn }/>
 {/if}

@@ -1,5 +1,6 @@
 <script lang="ts">
     import {PUBLIC_API_42, PUBLIC_DOMAIN_BACK} from '$env/static/public';
+    import {hostname} from '$lib/hostname';
 	import { onMount } from 'svelte';
     import {jwt_cookie, img_path} from "../stores";
 	import { goto } from '$app/navigation';
@@ -10,14 +11,13 @@
     // const url = `https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-a5af938705ebd0c4b5b8a782f8b8026fb20fae93ce976a067e4d2033ee47c4d9&redirect_uri=http%3A%2F%2F${hostname}%3A3000%2Fauth&response_type=code`
 
     const url = `https://api.intra.42.fr/oauth/authorize?client_id=${PUBLIC_API_42}&redirect_uri=${encodeURI(PUBLIC_DOMAIN_BACK)}&response_type=code`;
-    //jwt_cookie.set();
 
     // to get my jwt cookie:
-
-    if (!$jwt_cookie)
+    onMount (async () => {
+        if (!$jwt_cookie)
         jwt_cookie.set(data.myJwtCookie);
-    if ($jwt_cookie){
-        fetch('http://localhost:8080/api/dashboard', {
+        if ($jwt_cookie){
+            fetch(`http://${hostname}:8080/api/dashboard`, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${$jwt_cookie}`
@@ -34,6 +34,8 @@
             console.log(err);
         });
     }
+    });
+    
 </script>
 
 <form>

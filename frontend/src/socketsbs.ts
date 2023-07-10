@@ -19,7 +19,7 @@ export async function initializeSocket(data: any) {
 
   socket.chat = io(hostname+':3000/chat', {path: '/chatsockets'});//, auth: {token: }});
   socket.chat.emit('whoAmI', socketData.id);
-  socket.game = io(hostname+':3000/pong', {path: '/pongsockets'});//, auth: {token: }});
+  socket.game = io(hostname+':3000/game', {path: '/gamesockets'});//, auth: {token: }});
 
   reloadRooms();
   defineSocketEvents();

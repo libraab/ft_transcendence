@@ -5,6 +5,8 @@
 <center>
 	<div>
 		<h1>{$page.status}</h1>
-		<h2>{$page.error.message}</h2>
+		{#if $page.error}
+			<h2>{$page.error.message}</h2>
+		{/if}
 	</div>
 </center>

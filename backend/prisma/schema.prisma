@@ -15,7 +15,7 @@ model Clients {
   id42   Int     @unique
   img    String  @db.VarChar(100)
   name   String  @unique @db.VarChar(50)
-  cookie String  @unique @db.VarChar(250)
+  cookie String
   Dfa    Boolean
   DfaSecret String?
 

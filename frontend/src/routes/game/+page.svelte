@@ -20,7 +20,7 @@
 	let gameCode: any;
 	let playerNumber: number;
 	if (browser) {
-		client = new Client("ws://" + location.hostname + ":8080/ws");
+		client = new Client("ws://" + location.hostname + ":3001/ws");
 	}
 
 	async function createGame() {
@@ -241,6 +241,8 @@ function matchMaking() {
 	<p>attente</p>
 {:then test} 
 	<button on:click={initGame}>init game</button>
+{:catch err}
+	<p>error: {err}</p>
 {/await}
 
 <main>

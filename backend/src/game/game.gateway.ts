@@ -13,9 +13,9 @@ import { DatabaseService } from 'src/database/database.service';
 import { Lobby, Player } from './lobby';
 
 @WebSocketGateway({
-  namespace: 'pong',
+  namespace: 'game',
   cors: {
-    origin: 'http://localhost:8080',
+    origin: 'http://localhost/ws:8080',
   },
 })
 export class GameGateway {
@@ -24,7 +24,7 @@ export class GameGateway {
 
   constructor(private db: DatabaseService, private lobby: Lobby) {}
 
-  private logger: Logger = new Logger('PongGateway');
+  private logger: Logger = new Logger('GameGateway');
 
   afterInit(server: Server) {
     this.logger.log('Initialized');
