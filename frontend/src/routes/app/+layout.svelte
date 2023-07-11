@@ -33,7 +33,7 @@
                     //connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
                     console.log("fetch failed in app layout");
                     console.log(connect.status);
-					throw redirect(307, "/");
+					goto("/");
                 }
             }
             catch (error) {
@@ -53,7 +53,7 @@
 		$img_path = "";
 		$clientName = "";
 		$userId42 = 0;
-		goto("/app/logout")
+		// goto("/app/logout")
 	}
 </script>
 
