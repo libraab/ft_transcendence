@@ -131,6 +131,13 @@ export class ChatController {
     this.db.addMemberToRoom(Room.id, this.dto.ownerid, 0);
     return HttpStatus.NO_CONTENT;
   }
+
+  @Get('/bannedFor/:id')
+  async getBannedPeople(@Param('id', ParseIntPipe) clientId: number)
+  {
+    return this.db.getBannedRelationshipsForId(clientId);
+  }
+
   //----------------------------------------------------------------------//
   /*
 	0 - owner
