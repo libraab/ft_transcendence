@@ -17,7 +17,7 @@
 	let stats: any = null;
 	let fl: any = [];
 
-	let test: any = process.env.BS;
+	// let test: any = process.env.BS;
 
 	// async function fetchData() {
 	// 	try

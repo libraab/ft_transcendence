@@ -3,6 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { onDestroy, onMount } from 'svelte';
 	import { jwt_cookie } from '$lib/stores';
+	import { io } from 'socket.io-client'
 	
 	onMount( () =>
 	{

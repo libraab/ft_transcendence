@@ -1,6 +1,5 @@
 <script lang='ts'>
     import { onDestroy, onMount } from "svelte";
-	import { hostname } from "../hostname"
 
 	//exported var
 	export let userId: number;
@@ -35,7 +34,7 @@
 		try {
 			if (!userId) return;
 
-			const response = await fetch(`http://${hostname}:8080/api/chat/connected/${userId}`);
+			const response = await fetch(`/api/chat/connected/${userId}`);
 			let status = await response.json();
 			userStatus = status;
 		}

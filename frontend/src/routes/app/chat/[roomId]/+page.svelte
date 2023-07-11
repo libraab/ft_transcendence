@@ -1,11 +1,12 @@
 <script lang='ts'>
 	import { goto } from "$app/navigation";
+	import ConnectStatus from "$lib/connectStatus.svelte";
 	import { jwt_cookie } from "$lib/stores";
 	import { onMount, afterUpdate } from "svelte";
 
     export let data: any;
     let roomId = data.roomId;
-    $:{fetch(roomId)}
+    
     let RoomsMessages: any = [];
     
     let user_message: string;
@@ -14,12 +15,12 @@
 
     onMount(() => {
         console.log(roomId);
-        fetchData(roomId);
+        fetchData();
     })
 
-    async function fetchData(room_id) {
+    async function fetchData() {
         try {
-            const response = await fetch(`/api/chat/messages/${room_id}`, {
+            const response = await fetch(`/api/chat/messages/${roomId}`, {
                     headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
                 });
             let messages = await response.json();
@@ -34,7 +35,8 @@
     
     let sendMessage = () => {
             // socket.chat.emit('chatToServer', {channel: ROOMID??PASTROUVE, sender: 'moi', message: user_message, sender_id: data.userId42});
-            user_message = ""
+            RoomsMessages = [...RoomsMessages, {sender: 'coco', message: user_message}];
+            user_message = "";
     }
     
 </script>
