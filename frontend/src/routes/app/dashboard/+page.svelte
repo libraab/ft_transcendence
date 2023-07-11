@@ -6,7 +6,7 @@
 	import axios from 'axios';
 
 
-	export let data;
+	// export let data;
 	let title: string;
 	let score: number;
 	let won: number;
@@ -60,30 +60,30 @@
 	// 	}
 	// }
 
-	onMount(async () => {
-		Dfa = data.Dfa
-		id = data.id;
-		img_path.set(data.img);
-		console.log("image path is : ", $img_path); // ici c'est le seul endroit ou on change le storage value de img
-		clientName.set(data.name);
-		// $userId42 = data.userId42;
-		// $img_path = data.img;
-		// await fetchData();
-		// await getFlforId();
-	});
+	// onMount(async () => {
+	// 	Dfa = data.Dfa
+	// 	id = data.id;
+	// 	img_path.set(data.img);
+	// 	console.log("image path is : ", $img_path); // ici c'est le seul endroit ou on change le storage value de img
+	// 	clientName.set(data.name);
+	// 	// $userId42 = data.userId42;
+	// 	// $img_path = data.img;
+	// 	// await fetchData();
+	// 	// await getFlforId();
+	// });
 
 	let qrCodeImageUrl = "";	
-	async function toggleDFAState() {
-		Dfa = !Dfa;
+	// async function toggleDFAState() {
+	// 	Dfa = !Dfa;
 
-		try {
-			const response = await axios.post(`http://${hostname}:3000/auth/2fa/${id}`, { Dfa });
-			console.log('DFA status updated in the database.');
-			qrCodeImageUrl = response.data.qrCodeImageUrl;
-		} catch (error) {
-			console.error('Failed to update DFA status:', error);
-		}
-	}
+	// 	try {
+	// 		const response = await axios.post(`http://${hostname}:3000/auth/2fa/${id}`, { Dfa });
+	// 		console.log('DFA status updated in the database.');
+	// 		qrCodeImageUrl = response.data.qrCodeImageUrl;
+	// 	} catch (error) {
+	// 		console.error('Failed to update DFA status:', error);
+	// 	}
+	// }
 
 	/*
 		TODO FOR FL REGULAR CONNECTED SOCKET

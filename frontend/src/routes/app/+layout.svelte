@@ -4,7 +4,7 @@
 	import { onMount } from 'svelte';
 	import { redirect } from '@sveltejs/kit';
 
-
+	// la socket ICICICICI//
 	/**
 	 * La logique de ce Layout qui englobe tout App
 	 * On fait un fetch 'test' et on recupere chaque info necessaire quon stock dans stores et dans le localStorage en consequent
