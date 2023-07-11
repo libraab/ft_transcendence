@@ -13,7 +13,7 @@ export let rooms = writable<Room[]>([]);
 	bon site qui explique un peut la chose: https://rodneylab.com/using-local-storage-sveltekit/
 */
 //----------------------------------------------------------------//
-const persitedImg_path: string = browser ? localStorage.getItem('img_path') ?? "/il_794xN.3892173164_egqv.avif" : "/il_794xN.3892173164_egqv.avif";
+const persitedImg_path: string = browser ? localStorage.getItem('img_path') ?? "" : "";
 export const img_path = writable(persitedImg_path);
 
 img_path.subscribe((value: string) => {
@@ -21,6 +21,11 @@ img_path.subscribe((value: string) => {
 		window.localStorage.setItem('img_path', value);
 	}
 })
+
+// if initially img_path was not defined we define a default value
+if (browser && window.localStorage.getItem('img_path') === undefined)
+	img_path.set("/logo.jpeg")
+
 //----------------------------------------------------------------//
 const persitedUserId42: number = browser ? parseInt(localStorage.getItem('userId42') ?? 0, 10) : 0;
 export const userId42 = writable(persitedUserId42);

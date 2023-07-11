@@ -1,14 +1,67 @@
 <script lang="ts">
-	import { img_path, clientName } from "../stores";
+	import { jwt_cookie, img_path, clientName, userId42 } from '$lib/stores';
 	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import { redirect } from '@sveltejs/kit';
 
+
+	/**
+	 * La logique de ce Layout qui englobe tout App
+	 * On fait un fetch 'test' et on recupere chaque info necessaire quon stock dans stores et dans le localStorage en consequent
+	 * Si nok alors lacces a l'app est interdite et on renvoi sur la page de debut
+	*/
+	onMount( async () =>
+    {
+		if ($jwt_cookie)
+        {
+            try {
+                const connect = await fetch(`/api/dashboard`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${$jwt_cookie}`
+                    }
+                });
+                if (connect.status == 200)
+                {
+                    console.log("your fetch was sucessfull");
+					const data = await connect.json();
+					$img_path = data.img;
+					$clientName = data.name;
+                }
+                else
+                {
+                    //connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
+                    console.log("fetch failed in app layout");
+                    console.log(connect.status);
+					throw redirect(307, "/");
+                }
+            }
+            catch (error) {
+                console.error("fetching in '/' :" , error);
+				goto("/");
+            }
+        }
+    })
+
+	/**
+	 * La fonction handleLogOut est appelee lorsque le user click sur le bouton LogOut
+	 * Ce qu'on doit faire cest supprimer tous les localStorage et les cookies de la session
+	 * Puis renvoyer la session en "/"
+	 */
+	let handleLogOut = () => {
+		$jwt_cookie = "";
+		$img_path = "";
+		$clientName = "";
+		$userId42 = 0;
+		goto("/app/logout")
+	}
 </script>
 
 
 <header>
 	<div class="image-container">
 		<img src={$img_path} alt="logo" class="rick">
-		<p><strong>{$clientName}</strong></p>
+		<button class="Log Out" on:click={handleLogOut}>Log Out</button>
 	</div>
 	<div class="description">
 		<h1 class="glow-text">FT_TRANSCENDENCE</h1>
@@ -18,15 +71,14 @@
 
 <div>
 	<nav class="tabs">
-		<button on:click={ () => goto('/dashboard') } >DashBoard</button>
-		<button on:click={ () => goto('/game') } >Game</button>
-		<button on:click={ () => goto('/chat') } >Chat</button>
-		<button on:click={ () => goto('/room') } >Room</button>
+		<button on:click={ () => goto('/app/dashboard') } >DashBoard</button>
+		<button on:click={ () => goto('/app/game') } >Game</button>
+		<button on:click={ () => goto('/app/chat') } >Chat</button>
+		<button on:click={ () => goto('/app/room') } >Room</button>
 	</nav>
 </div>
 
 <main>
-	<a href="/" style="color: black;">&#8592; my profile</a>
 	<slot class="main_body"></slot>
 </main>
 

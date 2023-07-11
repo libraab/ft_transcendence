@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client'
 import { hostname } from './hostname'
 import { get, writable } from 'svelte/store';
-import { userId42 } from './stores';
+import { userId42 } from './lib/stores';
 
 export const rooms = writable<any>([]);
 export let alertPopupOn = false;

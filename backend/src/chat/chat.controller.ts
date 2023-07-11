@@ -100,6 +100,7 @@ export class ChatController {
   @Post()
   async createNewRoom(@Body() data) {
     const existingRooms = await this.db.getRooms();
+    const userinfo = await this.db.getClientById42(parseInt(data.iddata)); //ici check si ok
     const roomNames = existingRooms.map((room) => room.name);
     if (roomNames.includes(data.roomName)) {
       throw new HttpException(
@@ -108,7 +109,7 @@ export class ChatController {
       );
     }
     this.dto.name = data.roomName;
-    this.dto.ownerid = data.iddata;
+    this.dto.ownerid = userinfo.id;
 
     if (data.roomType == 'public') this.dto.secu = 0;
     if (data.roomType == 'protected') {

@@ -3,12 +3,11 @@
 	Le return permet de le recuperer en props dans page.svelte en route "/"
  */
 
-export function load({ cookies }) {
-	const myJwtCookie = cookies.get('jwt_cookie');
-	const myid42 = cookies.get('id42');
-
-	return {
-		myJwtCookie,
-		myid42
-	};
+export async function load({ cookies }) {
+	cookies.delete('jwt_cookie'); //se delete pas
+	return (
+		{
+			ok: true,
+		}
+	)
 }

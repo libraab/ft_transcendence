@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { hostname } from "../../../hostname";
-	import { img_path, userId42, clientName } from "../../../stores";
+	import { img_path, userId42, clientName } from "../../../lib/storesores";
 	import DelModal from './delete_resign.svelte'
 	import { goto } from '$app/navigation';
 

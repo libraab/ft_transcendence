@@ -1,8 +1,8 @@
 <script lang="ts">
+	import { userId42 } from "$lib/stores.js";
 	import { onMount } from "svelte";
-	import { hostname } from "../../hostname";
 
-	export let data;
+	// export let data;
 	let rooms: any = [];
 	let isFormVisible: boolean = false;
 	let roomName: string = '';
@@ -14,7 +14,7 @@
 	}
 
 	const fetchRooms = async () => {
-		const response = await fetch(`http://${hostname}:8080/api/rooms/valideRooms/${data.id}`);
+		const response = await fetch(`/api/rooms/valideRooms/${$userId42}`);
 		if (response.ok) {
 			rooms = await response.json();
 		} else {
@@ -27,7 +27,7 @@
 	{
 		try
 		{
-			const response = await fetch(`http://${hostname}:8080/api/rooms/${data.id}`);
+			const response = await fetch(`/api/rooms/${$userId42}`);
 			if (response.ok)
 				ownedRoom = await response.json();
 			else
@@ -55,7 +55,7 @@
 			password = "";
 		console.log(password);
 		// ici je fais api call  au back
-		const response = await fetch(`http://${hostname}:8080/api/chat`, {
+		const response = await fetch(`/api/chat`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
@@ -64,7 +64,7 @@
 				roomName,
 				roomType,
 				password,
-				iddata: data.id
+				iddata: $userId42,
 			})
 		});
 		if (response.ok) {
@@ -97,7 +97,7 @@
 	};
 
 	const join = async (room: any) => {
-		const response = await fetch(`http://${hostname}:3000/rooms/join/${room.id}/${data.id}`, {
+		const response = await fetch(`/api/rooms/join/${room.id}/${$userId42}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

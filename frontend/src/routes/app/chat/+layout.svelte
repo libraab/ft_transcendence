@@ -1,9 +1,9 @@
 <script lang='ts'>
-	import { rooms } from '../../stores'
+	import { rooms } from '$lib/stores'
 	import { goto } from '$app/navigation';
 	import { onMount } from 'svelte';
-	import {jwt_cookie} from "../../stores";
-	import { hostname } from '../../hostname';
+	import {jwt_cookie} from '$lib/stores';
+	import { hostname } from '$lib/hostname';
 	
 	onMount( () =>
 	{
@@ -61,7 +61,7 @@
 
 		color: black;
 		/* height: 100%; occupe 100% de la hauteur de main_body */
-		margin: 0px 200px;
+		margin: 0px 100px;
 		max-width: 80wv;
 		min-height: 50vh;
 

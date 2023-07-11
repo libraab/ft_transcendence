@@ -1,8 +1,8 @@
 <script lang="ts">
 
 	import { onMount } from "svelte";
-	import { hostname } from "../../hostname";
-	import { img_path, userId42, clientName } from "../../stores";
+	import {hostname} from '$lib/hostname';
+	import { img_path, userId42, clientName } from '$lib/stores';
 	import axios from 'axios';
 
 
@@ -64,7 +64,7 @@
 		Dfa = data.Dfa
 		id = data.id;
 		img_path.set(data.img);
-		console.log("image path is : ", $img_path);
+		console.log("image path is : ", $img_path); // ici c'est le seul endroit ou on change le storage value de img
 		clientName.set(data.name);
 		// $userId42 = data.userId42;
 		// $img_path = data.img;

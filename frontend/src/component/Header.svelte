@@ -1,7 +1,7 @@
 <script>
     import { dataset_dev } from "svelte/internal";
 	import ConnectStatus from "../shared/connectStatus.svelte";
-	import { img_path} from "../stores";
+	import { img_path} from "../lib/storesores";
 	export let data;
 
 	let id = -1;

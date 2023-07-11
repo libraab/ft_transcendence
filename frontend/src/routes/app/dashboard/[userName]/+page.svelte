@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { hostname } from "../../../hostname";
-	import { img_path } from "../../../stores";
+	import { img_path } from "../../../lib/storesores";
 
 	export let data;
 	let stats: any;

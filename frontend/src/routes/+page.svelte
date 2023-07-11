@@ -1,62 +1,119 @@
 <script lang="ts">
     import {PUBLIC_API_42, PUBLIC_DOMAIN_BACK} from '$env/static/public';
-    import {hostname} from '$lib/hostname';
+    import {jwt_cookie, img_path, userId42} from '$lib/stores';
 	import { onMount } from 'svelte';
-    import {jwt_cookie, img_path} from "../stores";
 	import { goto } from '$app/navigation';
+	// import { error } from '@sveltejs/kit';
 
     export let data: any; //exported data is the cookie
 
-
-    // const url = `https://api.intra.42.fr/oauth/authorize?client_id=u-s4t2ud-a5af938705ebd0c4b5b8a782f8b8026fb20fae93ce976a067e4d2033ee47c4d9&redirect_uri=http%3A%2F%2F${hostname}%3A3000%2Fauth&response_type=code`
-
+    // On defini l'url le Oauth api vers lequel le user doit etre dirige afin 
     const url = `https://api.intra.42.fr/oauth/authorize?client_id=${PUBLIC_API_42}&redirect_uri=${encodeURI(PUBLIC_DOMAIN_BACK)}&response_type=code`;
 
-    // to get my jwt cookie:
-    onMount (async () => {
-        if (!$jwt_cookie)
-        jwt_cookie.set(data.myJwtCookie);
-        if ($jwt_cookie){
-            fetch(`http://${hostname}:8080/api/dashboard`, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${$jwt_cookie}`
-            }
-        }).then(async(data) => {
-            const values = await data.json();
-            // if (values.img)
-            // {
-            //     img_path.set(values.img);
-            //     console.log("image path is : ", $img_path);
-            // }
-            goto('/dashboard');
-        }).catch(err => {
-            console.log(err);
-        });
-    }
-    });
     
+    onMount( async () =>
+    {
+        //on stock le cookie dans un local Storage pour y avoir plus facilement acces
+        jwt_cookie.set(data.myJwtCookie);
+        userId42.set(data.myid42);
+
+        // Premier cas : on a pas de cookie le local Storage est undefined et on attent que le User clique sur SignIn qui va lui permettre de faire la procedure d'auth et de recuperer un cookie
+        
+        // Deuxieme cas : on a un cookie. On verifie que la connexion a l.api fonctionne grace a ce cookie
+        //                  Si le retour est ok on redirige le user dans l'application
+        //                  Si le retour est ko cela veut dire qu'on a un mauvais cookie (expire ou bien un pirate que sait-je) et donc on attend quil sign in pour reprendre un nouveau cookie
+        if ($jwt_cookie)
+        {
+            try {
+                const connect = await fetch(`/api/dashboard`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${$jwt_cookie}`
+                    }
+                });
+                if (connect.status == 200)
+                {
+                    console.log("your fetch was sucessfull");
+                    goto('/app/dashboard');
+                }
+                else
+                {
+                    //connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
+                    console.log("fetch failed in login page");
+                    console.log(connect.status);
+                    // console.log(connect.message);
+                }
+            }
+            catch (error) {
+                console.error("fetching in '/' :" , error);
+            }
+        }
+    })
+    
+    // if ($jwt_cookie){
+    //     fetch(`http://${hostname}:8080/api/dashboard`, {
+    //         method: 'GET',
+    //         headers: {
+    //             'Authorization': `Bearer ${$jwt_cookie}`
+    //         }
+    //     }).then(async(data) => {
+            
+    //         const values = await data.json();
+    //         goto('/dashboard');
+    //     }).catch(err => {
+    //         console.log(err);
+    //     });
+    // }
 </script>
 
-<form>
-    <a href={url} class="login-button">
-        Sign in with 42
-    </a>
+<div class="wrapper">
+    <form>
+        <h1>FT_TRANSCENDENCE</h1>
+        <h2>Hello traveler, to start you pong journey please use the button bellow</h2>
+        <a href={url} class="login-button">
+            Sign in with 42
+        </a>
+    
+        <h1>My jwt {$jwt_cookie}!</h1>
+    </form>
+</div>
 
-    <h1>My jwt {$jwt_cookie}!</h1>
-</form>
 
+<style global>
 
-<style>
+    :global(body) 
+    {
+        margin: 0 0 0 0;
+        padding: 0 0 0 0;
+    }
+
+    .wrapper {
+        background-image: src('/background42.jpg');
+        background-size: cover;
+        background-position: center;
+        width: 100%;
+        height: 100vh;
+    }
 
     form {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 150px;
-        border: none;
-        border-radius: 8px;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 100px;
+        border-radius: 10px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
+
+    form h1 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+    form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
 
     .login-button {
         display: block;
@@ -71,8 +128,7 @@
         background-color: #007bff;
         border-radius: 8px;
         transition: background-color 0.2s ease-in-out;
-        margin-top: auto;
-        margin-bottom: auto;
+        margin: auto auto;
     }
 
     .login-button:hover {
