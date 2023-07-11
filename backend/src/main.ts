@@ -55,8 +55,6 @@ async function bootstrap() {
   await app.listen(3000, '0.0.0.0', () => {
     logger.log("L'application est en cours d'écoute sur le port 3000"); // Utilisez le logger pour enregistrer un message de log
   });
-
-
 }
 
 bootstrap();

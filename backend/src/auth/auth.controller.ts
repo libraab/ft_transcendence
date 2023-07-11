@@ -40,11 +40,8 @@ export class AuthController {
     @Query() query: any,
     @Res({ passthrough: true }) response: FastifyReply,
   ) {
-    console.log('ENTER HERE!!!!!!!!!!!!!');
     const { code } = query;
-    console.log('code', code);
     const access_token = await this.authService.get_token(code);
-    console.log(access_token);
     if (access_token == undefined)
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     const user_info: User42Interface = await this.authService.get_user_info(
@@ -72,7 +69,6 @@ export class AuthController {
     const add_cookie: UpdateClientDto = new UpdateClientDto();
     // generetate the jwt
     const jwt = await this.jwtService.signAsync({ id: user_info.id });
-    console.log(jwt);
     response.setCookie('jwt_cookie', jwt, { path: '/' });
     response.setCookie('id42', user.id42.toString(), { path: '/' });
     // return response;
@@ -93,11 +89,8 @@ export class AuthController {
     @Param('id', ParseIntPipe) id: number,
     @Body('code') code: string,
   ) {
-    console.log(code);
     const user = await this.databaseService.getClientById(id);
-    console.log(user);
     const isVerified = authenticator.check(code, user.DfaSecret);
-    console.log(isVerified);
     const userDto: UpdateClientDto = new UpdateClientDto();
     if (isVerified) {
       // userDto.dfa = false;

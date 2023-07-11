@@ -9,6 +9,9 @@ services:
     environment:
       - PORT_DB=${PORT_DB}
       - HOSTNAME=${HOSTNAME}
+      - PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
+      - PUBLIC_API_42=${PUBLIC_API_42}
+      - PUBLIC_DOMAIN_BACK=${PUBLIC_DOMAIN_BACK}
     networks:
       frontend_network:
         aliases:

@@ -1,5 +1,4 @@
 <script lang="ts">
-    import {PUBLIC_API_42, PUBLIC_DOMAIN_BACK} from '$env/static/public';
     import {jwt_cookie, img_path, userId42} from '$lib/stores';
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
@@ -7,10 +6,6 @@
 
     export let data: any; //exported data is the cookie
 
-    // On defini l'url le Oauth api vers lequel le user doit etre dirige afin 
-    const url = `https://api.intra.42.fr/oauth/authorize?client_id=${PUBLIC_API_42}&redirect_uri=${encodeURI(PUBLIC_DOMAIN_BACK)}&response_type=code`;
-
-    
     onMount( async () =>
     {
         //on stock le cookie dans un local Storage pour y avoir plus facilement acces
@@ -70,7 +65,7 @@
     <form>
         <h1>FT_TRANSCENDENCE</h1>
         <h2>Hello traveler, to start you pong journey please use the button bellow</h2>
-        <a href={url} class="login-button">
+        <a href={data.url} class="login-button">
             Sign in with 42
         </a>
     

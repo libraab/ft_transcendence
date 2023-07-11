@@ -17,6 +17,8 @@
 	let stats: any = null;
 	let fl: any = [];
 
+	let test: any = process.env.BS;
+
 	// async function fetchData() {
 	// 	try
 	// 	{
@@ -73,17 +75,17 @@
 	// });
 
 	let qrCodeImageUrl = "";	
-	// async function toggleDFAState() {
-	// 	Dfa = !Dfa;
+	async function toggleDFAState() {
+//		Dfa = !Dfa;
 
-	// 	try {
-	// 		const response = await axios.post(`http://${hostname}:3000/auth/2fa/${id}`, { Dfa });
-	// 		console.log('DFA status updated in the database.');
-	// 		qrCodeImageUrl = response.data.qrCodeImageUrl;
-	// 	} catch (error) {
-	// 		console.error('Failed to update DFA status:', error);
-	// 	}
-	// }
+//		try {
+//			const response = await axios.post(`http://${hostname}:3000/auth/2fa/${id}`, { Dfa });
+//			console.log('DFA status updated in the database.');
+//			qrCodeImageUrl = response.data.qrCodeImageUrl;
+//		} catch (error) {
+//			console.error('Failed to update DFA status:', error);
+//		}
+	}
 
 	/*
 		TODO FOR FL REGULAR CONNECTED SOCKET
