@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { userId42 } from "$lib/stores.js";
 	import { onMount } from "svelte";
+	import { userId, userId42 } from "$lib/stores";
 
-	// export let data;
 	let rooms: any = [];
 	let isFormVisible: boolean = false;
 	let roomName: string = '';
@@ -14,7 +13,7 @@
 	}
 
 	const fetchRooms = async () => {
-		const response = await fetch(`/api/rooms/valideRooms/${$userId42}`);
+		const response = await fetch(`/api/rooms/valideRooms/${$userId}`);
 		if (response.ok) {
 			rooms = await response.json();
 		} else {
@@ -27,7 +26,7 @@
 	{
 		try
 		{
-			const response = await fetch(`/api/rooms/${$userId42}`);
+			const response = await fetch(`/api/rooms/${$userId}`);
 			if (response.ok)
 				ownedRoom = await response.json();
 			else
@@ -64,7 +63,7 @@
 				roomName,
 				roomType,
 				password,
-				iddata: $userId42,
+				iddata: $userId42
 			})
 		});
 		if (response.ok) {
@@ -97,7 +96,7 @@
 	};
 
 	const join = async (room: any) => {
-		const response = await fetch(`/api/rooms/join/${room.id}/${$userId42}`, {
+		const response = await fetch(`/api/rooms/join/${room.id}/${$userId}`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'

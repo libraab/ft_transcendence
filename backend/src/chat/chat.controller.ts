@@ -129,6 +129,7 @@ export class ChatController {
     const Room = await this.db.createRooom(this.dto);
 
     this.db.addMemberToRoom(Room.id, this.dto.ownerid, 0);
+    //ICI send reloadRoom
     return HttpStatus.NO_CONTENT;
   }
 
@@ -191,6 +192,15 @@ export class ChatController {
     }
   }
 
+
+  /**
+   * 
+   * 0 - Public
+   * 1 - Protected
+   * 2 - Private
+   * 3 - one on one
+   * @returns 
+   */
   @Post('/invite')
   async inviteToPrivateRoom(@Body() data) {
     const room = await this.db.getRoomById(data.roomId);
@@ -232,6 +242,11 @@ export class ChatController {
     return 'Users are now friends';
   }
 
+  /**
+   * 
+   * Creating a one-to-one room here 
+   * 
+   */
   @Post('/sendMsg')
   async sendMsg(@Body() data) {
     const userId = await this.db.getClientById(data.iddata);
@@ -252,6 +267,7 @@ export class ChatController {
     if (!Room) console.log('Failed to create room');
     this.db.addMemberToRoom(Room.id, userId.id, 0);
     this.db.addMemberToRoom(Room.id, newInterlocutor.id, 1); // adding the second as an admin
+    // RELOAD ROOMS
     return 'A private chat room has been created';
   }
 
