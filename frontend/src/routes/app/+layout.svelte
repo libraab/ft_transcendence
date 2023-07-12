@@ -75,7 +75,7 @@
 	</div>
 	<div class="description">
 		<h1 class="glow-text">FT_TRANSCENDENCE</h1>
-		<p class="catch-phrase">A strange adventure into Pong Univers inside an Multiverse inside a jelly jar inside something else and go on ...</p>
+		<p class="catch-phrase">An adventure into Pong Univers inside an Multiverse inside a jelly jar inside something else and go on ...</p>
 	</div>
 </header>
 
@@ -97,6 +97,7 @@
 </footer>
 
 <style>
+	
 	footer{
 		text-align: center;
 	}

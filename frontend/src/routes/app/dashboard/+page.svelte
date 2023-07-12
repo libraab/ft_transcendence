@@ -152,7 +152,7 @@
 				<p> score: { stats.score } </p>
 			{:else}
 				<p>didn't play yet</p>
-				<a href="/game" style="text-decoration: none;">─=≡Σ((( つ•̀ω•́)つLET’SGOOOO!</a>
+				<a href="/game" style="text-decoration: none;"></a>
 			{/if}
 		</div>
 
@@ -189,6 +189,11 @@
 </div>
 
 <style>
+	.main_body {
+		width: 100%;
+		padding: 20px;
+	}
+
 	.friend-container {
 		display: flex;
 		align-items: center;
@@ -206,10 +211,11 @@
 		margin-top: 5px;
 	}
 	.profile-container {
-		display: flex;
+		/* display: flex;
 		flex-direction: column;
 		align-items: center;
-		text-align: center;
+		text-align: center; */
+		margin-bottom: 20px;
   	}
 
 	.shiny-text {
@@ -224,13 +230,16 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		flex-wrap: wrap;
 	}
 
 	.container {
 		height: 100%; /* occupe 100% de la hauteur de main_body */
 		display: flex;
 		justify-content: space-around;
+		flex-direction: column;
 		align-items: center;
+		text-align: center;
 	}
 	
 	.round-button {
@@ -261,6 +270,32 @@
 
 	.dfa-button.inactive {
 		background-color: red;
+	}
+
+	/* Media query for tablets */
+	@media (min-width: 768px) {
+		.container {
+			flex-direction: row;
+			justify-content: space-around;
+		}
+
+		.profile-container {
+			flex-basis: 33.33%;
+			max-width: 33.33%;
+		}
+	}
+
+	/* Media query for desktops */
+	@media (min-width: 1024px) {
+		.container {
+			flex-direction: row;
+			justify-content: space-around;
+		}
+
+		.profile-container {
+			flex-basis: 25%;
+			max-width: 25%;
+		}
 	}
 </style>
 
