@@ -22,7 +22,7 @@
 		if (fileInput && fileInput.files && fileInput.files[0]) {
 			try
 			{
-				const response = await fetch (`api/dashboard/update/${id}`, {
+				const response = await fetch (`/api/dashboard/update/${id}`, {
 					method: 'POST',
 					body: data
 				});
@@ -41,7 +41,7 @@
 		if (nameInput) {
 			try
 			{
-				const response = await fetch (`api/dashboard/updateName/${id}`, {
+				const response = await fetch (`/api/dashboard/updateName/${id}`, {
 					method: 'POST',
 					body: nameInput.value
 				});

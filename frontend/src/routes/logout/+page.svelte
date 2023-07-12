@@ -6,10 +6,12 @@
     // console.log("logging out");
 </script>
 
-<div>
-    <p>Logged out successfully</p>
-	<a href="/"><button>return to Home page</button></a>
-</div>
+<center>
+    <div>
+        <p>Goodbye :'&#40;</p>
+        <iframe src="https://giphy.com/embed/lOpPaqaUwkX5PKywFh" width="480" height="480" frameBorder="0" class="giphy-embed" allowFullScreen></iframe>
+    </div>
+</center>
 
 <style>
 

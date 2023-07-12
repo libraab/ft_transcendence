@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client'
-import { hostname } from '$lib/hostname'
 import { get, writable } from 'svelte/store';
 import { userId42, rooms, userId, jwt_cookie } from '$lib/stores';
+import { hostname } from './hostname';
 
 export let alertPopupOn = false;
 export let socket;
@@ -22,6 +22,7 @@ export async function initializeSocket() {
 //   socketData = await data;
 //   if (!socketData)
 //   	return;
+
 	socket = io(hostname+':3000/chat', {path: '/chatsockets'});//, auth: {token: }});
   	socket.emit('whoAmI', get(userId));
 //   socket.game = io(hostname+':3000/game', {path: '/gamesockets'});//, auth: {token: }});
@@ -81,6 +82,7 @@ export let add_alert_On = (id) =>
 	rooms.set(trythis);
 }
 
+// @ts-ignore
 export let deleteAlertOn = (roomId) =>
 {
 	let roomsGet = get(rooms);

@@ -41,6 +41,7 @@ export class DatabaseService {
   }
 
   async getClientById42Dashboard(id42: number) {
+    console.log(id42);
     const client = await this.prisma.clients.findUnique({
       where: {
         id42: id42,
@@ -61,6 +62,8 @@ export class DatabaseService {
         },
       },
     });
+
+    console.log(client);
 
     if (!client) {
       return null;

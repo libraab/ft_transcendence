@@ -40,6 +40,7 @@ export class DashboardController {
     @Request() req: { user: IJWT },
   ) {
     console.log("User Dashboard Request for id :", req.user);
+    console.log(+req.user.id);
     let ppp = await this.db.getClientById42Dashboard(+req.user.id);
 	  console.log(ppp);
 	  return ppp;
@@ -123,11 +124,17 @@ export class DashboardController {
         data.file,
         fs.createWriteStream(process.cwd() + '/uploads/' + tmp_name),
       );
-      dto.img = 'http://localhost:3000/dashboard/getfile/' + tmp_name;
+      dto.img = '/api/dashboard/getfile/' + tmp_name;
       console.log('new image path is -> ', dto.img);
       return this.db.updateClient(id, dto);
     }
     throw new BadRequestException();
+  }
+
+  @Post('/deleteUser/:id')
+  async deleteUser(@Param('id', ParseIntPipe) id: number)
+  {
+    console.log('HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
   }
 
   @Post('/updateName/:id')

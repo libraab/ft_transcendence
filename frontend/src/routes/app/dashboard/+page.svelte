@@ -1,7 +1,8 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { img_path, userId42, clientName, userId } from '$lib/stores';
+	import { img_path, jwt_cookie, clientName, userId } from '$lib/stores';
 	import UpdateModal from './Update.svelte';
+	import DeleteModal from './Delete.svelte';
 
 
 	// export let data;
@@ -92,7 +93,12 @@
 	async function fetchData() {
 		try
 		{
-			const response = await fetch(`api/dashboard/${$userId42}`);
+			const response = await fetch(`/api/dashboard`, {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${$jwt_cookie}`
+				}
+			});
 			if (response.ok)
 			{
 				let vals = await response.json();
@@ -139,6 +145,7 @@
 </script>
 
 <UpdateModal {updatePop} id={$userId} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
+<DeleteModal {deletePop} on:click={() => toggleDeletePopup()}/>
 <!--<RankModal {ranksTab} on:click={() => toggleRanksTab()} /> -->
 
 <div class="main_body">
