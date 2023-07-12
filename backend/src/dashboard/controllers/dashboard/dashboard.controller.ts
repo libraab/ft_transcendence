@@ -57,6 +57,12 @@ export class DashboardController {
     }
   }
 
+  @Get('/convert/:id42')
+  async getIdFromId42(@Param('id42', ParseIntPipe) id42: number)
+  {
+    return this.db.getIdFromId42(id42);
+  }
+
   @Get('getTargetWithRelation/:id/:name')
   async getTarget(
     @Param('id', ParseIntPipe) id: number,

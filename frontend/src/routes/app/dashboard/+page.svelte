@@ -1,8 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import {hostname} from '$lib/hostname';
-	import { img_path, userId42, clientName } from '$lib/stores';
-	import axios from 'axios';
+	import { img_path, userId42, clientName, userId } from '$lib/stores';
 	import UpdateModal from './Update.svelte';
 
 
@@ -94,7 +92,7 @@
 	async function fetchData() {
 		try
 		{
-			const response = await fetch(`api/dashboard/${data.userId42}`);
+			const response = await fetch(`api/dashboard/${$userId42}`);
 			if (response.ok)
 			{
 				let vals = await response.json();
@@ -140,7 +138,7 @@
 	}
 </script>
 
-<UpdateModal {updatePop} id={id} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
+<UpdateModal {updatePop} id={$userId} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
 <!--<RankModal {ranksTab} on:click={() => toggleRanksTab()} /> -->
 
 <div class="main_body">

@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { createEventDispatcher } from "svelte";
-	import { hostname } from "$lib/hostname"; 
 
 	const dispatch = createEventDispatcher();
 
