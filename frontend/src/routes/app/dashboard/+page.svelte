@@ -12,10 +12,10 @@
 	let won: number;
 	let played: number;
 	let hf: string;
-	let Dfa: boolean = false;
 	let id: number;
 	let stats: any = null;
 	let fl: any = [];
+	let isDFAActive: boolean;
 
 	// let test: any = process.env.BS;
 
@@ -77,10 +77,10 @@
 	let qrCodeImageUrl = "";	
 
 	async function toggleDFAState() {
-		Dfa = !Dfa;
+		isDFAActive = !isDFAActive;
 		// Send API request to update DFA status
 		try {
-			const response = await axios.post(`/api/auth/2fa/${$userId}`, { Dfa });
+			const response = await axios.post(`/api/auth/2fa/${$userId}`, { isDFAActive });
 			console.log('DFA status updated in the database.');
 			qrCodeImageUrl = response.data.qrCodeImageUrl;
 		} catch (error) {
@@ -117,7 +117,7 @@
 				won = vals.clientStats.won;
 				played = vals.clientStats.played;
 				hf = vals.clientStats.hf;
-				Dfa = vals.Dfa;
+				isDFAActive = vals.Dfa;
 				id = vals.id;
 			}
 			else
@@ -163,14 +163,14 @@
 				<button class="round-button" on:click={() => toggleDeletePopup()}>Delete</button>
 				<button class="round-button" on:click={() => toggleRanksTab()}>Ranking</button>
 				<button
-					class:active={Dfa}
-					class:inactive={!Dfa}
+					class:active={isDFAActive}
+					class:inactive={!isDFAActive}
 					class="round-button dfa-button"
 					on:click={() => toggleDFAState()}
 				>
 				DFA
 				</button>
-				<p>{Dfa}</p>
+				<p>{isDFAActive}</p>
 				{#if qrCodeImageUrl}
 					<img src={qrCodeImageUrl} alt="QR Code" />
 				{/if}
