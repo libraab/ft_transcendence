@@ -134,7 +134,12 @@ export class DashboardController {
   @Post('/deleteUser/:id')
   async deleteUser(@Param('id', ParseIntPipe) id: number)
   {
-    console.log('HAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA');
+    try{
+      return this.db.deleteClientById(id);
+    }
+    catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   @Post('/updateName/:id')

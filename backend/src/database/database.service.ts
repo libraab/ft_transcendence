@@ -1684,4 +1684,64 @@ export class DatabaseService {
       throw new UnauthorizedException('acces denied');
     return { status: userStatus.status, roomId: roomId };
   }
+
+  async deleteClientById(clientId: number): Promise<void> {
+    await this.prisma.$transaction(async (prisma) => {
+      // Supprimer le client des membres de salle
+      await prisma.roomMembers.deleteMany({
+        where: {
+          memberId: clientId,
+        },
+      });
+
+      // Supprimer les enregistrements de l'historique de jeu du client
+      await prisma.gameHistoric.deleteMany({
+        where: {
+          OR: [
+            {
+              client1Id: clientId,
+            },
+            {
+              client2Id: clientId,
+            },
+          ],
+        },
+      });
+
+      // Supprimer les relations ClientToClient du client
+      await prisma.clientToClient.deleteMany({
+        where: {
+          OR: [
+            {
+              client1Id: clientId,
+            },
+            {
+              client2Id: clientId,
+            },
+          ],
+        },
+      });
+
+      // Supprimer les messages du client
+      await prisma.messagesRooms.deleteMany({
+        where: {
+          clientId: clientId,
+        },
+      });
+
+      // Supprimer les statistiques du client
+      await prisma.clientStats.deleteMany({
+        where: {
+          clientId: clientId,
+        },
+      });
+
+      // Supprimer le client lui-même
+      await prisma.clients.delete({
+        where: {
+          id: clientId,
+        },
+      });
+    });
+  }
 }

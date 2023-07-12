@@ -17,7 +17,7 @@
         // Deuxieme cas : on a un cookie. On verifie que la connexion a l.api fonctionne grace a ce cookie
         //                  Si le retour est ok on redirige le user dans l'application
         //                  Si le retour est ko cela veut dire qu'on a un mauvais cookie (expire ou bien un pirate que sait-je) et donc on attend quil sign in pour reprendre un nouveau cookie
-        if ($jwt_cookie)
+        if ($jwt_cookie && $jwt_cookie != null && $jwt_cookie != "null")
         {
             try {
                 const connect = await fetch(`/api/dashboard`, {

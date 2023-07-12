@@ -3,7 +3,8 @@
 	import { img_path, jwt_cookie, clientName, userId } from '$lib/stores';
 	import UpdateModal from './Update.svelte';
 	import DeleteModal from './Delete.svelte';
-
+	import RankModal from './Ranking.svelte';
+	import axios from "axios";
 
 	// export let data;
 	let title: string;
@@ -11,7 +12,7 @@
 	let won: number;
 	let played: number;
 	let hf: string;
-	let Dfa: boolean;
+	let Dfa: boolean = false;
 	let id: number;
 	let stats: any = null;
 	let fl: any = [];
@@ -74,21 +75,26 @@
 	// });
 
 	let qrCodeImageUrl = "";	
-	async function toggleDFAState() {
-//		Dfa = !Dfa;
 
-//		try {
-//			const response = await axios.post(`http://${hostname}:3000/auth/2fa/${id}`, { Dfa });
-//			console.log('DFA status updated in the database.');
-//			qrCodeImageUrl = response.data.qrCodeImageUrl;
-//		} catch (error) {
-//			console.error('Failed to update DFA status:', error);
-//		}
+	async function toggleDFAState() {
+		Dfa = !Dfa;
+		// Send API request to update DFA status
+		try {
+			const response = await axios.post(`/api/auth/2fa/${$userId}`, { Dfa });
+			console.log('DFA status updated in the database.');
+			qrCodeImageUrl = response.data.qrCodeImageUrl;
+		} catch (error) {
+			console.error('Failed to update DFA status:', error);
+		}
 	}
 
 	/*
 		TODO FOR FL REGULAR CONNECTED SOCKET
 	*/
+
+	onMount(async () => {
+		fetchData();
+	})
 
 	async function fetchData() {
 		try
@@ -146,7 +152,7 @@
 
 <UpdateModal {updatePop} id={$userId} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
 <DeleteModal {deletePop} on:click={() => toggleDeletePopup()}/>
-<!--<RankModal {ranksTab} on:click={() => toggleRanksTab()} /> -->
+<RankModal {ranksTab} on:click={() => toggleRanksTab()} />
 
 <div class="main_body">
 	<main class="container">
@@ -164,6 +170,7 @@
 				>
 				DFA
 				</button>
+				<p>{Dfa}</p>
 				{#if qrCodeImageUrl}
 					<img src={qrCodeImageUrl} alt="QR Code" />
 				{/if}
@@ -185,7 +192,7 @@
 				<p> score: { stats.score } </p>
 			{:else}
 				<p>didn't play yet</p>
-				<a href="/game" style="text-decoration: none;">─=≡Σ((( つ•̀ω•́)つLET’SGOOOO!</a>
+				<a href="/app/game" style="text-decoration: none;">─=≡Σ((( つ•̀ω•́)つLET’SGOOOO!</a>
 			{/if}
 		</div>
 
@@ -196,7 +203,7 @@
 				{#each fl as friend}
 					{#if friend.status == 0}
 						<div class="friend-container">
-							<a href="/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name}</h2></a>
+							<a href="/app/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name}</h2></a>
 							<p>&nbsp;&nbsp;&nbsp;</p>
 							<div class="emoji-container">
 								<span>connected</span>
@@ -211,11 +218,11 @@
 							</div>
 						</div>
 					{:else}
-						<a href="/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name} ⛔️ </h2></a>
+						<a href="/app/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name} ⛔️ </h2></a>
 					{/if}
 				{/each}
 			{:else}
-				<p>Here you will your Friends.</p>
+				<p>...</p>
 			{/if}
 		</div>
 	</main>

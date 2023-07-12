@@ -28,7 +28,10 @@
 			<p>but i can change</p>
 			<p>i ll be better i promise</p>
 			<p>i love u</p>
-            <button class="round-button" on:click={()=> supprUser()}>No! i have no heart. Farewell</button>
+            <br>
+            <br>
+            <h4>No! I have no heart. Farewell</h4>
+            <button class="round-button" on:click={()=> supprUser()}>┌∩┐(◕_◕)┌∩┐</button>
 		</div>
 	</div>
 {/if}
