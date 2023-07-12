@@ -56,7 +56,7 @@ export class ChatController {
   //----------------------------------------------------------------------//
   @Get('/messages/:id')
   async getAllMessages(@Param('id', ParseIntPipe) id: number) {
-    const json = await this.db.getRoomMessagesById(id);
+    const json = await this.db.getRoomMessagesById(id, 1);
     const res = [];
     await Promise.all(
       json.map(async (e) => {
