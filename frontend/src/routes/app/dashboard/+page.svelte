@@ -1,8 +1,10 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { img_path, userId42, clientName, userId } from '$lib/stores';
+	import { img_path, jwt_cookie, clientName, userId } from '$lib/stores';
 	import UpdateModal from './Update.svelte';
-
+	import DeleteModal from './Delete.svelte';
+	import RankModal from './Ranking.svelte';
+	import axios from "axios";
 
 	// export let data;
 	let title: string;
@@ -10,10 +12,10 @@
 	let won: number;
 	let played: number;
 	let hf: string;
-	let Dfa: boolean;
 	let id: number;
 	let stats: any = null;
 	let fl: any = [];
+	let isDFAActive: boolean;
 
 	// let test: any = process.env.BS;
 
@@ -73,26 +75,36 @@
 	// });
 
 	let qrCodeImageUrl = "";	
-	async function toggleDFAState() {
-//		Dfa = !Dfa;
 
-//		try {
-//			const response = await axios.post(`http://${hostname}:3000/auth/2fa/${id}`, { Dfa });
-//			console.log('DFA status updated in the database.');
-//			qrCodeImageUrl = response.data.qrCodeImageUrl;
-//		} catch (error) {
-//			console.error('Failed to update DFA status:', error);
-//		}
+	async function toggleDFAState() {
+		isDFAActive = !isDFAActive;
+		// Send API request to update DFA status
+		try {
+			const response = await axios.post(`/api/auth/2fa/${$userId}`, { isDFAActive });
+			console.log('DFA status updated in the database.');
+			qrCodeImageUrl = response.data.qrCodeImageUrl;
+		} catch (error) {
+			console.error('Failed to update DFA status:', error);
+		}
 	}
 
 	/*
 		TODO FOR FL REGULAR CONNECTED SOCKET
 	*/
 
+	onMount(async () => {
+		fetchData();
+	})
+
 	async function fetchData() {
 		try
 		{
-			const response = await fetch(`api/dashboard/${$userId42}`);
+			const response = await fetch(`/api/dashboard`, {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${$jwt_cookie}`
+				}
+			});
 			if (response.ok)
 			{
 				let vals = await response.json();
@@ -105,7 +117,7 @@
 				won = vals.clientStats.won;
 				played = vals.clientStats.played;
 				hf = vals.clientStats.hf;
-				Dfa = vals.Dfa;
+				isDFAActive = vals.Dfa;
 				id = vals.id;
 			}
 			else
@@ -139,7 +151,8 @@
 </script>
 
 <UpdateModal {updatePop} id={$userId} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
-<!--<RankModal {ranksTab} on:click={() => toggleRanksTab()} /> -->
+<DeleteModal {deletePop} on:click={() => toggleDeletePopup()}/>
+<RankModal {ranksTab} on:click={() => toggleRanksTab()} />
 
 <div class="main_body">
 	<main class="container">
@@ -150,13 +163,14 @@
 				<button class="round-button" on:click={() => toggleDeletePopup()}>Delete</button>
 				<button class="round-button" on:click={() => toggleRanksTab()}>Ranking</button>
 				<button
-					class:active={Dfa}
-					class:inactive={!Dfa}
+					class:active={isDFAActive}
+					class:inactive={!isDFAActive}
 					class="round-button dfa-button"
 					on:click={() => toggleDFAState()}
 				>
 				DFA
 				</button>
+				<p>{isDFAActive}</p>
 				{#if qrCodeImageUrl}
 					<img src={qrCodeImageUrl} alt="QR Code" />
 				{/if}
@@ -178,7 +192,7 @@
 				<p> score: { stats.score } </p>
 			{:else}
 				<p>didn't play yet</p>
-				<a href="/game" style="text-decoration: none;">─=≡Σ((( つ•̀ω•́)つLET’SGOOOO!</a>
+				<a href="/app/game" style="text-decoration: none;">─=≡Σ((( つ•̀ω•́)つLET’SGOOOO!</a>
 			{/if}
 		</div>
 
@@ -189,7 +203,7 @@
 				{#each fl as friend}
 					{#if friend.status == 0}
 						<div class="friend-container">
-							<a href="/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name}</h2></a>
+							<a href="/app/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name}</h2></a>
 							<p>&nbsp;&nbsp;&nbsp;</p>
 							<div class="emoji-container">
 								<span>connected</span>
@@ -204,11 +218,11 @@
 							</div>
 						</div>
 					{:else}
-						<a href="/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name} ⛔️ </h2></a>
+						<a href="/app/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name} ⛔️ </h2></a>
 					{/if}
 				{/each}
 			{:else}
-				<p>Here you will your Friends.</p>
+				<p>...</p>
 			{/if}
 		</div>
 	</main>

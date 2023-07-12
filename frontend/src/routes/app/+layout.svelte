@@ -61,10 +61,7 @@
 	 * Puis renvoyer la session en "/"
 	 */
 	let handleLogOut = () => {
-		$jwt_cookie = "";
-		$img_path = "";
-		$clientName = "";
-		$userId42 = 0;
+
 		goto("/logout");
 	}
 
