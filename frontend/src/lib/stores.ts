@@ -35,6 +35,16 @@ userId42.subscribe((value: number) => {
         window.localStorage.setItem('userId42', value.toString());
 	}
 })
+
+//----------------------------------------------------------------//
+const persitedUserId: number = browser ? parseInt(localStorage.getItem('userId') ?? 0, 10) : 0;
+export const userId = writable(persitedUserId);
+
+userId.subscribe((value: number) => {
+    if (browser) {
+        window.localStorage.setItem('userId', value.toString());
+	}
+})
 //----------------------------------------------------------------//
 const persitedPage_shown: string = browser ? localStorage.getItem('page_shown') ?? "/" : "/";
 export const page_shown = writable(persitedPage_shown);

@@ -1,31 +1,32 @@
 <script lang='ts'>
 	import { rooms } from '$lib/stores'
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
-	import {jwt_cookie} from '$lib/stores';
-	import { hostname } from '$lib/hostname';
+	import { onDestroy, onMount } from 'svelte';
+	import { jwt_cookie } from '$lib/stores';
+	import { io } from 'socket.io-client'
 	
 	onMount( () =>
 	{
 		fetchData();
 	})
 
+	onDestroy(() => 
+	{
+		$rooms = [];
+	})
+
 	async function fetchData() {
 	try {
-		const response = await fetch(`http://${hostname}:8080/api/chat`, {
+		const response = await fetch('/api/chat', {
 				headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
 			});
 		let tmp_rooms = await response.json();
-		// tmp_rooms.forEach((el: any) =>
-		// {
-		// 	if ($rooms.find((room) => (room.roomId == el.roomId)) == undefined)
-		// 		$rooms = [...$rooms, { ...el, newMsgCount: 0}];
-		// });
 		console.log(tmp_rooms);
 		$rooms = tmp_rooms;
 	}
 	catch (error) {
 		console.error(error);
+		goto("/api/dashboard");
 	}
 }
 
@@ -36,12 +37,12 @@
 		<ul>
 			{#each $rooms as room (room.roomId)}
 				<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
-				<li class="one_room" on:click={() => goto('chat/${room.roomId}')} on:keypress>
-					<a href={`chat/${room.roomId}`}>{room.roomName}</a>
+				<li class="one_room">
+					<a href='/app/chat/{room.roomId}'>{room.roomName}</a>
 					<!-- {#if room.secu !== 3}
 						<button style="float: right;" on:click={() => leaveRoom(room)}>leave</button>
 					{/if} -->
-					<div class="alertBox" class:alertOn={room.newMsgCount !== 0}>{room.newMsgCount}</div>
+					<!-- <div class="alertBox" class:alertOn={room.newMsgCount !== 0}>{room.newMsgCount}</div> -->
 				</li>
 			{:else}
 			<p>you are not subscribed to any rooms</p>
@@ -77,26 +78,6 @@
 		width: 200px;
 		max-height: 60vh;
 		overflow: scroll;
-	}
-
-	.alertBox {
-		position: absolute;
-		top: 15px;
-		right: 15px;
-		width: 20px;
-		height: 20px;
-		background-color: red;
-		color: white;
-		border-radius: 50%;
-		text-align: center;
-		line-height: 20px;
-		font-size: 12px;
-		display: none;
-	}
-
-	.alertOn
-	{
-		display: block;
 	}
 
 	.one_room {

@@ -17,6 +17,63 @@
 	let stats: any = null;
 	let fl: any = [];
 
+	// let test: any = process.env.BS;
+
+	// async function fetchData() {
+	// 	try
+	// 	{
+	// 		const response = await fetch(`http://${hostname}:8080/api/dashboard`);
+	// 		if (response.ok)
+	// 		{
+	// 			let vals = await response.json();
+	// 			$clientName = vals.name;
+
+	// 			img_path.set(vals.img);
+	// 			stats = vals.clientStats;
+	// 			title = vals.clientStats.title;
+	// 			score = vals.clientStats.score;
+	// 			won = vals.clientStats.won;
+	// 			played = vals.clientStats.played;
+	// 			hf = vals.clientStats.hf;
+	// 			Dfa = vals.Dfa;
+	// 			id = vals.id;
+	// 		}
+	// 		else
+	// 			console.error("fetch didnt worked well");
+	// 	}
+	// 	catch (error)
+	// 	{
+	// 		console.error("layout" , error);
+	// 	}
+	// }
+
+	// async function getFlforId() {
+	// 	try {
+	// 		const response = await fetch(`http://${hostname}:8080/api/dashboard/fl/${id}`)
+	// 		if (response)
+	// 		{
+	// 			fl = await response.json();
+	// 		}
+	// 		else
+	// 			fl = [];
+	// 	}
+	// 	catch (error) {
+	// 		console.error(error);
+	// 	}
+	// }
+
+	// onMount(async () => {
+	// 	Dfa = data.Dfa
+	// 	id = data.id;
+	// 	img_path.set(data.img);
+	// 	console.log("image path is : ", $img_path); // ici c'est le seul endroit ou on change le storage value de img
+	// 	clientName.set(data.name);
+	// 	// $userId42 = data.userId42;
+	// 	// $img_path = data.img;
+	// 	// await fetchData();
+	// 	// await getFlforId();
+	// });
+
 	let qrCodeImageUrl = "";	
 	async function toggleDFAState() {
 //		Dfa = !Dfa;

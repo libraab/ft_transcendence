@@ -1,4 +1,3 @@
-import { hostname } from '../../../hostname.js';
 import { error, redirect } from '@sveltejs/kit'; 
 
 // @ts-ignore
@@ -6,7 +5,7 @@ async function fetchDataSupp(id42, targetName)
 {
 	try
 	{
-		const response = await fetch(`http://${hostname}:3000/dashboard/getTargetWithRelation/${id42}/${targetName}`)
+		const response = await fetch(`/api/dashboard/getTargetWithRelation/${id42}/${targetName}`)
 		if (response.ok)
 		{
 			const data = await response.json();
@@ -42,7 +41,7 @@ export async function load( {cookies, fetch, params} ) {
 
 	try
 	{
-		const response = await fetch(`http://${hostname}:3000/dashboard/${id42}`, {
+		const response = await fetch(`/api/dashboard/${id42}`, {
 				headers: { 'Authorization': `Bearer ${authToken}` }
 			});
 

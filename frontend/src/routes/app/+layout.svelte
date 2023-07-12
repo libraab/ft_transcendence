@@ -1,10 +1,12 @@
 <script lang="ts">
-	import { jwt_cookie, img_path, clientName, userId42 } from '$lib/stores';
+	import { jwt_cookie, img_path, clientName, userId42, userId } from '$lib/stores';
 	import { goto } from '$app/navigation';
-	import { onMount } from 'svelte';
-	import { redirect } from '@sveltejs/kit';
+	import { onDestroy, onMount } from 'svelte';
+	import { io } from 'socket.io-client'
+	// import { redirect } from '@sveltejs/kit';
 
 	// la socket ICICICICI//
+	let socket;
 	/**
 	 * La logique de ce Layout qui englobe tout App
 	 * On fait un fetch 'test' et on recupere chaque info necessaire quon stock dans stores et dans le localStorage en consequent
@@ -12,6 +14,7 @@
 	*/
 	onMount( async () =>
     {
+		socket = io('/api/', {path: '/chat'});//, auth: {token: }});
 		if ($jwt_cookie)
         {
             try {
@@ -27,13 +30,14 @@
 					const data = await connect.json();
 					$img_path = data.img;
 					$clientName = data.name;
+					$userId = data.id;
                 }
                 else
                 {
                     //connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
                     console.log("fetch failed in app layout");
                     console.log(connect.status);
-					throw redirect(307, "/");
+					goto("/");
                 }
             }
             catch (error) {
@@ -42,6 +46,11 @@
             }
         }
     })
+
+	onDestroy(() =>
+	{
+
+	});
 
 	/**
 	 * La fonction handleLogOut est appelee lorsque le user click sur le bouton LogOut
@@ -53,7 +62,7 @@
 		$img_path = "";
 		$clientName = "";
 		$userId42 = 0;
-		goto("/app/logout")
+		// goto("/app/logout")
 	}
 </script>
 
