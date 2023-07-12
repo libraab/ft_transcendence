@@ -1,12 +1,13 @@
 <script lang="ts">
-	import { jwt_cookie, img_path, clientName, userId42, userId } from '$lib/stores';
+	import { jwt_cookie, img_path, clientName, userId42, userId, rooms } from '$lib/stores';
 	import { goto } from '$app/navigation';
 	import { onDestroy, onMount } from 'svelte';
 	import { io } from 'socket.io-client'
+	import { initializeSocket, msgCount, updateCount } from '$lib/socketsbs.js';
 	// import { redirect } from '@sveltejs/kit';
 
 	// la socket ICICICICI//
-	let socket;
+	
 	/**
 	 * La logique de ce Layout qui englobe tout App
 	 * On fait un fetch 'test' et on recupere chaque info necessaire quon stock dans stores et dans le localStorage en consequent
@@ -14,7 +15,6 @@
 	*/
 	onMount( async () =>
     {
-		socket = io('/api/', {path: '/chat'});//, auth: {token: }});
 		if ($jwt_cookie)
         {
             try {
@@ -31,6 +31,7 @@
 					$img_path = data.img;
 					$clientName = data.name;
 					$userId = data.id;
+					initializeSocket();
                 }
                 else
                 {
@@ -62,7 +63,7 @@
 		$img_path = "";
 		$clientName = "";
 		$userId42 = 0;
-		// goto("/app/logout")
+		goto("/logout");
 	}
 </script>
 
@@ -82,7 +83,7 @@
 	<nav class="tabs">
 		<button on:click={ () => goto('/app/dashboard') } >DashBoard</button>
 		<button on:click={ () => goto('/app/game') } >Game</button>
-		<button on:click={ () => goto('/app/chat') } >Chat</button>
+		<button on:click={ () => goto('/app/chat') } class:newMessage={msgCount} >Chat</button>
 		<button on:click={ () => goto('/app/room') } >Room</button>
 	</nav>
 </div>
@@ -169,5 +170,20 @@
 	}
 	.glow-text {
 		text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+	}
+
+	.newMessage::after {
+		content: attr(number);
+		position: absolute;
+		top: -10px;
+		right: -10px;
+		width: 20px;
+		height: 20px;
+		background-color: red;
+		color: white;
+		border-radius: 50%;
+		text-align: center;
+		line-height: 20px;
+		font-size: 12px;
 	}
 </style>

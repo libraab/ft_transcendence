@@ -4,10 +4,13 @@
 	import { onDestroy, onMount } from 'svelte';
 	import { jwt_cookie } from '$lib/stores';
 	import { io } from 'socket.io-client'
-	
+	import { reloadRooms, updateCount } from '$lib/socketsbs';
+
+
 	onMount( () =>
 	{
-		fetchData();
+		// fetchData();
+		reloadRooms(); // just in case
 	})
 
 	onDestroy(() => 
@@ -15,20 +18,20 @@
 		$rooms = [];
 	})
 
-	async function fetchData() {
-	try {
-		const response = await fetch('/api/chat', {
-				headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
-			});
-		let tmp_rooms = await response.json();
-		console.log(tmp_rooms);
-		$rooms = tmp_rooms;
-	}
-	catch (error) {
-		console.error(error);
-		goto("/api/dashboard");
-	}
-}
+	// async function fetchData() {
+	// try {
+	// 	const response = await fetch('/api/chat', {
+	// 			headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
+	// 		});
+	// 	let tmp_rooms = await response.json();
+	// 	console.log(tmp_rooms);
+	// 	$rooms = tmp_rooms;
+	// }
+	// catch (error) {
+	// 	console.error(error);
+	// 	goto("/api/dashboard");
+	// }
+	// }
 
 </script>
 

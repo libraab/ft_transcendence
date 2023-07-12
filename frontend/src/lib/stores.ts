@@ -72,3 +72,4 @@ jwt_cookie.subscribe((value: string) => {
         window.localStorage.setItem('jwt_cookie', value);
 	}
 })
+//----------------------------------------------------------------//

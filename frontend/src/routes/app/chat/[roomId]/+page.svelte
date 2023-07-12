@@ -1,11 +1,13 @@
 <script lang='ts'>
 	import { goto } from "$app/navigation";
 	import ConnectStatus from "$lib/connectStatus.svelte";
-	import { jwt_cookie } from "$lib/stores";
+	import { jwt_cookie, rooms, userId42 } from "$lib/stores";
 	import { onMount, afterUpdate } from "svelte";
+	import { socket, add_alert_On, deleteSocketEvents, deleteAlertOn } from '$lib/socketsbs'
 
     export let data: any;
-    let roomId = data.roomId;
+    let roomId: string = data.roomId;
+	let roomName = $rooms.find((el) => el.roomId == Number(roomId))?.roomName;
     
     let RoomsMessages: any = [];
     
@@ -14,9 +16,26 @@
     console.log(roomId);
 
     onMount(() => {
-        console.log(roomId);
         fetchData();
+		deleteSocketEvents();
+		deleteAlertOn(roomId);
+		socket.on('serverToChat', recieveMessage); // on defini le comportement lors de l'event mais cette en sauvegardant le message
+		socket.on('serverMessage', recieveServerMessage);
     })
+
+	let recieveMessage = (msg) => {
+		console.log("msg reiceived");
+		if (msg.channel == roomId)
+			RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
+		else
+			add_alert_On(msg.channel);
+		console.log(RoomsMessages);
+	}
+
+	let recieveServerMessage = (msg) => {
+		if (msg.channel == roomId)
+			RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
+	}
 
     async function fetchData() {
         try {
@@ -34,11 +53,11 @@
     }
     
     let sendMessage = () => {
-            // socket.chat.emit('chatToServer', {channel: ROOMID??PASTROUVE, sender: 'moi', message: user_message, sender_id: data.userId42});
-            RoomsMessages = [...RoomsMessages, {sender: 'coco', message: user_message}];
+            socket.emit('chatToServer', {channel: roomId, sender: 'moi', message: user_message, sender_id: $userId42});
             user_message = "";
     }
     
+	
 </script>
     
 <div class="room_wrap"> 
