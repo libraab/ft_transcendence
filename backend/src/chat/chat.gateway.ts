@@ -57,13 +57,12 @@ export class ChatGateway
     client: Socket,
     message: {
       channel: string;
-      sender: string;
       message: string;
       sender_id: string;
     },
   ) {
     this.logger.log(
-      `A message was send by ${message.sender} --content--> ${message.message}`,
+      `A message was send by id ${message.sender_id} --content--> ${message.message}`,
     );
 	this.logger.log(message);
     const client_id = await this.db.getClientById42(Number(message.sender_id));
@@ -74,9 +73,10 @@ export class ChatGateway
       sender: client_id.id,
       msg: message.message,
     });
-	console.log(message);
-    this.wss.to(message.channel).emit('serverToChat', message);
-    this.wss.to(message.channel).emit('serverAlertToChat', message);
+	  console.log(message);
+    console.log({ ...message, sender: client_id.name});
+    this.wss.to(message.channel).emit('serverToChat', { ...message, sender: client_id.name});
+    this.wss.to(message.channel).emit('serverAlertToChat', { ...message, sender: client_id.name});
     // WsResponse<string>
     // return { event: 'msgToClient', data: text};
   }

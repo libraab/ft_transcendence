@@ -3,11 +3,13 @@
 	import { goto } from '$app/navigation';
 	import { onDestroy, onMount } from 'svelte';
 	import { io } from 'socket.io-client'
-	import { initializeSocket, msgCount, updateCount } from '$lib/socketsbs.js';
+	import { initializeSocket, msgCount } from '$lib/socketsbs.js';
 	// import { redirect } from '@sveltejs/kit';
 
 	// la socket ICICICICI//
 	
+	let local_count = msgCount;
+
 	/**
 	 * La logique de ce Layout qui englobe tout App
 	 * On fait un fetch 'test' et on recupere chaque info necessaire quon stock dans stores et dans le localStorage en consequent
@@ -65,6 +67,11 @@
 		$userId42 = 0;
 		goto("/logout");
 	}
+
+	$:{
+		$rooms;
+		local_count = msgCount;
+	}
 </script>
 
 
@@ -83,7 +90,7 @@
 	<nav class="tabs">
 		<button on:click={ () => goto('/app/dashboard') } >DashBoard</button>
 		<button on:click={ () => goto('/app/game') } >Game</button>
-		<button on:click={ () => goto('/app/chat') } class:newMessage={msgCount} >Chat</button>
+		<button on:click={ () => goto('/app/chat') } number={local_count} class:newMessage={local_count}>Chat</button>
 		<button on:click={ () => goto('/app/room') } >Room</button>
 	</nav>
 </div>

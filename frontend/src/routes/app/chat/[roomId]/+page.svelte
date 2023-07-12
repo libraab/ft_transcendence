@@ -1,9 +1,10 @@
 <script lang='ts'>
 	import { goto } from "$app/navigation";
+    import { params } from 'svelte-spa-router';
 	import ConnectStatus from "$lib/connectStatus.svelte";
 	import { jwt_cookie, rooms, userId42 } from "$lib/stores";
-	import { onMount, afterUpdate } from "svelte";
-	import { socket, add_alert_On, deleteSocketEvents, deleteAlertOn } from '$lib/socketsbs'
+	import { onMount, onDestroy } from "svelte";
+	import { socket, add_alert_On, deleteSocketEvents, deleteAlertOn, defineSocketEvents } from '$lib/socketsbs'
 
     export let data: any;
     let roomId: string = data.roomId;
@@ -12,16 +13,34 @@
     let RoomsMessages: any = [];
     
     let user_message: string;
-    
-    console.log(roomId);
 
-    onMount(() => {
-        fetchData();
+    onMount(async () => {
+        await fetchData(roomId);
 		deleteSocketEvents();
 		deleteAlertOn(roomId);
 		socket.on('serverToChat', recieveMessage); // on defini le comportement lors de l'event mais cette en sauvegardant le message
 		socket.on('serverMessage', recieveServerMessage);
     })
+
+    onDestroy(() => {
+		socket.off('serverToChat', recieveMessage);
+        socket.off('serverMessage', recieveServerMessage);
+		defineSocketEvents();
+	})
+
+    $:{
+        roomId = data.roomId;
+        fetchData(roomId);
+        deleteAlertOn(roomId);
+    }
+
+    // afterUpdate(async () => {
+    //     console.log("UPDATES");
+    //     console.log(roomId);
+    //     roomId = data.roomId;
+    //     console.log(roomId);
+    //     await fetchData(roomId);
+    // });
 
 	let recieveMessage = (msg) => {
 		console.log("msg reiceived");
@@ -37,7 +56,7 @@
 			RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
 	}
 
-    async function fetchData() {
+    async function fetchData(roomId) {
         try {
             const response = await fetch(`/api/chat/messages/${roomId}`, {
                     headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
@@ -53,7 +72,7 @@
     }
     
     let sendMessage = () => {
-            socket.emit('chatToServer', {channel: roomId, sender: 'moi', message: user_message, sender_id: $userId42});
+            socket.emit('chatToServer', {channel: roomId, message: user_message, sender_id: $userId42});
             user_message = "";
     }
     

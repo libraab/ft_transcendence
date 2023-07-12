@@ -13,11 +13,6 @@
 		reloadRooms(); // just in case
 	})
 
-	onDestroy(() => 
-	{
-		$rooms = [];
-	})
-
 	// async function fetchData() {
 	// try {
 	// 	const response = await fetch('/api/chat', {
@@ -45,7 +40,7 @@
 					<!-- {#if room.secu !== 3}
 						<button style="float: right;" on:click={() => leaveRoom(room)}>leave</button>
 					{/if} -->
-					<!-- <div class="alertBox" class:alertOn={room.newMsgCount !== 0}>{room.newMsgCount}</div> -->
+					<div class="alertBox" class:alertOn={room.newMsgCount !== 0}>{room.newMsgCount}</div>
 				</li>
 			{:else}
 			<p>you are not subscribed to any rooms</p>
@@ -90,14 +85,19 @@
 		cursor: pointer;
 		border-bottom: 1px #898f9f solid;
 	}
-	/* .alertBox
+	.alertBox
 	{
 		width: 10px;
 		height: 10px;
 		background-color: brown;
 		border-radius: 5px;
 		display: none;
-	} */
+	}
+
+	.alertOn
+	{
+		display: block;
+	}
 
 	.one_room:hover {
 		background-color: #505668;

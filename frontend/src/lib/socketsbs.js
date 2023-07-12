@@ -27,11 +27,13 @@ export async function initializeSocket() {
 //   socket.game = io(hostname+':3000/game', {path: '/gamesockets'});//, auth: {token: }});
 
   	await reloadRooms();
+	socket.on('reloadrooms', reloadRooms);
 	defineSocketEvents();
 //   defineGameSocketEvents();
 }
 
 export async function reloadRooms() {
+	console.log("reloading rooms");
 	let loadedRooms = await fetchData();
 	rooms.set(loadedRooms);
 	connectToRooms();
@@ -79,6 +81,7 @@ export let add_alert_On = (id) =>
 		return (item);
 	});
 	rooms.set(trythis);
+	updateCount()
 }
 
 export let deleteAlertOn = (roomId) =>
@@ -86,11 +89,12 @@ export let deleteAlertOn = (roomId) =>
 	let roomsGet = get(rooms);
 	roomsGet = roomsGet.map((item) => 
 	{
-		if (item.roomId === roomId)
+		if (item.roomId == roomId)
 			return { ...item, newMsgCount: 0 };
 		return (item);
 	});
 	rooms.set(roomsGet);
+	updateCount();
 }
 
 let connectToRooms = () => {
@@ -112,12 +116,15 @@ async function fetchData() {
 		if (response.status == 200)
 		{
 			let tmp_rooms = await response.json();
+			console.log(tmp_rooms);
+			console.log(curr_rooms);
 			tmp_rooms = tmp_rooms.map((el) => {
 				let item = curr_rooms.find((room) => (room.roomId == el.roomId));
 				if (item == undefined)
 					return { ...el, newMsgCount: 0 };
 				return (item);
 			});
+			console.log(tmp_rooms);
 			return tmp_rooms;
 		}
 		else
