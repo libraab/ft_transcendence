@@ -56,7 +56,7 @@ export class ChatController {
   //----------------------------------------------------------------------//
   @Get('/messages/:id')
   async getAllMessages(@Param('id', ParseIntPipe) id: number) {
-    const json = await this.db.getRoomMessagesById(id);
+    const json = await this.db.getRoomMessagesById(id, 1);
     const res = [];
     await Promise.all(
       json.map(async (e) => {
@@ -131,6 +131,13 @@ export class ChatController {
     this.db.addMemberToRoom(Room.id, this.dto.ownerid, 0);
     return HttpStatus.NO_CONTENT;
   }
+
+  @Get('/bannedFor/:id')
+  async getBannedPeople(@Param('id', ParseIntPipe) clientId: number)
+  {
+    return this.db.getBannedRelationshipsForId(clientId);
+  }
+
   //----------------------------------------------------------------------//
   /*
 	0 - owner

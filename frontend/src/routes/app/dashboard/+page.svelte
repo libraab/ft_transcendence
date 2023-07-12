@@ -1,9 +1,7 @@
 <script lang="ts">
-
 	import { onMount } from "svelte";
-	import {hostname} from '$lib/hostname';
-	import { img_path, userId42, clientName } from '$lib/stores';
-	import axios from 'axios';
+	import { img_path, userId42, clientName, userId } from '$lib/stores';
+	import UpdateModal from './Update.svelte';
 
 
 	// export let data;
@@ -91,6 +89,34 @@
 		TODO FOR FL REGULAR CONNECTED SOCKET
 	*/
 
+	async function fetchData() {
+		try
+		{
+			const response = await fetch(`api/dashboard/${$userId42}`);
+			if (response.ok)
+			{
+				let vals = await response.json();
+				$clientName = vals.name;
+
+				$img_path = vals.img;
+				stats = vals.clientStats;
+				title = vals.clientStats.title;
+				score = vals.clientStats.score;
+				won = vals.clientStats.won;
+				played = vals.clientStats.played;
+				hf = vals.clientStats.hf;
+				Dfa = vals.Dfa;
+				id = vals.id;
+			}
+			else
+				console.error("layout");
+		}
+		catch (error)
+		{
+			console.error("layout" , error);
+		}
+	}
+
 	let updatePop: boolean = false;
 	function toggleUpdatePopup()
 	{
@@ -106,14 +132,14 @@
 	function toggleRanksTab(){
 		ranksTab = !ranksTab;
 	}
-	// async function profileUpdate()
-	// {
-	// 	fetchData();
-	// }
+	async function profileUpdate()
+	{
+		fetchData();
+	}
 </script>
 
-<!-- <UpdateModal {updatePop} id={id} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
-<RankModal {ranksTab} on:click={() => toggleRanksTab()} /> -->
+<UpdateModal {updatePop} id={$userId} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
+<!--<RankModal {ranksTab} on:click={() => toggleRanksTab()} /> -->
 
 <div class="main_body">
 	<main class="container">

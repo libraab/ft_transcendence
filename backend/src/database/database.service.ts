@@ -108,6 +108,20 @@ export class DatabaseService {
 	}
 */
 
+  async getIdFromId42(id42: number)
+  {
+    const id = await this.prisma.clients.findUnique({
+      where: {
+        id42,
+      },
+      select: {
+        id: true
+      }
+    });
+
+    return id;
+  }
+
   async getTarget(clientId: number, name: string) {
     const client = await this.prisma.clients.findUnique({
       where: {
@@ -473,7 +487,7 @@ export class DatabaseService {
       },
     });
   }
-
+/*
   async getLastNMessagesByRoomId(
     roomId: number,
     n: number,
@@ -493,7 +507,7 @@ export class DatabaseService {
 
     return messages.map((message) => [message.client.name, message.msg]);
   }
-
+*/
   async createRelation(dto: createRelationsDto): Promise<ClientToClient> {
     try {
       const relation = await this.prisma.clientToClient.create({
@@ -884,6 +898,36 @@ export class DatabaseService {
 
     return null;
   }
+/*
+  async findClientsByName(clientId: number, name: string) {
+    const clients = await this.prisma.clients.findMany({
+      where: {
+        name: {
+          contains: name,
+        },
+        NOT: {
+          OR: [
+            {
+              client2: {
+                some: {
+                  AND: [{ client1Id: clientId }, { status: 1 }],
+                },
+              },
+            },
+            {
+              client1: {
+                some: {
+                  AND: [{ client2Id: clientId }, { status: 1 }],
+                },
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    return clients;
+  }
 
   async getRoomMessagesById(roomId: number): Promise<any[]> {
     const messages = await this.prisma.messagesRooms.findMany({
@@ -906,6 +950,83 @@ export class DatabaseService {
       clientId: message.client.id,
       clientName: message.client.name,
     }));
+  }
+*/
+
+  async getRoomMessagesById(roomId: number, idClient: number): Promise<any[]> {
+    const messages = await this.prisma.messagesRooms.findMany({
+      where: {
+        roomId: roomId,
+        NOT: {
+          OR: [{
+            client: {
+              client1: {
+                some: {
+                  client1Id: idClient,
+                  status: 1
+                }
+              }
+            }
+          },
+          {
+            client: {
+              client2: {
+                some: {
+                  client2Id: idClient,
+                  status: 1
+                }
+              }
+            }
+          }
+        ]}
+      },
+      select: {
+        msg: true,
+        client: {
+          select: {
+            name: true,
+            id: true,
+          },
+        },
+      },
+    });
+
+    return messages.map((message) => ({
+      message: message.msg,
+      clientId: message.client.id,
+      clientName: message.client.name,
+    }));
+  }
+
+  async getBannedRelationshipsForId(clientId: number) {
+    const banned = await this.prisma.clientToClient.findMany({
+        where: {
+          OR: [{
+            client1Id: clientId,
+            status: 1
+          },
+          {
+            client2Id: clientId,
+            status: 1
+          }]
+        },
+        select: {
+          client1: {
+            select: {
+              name: true,
+              id: true,
+            }
+          },
+          client2: {
+            select: {
+              name: true,
+              id: true,
+            }
+          }
+        }
+      });
+
+      return banned;
   }
 
   async addClientsToClient(
