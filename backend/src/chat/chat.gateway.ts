@@ -59,20 +59,22 @@ export class ChatGateway
       channel: string;
       sender: string;
       message: string;
-      sender_id: number;
+      sender_id: string;
     },
   ) {
     this.logger.log(
       `A message was send by ${message.sender} --content--> ${message.message}`,
     );
-    const client_id = await this.db.getClientById42(message.sender_id);
+	this.logger.log(message);
+    const client_id = await this.db.getClientById42(Number(message.sender_id));
     const room_exist = await this.db.getRoomById(Number(message.channel));
     if (room_exist == null) return;
     await this.addMessageToRoom({
-      id: message.channel,
+      id: Number(message.channel),
       sender: client_id.id,
       msg: message.message,
     });
+	console.log(message);
     this.wss.to(message.channel).emit('serverToChat', message);
     this.wss.to(message.channel).emit('serverAlertToChat', message);
     // WsResponse<string>

@@ -4,10 +4,8 @@
  */
 
 export async function load({ cookies }) {
-	cookies.delete('jwt_cookie'); //se delete pas
-	return (
-		{
-			ok: true,
-		}
-	)
+	cookies.set('jwt_cookie', null);
+	cookies.set('id42', null);
+	// cookies.set('_intra_42_session_production', null);
+	// cookies.set('user.id', null);
 }

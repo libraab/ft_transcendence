@@ -8,6 +8,7 @@
 
 <div>
     <p>Logged out successfully</p>
+	<a href="/"><button>return to Home page</button></a>
 </div>
 
 <style>
