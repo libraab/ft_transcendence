@@ -27,6 +27,7 @@ services:
     ports:
       - 3000:3000
       - 3001:3001
+      - 5555:5555
     depends_on:
       - database
     env_file:

@@ -39,10 +39,7 @@ export class DashboardController {
   async getMyDashboard(
     @Request() req: { user: IJWT },
   ) {
-    console.log("User Dashboard Request for id :", req.user);
-    console.log(+req.user.id);
     let ppp = await this.db.getClientById42Dashboard(+req.user.id);
-	  console.log(ppp);
 	  return ppp;
   }
 
@@ -52,10 +49,7 @@ export class DashboardController {
     @Request() req: { user: IJWT },
     @Param('id42', ParseIntPipe) id: number
   ) {
-    console.log("User Dashboard Request for id :", id);
-    console.log(+req.user.id);
     let ppp = await this.db.getClientById42Dashboard(id);
-	  console.log(ppp);
 	  return ppp;
   }
 
@@ -85,7 +79,6 @@ export class DashboardController {
     @Request() req: { user: IJWT }, 
     @Param('name') name: string,
   ) {
-    // console.log("i shouldn't be here"); WHY SHOULDNT? old tests?
     try {
       return this.db.getTarget(req.user.id, name);
     } catch (error) {
@@ -141,7 +134,6 @@ export class DashboardController {
         fs.createWriteStream(process.cwd() + '/uploads/' + tmp_name),
       );
       dto.img = '/api/dashboard/getfile/' + tmp_name;
-      console.log('new image path is -> ', dto.img);
       return this.db.updateClient(id, dto);
     }
     throw new BadRequestException();

@@ -39,7 +39,6 @@ export class GameGateway {
     this.logger.log(`Client disconnected : ${client.id}`);
 
     const lobbyAwaiting = this.lobby.getFullAwaitingLobby();
-    console.log('-> ', lobbyAwaiting);
     const connected: string[] = await this.db.getClientNamesListByTheirIds(
       lobbyAwaiting,
     );
@@ -52,8 +51,6 @@ export class GameGateway {
     @ConnectedSocket() client: Socket,
   ) {
     const player = new Player();
-
-    console.log(client.id);
 
     player.idDb = id;
     player.idSock = client.id;
@@ -79,14 +76,12 @@ export class GameGateway {
     @MessageBody(ParseFloatPipe) data: string,
     @ConnectedSocket() client: Socket,
   ) {
-    // console.log(data);
     // update in room
     // update for opponent
   }
 
   @SubscribeMessage('Challenge')
   defy(@MessageBody() data: string, @ConnectedSocket() client: Socket) {
-    console.log('New challenger arrived');
     // frontend gestion d'invitation
     // client.emit('challenge sent');
   }
@@ -96,7 +91,6 @@ export class GameGateway {
     @MessageBody() data: string,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log('i gonna smoke you up !!!');
     // go to joinRoom
     // + leave lobby
     // client.emit('accept');
@@ -107,7 +101,6 @@ export class GameGateway {
     @MessageBody() data: string,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log("i'm scared :'( ");
     // nothing just stay in lobby
     // client.emit('refused');
   }

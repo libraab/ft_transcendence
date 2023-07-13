@@ -14,7 +14,6 @@ export class MyRoom extends Room<any> {
   //public delayedInterval!: Delayed;
   // When room is initialized
   onCreate(options: any) {
-    console.log('room create');
     state[this.roomId] = createGameState();
     //this.setState(createGameState());
   }
@@ -24,19 +23,12 @@ export class MyRoom extends Room<any> {
 
   // When client successfully join the room
   onJoin(client: Client, options: any, auth: any) {
-    console.log("Onjoin client.sessionid " + client.sessionId);
     if (this.clients.length === 1) {
       this.joueur1 = client.id;
-      console.log("joueur1 init");
-      console.log(this.joueur1);
-      console.log("------------")
       client.send("init", 1);
     }
     if (this.clients.length === 2) {
       this.joueur2 = client.id;
-      console.log("joueur2 init");
-      console.log(this.joueur2);
-      console.log("------------")
       client.send("init", 2);
       this.emitgamestate();
     }

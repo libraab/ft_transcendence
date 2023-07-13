@@ -66,7 +66,6 @@
 				});
 			if (response.ok)
 			{
-				console.log(client.name, client.id, stayOption);
 				handleValidationClick();
 			}
 			else
@@ -89,7 +88,6 @@
 				});
 			if (response.ok)
 			{
-				console.log('room id:', roomId, 'deleted');
 				handleValidationClick();
 			}
 			else
