@@ -9,12 +9,14 @@
 	let choosenRoom: string;
 	let choosenRoomId: number;
 	let owned: boolean;
+	let members: any;
 
 	let roomMembers: any = [];
 	onMount(async () => {
 		choosenRoom = data.room;
-		choosenRoomId = data.members.roomId.id;
-		owned = data.members.userStatus === 0;
+		members = firstFetchRoomMember();
+		choosenRoomId = members.roomId.id;
+		owned = members.userStatus === 0;
 
 		await fetchprivateRoomMembers();
 		await fetchAllRoomMembers();
@@ -36,6 +38,22 @@
 			console.error("layout" , error);
 		}
 	});
+
+	async function firstFetchRoomMember()
+	{
+		try
+		{
+			const response = await fetch(`/api/rooms/allMemberwithStatus/${$userId42}/${data.room}`);
+			if (response.ok)
+				return await response.json();
+			else {
+				return response;
+			}
+		}
+		catch (error) {
+			console.error(error);
+		}
+	}
 
 	let privateRoomMembers: any = [];
 	async function fetchprivateRoomMembers()

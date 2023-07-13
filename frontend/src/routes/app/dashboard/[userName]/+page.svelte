@@ -58,7 +58,12 @@
 	{
 		try
 		{
-			const response = await fetch(`/api/dashboard/getTargetWithRelation/${$userId42}/${data.userName}`) //cookie to do
+			const response = await fetch(`/api/dashboard/getTargetWithRelation/${data.userName}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${$jwt_cookie}`
+                    }
+                }); //cookie to do
 			if (response.ok)
 			{
 				const data = await response.json();
@@ -85,7 +90,12 @@
 		{
 			try
 			{
-				const response = await fetch(`/api/dashboard/name/${$userId}/${retName}`); //cookie to do
+				const response = await fetch(`/api/dashboard/name/${retName}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${$jwt_cookie}`
+                    }
+                }); //cookie to do
 				searchRes = await response.json();
 			}
 			catch (error) {

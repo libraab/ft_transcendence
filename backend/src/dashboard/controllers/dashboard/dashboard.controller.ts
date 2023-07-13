@@ -79,14 +79,15 @@ export class DashboardController {
     return this.db.getIdFromId42(id42);
   }
 
-  @Get('getTargetWithRelation/:id/:name')
+  @UseGuards(AuthGuard)
+  @Get('getTargetWithRelation/:name')
   async getTarget(
-    @Param('id', ParseIntPipe) id: number,
+    @Request() req: { user: IJWT }, 
     @Param('name') name: string,
   ) {
-    console.log("i shouldn't be here");
+    // console.log("i shouldn't be here"); WHY SHOULDNT? old tests?
     try {
-      return this.db.getTarget(id, name);
+      return this.db.getTarget(req.user.id, name);
     } catch (error) {
       console.error(error);
       throw new HttpException('userNotFound', 404);
@@ -180,12 +181,14 @@ export class DashboardController {
   //   return this.db.getClientByCookie(cookie);
   // }
 
-  @Get('/name/:id/:name')
+  @UseGuards(AuthGuard)
+  @Get('/name/:name')
   async searchFor(
-    @Param('id', ParseIntPipe) id: number,
+    @Request() req: { user: IJWT} ,
     @Param('name') name: string,
   ) {
-    return this.db.findClientsByName(id, name);
+    let client = await this.db.getClientById42(req.user.id);
+    return this.db.findClientsByName(client.id, name);
   }
 
   @UseGuards(AuthGuard)
