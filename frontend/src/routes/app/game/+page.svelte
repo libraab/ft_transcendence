@@ -1,6 +1,7 @@
 <script lang="ts" >
     import { browser } from '$app/environment';
 	import { Client } from 'colyseus.js'
+	// import { client, connectClientToGame } from '$lib/gamesocket'
 
 	let matches: any;
 	//let width: any;

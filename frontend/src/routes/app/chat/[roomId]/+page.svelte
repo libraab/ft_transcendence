@@ -4,6 +4,7 @@
 	import { jwt_cookie, rooms, userId42 } from "$lib/stores";
 	import { onMount, onDestroy } from "svelte";
 	import { socket, add_alert_On, deleteSocketEvents, deleteAlertOn, defineSocketEvents, isBlockedUser } from '$lib/socketsbs'
+    import Invite from '$lib/invitation.svelte'
 
     export let data: any;
     let roomId: string = data.roomId;
@@ -146,6 +147,7 @@
             <!-- si on est admin ou owner   -->
            {#if member.member.id != data.id}
                 <button on:click={() => goto(`/app/dashboard/${member.member.name}`)}>Profil</button>
+                <Invite opponent_id={member.member.id} />
             {/if}
         </li>
         {/each}

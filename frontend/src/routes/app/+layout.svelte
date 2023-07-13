@@ -3,7 +3,8 @@
 	import { goto } from '$app/navigation';
 	import { onDestroy, onMount } from 'svelte';
 	import { io } from 'socket.io-client'
-	import { initializeSocket, msgCount } from '$lib/socketsbs.js';
+	import { alertPopupOn, initializeSocket, invitationData, msgCount } from '$lib/socketsbs.js';
+	import Alert from '$lib/popupAlert.svelte'
 	// import { redirect } from '@sveltejs/kit';
 
 	// la socket ICICICICI//
@@ -100,6 +101,13 @@
 		$rooms;
 		local_count = msgCount;
 	}
+
+	let localAlert = alertPopupOn;
+	$:{
+		console.log(alertPopupOn);
+		localAlert = alertPopupOn;
+		console.log(localAlert);
+	}
 </script>
 
 
@@ -145,6 +153,7 @@
 </div>
 
 <main>
+	<Alert invitationData show={alertPopupOn}/>
 	<slot class="main_body"></slot>
 </main>
 

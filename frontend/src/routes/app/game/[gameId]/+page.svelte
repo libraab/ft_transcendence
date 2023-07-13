@@ -1,0 +1,192 @@
+<script lang='ts'>
+import { client, connectClientToColyseus, joinGame, roomData } from '$lib/gamesocket.js'
+import { onDestroy, onMount } from 'svelte';
+
+export let data;
+
+/**
+ * GameStates
+ */
+let name: any;
+let input: string;
+let initialScreen: any;
+let canvas: any;
+let ctx: any;
+let game: any;
+let pong: any;
+let room: any;
+let matchroom: any;
+let gameActive: boolean = false;
+let promise: any;
+let gameCode: any;
+let playerNumber: number;
+
+
+onMount(async () =>
+{
+    if (client === null)
+    {
+        console.log("joining room");
+        connectClientToColyseus();
+        await joinGame(data.gameId);
+        playerNumber = 2;
+    }
+    else
+        playerNumber = 1;
+    // if (roomData)
+    // {
+    //     roomData.onMessage("init", (j: number) => {
+    //         playerNumber = j;
+    //         console.log(playerNumber);
+    //         //console.log('test init22! ' + name + ' ' + roomData.id);
+    //         //console.log("client id: " + client.id);
+    //         console.log('init');
+    //     });
+
+    // }
+    init();
+    createHandlers();
+});
+
+onDestroy(() =>
+{
+    // client.close();
+});
+
+let createHandlers = () =>
+{
+    roomData.onMessage("gameState", (gameState: any) => 
+	{
+        //console.log('test gameState');
+        gameState = JSON.parse(gameState);
+        requestAnimationFrame(() => trender(gameState));
+    });
+    roomData.onMessage("gameOver", (data: any) => {
+		let date = JSON.parse(data);
+    	if (date.winner === playerNumber) {
+        	alert('You win!');
+			
+    	}
+    	else {
+      		alert('You lose!');
+    	}
+	});
+}
+
+function init() {
+    console.log("dans init");
+    //initialScreen.style.display = "none";
+    //game.style.display = "block";
+    canvas = pong;
+    // const { width, height } = canvas.getBoundingClientRect();
+    // canvas.width = width;
+    // canvas.height = height;
+    // console.log(canvas.width);
+    // console.log(canvas.height);
+    ctx = canvas.getContext('2d');
+    // gameCode = document.getElementById('gameCode');
+    // gameCode.innerText = name;
+    gameActive = true;
+    // console.log(gameCode);
+    document.addEventListener('keydown', keydown);
+    document.addEventListener('keyup', keyup);
+    //gameActive = true;
+}
+
+    function keydown(e: any) {
+		console.log("keydown ", e.keyCode);
+		if (e.keyCode === 38) {
+			if (playerNumber == 1)
+				roomData.send("keydown38player1");
+			else
+				roomData.send("keydown38player2");
+		}
+		if (e.keyCode === 40) {
+			if (playerNumber == 1)
+				roomData.send("keydown40player1");
+			else
+				roomData.send("keydown40player2");
+		}
+	}
+
+	function keyup(e: any) {
+		console.log("keyup ", e.keyCode);
+		if (e.keyCode === 38) {
+			if (playerNumber == 1)
+				roomData.send("keyup38player1");
+			else
+				roomData.send("keyup38player2");
+		}
+		if (e.keyCode === 40) {
+			if (playerNumber == 1)
+				roomData.send("keyup40player1");
+			else
+				roomData.send("keyup40player2");
+		}
+	}
+/**
+ * 
+ * GAME RENDER
+ * 
+*/
+
+function drawRect(x: number, y: number, w: number, h: number, color: any) {
+    ctx.fillStyle = color;
+    ctx.fillRect(x, y, w, h);
+}
+
+function drawArc(x: number, y: number, r: number, color: any) {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2, true);
+    ctx.closePath();
+    ctx.fill();
+}
+
+function drawNet(statenet: any) {
+    for (let i = 0; i <= canvas.height; i += 15) {
+        drawRect(statenet.net.x, statenet.net.y + i, statenet.net.width, statenet.net.height, statenet.net.color);
+    }
+}
+
+function drawText(text: string, x: number, y: number) {
+    ctx.fillStyle = "#FFF";
+    ctx.font = "75px fantasy";
+    ctx.fillText(text, x, y);
+}
+
+function trender(state: any) {    
+    drawRect(0, 0, canvas.width, canvas.height, "#000");
+
+    drawText(state.user.score, canvas.width / 4, canvas.height / 5);
+
+    drawText(state.com.score, 3 * canvas.width / 4, canvas.height / 5);
+
+    drawNet(state);
+
+    drawRect(state.user.x, state.user.y, state.user.width, state.user.height, state.user.color);
+
+    drawRect(state.com.x, state.com.y, state.com.width, state.com.height, state.com.color);
+
+    drawArc(state.ball.x, state.ball.y, state.ball.radius, state.ball.color);
+}
+//------------------------------------------------------------------------------------------------
+
+
+
+</script>
+<p>{data.gameId} $$$ {playerNumber}</p>
+<canvas bind:this={pong} id="pong" width=600 height=400></canvas>
+
+
+<style>
+    #pong {
+        border: 2px solid #FFF;
+        position: relative;
+        margin: auto;
+        top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0;
+    }
+</style>
