@@ -38,7 +38,7 @@ export async function reloadRooms() {
 	let loadedRooms = await fetchRoomData();
 	rooms.set(loadedRooms);
 	connectToRooms();
-	//fetchBlockedData();
+	fetchBlockedData();
 }
 
 export function getSocket() {
@@ -148,7 +148,7 @@ async function fetchRoomData() {
 
 async function fetchBlockedData() {
 	try {
-		const response = await fetch(`/api/blocked`, {
+		const response = await fetch(`/api/chat/blocked`, {
 			method: 'GET',
 			headers: {
 				'Authorization': `Bearer ${get(jwt_cookie)}`
@@ -157,6 +157,7 @@ async function fetchBlockedData() {
 		if (response.status == 200)
 		{
 			let resjson = await response.json()
+			console.log("fetched blocked user :");
 			console.log(resjson);
 			// blocked_users.set(resjson);
 			// // or

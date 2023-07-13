@@ -132,4 +132,13 @@ export class ChatGateway
       sender_id: 0,
     });
   }
+
+  async sendReloadRequest(target_id: any)
+  {
+    let socket_id = this.usersConnected.findSocketId(target_id);
+    if (socket_id != '')
+    {
+      this.wss.to(socket_id).emit('reloadrooms');
+    }
+  }
 }

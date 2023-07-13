@@ -73,7 +73,9 @@ export class ChatController {
   @Get('/blocked')
   async getBlockedUsers(@Request() req: { user: IJWT })
   {
-    return this.db.getBannedRelationshipsForId(req.user.id);
+    let banned_list = await this.db.getBannedRelationshipsForId(req.user.id);
+    console.log("banned list :", banned_list);
+    return banned_list;
   }
   //----------------------------------------------------------------------//
 
@@ -302,6 +304,9 @@ export class ChatController {
     }
 
     await this.db.createBlockedRelation(user.id, blockedUser.id);
+    console.log("Ennemies created");
+    this.gateway.sendReloadRequest(blockedUser.id); // sending a refresh request to both to refresh data on their session
+    this.gateway.sendReloadRequest(user.id);
     return 'Users are now ennemies';
   }
 
@@ -316,6 +321,9 @@ export class ChatController {
     }
 
     await this.db.unblockClient(user.id, unblockedUser.id);
+    console.log("Ok i forgive you");
+    this.gateway.sendReloadRequest(unblockedUser.id); // sending a refresh request to both to refresh data on their session
+    this.gateway.sendReloadRequest(user.id);
     return 'Users are friends again';
   }
 }

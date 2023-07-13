@@ -24,7 +24,7 @@ export class UserConnectedService {
 
   findSocketId(id: number): string {
     let res = '';
-    console.log(id);
+    console.log("Searching in GateWay Data the id : ", id);
     this.hmap.forEach((value, key, map) => {
       if (value == id) res = key;
     });
