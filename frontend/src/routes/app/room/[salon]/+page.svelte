@@ -17,7 +17,6 @@
 		members = firstFetchRoomMember();
 		choosenRoomId = data.members.roomId.id;
 		owned = data.members.status === 0;
-		console.log(owned, data.members)
 
 		await fetchprivateRoomMembers();
 		await fetchAllRoomMembers();
@@ -59,7 +58,6 @@
 	async function fetchAllRoomMembers()
 	{
 		let url;
-		console.log(owned);
 		if (owned) {
 			url = `/api/rooms/allRoomMember/${choosenRoomId}/${$userId}`;
 		}
