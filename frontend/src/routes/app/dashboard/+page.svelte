@@ -258,9 +258,9 @@
 					<div class="popup">
 						{#each searchRes as client}
 							<p class="link">
-								<a href="/dashboard/{client.name}"
+								<a href="/app/dashboard/{client.name}"
 									style="text-decoration: none;"
-									on:click={goto(`/app/dashboard/${client.name}`)}>{client.name}</a>
+									>{client.name}</a>
 									<!-- on:click={() => fetchTarget(client.name)} -->
 									<!-- on:click={() => refreshInput(client)}>{client.name}</a> -->
 							</p>

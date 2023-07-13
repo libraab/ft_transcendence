@@ -46,7 +46,7 @@ export async function load( {cookies, fetch, params} ) {
 	// {
 	// 	console.error(error);
 	// }
-
+	console.log(params.userName);
 	return (
 		{
 			userName: params.userName,

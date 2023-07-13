@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { img_path, userId, jwt_cookie, userId42 } from "$lib/stores.js"; // noooop
-	import { goto } from "$app/navigation";
 
 	export let data;
 	let stats: any;
@@ -14,7 +13,7 @@
 	onMount(async () => {
 		console.log("Hello");
 		await fetchDataSupp();
-		await fetchTarget(data.userName);
+		vals = await fetchTarget(data.userName);
 		if (supp.client2 && supp.client2.length > 0 && supp.client2[0].status === 1)
 			blocked = true;
 		else
@@ -37,11 +36,13 @@
                 });
 			if (response.status == 200)
 			{
-				vals = await response.json();
+				let resjson = await response.json();
+				console.log(resjson);
 				// if (vals.img === "undefined")
 				// 	$img_path = ""; /// nooo
 				// else
 				// 	$img_path = vals.img;
+				return resjson;
 			}
 			else
 				console.error("layout");
@@ -234,7 +235,8 @@
 		{#await vals}
 			<p>Loading...</p>
 		{:then _}
-			{#if vals.id == $userId}
+			<!-- {#if vals.id == $userId} -->
+			{#if false}
 				<h2 class="shiny-text">↖ Me Myself and I &lt;3</h2>
 			{:else if vals}
 				<h2 class="shiny-text">{vals.name}</h2>
@@ -301,9 +303,9 @@
 					<div class="popup">
 						{#each searchRes as client}
 							<p class="link">
-								<a href="/dashboard/{client.name}"
+								<a href='/app/dashboard/{client.name}'
 									style="text-decoration: none;"
-									on:click={goto(`/app/dashboard/${client.name}`)}>{client.name}</a>
+									>{client.name}</a>
 									<!-- on:click={() => fetchTarget(client.name)} -->
 									<!-- on:click={() => refreshInput(client)}>{client.name}</a> -->
 							</p>
@@ -470,5 +472,16 @@
 
 	.block-button.inactive {
 		background-color: red;
-	}	
+	}
+	.image-container {
+		position: relative;
+	}
+	.rick {
+		width: 150px;
+		height: 150px;
+		border-radius: 50%;
+		margin-right: 20px;
+		object-fit: cover;
+		box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+	}
 </style>
