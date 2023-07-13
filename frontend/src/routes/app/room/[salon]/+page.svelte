@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { hostname } from "../../../hostname";
-	import { img_path, userId42, clientName } from "../../../lib/storesores";
+	import { userId, userId42, clientName } from "$lib/stores";
 	import DelModal from './delete_resign.svelte'
 	import { goto } from '$app/navigation';
 
@@ -15,29 +14,27 @@
 	onMount(async () => {
 		choosenRoom = data.room;
 		choosenRoomId = data.members.roomId.id;
-		// $img_path = data.img_path;
-		// $userId42 = parseInt(data.userId42, 10);
 		owned = data.members.userStatus === 0;
 
 		await fetchprivateRoomMembers();
 		await fetchAllRoomMembers();
 
-		// try
-		// {
-		// 	const response = await fetch(`http://${hostname}:3000/dashboard/${data.userId42}`);
-		// 	if (response.ok)
-		// 	{
-		// 		let vals = await response.json();
-		// 		$clientName = vals.name;
-		// 	}
-		// 	else
-		// 		console.error("layout");
+		try
+		{
+			const response = await fetch(`/api/dashboard/${$userId42}`);
+			if (response.ok)
+			{
+				let vals = await response.json();
+				$clientName = vals.name;
+			}
+			else
+				console.error("layout");
 
-		// }
-		// catch (error)
-		// {
-		// 	console.error("layout" , error);
-		// }
+		}
+		catch (error)
+		{
+			console.error("layout" , error);
+		}
 	});
 
 	let privateRoomMembers: any = [];
@@ -45,7 +42,7 @@
 	{
 		try
 		{
-			const response = await fetch(`http://${hostname}:8080/api/rooms/privateRoomMember/${choosenRoomId}`);
+			const response = await fetch(`/api/rooms/privateRoomMember/${choosenRoomId}`);
 			if (response.ok)
 				privateRoomMembers = await response.json();
 			else
@@ -61,10 +58,10 @@
 	{
 		let url;
 		if (owned) {
-			url = `http://${hostname}:8080/api/rooms/allRoomMember/${choosenRoomId}/${data.id}`;
+			url = `/api/rooms/allRoomMember/${choosenRoomId}/${$userId}`;
 		}
 		else {
-			url = `http://${hostname}:8080/api/rooms/allRoomMemberForAdmins/${choosenRoomId}/${data.id}`;
+			url = `/api/rooms/allRoomMemberForAdmins/${choosenRoomId}/${$userId}`;
 		}
 
 		try
@@ -83,7 +80,7 @@
 
 	async function accept(client: any) {
 		try {
-			const response = await fetch(`http://${hostname}:8080/api/rooms/acceptNewMember/${choosenRoomId}/${client.id}`, {
+			const response = await fetch(`/api/rooms/acceptNewMember/${choosenRoomId}/${client.id}`, {
 				method: 'POST',
 			});
 
@@ -108,7 +105,7 @@
 
 	async function updateClientStatus(roomId: number, clientId: number, status: number) {
 		try {
-			const response = await fetch(`http://${hostname}:8080/api/rooms/updateStatus/${roomId}/${clientId}/${status}`, {
+			const response = await fetch(`/api/rooms/updateStatus/${roomId}/${clientId}/${status}`, {
 				method: 'POST',
 			});
 
@@ -151,7 +148,7 @@
 	async function kick(client: any)
 	{
 		try {
-			const response = await fetch(`http://${hostname}:8080/api/rooms/kick/${choosenRoomId}/${client.id}`, {
+			const response = await fetch(`/api/rooms/kick/${choosenRoomId}/${client.id}`, {
 				method: 'POST',
 			});
 
@@ -205,7 +202,7 @@
 </script>
 
 {#if delTab !== ""}
-	<DelModal {delTab} roomId={choosenRoomId} id={$userId42}
+	<DelModal {delTab} roomId={choosenRoomId} id={$userId}
 		on:click={()=> toggleDel("")}
 		on:validationClick={ delReturn }/>
 {/if}

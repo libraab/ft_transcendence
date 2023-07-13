@@ -150,7 +150,7 @@
 							{/if}
 							
 							<h3>{roomList.room.name}</h3>
-							<a href="/room/{roomList.room.name}"><button class="join-button">
+							<a href="/app/room/{roomList.room.name}"><button class="join-button">
 								Inspect
 							</button></a>
 						</div>

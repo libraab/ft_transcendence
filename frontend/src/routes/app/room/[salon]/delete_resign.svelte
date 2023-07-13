@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { hostname } from '../../../hostname';
 	import { onMount, afterUpdate } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
 
@@ -15,7 +14,7 @@
 	async function getReplacementLists () {
 		try
 		{
-			const response = await fetch(`http://${hostname}:3000/rooms/replacementList/${roomId}`);
+			const response = await fetch(`/api/rooms/replacementList/${roomId}`);
 			if (response.ok)
 			{
 				const data = await response.json();
@@ -62,7 +61,7 @@
 		try
 		{
 			const response = await fetch
-			(`http://${hostname}:3000/rooms/resign/${roomId}/${id}/${client.id}/${stay}`,{
+			(`/api/rooms/resign/${roomId}/${id}/${client.id}/${stay}`,{
 					method: 'POST',
 				});
 			if (response.ok)
@@ -85,7 +84,7 @@
 	{
 		try
 		{
-			const response = await fetch(`http://${hostname}:3000/rooms/delete/${roomId}`,{
+			const response = await fetch(`/api/rooms/delete/${roomId}`,{
 					method: 'POST',
 				});
 			if (response.ok)
