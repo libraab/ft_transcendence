@@ -149,32 +149,32 @@
 		fetchData();
 	}
 
-	let id42NameInputNotEmpty: any;
-	let searchRes: any = [];
-	async function getSpecifiedClients()
-	{
-		const retName = document.getElementById('id42-name-input').value;
-		id42NameInputNotEmpty = retName.trim() !== '';
+	// let id42NameInputNotEmpty: any;
+	// let searchRes: any = [];
+	// async function getSpecifiedClients()
+	// {
+	// 	const retName = document.getElementById('id42-name-input').value;
+	// 	id42NameInputNotEmpty = retName.trim() !== '';
 
-		if (id42NameInputNotEmpty)
-		{
-			try
-			{
-				const response = await fetch(`/api/dashboard/name/${retName}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${$jwt_cookie}`
-                    }
-                }); //cookie to do
-				searchRes = await response.json();
-			}
-			catch (error) {
-				console.error(error);
-			}
-		}
-		else
-			searchRes = [];
-	}
+	// 	if (id42NameInputNotEmpty)
+	// 	{
+	// 		try
+	// 		{
+	// 			const response = await fetch(`/api/dashboard/name/${retName}`, {
+    //                 method: 'GET',
+    //                 headers: {
+    //                     'Authorization': `Bearer ${$jwt_cookie}`
+    //                 }
+    //             }); //cookie to do
+	// 			searchRes = await response.json();
+	// 		}
+	// 		catch (error) {
+	// 			console.error(error);
+	// 		}
+	// 	}
+	// 	else
+	// 		searchRes = [];
+	// }
 </script>
 
 <UpdateModal {updatePop} id={$userId} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
@@ -253,7 +253,7 @@
 			{/if}
 		</div>
 	<!-- ---------------------------------------------------------------------------- -->
-	<div class="profile-container">
+	<!-- <div class="profile-container">
 		<div>
 			<label for="id42-name-input">search by Name:</label>
 			<input type="text" id="id42-name-input" on:input={() => getSpecifiedClients()} />
@@ -265,17 +265,17 @@
 							<p class="link">
 								<a href="/app/dashboard/{client.name}"
 									style="text-decoration: none;"
-									>{client.name}</a>
+									>{client.name}</a> -->
 									<!-- on:click={() => fetchTarget(client.name)} -->
 									<!-- on:click={() => refreshInput(client)}>{client.name}</a> -->
-							</p>
+							<!-- </p>
 						{/each}
 					</div>
 				{/if}
 			</div>
 
 		</div>
-	</div>
+	</div> -->
 <!-- ---------------------------------------------------------------------------- -->
 	</main>
 </div>

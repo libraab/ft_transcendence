@@ -2,7 +2,8 @@ import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
 interface User {
-	id: number,	
+	name: string,
+	id: number,	//id db
 }
 
   interface Room {

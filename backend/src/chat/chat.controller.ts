@@ -73,7 +73,8 @@ export class ChatController {
   @Get('/blocked')
   async getBlockedUsers(@Request() req: { user: IJWT })
   {
-    let banned_list = await this.db.getBannedRelationshipsForId(req.user.id);
+    let client = await this.db.getClientById42(req.user.id);
+    let banned_list = await this.db.getBannedRelationshipsForId(client.id);
     console.log("banned list :", banned_list);
     return banned_list;
   }

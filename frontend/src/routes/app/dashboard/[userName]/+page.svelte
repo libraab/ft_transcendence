@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { img_path, userId, jwt_cookie, userId42 } from "$lib/stores.js"; // noooop
+	import { error } from "@sveltejs/kit";
+	import Status from "$lib/connectStatus.svelte"
 
 	export let data;
 	let stats: any;
@@ -12,8 +14,8 @@
 		
 	onMount(async () => {
 		console.log("Hello");
-		await fetchDataSupp();
 		vals = await fetchTarget(data.userName);
+		await fetchDataSupp();
 		if (supp.client2 && supp.client2.length > 0 && supp.client2[0].status === 1)
 			blocked = true;
 		else
@@ -44,13 +46,16 @@
 				// 	$img_path = vals.img;
 				return resjson;
 			}
-			else
+			else{
 				console.error("layout");
+				throw error;
+			}
 
 		}
 		catch (error)
 		{
 			console.error("layout" , error);
+			throw error;
 		}
 	}
 
@@ -79,32 +84,32 @@
 		}
 	}
 
-	let id42NameInputNotEmpty: any;
-	let searchRes: any = [];
-	async function getSpecifiedClients()
-	{
-		const retName = document.getElementById('id42-name-input').value;
-		id42NameInputNotEmpty = retName.trim() !== '';
+	// let id42NameInputNotEmpty: any;
+	// let searchRes: any = [];
+	// async function getSpecifiedClients()
+	// {
+	// 	const retName = document.getElementById('id42-name-input').value;
+	// 	id42NameInputNotEmpty = retName.trim() !== '';
 
-		if (id42NameInputNotEmpty)
-		{
-			try
-			{
-				const response = await fetch(`/api/dashboard/name/${retName}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${$jwt_cookie}`
-                    }
-                }); //cookie to do
-				searchRes = await response.json();
-			}
-			catch (error) {
-				console.error(error);
-			}
-		}
-		else
-			searchRes = [];
-	}
+	// 	if (id42NameInputNotEmpty)
+	// 	{
+	// 		try
+	// 		{
+	// 			const response = await fetch(`/api/dashboard/name/${retName}`, {
+    //                 method: 'GET',
+    //                 headers: {
+    //                     'Authorization': `Bearer ${$jwt_cookie}`
+    //                 }
+    //             }); //cookie to do
+	// 			searchRes = await response.json();
+	// 		}
+	// 		catch (error) {
+	// 			console.error(error);
+	// 		}
+	// 	}
+	// 	else
+	// 		searchRes = [];
+	// }
 
 	const blockUser = async (blockedId: number) => {
 		const response = await fetch(`/api/chat/blockUser`, {
@@ -253,6 +258,7 @@
 				<div class="image-container">
 					<img src={vals.img != "undefined" ? vals.img : "/logo.jpeg"} alt="logo" class="rick">
 				</div>
+				<Status userId={vals.id} />
 				<div class="button-container">
 					{#if !befriended && !blocked}
 						<button class="button-profile" on:click={() => addFriend(vals.id)}>Add Friend</button>
@@ -303,7 +309,7 @@
 		{/if}
 	</div>
 <!-- ---------------------------------------------------------------------------- -->
-	<div class="profile-container">
+	<!-- <div class="profile-container">
 		<div>
 			<label for="id42-name-input">search by Name:</label>
 			<input type="text" id="id42-name-input" on:input={() => getSpecifiedClients()} />
@@ -315,17 +321,17 @@
 							<p class="link">
 								<a href='/app/dashboard/{client.name}'
 									style="text-decoration: none;"
-									>{client.name}</a>
+									>{client.name}</a> -->
 									<!-- on:click={() => fetchTarget(client.name)} -->
 									<!-- on:click={() => refreshInput(client)}>{client.name}</a> -->
-							</p>
+							<!-- </p>
 						{/each}
 					</div>
 				{/if}
 			</div>
 
 		</div>
-	</div>
+	</div> -->
 <!-- ---------------------------------------------------------------------------- -->
 </main>
 	
