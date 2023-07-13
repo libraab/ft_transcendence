@@ -73,8 +73,6 @@ export class ChatGateway
       sender: client_id.id,
       msg: message.message,
     });
-	  console.log(message);
-    console.log({ ...message, sender: client_id.name});
     this.wss.to(message.channel).emit('serverToChat', { ...message, sender: client_id.name});
     this.wss.to(message.channel).emit('serverAlertToChat', { ...message, sender: client_id.name});
     // WsResponse<string>
@@ -89,7 +87,6 @@ export class ChatGateway
     //utiliser le id via le token sinon on peux creer des invitations entre deux users sans leurs consantement
     this.logger.log(`A invitation to play was send to opponent_id`);
     const socket_id = this.usersConnected.findSocketId(data.opponent_id);
-    console.log(socket_id);
     if (socket_id == '') return;
     this.logger.log(`FOUND`);
     this.wss.to(socket_id).emit('invitationGame', data.player_id);
@@ -120,7 +117,6 @@ export class ChatGateway
   }
 
   async addMessageToRoom(data: any) {
-    console.log(data);
     this.db.addMessageToRoom(data.id, data.sender, data.msg);
   }
 

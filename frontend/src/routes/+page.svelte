@@ -28,14 +28,12 @@
                 });
                 if (connect.status == 200)
                 {
-                    console.log("your fetch was sucessfull");
                     goto('/app/dashboard');
                 }
                 else
                 {
                     //connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
-                    console.log("fetch failed in login page");
-                    console.log(connect.status);
+                    console.error("fetch failed in login page");
                 }
             }
             catch (error) {

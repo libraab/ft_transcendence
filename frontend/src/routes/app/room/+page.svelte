@@ -45,7 +45,6 @@
 				ownedRoom = await response.json();
 			else
 				ownedRoom = [];
-			console.log(ownedRoom);
 		}
 		catch (error)
 		{
@@ -60,13 +59,11 @@
 			return ;
 		}
 		event.preventDefault();
-		console.log('Creating room:', roomName, 'of type', roomType);
 		if (roomType === 'protected') {
 				console.log('Password:', password);
 		}
 		else
 			password = "";
-		console.log(password);
 		/*
 		* Appel au Post du controller Chat qui va creer la Room dans la Db
 		*/

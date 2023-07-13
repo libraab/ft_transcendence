@@ -25,6 +25,7 @@ import {
   updateStatDto,
 } from 'src/dashboard/dashboardDtos/createsTablesDtos';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
+import { gameHistoricDto } from 'src/game/game.controller';
 
 @Injectable()
 export class DatabaseService {
@@ -40,8 +41,13 @@ export class DatabaseService {
     return client || null;
   }
 
+  async ComTest(ghDto: gameHistoricDto)
+  {
+    console.log(ghDto);
+    return 1;
+  }
+  
   async getClientById42Dashboard(id42: number) {
-    console.log(id42);
     const client = await this.prisma.clients.findUnique({
       where: {
         id42: id42,
@@ -62,8 +68,6 @@ export class DatabaseService {
         },
       },
     });
-
-    console.log(client);
 
     if (!client) {
       return null;
@@ -371,7 +375,6 @@ export class DatabaseService {
 
       return updatedClient;
     } catch (error) {
-      console.log(error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new NotFoundException("User doesn't exist");
@@ -1683,6 +1686,20 @@ export class DatabaseService {
     if (userStatus.status !== 1 && userStatus.status !== 0)
       throw new UnauthorizedException('acces denied');
     return { status: userStatus.status, roomId: roomId };
+  }
+
+  async getRoomIdByName(roomName: string)
+  {
+    const id = await this.prisma.rooms.findUnique({
+      where: {
+        name: roomName,
+      },
+      select: {
+        id: true,
+      }
+    });
+
+    return id;
   }
 
   async deleteClientById(clientId: number): Promise<void> {

@@ -28,10 +28,8 @@ export class AuthGuard implements CanActivate {
         secret: jwtConstants.secret,
       });
       req['user'] = payload; // Attach the user object to the request
-      console.log('yummy, good cookie');
       return true; // Return true to allow access
     } catch (err) {
-      console.log('beurk, bad cookie');
       return false; // Return false to deny access
     }
   }

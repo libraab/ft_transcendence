@@ -9,13 +9,11 @@ export let msgCount = 0;
 
 export let updateCount = () =>
 {
-	console.log("count updated");
 	let count = 0;
 	get(rooms).forEach(element => {
 			count += element.newMsgCount;
 	});
 	msgCount = count;
-	console.log(count);
 }
 
 export async function initializeSocket() {
@@ -34,7 +32,6 @@ export async function initializeSocket() {
 }
 
 export async function reloadRooms() {
-	console.log("reloading rooms");
 	let loadedRooms = await fetchRoomData();
 	rooms.set(loadedRooms);
 	connectToRooms();
@@ -60,7 +57,6 @@ export let deleteSocketEvents = () =>
 // export let defineGameSocketEvents = () =>
 // {
 // 	socket.game.on('testSeverToClient', (data) => {
-// 		console.log(data)
 // 	});
 // 	socket.game.on('mvtpad', (data) => {
 
@@ -69,7 +65,6 @@ export let deleteSocketEvents = () =>
 
 let newMessage = (msg) =>
 {
-	console.log("New Message");
 	if (! isBlockedUser(msg.sender_id))
 		add_alert_On(msg.channel);
 }
@@ -157,8 +152,6 @@ async function fetchBlockedData() {
 		if (response.status == 200)
 		{
 			let resjson = await response.json()
-			console.log("fetched blocked user :");
-			console.log(resjson);
 			// blocked_users.set(resjson);
 			// // or
 			// return blocked_users;

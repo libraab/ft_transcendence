@@ -46,10 +46,8 @@ export class ChatController {
     @Request() req: { user: IJWT },
   ) {
     //  if (id <= 0) throw new BadRequestException('invalid user');
-      console.log("User Chat Request for id :", req.user.id);
      const client = await this.db.getClientById42(req.user.id);
      const json = await this.db.getRoomIdsAndNamesByClientId(client.id);
-     console.log(json);
      return json;
    }
 
@@ -64,7 +62,6 @@ export class ChatController {
         res.push({ sender: e.clientName, message: e.message });
       }),
     );
-    console.log(res);
     return res;
   }
 
@@ -75,7 +72,6 @@ export class ChatController {
   {
     let client = await this.db.getClientById42(req.user.id);
     let banned_list = await this.db.getBannedRelationshipsForId(client.id);
-    console.log("banned list :", banned_list);
     return banned_list;
   }
   //----------------------------------------------------------------------//
@@ -181,31 +177,26 @@ export class ChatController {
       data.iddata,
       room.id,
     );
-    console.log('->', room);
     if (!room) {
       throw new Error('Room does not exist');
     }
     if (member) {
       throw new Error('Already member');
     }
-    console.log('->', member);
 
     if (room.secu === 1) {
-      console.log('->', member);
-      console.log('This room is protected, password required');
       bcrypt
         .compare(data.password, room.password)
         .then((passwordsMatch) => {
           if (passwordsMatch) {
-            console.log('Correct password');
             this.db.addMemberToRoom(room.id, data.iddata, 2);
             return 'User joined the room';
           } else {
-            console.log('Wrong password');
+            console.error('Wrong password');
           }
         })
         .catch((error) => {
-          console.log('An error occurred during password comparison:', error);
+          console.error('An error occurred during password comparison:', error);
         });
     }
   }
@@ -301,7 +292,6 @@ export class ChatController {
     }
 
     await this.db.createBlockedRelation(user.id, blockedUser.id);
-    console.log("Ennemies created");
     this.gateway.sendReloadRequest(blockedUser.id); // sending a refresh request to both to refresh data on their session
     this.gateway.sendReloadRequest(user.id);
     return 'Users are now ennemies';
@@ -318,7 +308,6 @@ export class ChatController {
     }
 
     await this.db.unblockClient(user.id, unblockedUser.id);
-    console.log("Ok i forgive you");
     this.gateway.sendReloadRequest(unblockedUser.id); // sending a refresh request to both to refresh data on their session
     this.gateway.sendReloadRequest(user.id);
     return 'Users are friends again';

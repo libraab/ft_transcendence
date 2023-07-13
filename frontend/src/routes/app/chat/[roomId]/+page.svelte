@@ -58,15 +58,6 @@
 		}
 	}
 
-    // afterUpdate(async () => {
-    //     console.log("UPDATES");
-    //     console.log(roomId);
-    //     roomId = data.roomId;
-    //     console.log(roomId);
-    //     await fetchData(roomId);
-    // });
-
-
     /**
      * The behaviour of serverToChat event is now different. When we recieve message and if we are in the rooom corresponding to message :
      *  - we add the message directly to the array of fetched messages so we dont need to fetche again (all throught sockets)

@@ -15,7 +15,7 @@
 	onMount(async () => {
 		choosenRoom = data.room;
 		members = firstFetchRoomMember();
-		choosenRoomId = members.roomId.id;
+		choosenRoomId = data.roomId;
 		owned = members.userStatus === 0;
 
 		await fetchprivateRoomMembers();

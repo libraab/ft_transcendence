@@ -81,6 +81,12 @@ export class RoomsController {
     }
   }
 
+  @Get('rooms/getRoomId/:roomName')
+  async getRoomId(@Param('roomName') roomName: string)
+  {
+    return this.db.getRoomIdByName(roomName);
+  }
+
   @UseGuards(AuthGuard)
   @Post('/join/:roomId')
   async joinRoom(

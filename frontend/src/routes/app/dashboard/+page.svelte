@@ -17,8 +17,6 @@
 	let fl: any = [];
 	let isDFAActive: boolean;
 
-	// let test: any = process.env.BS;
-
 	// async function fetchData() {
 	// 	try
 	// 	{
@@ -197,7 +195,6 @@
 				>
 				DFA
 				</button>
-				<p>{isDFAActive}</p>
 				{#if qrCodeImageUrl}
 					<img src={qrCodeImageUrl} alt="QR Code" />
 				{/if}

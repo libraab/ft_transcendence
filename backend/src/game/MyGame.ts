@@ -68,7 +68,6 @@ export function gameLoop(state: any) {
         state.ball.velocityX = direction * state.ball.speed * Math.cos(angleRad);
         state.ball.velocityY = state.ball.speed * Math.sin(angleRad);
         state.ball.speed += 0.5;
-        //console.log('precollision changement');
     }
     else
     {
@@ -97,7 +96,6 @@ function precolision(state: any, player: any) {
             if ((player.y + player.height) >= ycolision && ycolision >= player.y) {
                 state.ball.x = xcolision;
                 state.ball.y = ycolision;
-                //console.log('changement coor user');
                 return 1;
             }
         }
@@ -115,7 +113,6 @@ function precolision(state: any, player: any) {
             if ((player.y + player.height) >= ycolision && ycolision >= player.y) {
                 state.ball.x = xcolision;
                 state.ball.y = ycolision;
-                //console.log('changement coor com');
                 return 1;
             }
         }
@@ -124,7 +121,6 @@ function precolision(state: any, player: any) {
 }
 
 function collision(b: any,p: any){
-    console.log('collision calcul');
     p.top = p.y;
     p.bottom = p.y + p.height;
     p.left = p.x;

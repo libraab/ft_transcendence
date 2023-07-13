@@ -28,7 +28,6 @@
                 });
                 if (connect.status == 200)
                 {
-                    console.log("your fetch was sucessfull");
 					const data = await connect.json();
 					$img_path = data.img;
 					$clientName = data.name;
@@ -38,8 +37,7 @@
                 else
                 {
                     //connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
-                    console.log("fetch failed in app layout");
-                    console.log(connect.status);
+                    console.error("fetch failed in app layout");
 					goto("/");
                 }
             }
