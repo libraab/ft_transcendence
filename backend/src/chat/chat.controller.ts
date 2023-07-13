@@ -46,7 +46,7 @@ export class ChatController {
     @Request() req: { user: IJWT },
   ) {
     //  if (id <= 0) throw new BadRequestException('invalid user');
-      console.log("User Chat Request for id :", req.user);
+      console.log("User Chat Request for id :", req.user.id);
      const client = await this.db.getClientById42(req.user.id);
      const json = await this.db.getRoomIdsAndNamesByClientId(client.id);
      console.log(json);
@@ -91,9 +91,10 @@ export class ChatController {
     // return res;
   }
 
+  @UseGuards(AuthGuard)
   @Get('/room/:id')
-  async getRoomsMembers(@Param('id', ParseIntPipe) id: number) {
-    const json = await this.db.getMembersByRoomId(id);
+  async getRoomsMembers(@Request() req: { user: IJWT }, @Param('id', ParseIntPipe) room_id: number) {
+    const json = await this.db.getMembersByRoomId(room_id);
     // let res : number;
     // return this.usersConnected.checkStatus(id);
     // await Promise.all(json.map(async (e) => {

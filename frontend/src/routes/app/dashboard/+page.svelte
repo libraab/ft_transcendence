@@ -160,7 +160,12 @@
 		{
 			try
 			{
-				const response = await fetch(`/api/dashboard/name/${$userId}/${retName}`);
+				const response = await fetch(`/api/dashboard/name/${retName}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${$jwt_cookie}`
+                    }
+                }); //cookie to do
 				searchRes = await response.json();
 			}
 			catch (error) {

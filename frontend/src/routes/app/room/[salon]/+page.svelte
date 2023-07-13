@@ -21,22 +21,22 @@
 		await fetchprivateRoomMembers();
 		await fetchAllRoomMembers();
 
-		try
-		{
-			const response = await fetch(`/api/dashboard/${$userId42}`);
-			if (response.ok)
-			{
-				let vals = await response.json();
-				$clientName = vals.name;
-			}
-			else
-				console.error("layout");
+		// try
+		// {
+		// 	const response = await fetch(`/api/dashboard/${$userId42}`);
+		// 	if (response.ok)
+		// 	{
+		// 		let vals = await response.json();
+		// 		$clientName = vals.name;
+		// 	}
+		// 	else
+		// 		console.error("layout");
 
-		}
-		catch (error)
-		{
-			console.error("layout" , error);
-		}
+		// }
+		// catch (error)
+		// {
+		// 	console.error("layout" , error);
+		// }
 	});
 
 	async function firstFetchRoomMember()
@@ -229,7 +229,7 @@
 	<main class="container">
 		<div class="create-container">
 			<h1>{choosenRoom}</h1>
-			<a href="/room"><center><button class="toggle-btn">Back</button></center></a>
+			<a href="/app/room"><center><button class="toggle-btn">Back</button></center></a>
 
 		</div>
 
