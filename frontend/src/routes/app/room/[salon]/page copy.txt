@@ -8,7 +8,6 @@
 	let delTab: string;
 
 	onMount(async () => {
-		console.log(data);
 		$img_path = data.img_path;
 		$userId42 = data.userId42;
 

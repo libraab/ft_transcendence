@@ -81,7 +81,7 @@ export class RoomsController {
     }
   }
 
-  @Get('rooms/getRoomId/:roomName')
+  @Get('getRoomId/:roomName')
   async getRoomId(@Param('roomName') roomName: string)
   {
     return this.db.getRoomIdByName(roomName);

@@ -6,7 +6,6 @@ export async function load( {cookies, fetch, params} ) {
 	if (authToken === undefined)
 		throw redirect(307, "/");
 
-	console.log(params.userName);
 	return (
 		{
 			userName: params.userName,

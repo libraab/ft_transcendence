@@ -63,17 +63,14 @@
      *  - we add the message directly to the array of fetched messages so we dont need to fetche again (all throught sockets)
      */
 	let recieveMessage = (msg) => {
-		console.log("msg reiceived");
         if (isBlockedUser(msg.sender_id))
         {
-            console.log("Oh no, i blocked him, dont wanna hear");
             return;
         }
 		if (msg.channel == roomId)
 			RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
 		else
 			add_alert_On(msg.channel);
-		console.log(RoomsMessages);
 	}
 
 	let recieveServerMessage = (msg) => {
@@ -91,7 +88,6 @@
                     headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
                 });
             let messages = await response.json();
-            console.log(messages);
             RoomsMessages = messages;
         }
         catch (error) {

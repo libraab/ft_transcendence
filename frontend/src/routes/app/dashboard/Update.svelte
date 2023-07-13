@@ -14,8 +14,6 @@
 		const nameInput = document.getElementById("name-upload") as HTMLInputElement;
 		const fileInput = document.getElementById("file-upload") as HTMLInputElement;
 
-		console.log(fileInput.files);
-
 		let data = new FormData();
 		data.append("file", fileInput.files[0]);
 

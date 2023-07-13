@@ -13,7 +13,6 @@
 
 		
 	onMount(async () => {
-		console.log("Hello");
 		await todo();
 		if (supp.client2 && supp.client2.length > 0 && supp.client2[0].status === 1)
 			blocked = true;
@@ -57,7 +56,6 @@
 			if (response.status == 200)
 			{
 				let resjson = await response.json();
-				console.log(resjson);
 				// if (vals.img === "undefined")
 				// 	$img_path = ""; /// nooo
 				// else

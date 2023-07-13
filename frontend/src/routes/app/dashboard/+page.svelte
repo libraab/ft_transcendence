@@ -64,7 +64,6 @@
 	// 	Dfa = data.Dfa
 	// 	id = data.id;
 	// 	img_path.set(data.img);
-	// 	console.log("image path is : ", $img_path); // ici c'est le seul endroit ou on change le storage value de img
 	// 	clientName.set(data.name);
 	// 	// $userId42 = data.userId42;
 	// 	// $img_path = data.img;
@@ -79,7 +78,6 @@
 		// Send API request to update DFA status
 		try {
 			const response = await axios.post(`/api/auth/2fa/${$userId}`, { isDFAActive });
-			console.log('DFA status updated in the database.');
 			qrCodeImageUrl = response.data.qrCodeImageUrl;
 		} catch (error) {
 			console.error('Failed to update DFA status:', error);

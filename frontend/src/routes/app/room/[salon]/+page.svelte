@@ -15,28 +15,12 @@
 	onMount(async () => {
 		choosenRoom = data.room;
 		members = firstFetchRoomMember();
-		choosenRoomId = data.roomId;
-		owned = members.userStatus === 0;
+		choosenRoomId = data.members.roomId.id;
+		owned = data.members.status === 0;
+		console.log(owned, data.members)
 
 		await fetchprivateRoomMembers();
 		await fetchAllRoomMembers();
-
-		// try
-		// {
-		// 	const response = await fetch(`/api/dashboard/${$userId42}`);
-		// 	if (response.ok)
-		// 	{
-		// 		let vals = await response.json();
-		// 		$clientName = vals.name;
-		// 	}
-		// 	else
-		// 		console.error("layout");
-
-		// }
-		// catch (error)
-		// {
-		// 	console.error("layout" , error);
-		// }
 	});
 
 	async function firstFetchRoomMember()
@@ -75,6 +59,7 @@
 	async function fetchAllRoomMembers()
 	{
 		let url;
+		console.log(owned);
 		if (owned) {
 			url = `/api/rooms/allRoomMember/${choosenRoomId}/${$userId}`;
 		}
@@ -105,7 +90,6 @@
 			if (response.ok)
 			{
 				console.log('New member accepted');
-				// Mettez à jour votre état ou effectuez toute autre action nécessaire ici
 			}
 			else
 			{
@@ -206,7 +190,7 @@
 
 	function delReturn() {
 		delTab = "";
-		goto("/room");
+		goto("/app/room");
 	}
 
 	const memberStatusLabels: any = {
@@ -291,11 +275,10 @@
 
 		{#if owned}
 			<div class="create-container">
+				╭∩╮( •̀_•́ )╭∩╮
 				<center><button class="toggle-btn" style="background-color: red;"
 					on:click={() => toggleDel('del')}>Delete room
 				</button></center>
-				/̵͇̿̿/’̿’̿ ̿ ̿̿ ̿̿ ̿̿(╥﹏╥)
-
 				<button class="toggle-btn" style="background-color: red; margin-top: auto;"
 					on:click={() => toggleDel('res')}>Resign
 				</button>
