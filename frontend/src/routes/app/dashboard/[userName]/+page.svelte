@@ -1,25 +1,47 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { hostname } from "../../../hostname";
-	import { img_path } from "../../../lib/storesores";
+	import { img_path, userId, jwt_cookie, userId42 } from "$lib/stores.js"; // noooop
+	import { goto } from "$app/navigation";
 
 	export let data;
 	let stats: any;
 	let vals: any;
 	let blocked: boolean;
+	let supp: any;
+	let befriended: boolean;
+
+		
+	onMount(async () => {
+		console.log("Hello");
+		await fetchDataSupp();
+		await fetchTarget(data.userName);
+		if (supp.client2 && supp.client2.length > 0 && supp.client2[0].status === 1)
+			blocked = true;
+		else
+			blocked = false;
+		if (supp.client1 && supp.client1.length > 0)
+			befriended = true;
+		else
+			befriended = false;
+	});
 
 	async function fetchTarget(target: string)
 	{
 		try
 		{
-			const response = await fetch(`http://${hostname}:3000/dashboard/getByName/${data.id}/${target}`);
-			if (response.ok)
+			const response = await fetch(`/api/dashboard/getByName/${target}`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${$jwt_cookie}`
+                    }
+                });
+			if (response.status == 200)
 			{
 				vals = await response.json();
-				if (vals.img === "undefined")
-					$img_path = "";
-				else
-					$img_path = vals.img;
+				// if (vals.img === "undefined")
+				// 	$img_path = ""; /// nooo
+				// else
+				// 	$img_path = vals.img;
 			}
 			else
 				console.error("layout");
@@ -31,41 +53,25 @@
 		}
 	}
 
-	async function fetchDataSupp(id42: number, targetName: string)
+	async function fetchDataSupp()
 	{
 		try
 		{
-			const response = await fetch(`http://${hostname}:3000/dashboard/getTargetWithRelation/${id42}/${targetName}`)
+			const response = await fetch(`/api/dashboard/getTargetWithRelation/${$userId42}/${data.userName}`) //cookie to do
 			if (response.ok)
 			{
 				const data = await response.json();
-				return data;
+				supp = data;
 			}
-			else
-			{
-				console.error("failed to fetch target data");
+			else {
+				console.log("no supp fetched");
 			}
 		}
 		catch (error)
 		{
 			console.error(error);
 		}
-
-		return null;
 	}
-
-	let befriended: boolean;
-	onMount(async () => {
-		if (data.supp.client2 && data.supp.client2.length > 0 && data.supp.client2[0].status === 1)
-			blocked = true;
-		else
-			blocked = false;
-		if (data.supp.client1 && data.supp.client1.length > 0)
-			befriended = true;
-		else
-			befriended = false;
-		fetchTarget(data.target);
-	});
 
 	let id42NameInputNotEmpty: any;
 	let searchRes: any = [];
@@ -78,7 +84,7 @@
 		{
 			try
 			{
-				const response = await fetch(`http://${hostname}:3000/dashboard/name/${data.id}/${retName}`);
+				const response = await fetch(`/api/dashboard/name/${$userId}/${retName}`); //cookie to do
 				searchRes = await response.json();
 			}
 			catch (error) {
@@ -90,14 +96,15 @@
 	}
 
 	const blockUser = async (blockedId: number) => {
-		const response = await fetch(`http://${hostname}:3000/chat/blockUser`, {
+		const response = await fetch(`/api/chat/blockUser`, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${$jwt_cookie}`,
 			},
 			body: JSON.stringify({
 				blockedId: blockedId,
-				iddata: data.id
 			})
 		});
 		if (response.ok) {
@@ -108,14 +115,14 @@
 	};
 	//---------------------------------------------------------------------------//
 	const unblockUser = async (unblockedId: number) => {
-		const response = await fetch(`http://${hostname}:3000/chat/unblockUser`, {
+		const response = await fetch(`/api/chat/unblockUser`, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${$jwt_cookie}`,
 			},
 			body: JSON.stringify({
 				unblockedId: unblockedId,
-				iddata: data.id
 			})
 		});
 		if (response.ok) {
@@ -131,35 +138,35 @@
 		blocked = !blocked;
 	}
 
-	async function refreshInput(client: any)
-	{
-		const newdata = await fetchDataSupp(data.id42, client.name);
-		if (newdata)
-		{
-			if (newdata.client2 && newdata.client2.length > 0 && newdata.client2[0].status === 1)
-				blocked = true;
-			else
-				blocked = false;
-			if (newdata.client1 && newdata.client1.length > 0)
-				befriended = true;
-			else
-				befriended = false;
-		}
+	// async function refreshInput(client: any)
+	// {
+	// 	const newdata = await fetchDataSupp(data.id42, client.name);
+	// 	if (newdata)
+	// 	{
+	// 		if (newdata.client2 && newdata.client2.length > 0 && newdata.client2[0].status === 1)
+	// 			blocked = true;
+	// 		else
+	// 			blocked = false;
+	// 		if (newdata.client1 && newdata.client1.length > 0)
+	// 			befriended = true;
+	// 		else
+	// 			befriended = false;
+	// 	}
 
-		document.getElementById('id42-name-input').value = "";
-		searchRes = [];
-		id42NameInputNotEmpty = null;
-	}
+	// 	document.getElementById('id42-name-input').value = "";
+	// 	searchRes = [];
+	// 	id42NameInputNotEmpty = null;
+	// }
 
 	const addFriend = async (newFriendId: number) => {
-		const response = await fetch(`http://${hostname}:3000/chat/addFriend`, {
+		const response = await fetch(`/api/chat/addFriend`, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${$jwt_cookie}`,
 			},
 			body: JSON.stringify({
 				newFriendId: newFriendId,
-				iddata: data.id
 			})
 		});
 		befriended = true;
@@ -168,10 +175,15 @@
 	async function deleteFriendship(id2: number)
 	{
 		try{
-
-			const response = await fetch(`http://${hostname}:3000/dashboard/supprFriendship/${data.id}/${id2}`, {
+			console.error("STARTING FETCH DELETE FRIEND");
+			const response = await fetch(`/api/dashboard/supprFriendship/${id2}`, {
 				method: "POST",
+				headers: {
+					'Authorization': `Bearer ${$jwt_cookie}`,
+				},
 			});
+
+			console.error("RESPONSE OK");
 			if (response.ok)
 			{
 				befriended = false;
@@ -219,14 +231,16 @@
 <main class="container">
 <!-- ---------------------------------------------------------------------------- -->
 	<div class="profile-container">
-		{#if data.targetMyself}
-			<h2 class="shiny-text">↖ Me Myself and I &lt;3</h2>
-		{:else if vals}
-			{#await vals}
-				<p>Loading...</p>
-			{:then _}
+		{#await vals}
+			<p>Loading...</p>
+		{:then _}
+			{#if vals.id == $userId}
+				<h2 class="shiny-text">↖ Me Myself and I &lt;3</h2>
+			{:else if vals}
 				<h2 class="shiny-text">{vals.name}</h2>
-
+				<div class="image-container">
+					<img src={vals.img != "undefined" ? vals.img : "/logo.jpeg"} alt="logo" class="rick">
+				</div>
 				<div class="button-container">
 					{#if !befriended && !blocked}
 						<button class="button-profile" on:click={() => addFriend(vals.id)}>Add Friend</button>
@@ -253,11 +267,10 @@
 						<button class="button-profile" on:click={sendInvitation}>Play</button>
 					{/if}
 				</div>
-
-			{:catch error}
-				<p>Error: {error.message}</p>
-			{/await}
-		{/if}
+			{/if}
+		{:catch error}
+			<p>Error: {error.message}</p>
+		{/await}
 	</div>
 <!-- ---------------------------------------------------------------------------- -->
 	<div class="profile-container">
@@ -290,8 +303,9 @@
 							<p class="link">
 								<a href="/dashboard/{client.name}"
 									style="text-decoration: none;"
-									on:click={() => fetchTarget(client.name)}
-									on:click={() => refreshInput(client)}>{client.name}</a>
+									on:click={goto(`/app/dashboard/${client.name}`)}>{client.name}</a>
+									<!-- on:click={() => fetchTarget(client.name)} -->
+									<!-- on:click={() => refreshInput(client)}>{client.name}</a> -->
 							</p>
 						{/each}
 					</div>
@@ -404,7 +418,7 @@
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 		z-index: 1; /* Assure que la fenêtre contextuelle est au-dessus des autres éléments */
 	}
-	.popup-button {
+	/* .popup-button {
 		display: block;
 		width: 100%;
 		margin-bottom: 8px;
@@ -452,7 +466,7 @@
 
 	.dfa-button.inactive {
 		background-color: red;
-	}
+	} */
 
 	.block-button.inactive {
 		background-color: red;

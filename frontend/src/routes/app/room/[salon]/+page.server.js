@@ -6,7 +6,7 @@ import { error, redirect } from '@sveltejs/kit';
 	{
 		try
 		{
-			const response = await fetch(`http://localhost:3000/api/rooms/allMemberwithStatus/${id42}/${roomName}`);
+			const response = await fetch(`/api/rooms/allMemberwithStatus/${id42}/${roomName}`);
 			if (response.ok)
 				return await response.json();
 			else {

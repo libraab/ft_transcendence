@@ -36,7 +36,7 @@ export class DashboardController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async getByid42(
+  async getMyDashboard(
     @Request() req: { user: IJWT },
   ) {
     console.log("User Dashboard Request for id :", req.user);
@@ -46,13 +46,28 @@ export class DashboardController {
 	  return ppp;
   }
 
-  @Get('/getByName/:id/:userName')
+  @UseGuards(AuthGuard)
+  @Get('/:id42')
+  async getDashboardById42(
+    @Request() req: { user: IJWT },
+    @Param('id42', ParseIntPipe) id: number
+  ) {
+    console.log("User Dashboard Request for id :", id);
+    console.log(+req.user.id);
+    let ppp = await this.db.getClientById42Dashboard(id);
+	  console.log(ppp);
+	  return ppp;
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/getByName/:userName')
   async getByName(
-    @Param('id', ParseIntPipe) id: number,
+    @Request() req: { user: IJWT },
     @Param('userName') userName: string,
   ) {
     try {
-      return this.db.getClientByName(id, userName);
+      let client = await this.db.getClientById42(req.user.id);
+      return this.db.getClientByName(client.id, userName);
     } catch (error) {
       throw new HttpException('userNotFound', 404);
     }
@@ -173,16 +188,18 @@ export class DashboardController {
     return this.db.findClientsByName(id, name);
   }
 
-  @Post('/supprFriendship/:id1/:id2')
+  @UseGuards(AuthGuard)
+  @Post('/supprFriendship/:id2')
   async supprFriendship(
-    @Param('id1', ParseIntPipe) id1: number,
+    @Request() req: { user: IJWT} ,
     @Param('id2', ParseIntPipe) id2: number,
   ) {
-    if (id1 === id2)
+    let client = await this.db.getClientById42(req.user.id);
+    if (client.id === id2)
       throw new HttpException('you so funny Larry', HttpStatus.BAD_REQUEST);
 
     try {
-      await this.db.removeClientsFromClient(id1, id2);
+      await this.db.removeClientsFromClient(client.id, id2);
       return HttpStatus.NO_CONTENT;
     } catch (error) {
       console.error(error);

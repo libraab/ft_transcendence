@@ -248,9 +248,10 @@ export class ChatController {
     return 'User joined the room';
   }
 
+  @UseGuards(AuthGuard)
   @Post('/addFriend')
-  async addFriend(@Body() data) {
-    const userId = await this.db.getClientById(data.iddata);
+  async addFriend(@Request() req: { user: IJWT }, @Body() data) {
+    const userId = await this.db.getClientById42(req.user.id);
     const newFriend = await this.db.getClientById(data.newFriendId);
 
     if (!newFriend) {
@@ -290,9 +291,10 @@ export class ChatController {
     return 'A private chat room has been created';
   }
 
+  @UseGuards(AuthGuard)
   @Post('/blockUser')
-  async blockUser(@Body() data) {
-    const user = await this.db.getClientById(data.iddata); // actor
+  async blockUser(@Request() req: { user : IJWT }, @Body() data) {
+    const user = await this.db.getClientById42(req.user.id); // actor
     const blockedUser = await this.db.getClientById(data.blockedId); // acted upon
 
     if (!blockedUser || !user) {
@@ -303,9 +305,10 @@ export class ChatController {
     return 'Users are now ennemies';
   }
 
+  @UseGuards(AuthGuard)
   @Post('/unblockUser')
-  async unblockUser(@Body() data) {
-    const user = await this.db.getClientById(data.iddata); // actor
+  async unblockUser(@Request() req: { user : IJWT }, @Body() data) {
+    const user = await this.db.getClientById42(req.user.id); // actor
     const unblockedUser = await this.db.getClientById(data.unblockedId); // acted upon
 
     if (!unblockedUser || !user) {
