@@ -107,8 +107,17 @@ export class ChatController {
     return 'user quit the room';
   }
   //----------------------------------------------------------------------//
+  @UseGuards(AuthGuard)
   @Post()
-  async createNewRoom(@Body() data) {
+  async createNewRoom(@Request() req: { user: IJWT }, @Body() data) {
+    /**
+     * D'abord on verifie que l'id de iddata est bien lid de luser qui cree la room
+     */
+    if (req.user.id != data.iddata)
+      throw new HttpException(
+        'User id is not matching data id',
+        HttpStatus.BAD_REQUEST,
+    );
     const existingRooms = await this.db.getRooms();
     const userinfo = await this.db.getClientById42(parseInt(data.iddata)); //ici check si ok
     const roomNames = existingRooms.map((room) => room.name);
@@ -139,7 +148,7 @@ export class ChatController {
     const Room = await this.db.createRooom(this.dto);
 
     this.db.addMemberToRoom(Room.id, this.dto.ownerid, 0);
-    //ICI send reloadRoom
+    //ICI send reloadRoom ou dna add membertoroom service?
     return HttpStatus.NO_CONTENT;
   }
 

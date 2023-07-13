@@ -44,7 +44,7 @@
                 }
             }
             catch (error) {
-                console.error("fetching in '/' :" , error);
+                console.error("fetching in '/app' :" , error);
 				goto("/");
             }
         }
