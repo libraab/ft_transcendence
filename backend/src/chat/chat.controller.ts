@@ -54,9 +54,10 @@ export class ChatController {
    }
 
   //----------------------------------------------------------------------//
-  @Get('/messages/:id')
-  async getAllMessages(@Param('id', ParseIntPipe) id: number) {
-    const json = await this.db.getRoomMessagesById(id, 1);
+  @UseGuards(AuthGuard)
+  @Get('/messages/:roomid')
+  async getAllMessages(@Request() req: { user: IJWT }, @Param('roomid', ParseIntPipe) roomid: number) {
+    const json = await this.db.getRoomMessagesById(roomid, req.user.id);
     const res = [];
     await Promise.all(
       json.map(async (e) => {
@@ -66,6 +67,15 @@ export class ChatController {
     console.log(res);
     return res;
   }
+
+  //----------------------------------------------------------------------//
+  @UseGuards(AuthGuard)
+  @Get('/blocked')
+  async getBlockedUsers(@Request() req: { user: IJWT })
+  {
+    return this.db.getBannedRelationshipsForId(req.user.id);
+  }
+  //----------------------------------------------------------------------//
 
   @Get('/connected/:id')
   async getConnectedStatus(@Param('id', ParseIntPipe) id: number) {

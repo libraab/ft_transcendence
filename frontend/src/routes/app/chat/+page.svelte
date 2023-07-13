@@ -1,12 +1,20 @@
+<script>
+	/*
+		This is just a default page when no chat is selected
+	*/
+</script>
+
 <div class="room_wrap">
 	<ul class="messages">
-		<p class="info">no room selected</p>
+		<li>
+			<p class="info">no room selected</p>
+		</li>
 	</ul>
-	<!-- Le bouton est desactivé car on est dans aucune room -->
+	<!-- Le bouton est desactivé car on est dans aucune room
 	<form on:submit|preventDefault={() => {}} class="component_send_box">
 		<input type="text" placeholder="write a message, or shut up">
 		<button>send</button>
-	</form>
+	</form> -->
 </div>
 
 <style>
@@ -22,7 +30,7 @@
 		padding: 5px;
 		max-height: 60vh;
 	}
-
+/* 
 	.component_send_box {
 		border: solid 1px lightseagreen;
 		border-radius: 50px;
@@ -50,7 +58,7 @@
 		width: 100px;
 		height: 100%;
 		background: lightseagreen;
-	}
+	} */
 
 	.messages {
 		max-height: 50vh;

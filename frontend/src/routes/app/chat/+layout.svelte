@@ -1,33 +1,17 @@
 <script lang='ts'>
 	import { rooms } from '$lib/stores'
-	import { goto } from '$app/navigation';
-	import { onDestroy, onMount } from 'svelte';
-	import { jwt_cookie } from '$lib/stores';
-	import { io } from 'socket.io-client'
+	import { onMount } from 'svelte';
 	import { reloadRooms, updateCount } from '$lib/socketsbs';
 
 
 	onMount( () =>
 	{
-		// fetchData();
-		reloadRooms(); // just in case
+		/**
+		 * Reloading $rooms here is not mandatory but is recomended
+		 * otherwise reload is trigered when some rooms changes are done on the backend and signaled trought the socket to the user if connected
+		*/
+		reloadRooms();
 	})
-
-	// async function fetchData() {
-	// try {
-	// 	const response = await fetch('/api/chat', {
-	// 			headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
-	// 		});
-	// 	let tmp_rooms = await response.json();
-	// 	console.log(tmp_rooms);
-	// 	$rooms = tmp_rooms;
-	// }
-	// catch (error) {
-	// 	console.error(error);
-	// 	goto("/api/dashboard");
-	// }
-	// }
-
 </script>
 
 <div class="container">
@@ -43,7 +27,7 @@
 					<div class="alertBox" class:alertOn={room.newMsgCount !== 0}>{room.newMsgCount}</div>
 				</li>
 			{:else}
-			<p>you are not subscribed to any rooms</p>
+			<p>You don't have rooms</p>
 			{/each}
 		</ul>
 	</div>

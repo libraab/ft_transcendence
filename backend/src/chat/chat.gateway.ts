@@ -64,10 +64,10 @@ export class ChatGateway
     this.logger.log(
       `A message was send by id ${message.sender_id} --content--> ${message.message}`,
     );
-	this.logger.log(message);
     const client_id = await this.db.getClientById42(Number(message.sender_id));
     const room_exist = await this.db.getRoomById(Number(message.channel));
     if (room_exist == null) return;
+    // if (! this.db.userIsMemberOfRoom()) return ;
     await this.addMessageToRoom({
       id: Number(message.channel),
       sender: client_id.id,

@@ -1,6 +1,6 @@
 import { io } from 'socket.io-client'
 import { get, writable } from 'svelte/store';
-import { userId42, rooms, userId, jwt_cookie } from '$lib/stores';
+import { userId42, rooms, userId, jwt_cookie, blockedUser} from '$lib/stores';
 import { hostname } from './hostname';
 
 export let alertPopupOn = false;
@@ -35,9 +35,10 @@ export async function initializeSocket() {
 
 export async function reloadRooms() {
 	console.log("reloading rooms");
-	let loadedRooms = await fetchData();
+	let loadedRooms = await fetchRoomData();
 	rooms.set(loadedRooms);
 	connectToRooms();
+	//fetchBlockedData();
 }
 
 export function getSocket() {
@@ -69,7 +70,18 @@ export let deleteSocketEvents = () =>
 let newMessage = (msg) =>
 {
 	console.log("New Message");
-	add_alert_On(msg.channel);
+	if (! isBlockedUser(msg.sender_id))
+		add_alert_On(msg.channel);
+}
+
+export let isBlockedUser = (user_id) =>
+{
+	let blocked = false;
+	get(blockedUser).forEach((el) => {
+		if (el.id == user_id)
+			blocked = true;
+	});
+	return blocked;
 }
 
 export let add_alert_On = (id) =>
@@ -105,9 +117,8 @@ let connectToRooms = () => {
 	});
 }
 
-async function fetchData() {
+async function fetchRoomData() {
 	let curr_rooms = get(rooms);
-	console.log(`/api/chat`);
 	try {
 		const response = await fetch(`/api/chat`, {
 			method: 'GET',
@@ -118,16 +129,38 @@ async function fetchData() {
 		if (response.status == 200)
 		{
 			let tmp_rooms = await response.json();
-			console.log(tmp_rooms);
-			console.log(curr_rooms);
 			tmp_rooms = tmp_rooms.map((el) => {
 				let item = curr_rooms.find((room) => (room.roomId == el.roomId));
 				if (item == undefined)
 					return { ...el, newMsgCount: 0 };
 				return (item);
 			});
-			console.log(tmp_rooms);
 			return tmp_rooms;
+		}
+		else
+			console.error(response.status, response.statusText);
+		return null;
+	}
+	catch (error) {
+		console.error(error);
+	}
+}
+
+async function fetchBlockedData() {
+	try {
+		const response = await fetch(`/api/blocked`, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${get(jwt_cookie)}`
+			}
+		});
+		if (response.status == 200)
+		{
+			let resjson = await response.json()
+			console.log(resjson);
+			// blocked_users.set(resjson);
+			// // or
+			// return blocked_users;
 		}
 		else
 			console.error(response.status, response.statusText);

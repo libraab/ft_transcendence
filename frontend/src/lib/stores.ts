@@ -1,12 +1,17 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-interface Room {
+interface User {
+	id: number,	
+}
+
+  interface Room {
 	roomId: number;
 	roomName: String;
 	newMsgCount: number;
   }
 export let rooms = writable<Room[]>([]);
+export let blockedUser = writable<User[]>([]);
 
 /*
 	pour set la value il faudras juste faire imgUser.set(value); au moment voulus

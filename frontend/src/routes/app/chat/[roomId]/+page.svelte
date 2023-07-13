@@ -1,14 +1,13 @@
 <script lang='ts'>
 	import { goto } from "$app/navigation";
-    import { params } from 'svelte-spa-router';
 	import ConnectStatus from "$lib/connectStatus.svelte";
 	import { jwt_cookie, rooms, userId42 } from "$lib/stores";
 	import { onMount, onDestroy } from "svelte";
-	import { socket, add_alert_On, deleteSocketEvents, deleteAlertOn, defineSocketEvents } from '$lib/socketsbs'
+	import { socket, add_alert_On, deleteSocketEvents, deleteAlertOn, defineSocketEvents, isBlockedUser } from '$lib/socketsbs'
 
     export let data: any;
     let roomId: string = data.roomId;
-	let roomName = $rooms.find((el) => el.roomId == Number(roomId))?.roomName;
+	// let roomName = $rooms.find((el) => el.roomId == Number(roomId))?.roomName;
     
     let RoomsMessages: any = [];
     
@@ -18,7 +17,7 @@
         await fetchData(roomId);
 		deleteSocketEvents();
 		deleteAlertOn(roomId);
-		socket.on('serverToChat', recieveMessage); // on defini le comportement lors de l'event mais cette en sauvegardant le message
+		socket.on('serverToChat', recieveMessage);
 		socket.on('serverMessage', recieveServerMessage);
     })
 
@@ -42,8 +41,18 @@
     //     await fetchData(roomId);
     // });
 
+
+    /**
+     * The behaviour of serverToChat event is now different. When we recieve message and if we are in the rooom corresponding to message :
+     *  - we add the message directly to the array of fetched messages so we dont need to fetche again (all throught sockets)
+     */
 	let recieveMessage = (msg) => {
 		console.log("msg reiceived");
+        if (isBlockedUser(msg.sender_id))
+        {
+            console.log("Oh no, i blocked him, dont wanna hear");
+            return;
+        }
 		if (msg.channel == roomId)
 			RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
 		else
@@ -56,6 +65,10 @@
 			RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
 	}
 
+    /**
+     * Extract all messages from a room database
+     * blocked users are excluded
+     */
     async function fetchData(roomId) {
         try {
             const response = await fetch(`/api/chat/messages/${roomId}`, {
@@ -67,7 +80,7 @@
         }
         catch (error) {
             console.error(error);
-            goto("/api/dashboard");
+            goto("/api/chat");
         }
     }
     
