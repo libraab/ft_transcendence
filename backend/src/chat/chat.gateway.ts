@@ -102,6 +102,12 @@ export class ChatGateway
     // return { event: 'msgToClient', data: text};
   }
 
+  @SubscribeMessage('refuse')
+  handleRefuse(client: Socket, data: any) {
+    const socket_id = this.usersConnected.findSocketId(data.player_id);
+    client.to(socket_id).emit('refused');
+  }
+
   @SubscribeMessage('joinChannel')
   handleJoinChannel(client: Socket, channel: string) {
     // check if channel id is existing if not do nothing

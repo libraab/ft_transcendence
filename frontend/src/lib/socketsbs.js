@@ -9,9 +9,7 @@ export let socket;
 // value of not readed messages
 export let msgCount = 0;
 
-// popup alert values
-export let alertPopupOn = false;
-export let invitationData;
+
 
 export let updateCount = () =>
 {
@@ -36,7 +34,6 @@ export async function initializeSocket() {
   	await reloadRooms();
 	socket.on('reloadrooms', reloadRooms);
 	defineSocketEvents();
-	setPopupToogleEvent();
 }
 
 export async function reloadRooms() {
@@ -176,20 +173,4 @@ async function fetchBlockedData() {
 	catch (error) {
 		console.error(error);
 	}
-}
-
-/**
- * Alert mechanism
- */
-let setPopupToogleEvent = () =>
-{
-	socket.on('invitationGame', invitationHandler);
-}
-
-let invitationHandler = (invitData) =>
-{
-	console.log("invitation!!!");
-	alertPopupOn = true;
-	invitationData = invitData;
-//alert("Some guy invited you to a game!");
 }

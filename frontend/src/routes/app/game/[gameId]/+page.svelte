@@ -1,6 +1,9 @@
 <script lang='ts'>
-import { client, connectClientToColyseus, joinGame, roomData } from '$lib/gamesocket.js'
-import { onDestroy, onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+    import { client, connectClientToColyseus, joinGame, roomData } from '$lib/gamesocket.js'
+	import { socket } from '$lib/socketsbs.js';
+    import { onDestroy, onMount } from 'svelte';
+    import { game_mode } from '$lib/stores'
 
 export let data;
 
@@ -22,9 +25,14 @@ let gameCode: any;
 let playerNumber: number;
 
 
+let quitGame = () =>
+{
+    goto("/app/game");
+}
+
 onMount(async () =>
 {
-    if (client === null)
+    if (client == null || client === null || !client)
     {
         console.log("joining room");
         connectClientToColyseus();
@@ -46,6 +54,7 @@ onMount(async () =>
     // }
     init();
     createHandlers();
+    socket.on('refused', quitGame);
 });
 
 onDestroy(() =>
@@ -156,7 +165,10 @@ function drawText(text: string, x: number, y: number) {
 }
 
 function trender(state: any) {    
-    drawRect(0, 0, canvas.width, canvas.height, "#000");
+    if ($game_mode == "ABC")
+        drawRect(0, 0, canvas.width, canvas.height, "#333");
+    else
+        drawRect(0, 0, canvas.width, canvas.height, "#000");
 
     drawText(state.user.score, canvas.width / 4, canvas.height / 5);
 

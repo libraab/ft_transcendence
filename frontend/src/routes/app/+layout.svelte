@@ -3,13 +3,34 @@
 	import { goto } from '$app/navigation';
 	import { onDestroy, onMount } from 'svelte';
 	import { io } from 'socket.io-client'
-	import { alertPopupOn, initializeSocket, invitationData, msgCount } from '$lib/socketsbs.js';
+	import { initializeSocket, msgCount, socket } from '$lib/socketsbs.js';
+	import { connectClientToColyseus } from '$lib/gamesocket';
 	import Alert from '$lib/popupAlert.svelte'
 	// import { redirect } from '@sveltejs/kit';
 
 	// la socket ICICICICI//
 	
 	let local_count = msgCount;
+
+	/**
+	 * Invitations
+	*/
+	let alertPopupOn = false;
+	let invitationData =  {player_id: 0, secret: "", name: "", img: ""};
+
+	
+	let setPopupToogleEvent = () =>
+	{
+		socket.on('invitationGame', invitationHandler);
+	}
+	
+	let invitationHandler = (invitData) =>
+	{
+		console.log("invitation!!!");
+		alertPopupOn = true;
+		invitationData = invitData;
+		//alert("Some guy invited you to a game!");
+	}
 
 	/**
 	 * La logique de ce Layout qui englobe tout App
@@ -34,7 +55,9 @@
 					$img_path = data.img;
 					$clientName = data.name;
 					$userId = data.id;
-					initializeSocket();
+					await initializeSocket();
+					setPopupToogleEvent();
+					// connectClientToColyseus();
                 }
                 else
                 {
@@ -102,12 +125,7 @@
 		local_count = msgCount;
 	}
 
-	let localAlert = alertPopupOn;
-	$:{
-		console.log(alertPopupOn);
-		localAlert = alertPopupOn;
-		console.log(localAlert);
-	}
+	
 </script>
 
 
@@ -153,7 +171,9 @@
 </div>
 
 <main>
-	<Alert invitationData show={alertPopupOn}/>
+	{#if alertPopupOn}
+		<Alert invitationData={invitationData}/>
+	{/if}
 	<slot class="main_body"></slot>
 </main>
 
@@ -162,6 +182,12 @@
 </footer>
 
 <style>
+	:global(body) 
+    {
+        margin: 0 0 0 0;
+        padding: 0 0 0 0;
+    }
+
 	footer{
 		text-align: center;
 	}

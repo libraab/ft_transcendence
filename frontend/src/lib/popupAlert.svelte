@@ -1,15 +1,22 @@
 <script lang='ts'>
     import { goto } from "$app/navigation";
-    
-	export let invitationData: any;
-  export let show: boolean;
+	import { socket } from "./socketsbs";
+
+    export let invitationData;
+
+    let hanndleRefuse = () =>
+    {
+      socket.emit('refuse', invitationData);
+    }
 </script>
 
-<div class="popup" class:hidden={!show}>
+<div class="popup">
 	<p>You got an invitation to a game from {invitationData.name}</p>
 	<div class="buttons">
-	  <button on:click={() => goto(`/app/game/${invitationData.secret}`)} class="accept-button">Accept</button>
-	  <button class="decline-button">Decline</button>
+	  <button on:click={() => {
+      goto(`/app/game/${invitationData.secret}`);
+    }} class="accept-button">Accept</button>
+	  <button class="decline-button" on:click={hanndleRefuse}>Decline</button>
 	</div>
 </div>
 
@@ -24,10 +31,6 @@
   border: 1px solid #ccc;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   text-align: center;
-}
-
-.hidden {
-  display: none;
 }
 
 .popup p {
