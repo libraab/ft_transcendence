@@ -82,14 +82,9 @@ export class ChatController {
 
   @Get('/connected/:id')
   async getConnectedStatus(@Param('id', ParseIntPipe) id: number) {
-    // let json = await this.db.getRoomMessagesById(id);
-    // let res : number;
-    return this.usersConnected.checkStatus(id);
-    // await Promise.all(json.map(async (e) => {
-    //     res.push({ sender: e.clientName, message: e.message});
-    // }));
-    // console.log(res);
-    // return res;
+	let find = this.usersConnected.checkStatus(id);
+	// let in_game = this.
+	return find;
   }
 
   @UseGuards(AuthGuard)

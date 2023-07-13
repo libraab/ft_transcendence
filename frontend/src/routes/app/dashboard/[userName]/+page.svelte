@@ -14,8 +14,7 @@
 		
 	onMount(async () => {
 		console.log("Hello");
-		vals = await fetchTarget(data.userName);
-		await fetchDataSupp();
+		await todo();
 		if (supp.client2 && supp.client2.length > 0 && supp.client2[0].status === 1)
 			blocked = true;
 		else
@@ -25,6 +24,25 @@
 		else
 			befriended = false;
 	});
+
+	async function todo() {
+		await fetchTarget(data.userName);
+		if (supp.client2 && supp.client2.length > 0 && supp.client2[0].status === 1)
+			blocked = true;
+		else
+			blocked = false;
+		if (supp.client1 && supp.client1.length > 0)
+			befriended = true;
+		else
+			befriended = false;
+	}
+
+	$:{
+		if (data)
+			console.log("nothing");
+		todo();
+    }
+
 
 	async function fetchTarget(target: string)
 	{
@@ -44,7 +62,8 @@
 				// 	$img_path = ""; /// nooo
 				// else
 				// 	$img_path = vals.img;
-				return resjson;
+				vals = resjson;
+				fetchDataSupp();
 			}
 			else{
 				console.error("layout");
