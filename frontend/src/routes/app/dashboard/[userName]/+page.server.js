@@ -1,10 +1,15 @@
 import { error, redirect } from '@sveltejs/kit'; 
 
-async function fetchDataSupp(id42, targetName, fetch)
+async function fetchDataSupp(id42, targetName, fetch, authToken)
 {
 	try
 	{
-		const response = await fetch(`api/dashboard/getTargetWithRelation/${id42}/${targetName}`)
+		const response = await fetch(`/api/dashboard/getTargetWithRelation/${targetName}`, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${authToken}`
+			}
+		});
 		if (response.ok)
 		{
 			const data = await response.json();
@@ -29,7 +34,7 @@ export async function load( {cookies, fetch, params} ) {
 
 	const id42 = cookies.get('id42');
 	let isClient = false;
-	let supp = await fetchDataSupp(id42, params.userName, fetch) 
+	let supp = await fetchDataSupp(id42, params.userName, fetch, authToken); 
 	if (supp instanceof Response)
 	{
 		throw error(supp.status, {
@@ -37,12 +42,20 @@ export async function load( {cookies, fetch, params} ) {
 		});
 	};
 
-	if (supp.name === id42)
+	console.log('----------------------------------');
+	console.log(id42, supp.id42);
+
+	if (Number(supp.id42) === Number(id42))
+	{
 		isClient = true;
+		throw redirect(307, "/app/dashboard");
+	}
+	console.log(isClient);
 	return {
 		id42: id42,
 		target: params.userName,
 		targetMyself: isClient,
-		supp: supp
+		supp: supp,
+		authToken: authToken,
 	}
 }

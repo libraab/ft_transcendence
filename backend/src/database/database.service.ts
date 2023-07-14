@@ -138,6 +138,7 @@ export class DatabaseService {
         name: true,
         img: true,
         id: true,
+        id42: true,
         client1: {
           select: {
             status: true,
