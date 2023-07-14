@@ -26,7 +26,7 @@ async function fetchDataSupp(id42, targetName, fetch, authToken)
 	return null;
 }
 
-export async function load( {cookies, fetch, params} ) {
+export async function load( {cookies, fetch, params, depends} ) {
 	const authToken = cookies.get('jwt_cookie');
 	
 	if (authToken === undefined)
@@ -42,15 +42,11 @@ export async function load( {cookies, fetch, params} ) {
 		});
 	};
 
-	console.log('----------------------------------');
-	console.log(id42, supp.id42);
-
 	if (Number(supp.id42) === Number(id42))
 	{
 		isClient = true;
 		throw redirect(307, "/app/dashboard");
 	}
-	console.log(isClient);
 	return {
 		id42: id42,
 		target: params.userName,

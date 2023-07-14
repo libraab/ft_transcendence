@@ -72,7 +72,7 @@
 	<div class="backdrop" on:click|self>
 		<div class="modal">
 			<h1>Update Profile</h1>
-			<p>Change de peau</p>
+			<p>U can be anything</p>
 
 			<label for="name upload">What's your new name?</label>
 			<div class="file-input-container">
