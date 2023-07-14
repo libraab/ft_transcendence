@@ -123,6 +123,22 @@ export class ChatGateway
     client.emit('leavedChannel', channel);
   }
 
+  /**
+   * 
+   * Socket event In Game story
+   * 
+   */
+   @SubscribeMessage('startGame')
+   userIsInGame(user: Socket) {
+      this.usersConnected.addInGame(user);
+   }
+
+   @SubscribeMessage('endGame')
+   userIsNotInGame(user: Socket, id: number) {
+    this.usersConnected.deleteInGame(user);
+   }
+
+
   async addMessageToRoom(data: any) {
     this.db.addMessageToRoom(data.id, data.sender, data.msg);
   }

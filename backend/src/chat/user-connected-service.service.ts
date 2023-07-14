@@ -1,31 +1,49 @@
 import { Injectable } from '@nestjs/common';
+import { disconnect } from 'process';
 import { Socket } from 'socket.io';
+import { e_status } from 'src/interfaces/e_status.interface';
 
 @Injectable()
 export class UserConnectedService {
-  hmap = new Map<string, number>();
+  hmapconnected = new Map<string, number>();
+  hmapingame = new Map<string, number>();
 
-  addUser(user: Socket, userId: number): void {
-    this.hmap.set(user.id, userId);
-    console.log(this.hmap);
+  addUser(socket: Socket, userId: number): void {
+    this.hmapconnected.set(socket.id, userId);
   }
 
-  deleteUser(user: Socket): void {
-    this.hmap.delete(user.id);
+  deleteUser(socket: Socket): void {
+    this.hmapconnected.delete(socket.id);
+    this.deleteInGame(socket);
   }
 
   checkStatus(id: number): number {
-    let status = 0;
-    this.hmap.forEach((value, key, map) => {
-      if (value == id) status = 1;
+    let status: e_status = e_status.Disconnected;
+    this.hmapconnected.forEach((value, key, map) => {
+      if (value == id) status = e_status.Connected;;
+    });
+    this.hmapingame.forEach((value, key, map) => {
+      if (value == id) status = e_status.InGame;;
     });
     return status;
+  }
+
+  addInGame(socket: Socket): void {
+    let userId:number = 0;
+    this.hmapconnected.forEach((value, key, map) => {
+      if (key == socket.id) userId = value;
+    });
+    this.hmapingame.set(socket.id, userId);
+  }
+
+  deleteInGame(socket: Socket): void {
+    this.hmapingame.delete(socket.id);
   }
 
   findSocketId(id: number): string {
     let res = '';
     console.log("Searching in GateWay Data the id : ", id);
-    this.hmap.forEach((value, key, map) => {
+    this.hmapconnected.forEach((value, key, map) => {
       if (value == id) res = key;
     });
     return res;

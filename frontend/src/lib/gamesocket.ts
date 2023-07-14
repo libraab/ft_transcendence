@@ -10,7 +10,7 @@ export let roomData: any;
 
 export async function StartPlayProcess(opponent_id: number)
 {
-    connectClientToColyseus();
+    //connectClientToColyseus();
     await createGame();
     inviteToPlay(opponent_id);
 }
@@ -30,6 +30,9 @@ export async function joinGame(secret: string)
     roomData = await client?.joinById(secret);
 }
 
+export function resetroomData () {
+    roomData = null;
+}
 
 let  inviteToPlay = (opponent_id: number) =>
 {

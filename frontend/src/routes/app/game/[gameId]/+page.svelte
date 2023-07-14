@@ -1,6 +1,6 @@
 <script lang='ts'>
 	import { goto } from '$app/navigation';
-    import { client, connectClientToColyseus, joinGame, roomData } from '$lib/gamesocket.js'
+    import { client, connectClientToColyseus, joinGame, roomData, resetroomData } from '$lib/gamesocket.js'
 	import { socket } from '$lib/socketsbs.js';
     import { onDestroy, onMount } from 'svelte';
     import { game_mode } from '$lib/stores'
@@ -32,10 +32,10 @@ let quitGame = () =>
 
 onMount(async () =>
 {
-    if (client == null || client === null || !client)
+    if (!roomData)
     {
         console.log("joining room");
-        connectClientToColyseus();
+        //connectClientToColyseus();
         await joinGame(data.gameId);
         playerNumber = 2;
     }
@@ -52,6 +52,7 @@ onMount(async () =>
     //     });
 
     // }
+    socket.emit('startGame');
     init();
     createHandlers();
     socket.on('refused', quitGame);
@@ -59,6 +60,10 @@ onMount(async () =>
 
 onDestroy(() =>
 {
+    document.removeEventListener('keyup', keyup);
+    document.removeEventListener('keydown', keydown);
+    socket.emit('endGame');
+    resetroomData();
     // client.close();
 });
 
@@ -71,12 +76,17 @@ let createHandlers = () =>
         requestAnimationFrame(() => trender(gameState));
     });
     roomData.onMessage("gameOver", (data: any) => {
+        document.removeEventListener('keyup', keyup);
+        document.removeEventListener('keydown', keydown);
+        socket.emit('endGame');
 		let date = JSON.parse(data);
     	if (date.winner === playerNumber) {
+            resetroomData();
         	alert('You win!');
 			
     	}
     	else {
+            resetroomData();
       		alert('You lose!');
     	}
 	});
