@@ -5,7 +5,7 @@ import { error, redirect } from '@sveltejs/kit';
 	{
 		try
 		{
-			const response = await fetch(`/api/rooms/allMemberwithStatus/${id42}/${roomName}`);
+			const response = await fetch(`http://localhost:8080/api/rooms/allMemberwithStatus/${id42}/${roomName}`);
 			if (response.ok) {
 				return await response.json();
 			}
@@ -21,7 +21,7 @@ import { error, redirect } from '@sveltejs/kit';
 	async function fetchRoomId(roomName, fetch)
 	{
 		try {
-			const response = await fetch(`/api/rooms/getRoomId/${roomName}`)
+			const response = await fetch(`http://localhost:8080/api/rooms/getRoomId/${roomName}`)
 			if (response.ok){
 				return await response.json();
 			}
@@ -56,7 +56,11 @@ export async function load( {cookies, fetch, params} ) {
 			message: roomid.statusText
 		})
 	}
-
+	console.log(process.env.HOSTNAME);
+	console.log('ret >>>>>>>>>>>>>>>>>', ret);
+	console.log('params >>>>>>>>>>>>>>>>>', params);
+	console.log('authtoken >>>>>>>>>>>>>>>>>', authToken);
+	console.log('roomId >>>>>>>>>>>>>>>>>', roomid);
 	return {
 		members: ret,
 		room: params.salon,

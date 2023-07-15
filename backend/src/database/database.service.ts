@@ -680,6 +680,9 @@ export class DatabaseService {
     const roomMembers = await this.prisma.roomMembers.findMany({
       where: {
         memberId: clientId,
+        NOT: {
+          status: 5,
+        }
       },
       select: {
         room: {

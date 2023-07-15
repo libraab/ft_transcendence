@@ -4,7 +4,7 @@ async function fetchDataSupp(id42, targetName, fetch, authToken)
 {
 	try
 	{
-		const response = await fetch(`/api/dashboard/getTargetWithRelation/${targetName}`, {
+		const response = await fetch(`http://localhost:8080/api/dashboard/getTargetWithRelation/${targetName}`, {
 			method: 'GET',
 			headers: {
 				'Authorization': `Bearer ${authToken}`
