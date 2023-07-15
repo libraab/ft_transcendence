@@ -20,6 +20,7 @@ import { UserConnectedService } from './user-connected-service.service';
 import { ChatGateway } from './chat.gateway';
 import { AuthGuard } from 'src/auth/auth.guard';
 import IJWT from 'src/interfaces/jwt.interface';
+import { e_status } from 'src/interfaces/e_status.interface';
 
 @Controller('chat')
 export class ChatController {
@@ -46,42 +47,46 @@ export class ChatController {
     @Request() req: { user: IJWT },
   ) {
     //  if (id <= 0) throw new BadRequestException('invalid user');
-      console.log("User Chat Request for id :", req.user);
      const client = await this.db.getClientById42(req.user.id);
      const json = await this.db.getRoomIdsAndNamesByClientId(client.id);
-     console.log(json);
      return json;
    }
 
   //----------------------------------------------------------------------//
-  @Get('/messages/:id')
-  async getAllMessages(@Param('id', ParseIntPipe) id: number) {
-    const json = await this.db.getRoomMessagesById(id);
+  @UseGuards(AuthGuard)
+  @Get('/messages/:roomid')
+  async getAllMessages(@Request() req: { user: IJWT }, @Param('roomid', ParseIntPipe) roomid: number) {
+    const json = await this.db.getRoomMessagesById(roomid, req.user.id);
     const res = [];
     await Promise.all(
       json.map(async (e) => {
         res.push({ sender: e.clientName, message: e.message });
       }),
     );
-    console.log(res);
     return res;
   }
 
+  //----------------------------------------------------------------------//
+  @UseGuards(AuthGuard)
+  @Get('/blocked')
+  async getBlockedUsers(@Request() req: { user: IJWT })
+  {
+    let client = await this.db.getClientById42(req.user.id);
+    let banned_list = await this.db.getBannedRelationshipsForId(client.id);
+    return banned_list;
+  }
+  //----------------------------------------------------------------------//
+
   @Get('/connected/:id')
   async getConnectedStatus(@Param('id', ParseIntPipe) id: number) {
-    // let json = await this.db.getRoomMessagesById(id);
-    // let res : number;
-    return this.usersConnected.checkStatus(id);
-    // await Promise.all(json.map(async (e) => {
-    //     res.push({ sender: e.clientName, message: e.message});
-    // }));
-    // console.log(res);
-    // return res;
+	let find: e_status = this.usersConnected.checkStatus(id);
+	return find;
   }
 
+  @UseGuards(AuthGuard)
   @Get('/room/:id')
-  async getRoomsMembers(@Param('id', ParseIntPipe) id: number) {
-    const json = await this.db.getMembersByRoomId(id);
+  async getRoomsMembers(@Request() req: { user: IJWT }, @Param('id', ParseIntPipe) room_id: number) {
+    const json = await this.db.getMembersByRoomId(room_id);
     // let res : number;
     // return this.usersConnected.checkStatus(id);
     // await Promise.all(json.map(async (e) => {
@@ -97,8 +102,17 @@ export class ChatController {
     return 'user quit the room';
   }
   //----------------------------------------------------------------------//
+  @UseGuards(AuthGuard)
   @Post()
-  async createNewRoom(@Body() data) {
+  async createNewRoom(@Request() req: { user: IJWT }, @Body() data) {
+    /**
+     * D'abord on verifie que l'id de iddata est bien lid de luser qui cree la room
+     */
+    if (req.user.id != data.iddata)
+      throw new HttpException(
+        'User id is not matching data id',
+        HttpStatus.BAD_REQUEST,
+    );
     const existingRooms = await this.db.getRooms();
     const userinfo = await this.db.getClientById42(parseInt(data.iddata)); //ici check si ok
     const roomNames = existingRooms.map((room) => room.name);
@@ -129,8 +143,16 @@ export class ChatController {
     const Room = await this.db.createRooom(this.dto);
 
     this.db.addMemberToRoom(Room.id, this.dto.ownerid, 0);
+    //ICI send reloadRoom ou dna add membertoroom service?
     return HttpStatus.NO_CONTENT;
   }
+
+  @Get('/bannedFor/:id')
+  async getBannedPeople(@Param('id', ParseIntPipe) clientId: number)
+  {
+    return this.db.getBannedRelationshipsForId(clientId);
+  }
+
   //----------------------------------------------------------------------//
   /*
 	0 - owner
@@ -155,35 +177,39 @@ export class ChatController {
       data.iddata,
       room.id,
     );
-    console.log('->', room);
     if (!room) {
       throw new Error('Room does not exist');
     }
     if (member) {
       throw new Error('Already member');
     }
-    console.log('->', member);
 
     if (room.secu === 1) {
-      console.log('->', member);
-      console.log('This room is protected, password required');
       bcrypt
         .compare(data.password, room.password)
         .then((passwordsMatch) => {
           if (passwordsMatch) {
-            console.log('Correct password');
             this.db.addMemberToRoom(room.id, data.iddata, 2);
             return 'User joined the room';
           } else {
-            console.log('Wrong password');
+            console.error('Wrong password');
           }
         })
         .catch((error) => {
-          console.log('An error occurred during password comparison:', error);
+          console.error('An error occurred during password comparison:', error);
         });
     }
   }
 
+
+  /**
+   * 
+   * 0 - Public
+   * 1 - Protected
+   * 2 - Private
+   * 3 - one on one
+   * @returns 
+   */
   @Post('/invite')
   async inviteToPrivateRoom(@Body() data) {
     const room = await this.db.getRoomById(data.roomId);
@@ -212,9 +238,10 @@ export class ChatController {
     return 'User joined the room';
   }
 
+  @UseGuards(AuthGuard)
   @Post('/addFriend')
-  async addFriend(@Body() data) {
-    const userId = await this.db.getClientById(data.iddata);
+  async addFriend(@Request() req: { user: IJWT }, @Body() data) {
+    const userId = await this.db.getClientById42(req.user.id);
     const newFriend = await this.db.getClientById(data.newFriendId);
 
     if (!newFriend) {
@@ -225,6 +252,11 @@ export class ChatController {
     return 'Users are now friends';
   }
 
+  /**
+   * 
+   * Creating a one-to-one room here 
+   * 
+   */
   @Post('/sendMsg')
   async sendMsg(@Body() data) {
     const userId = await this.db.getClientById(data.iddata);
@@ -245,12 +277,14 @@ export class ChatController {
     if (!Room) console.log('Failed to create room');
     this.db.addMemberToRoom(Room.id, userId.id, 0);
     this.db.addMemberToRoom(Room.id, newInterlocutor.id, 1); // adding the second as an admin
+    // RELOAD ROOMS
     return 'A private chat room has been created';
   }
 
+  @UseGuards(AuthGuard)
   @Post('/blockUser')
-  async blockUser(@Body() data) {
-    const user = await this.db.getClientById(data.iddata); // actor
+  async blockUser(@Request() req: { user : IJWT }, @Body() data) {
+    const user = await this.db.getClientById42(req.user.id); // actor
     const blockedUser = await this.db.getClientById(data.blockedId); // acted upon
 
     if (!blockedUser || !user) {
@@ -258,12 +292,15 @@ export class ChatController {
     }
 
     await this.db.createBlockedRelation(user.id, blockedUser.id);
+    this.gateway.sendReloadRequest(blockedUser.id); // sending a refresh request to both to refresh data on their session
+    this.gateway.sendReloadRequest(user.id);
     return 'Users are now ennemies';
   }
 
+  @UseGuards(AuthGuard)
   @Post('/unblockUser')
-  async unblockUser(@Body() data) {
-    const user = await this.db.getClientById(data.iddata); // actor
+  async unblockUser(@Request() req: { user : IJWT }, @Body() data) {
+    const user = await this.db.getClientById42(req.user.id); // actor
     const unblockedUser = await this.db.getClientById(data.unblockedId); // acted upon
 
     if (!unblockedUser || !user) {
@@ -271,6 +308,8 @@ export class ChatController {
     }
 
     await this.db.unblockClient(user.id, unblockedUser.id);
+    this.gateway.sendReloadRequest(unblockedUser.id); // sending a refresh request to both to refresh data on their session
+    this.gateway.sendReloadRequest(user.id);
     return 'Users are friends again';
   }
 }

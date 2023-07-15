@@ -1,12 +1,18 @@
 import { writable } from 'svelte/store';
 import { browser } from '$app/environment';
 
-interface Room {
+interface User {
+	name: string,
+	id: number,	//id db
+}
+
+  interface Room {
 	roomId: number;
 	roomName: String;
 	newMsgCount: number;
   }
 export let rooms = writable<Room[]>([]);
+export let blockedUser = writable<User[]>([]);
 
 /*
 	pour set la value il faudras juste faire imgUser.set(value); au moment voulus
@@ -70,6 +76,15 @@ export const jwt_cookie = writable(persitedJwt_cookie);
 jwt_cookie.subscribe((value: string) => {
     if (browser) {
         window.localStorage.setItem('jwt_cookie', value);
+	}
+})
+//----------------------------------------------------------------//
+const persistedGame_mode: string = browser ? localStorage.getItem('game_mode') ?? "" : "";
+export const game_mode = writable(persistedGame_mode);
+
+game_mode.subscribe((value: string) => {
+    if (browser) {
+        window.localStorage.setItem('game_mode', value);
 	}
 })
 //----------------------------------------------------------------//

@@ -1,6 +1,8 @@
 <script lang="ts" >
     import { browser } from '$app/environment';
+	import { game_mode } from '$lib/stores';
 	import { Client } from 'colyseus.js'
+	// import { client, connectClientToGame } from '$lib/gamesocket'
 
 	let matches: any;
 	//let width: any;
@@ -39,7 +41,6 @@
 
 	async function joinGame() {
 		try {
-			console.log(input);
 			room = await client?.joinById(input);
 		} catch(e) {
 			console.error(e);
@@ -51,28 +52,23 @@
 	}
 	
 	 function init() {
-		console.log("dans init");
 		initialScreen.style.display = "none";
     	game.style.display = "block";
     	canvas = pong;
 		const { width, height } = canvas.getBoundingClientRect();
 		canvas.width = width;
 		canvas.height = height;
-		console.log(canvas.width);
-		console.log(canvas.height);
     	ctx = canvas.getContext('2d');
 		gameCode = document.getElementById('gameCode');
 		gameCode.innerText = name;
 		gameActive = true;
-		console.log(gameCode);
     	document.addEventListener('keydown', keydown);
     	document.addEventListener('keyup', keyup);
     	//gameActive = true;
 	}
 
 	function keydown(e: any) {
-		console.log("keydown");
-		console.log(e.keyCode);
+		(e.keyCode);
 		if (e.keyCode === 38) {
 			if (playerNumber == 1)
 				room.send("keydown38player1");
@@ -88,8 +84,6 @@
 	}
 
 	function keyup(e: any) {
-		console.log("keyup");
-		console.log(e.keyCode);
 		if (e.keyCode === 38) {
 			if (playerNumber == 1)
 				room.send("keyup38player1");
@@ -107,20 +101,14 @@
 	const initGame = () => {
 		// room?.send("init");
 		promise = init();
-		console.log(name);
 	}
 
 	$: if (room) {
 		room.onMessage("init", (j: number) => {
 			playerNumber = j;
-			console.log(playerNumber);
-			//console.log('test init22! ' + name + ' ' + room.id);
-			//console.log("client id: " + client.id);
-			console.log('init');
 		});
 		room.onMessage("gameState", (gameState: any) => 
 		{
-			//console.log('test gameState');
 			gameState = JSON.parse(gameState);
     		requestAnimationFrame(() => trender(gameState));
 		});
@@ -146,7 +134,6 @@
 		async function consumeticket(ticket : any) {
 			try {
 				  room = await client?.consumeSeatReservation(ticket.ticket);
-				  console.log("joined successfully", room);
 				} catch (e) {
 					  console.error("join error", e);
 				}
@@ -168,7 +155,6 @@
 	//}
 	
 	// room?.onMessage("init2", () => {
-	// 	console.log('test init2!')
 	// });
 
 
@@ -197,8 +183,11 @@ function drawText(text: string, x: number, y: number) {
     ctx.fillText(text, x, y);
 }
 
-function trender(state: any) {    
-    drawRect(0, 0, canvas.width, canvas.height, "#000");
+function trender(state: any) {
+	if ($game_mode == "ABC")
+		drawRect(0, 0, canvas.width, canvas.height, "#345");
+	else
+    	drawRect(0, 0, canvas.width, canvas.height, "#000");
 
     drawText(state.user.score, canvas.width / 4, canvas.height / 5);
 
@@ -206,9 +195,15 @@ function trender(state: any) {
 
     drawNet(state);
 
-    drawRect(state.user.x, state.user.y, state.user.width, state.user.height, state.user.color);
+	if ($game_mode == "ABC")
+		drawRect(state.user.x, state.user.y, state.user.width, state.user.height, "#161234");
+	else
+    	drawRect(state.user.x, state.user.y, state.user.width, state.user.height, state.user.color);
 
-    drawRect(state.com.x, state.com.y, state.com.width, state.com.height, state.com.color);
+	if ($game_mode == "ABC")
+		drawRect(state.com.x, state.com.y, state.com.width, state.com.height, "#161234");
+	else
+   		drawRect(state.com.x, state.com.y, state.com.width, state.com.height, state.com.color);
 
     drawArc(state.ball.x, state.ball.y, state.ball.radius, state.ball.color);
 }
@@ -224,7 +219,6 @@ function handleGameState(gameState: any) {
 async function joinMatchMaking() {
 	try {
 		matchroom = await client?.joinOrCreate("matchMaking"); // this will create "my_room" if it doesn't exist already or join it if it does exist
-		console.log('client join match maiking!');
 		return (matchroom);
 	} catch(e) {
 		console.error(e);
@@ -284,7 +278,7 @@ function matchMaking() {
 
         #pong {
             border: 2px solid #FFF;
-            position: absolute;
+            position: relative;
             margin: auto;
             top: 0;
             right: 0;

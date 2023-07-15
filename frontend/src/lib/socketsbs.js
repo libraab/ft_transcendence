@@ -1,40 +1,44 @@
 import { io } from 'socket.io-client'
-import { hostname } from '$lib/hostname'
 import { get, writable } from 'svelte/store';
-import { userId42, rooms, userId, jwt_cookie } from '$lib/stores';
+import { userId42, rooms, userId, jwt_cookie, blockedUser} from '$lib/stores';
+import { hostname } from './hostname';
 
-export let alertPopupOn = false;
+// Socket chat
 export let socket;
+
+// value of not readed messages
 export let msgCount = 0;
+
+
 
 export let updateCount = () =>
 {
-	console.log("count updated");
 	let count = 0;
 	get(rooms).forEach(element => {
 			count += element.newMsgCount;
 	});
 	msgCount = count;
-	console.log(count);
 }
 
 export async function initializeSocket() {
 //   socketData = await data;
 //   if (!socketData)
 //   	return;
+
 	socket = io(hostname+':3000/chat', {path: '/chatsockets'});//, auth: {token: }});
   	socket.emit('whoAmI', get(userId));
 //   socket.game = io(hostname+':3000/game', {path: '/gamesockets'});//, auth: {token: }});
 
   	await reloadRooms();
+	socket.on('reloadrooms', reloadRooms);
 	defineSocketEvents();
-//   defineGameSocketEvents();
 }
 
 export async function reloadRooms() {
-	let loadedRooms = await fetchData();
+	let loadedRooms = await fetchRoomData();
 	rooms.set(loadedRooms);
 	connectToRooms();
+	fetchBlockedData();
 }
 
 export function getSocket() {
@@ -56,7 +60,6 @@ export let deleteSocketEvents = () =>
 // export let defineGameSocketEvents = () =>
 // {
 // 	socket.game.on('testSeverToClient', (data) => {
-// 		console.log(data)
 // 	});
 // 	socket.game.on('mvtpad', (data) => {
 
@@ -65,8 +68,18 @@ export let deleteSocketEvents = () =>
 
 let newMessage = (msg) =>
 {
-	console.log("New Message");
-	add_alert_On(msg.channel);
+	if (! isBlockedUser(msg.sender_id))
+		add_alert_On(msg.channel);
+}
+
+export let isBlockedUser = (user_id) =>
+{
+	let blocked = false;
+	get(blockedUser).forEach((el) => {
+		if (el.id == user_id)
+			blocked = true;
+	});
+	return blocked;
 }
 
 export let add_alert_On = (id) =>
@@ -79,18 +92,21 @@ export let add_alert_On = (id) =>
 		return (item);
 	});
 	rooms.set(trythis);
+	updateCount()
 }
 
+// @ts-ignore
 export let deleteAlertOn = (roomId) =>
 {
 	let roomsGet = get(rooms);
 	roomsGet = roomsGet.map((item) => 
 	{
-		if (item.roomId === roomId)
+		if (item.roomId == roomId)
 			return { ...item, newMsgCount: 0 };
 		return (item);
 	});
 	rooms.set(roomsGet);
+	updateCount();
 }
 
 let connectToRooms = () => {
@@ -99,9 +115,8 @@ let connectToRooms = () => {
 	});
 }
 
-async function fetchData() {
+async function fetchRoomData() {
 	let curr_rooms = get(rooms);
-	console.log(`/api/chat`);
 	try {
 		const response = await fetch(`/api/chat`, {
 			method: 'GET',
@@ -119,6 +134,30 @@ async function fetchData() {
 				return (item);
 			});
 			return tmp_rooms;
+		}
+		else
+			console.error(response.status, response.statusText);
+		return null;
+	}
+	catch (error) {
+		console.error(error);
+	}
+}
+
+async function fetchBlockedData() {
+	try {
+		const response = await fetch(`/api/chat/blocked`, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${get(jwt_cookie)}`
+			}
+		});
+		if (response.status == 200)
+		{
+			let resjson = await response.json()
+			// blocked_users.set(resjson);
+			// // or
+			// return blocked_users;
 		}
 		else
 			console.error(response.status, response.statusText);

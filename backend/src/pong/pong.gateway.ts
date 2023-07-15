@@ -38,7 +38,6 @@ export class PongGateway {
     @MessageBody() data: string,
     @ConnectedSocket() client: Socket,
   ) {
-    console.log(data);
     client.emit('testSeverToClient', 'success');
   }
 }
@@ -272,7 +271,6 @@ export class PongGateway {
 
 //   // @SubscribeMessage('disconnect')
 //   // handleDisconnect(client: Socket) {
-//   //   console.log('disconnect');
 //   //   const roomName = this.clientRooms[client.id];
 //   //   let winner = 0;
 //   //   if (roomName) {

@@ -1,10 +1,10 @@
 <script lang="ts">
-
 	import { onMount } from "svelte";
-	import {hostname} from '$lib/hostname';
-	import { img_path, userId42, clientName } from '$lib/stores';
-	import axios from 'axios';
-
+	import { img_path, jwt_cookie, clientName, userId } from '$lib/stores';
+	import UpdateModal from './Update.svelte';
+	import DeleteModal from './Delete.svelte';
+	import RankModal from './Ranking.svelte';
+	import axios from "axios";
 
 	// export let data;
 	let title: string;
@@ -12,12 +12,10 @@
 	let won: number;
 	let played: number;
 	let hf: string;
-	let Dfa: boolean;
 	let id: number;
 	let stats: any = null;
 	let fl: any = [];
-
-	// let test: any = process.env.BS;
+	let isDFAActive: boolean;
 
 	// async function fetchData() {
 	// 	try
@@ -66,7 +64,6 @@
 	// 	Dfa = data.Dfa
 	// 	id = data.id;
 	// 	img_path.set(data.img);
-	// 	console.log("image path is : ", $img_path); // ici c'est le seul endroit ou on change le storage value de img
 	// 	clientName.set(data.name);
 	// 	// $userId42 = data.userId42;
 	// 	// $img_path = data.img;
@@ -75,21 +72,58 @@
 	// });
 
 	let qrCodeImageUrl = "";	
-	async function toggleDFAState() {
-//		Dfa = !Dfa;
 
-//		try {
-//			const response = await axios.post(`http://${hostname}:3000/auth/2fa/${id}`, { Dfa });
-//			console.log('DFA status updated in the database.');
-//			qrCodeImageUrl = response.data.qrCodeImageUrl;
-//		} catch (error) {
-//			console.error('Failed to update DFA status:', error);
-//		}
+	async function toggleDFAState() {
+		isDFAActive = !isDFAActive;
+		// Send API request to update DFA status
+		try {
+			const response = await axios.post(`/api/auth/2fa/${$userId}`, { isDFAActive });
+			qrCodeImageUrl = response.data.qrCodeImageUrl;
+		} catch (error) {
+			console.error('Failed to update DFA status:', error);
+		}
 	}
 
 	/*
 		TODO FOR FL REGULAR CONNECTED SOCKET
 	*/
+
+	onMount(async () => {
+		fetchData();
+	})
+
+	async function fetchData() {
+		try
+		{
+			const response = await fetch(`/api/dashboard`, {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${$jwt_cookie}`
+				}
+			});
+			if (response.ok)
+			{
+				let vals = await response.json();
+				$clientName = vals.name;
+
+				$img_path = vals.img;
+				stats = vals.clientStats;
+				title = vals.clientStats.title;
+				score = vals.clientStats.score;
+				won = vals.clientStats.won;
+				played = vals.clientStats.played;
+				hf = vals.clientStats.hf;
+				isDFAActive = vals.Dfa;
+				id = vals.id;
+			}
+			else
+				console.error("layout");
+		}
+		catch (error)
+		{
+			console.error("layout" , error);
+		}
+	}
 
 	let updatePop: boolean = false;
 	function toggleUpdatePopup()
@@ -106,14 +140,42 @@
 	function toggleRanksTab(){
 		ranksTab = !ranksTab;
 	}
-	// async function profileUpdate()
+	async function profileUpdate()
+	{
+		fetchData();
+	}
+
+	// let id42NameInputNotEmpty: any;
+	// let searchRes: any = [];
+	// async function getSpecifiedClients()
 	// {
-	// 	fetchData();
+	// 	const retName = document.getElementById('id42-name-input').value;
+	// 	id42NameInputNotEmpty = retName.trim() !== '';
+
+	// 	if (id42NameInputNotEmpty)
+	// 	{
+	// 		try
+	// 		{
+	// 			const response = await fetch(`/api/dashboard/name/${retName}`, {
+    //                 method: 'GET',
+    //                 headers: {
+    //                     'Authorization': `Bearer ${$jwt_cookie}`
+    //                 }
+    //             }); //cookie to do
+	// 			searchRes = await response.json();
+	// 		}
+	// 		catch (error) {
+	// 			console.error(error);
+	// 		}
+	// 	}
+	// 	else
+	// 		searchRes = [];
 	// }
 </script>
 
-<!-- <UpdateModal {updatePop} id={id} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
-<RankModal {ranksTab} on:click={() => toggleRanksTab()} /> -->
+<UpdateModal {updatePop} id={$userId} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
+<DeleteModal {deletePop} on:click={() => toggleDeletePopup()}/>
+<RankModal {ranksTab} on:click={() => toggleRanksTab()} />
 
 <div class="main_body">
 	<main class="container">
@@ -124,8 +186,8 @@
 				<button class="round-button" on:click={() => toggleDeletePopup()}>Delete</button>
 				<button class="round-button" on:click={() => toggleRanksTab()}>Ranking</button>
 				<button
-					class:active={Dfa}
-					class:inactive={!Dfa}
+					class:active={isDFAActive}
+					class:inactive={!isDFAActive}
 					class="round-button dfa-button"
 					on:click={() => toggleDFAState()}
 				>
@@ -152,7 +214,7 @@
 				<p> score: { stats.score } </p>
 			{:else}
 				<p>didn't play yet</p>
-				<a href="/game" style="text-decoration: none;"></a>
+				<a href="/app/game" style="text-decoration: none;">─=≡Σ((( つ•̀ω•́)つLET’SGOOOO!</a>
 			{/if}
 		</div>
 
@@ -163,7 +225,7 @@
 				{#each fl as friend}
 					{#if friend.status == 0}
 						<div class="friend-container">
-							<a href="/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name}</h2></a>
+							<a href="/app/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name}</h2></a>
 							<p>&nbsp;&nbsp;&nbsp;</p>
 							<div class="emoji-container">
 								<span>connected</span>
@@ -178,13 +240,38 @@
 							</div>
 						</div>
 					{:else}
-						<a href="/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name} ⛔️ </h2></a>
+						<a href="/app/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name} ⛔️ </h2></a>
 					{/if}
 				{/each}
 			{:else}
-				<p>Here you will your Friends.</p>
+				<p>...</p>
 			{/if}
 		</div>
+	<!-- ---------------------------------------------------------------------------- -->
+	<!-- <div class="profile-container">
+		<div>
+			<label for="id42-name-input">search by Name:</label>
+			<input type="text" id="id42-name-input" on:input={() => getSpecifiedClients()} />
+			
+			<div class="popup_container">
+				{#if id42NameInputNotEmpty}
+					<div class="popup">
+						{#each searchRes as client}
+							<p class="link">
+								<a href="/app/dashboard/{client.name}"
+									style="text-decoration: none;"
+									>{client.name}</a> -->
+									<!-- on:click={() => fetchTarget(client.name)} -->
+									<!-- on:click={() => refreshInput(client)}>{client.name}</a> -->
+							<!-- </p>
+						{/each}
+					</div>
+				{/if}
+			</div>
+
+		</div>
+	</div> -->
+<!-- ---------------------------------------------------------------------------- -->
 	</main>
 </div>
 

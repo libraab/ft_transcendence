@@ -49,7 +49,6 @@ export class AuthController {
     );
     let user = await this.databaseService.getClientById42(user_info.id);
     if (!user) {
-      console.log('New user is being created');
       const new_user: ClientDto = new ClientDto();
       new_user.id42 = user_info.id;
       new_user.name = user_info.login;
@@ -57,14 +56,6 @@ export class AuthController {
       new_user.img = user_info.image.link;
       user = await this.databaseService.createClient(new_user);
     } else console.log('We already know this person');
-
-    console.log('--------------------------');
-    console.log('user id is -->', user.id);
-    console.log('user 42_id is -->', user.id42);
-    console.log('user name is -->', user.name);
-    console.log('user dfa is -->', user.Dfa);
-    console.log('img link is -->', user.img);
-    console.log('--------------------------');
 
     const add_cookie: UpdateClientDto = new UpdateClientDto();
     // generetate the jwt
@@ -77,7 +68,6 @@ export class AuthController {
     // await this.databaseService.updateCookie(user.id42, add_cookie); // not good
     // https://docs.nestjs.com/techniques/cookies
 
-    // console.log(process.env.HOSTNAME);
     // response.redirect('/');
     return '<script>document.location.href="/"</script>';
 
@@ -109,13 +99,10 @@ export class AuthController {
   ): Promise<{ qrCodeImageUrl?: string }> {
     const { isDFAActive } = body;
     const user: UpdateClientDto = new UpdateClientDto();
-    console.log('DFA is ', isDFAActive);
     // if user activate the dfa
     if (isDFAActive) {
-      console.log('dfa is now activated in database');
       user.dfa = true;
       user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key
-      console.log(user.dfaSecret);
       await this.databaseService.updateClient(id, user);
       // Generate the QR code image
       const otpauthUrl = authenticator.keyuri(
@@ -128,7 +115,6 @@ export class AuthController {
     } else {
       user.dfa = false;
       await this.databaseService.updateClient(id, user);
-      console.log('dfa is deactivatedin database');
     }
     return {};
   }

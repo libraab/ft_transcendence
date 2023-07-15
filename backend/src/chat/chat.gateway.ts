@@ -57,26 +57,24 @@ export class ChatGateway
     client: Socket,
     message: {
       channel: string;
-      sender: string;
       message: string;
       sender_id: string;
     },
   ) {
     this.logger.log(
-      `A message was send by ${message.sender} --content--> ${message.message}`,
+      `A message was send by id ${message.sender_id} --content--> ${message.message}`,
     );
-	this.logger.log(message);
     const client_id = await this.db.getClientById42(Number(message.sender_id));
     const room_exist = await this.db.getRoomById(Number(message.channel));
     if (room_exist == null) return;
+    // if (! this.db.userIsMemberOfRoom()) return ;
     await this.addMessageToRoom({
       id: Number(message.channel),
       sender: client_id.id,
       msg: message.message,
     });
-	console.log(message);
-    this.wss.to(message.channel).emit('serverToChat', message);
-    this.wss.to(message.channel).emit('serverAlertToChat', message);
+    this.wss.to(message.channel).emit('serverToChat', { ...message, sender: client_id.name});
+    this.wss.to(message.channel).emit('serverAlertToChat', { ...message, sender: client_id.name});
     // WsResponse<string>
     // return { event: 'msgToClient', data: text};
   }
@@ -84,21 +82,27 @@ export class ChatGateway
   @SubscribeMessage('inviteToPlay')
   async handleInvitation(
     client: Socket,
-    data: { player_id: number; opponent_id: number },
+    data: { player_id: number; opponent_id: number, secret: string},
   ) {
     //utiliser le id via le token sinon on peux creer des invitations entre deux users sans leurs consantement
     this.logger.log(`A invitation to play was send to opponent_id`);
     const socket_id = this.usersConnected.findSocketId(data.opponent_id);
-    console.log(socket_id);
     if (socket_id == '') return;
+    let user = await this.db.getClientById(data.player_id);
     this.logger.log(`FOUND`);
-    this.wss.to(socket_id).emit('invitationGame', data.player_id);
+    this.wss.to(socket_id).emit('invitationGame', {player_id: data.player_id, secret: data.secret, name: user.name, img: user.img});
     //   let client_id = await this.db.getClientById42(message.sender_id);
     //   await this.addMessageToRoom({ id: message.channel, sender: client_id.id, msg: message.message});
     //   this.wss.to(message.channel).emit('serverToChat', message);
     //   this.wss.to(message.channel).emit('serverAlertToChat', message);
     // WsResponse<string>
     // return { event: 'msgToClient', data: text};
+  }
+
+  @SubscribeMessage('refuse')
+  handleRefuse(client: Socket, data: any) {
+    const socket_id = this.usersConnected.findSocketId(data.player_id);
+    client.to(socket_id).emit('refused');
   }
 
   @SubscribeMessage('joinChannel')
@@ -119,8 +123,23 @@ export class ChatGateway
     client.emit('leavedChannel', channel);
   }
 
+  /**
+   * 
+   * Socket event In Game story
+   * 
+   */
+   @SubscribeMessage('startGame')
+   userIsInGame(user: Socket) {
+      this.usersConnected.addInGame(user);
+   }
+
+   @SubscribeMessage('endGame')
+   userIsNotInGame(user: Socket, id: number) {
+    this.usersConnected.deleteInGame(user);
+   }
+
+
   async addMessageToRoom(data: any) {
-    console.log(data);
     this.db.addMessageToRoom(data.id, data.sender, data.msg);
   }
 
@@ -131,5 +150,14 @@ export class ChatGateway
       message: msg,
       sender_id: 0,
     });
+  }
+
+  async sendReloadRequest(target_id: any)
+  {
+    let socket_id = this.usersConnected.findSocketId(target_id);
+    if (socket_id != '')
+    {
+      this.wss.to(socket_id).emit('reloadrooms');
+    }
   }
 }

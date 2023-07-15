@@ -25,6 +25,7 @@ import {
   updateStatDto,
 } from 'src/dashboard/dashboardDtos/createsTablesDtos';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
+import { gameHistoricDto } from 'src/game/game.controller';
 
 @Injectable()
 export class DatabaseService {
@@ -40,6 +41,12 @@ export class DatabaseService {
     return client || null;
   }
 
+  async ComTest(ghDto: gameHistoricDto)
+  {
+    console.log(ghDto);
+    return 1;
+  }
+  
   async getClientById42Dashboard(id42: number) {
     const client = await this.prisma.clients.findUnique({
       where: {
@@ -107,6 +114,20 @@ export class DatabaseService {
 		return client;
 	}
 */
+
+  async getIdFromId42(id42: number)
+  {
+    const id = await this.prisma.clients.findUnique({
+      where: {
+        id42,
+      },
+      select: {
+        id: true
+      }
+    });
+
+    return id;
+  }
 
   async getTarget(clientId: number, name: string) {
     const client = await this.prisma.clients.findUnique({
@@ -354,7 +375,6 @@ export class DatabaseService {
 
       return updatedClient;
     } catch (error) {
-      console.log(error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new NotFoundException("User doesn't exist");
@@ -473,7 +493,7 @@ export class DatabaseService {
       },
     });
   }
-
+/*
   async getLastNMessagesByRoomId(
     roomId: number,
     n: number,
@@ -493,7 +513,7 @@ export class DatabaseService {
 
     return messages.map((message) => [message.client.name, message.msg]);
   }
-
+*/
   async createRelation(dto: createRelationsDto): Promise<ClientToClient> {
     try {
       const relation = await this.prisma.clientToClient.create({
@@ -884,6 +904,36 @@ export class DatabaseService {
 
     return null;
   }
+/*
+  async findClientsByName(clientId: number, name: string) {
+    const clients = await this.prisma.clients.findMany({
+      where: {
+        name: {
+          contains: name,
+        },
+        NOT: {
+          OR: [
+            {
+              client2: {
+                some: {
+                  AND: [{ client1Id: clientId }, { status: 1 }],
+                },
+              },
+            },
+            {
+              client1: {
+                some: {
+                  AND: [{ client2Id: clientId }, { status: 1 }],
+                },
+              },
+            },
+          ],
+        },
+      },
+    });
+
+    return clients;
+  }
 
   async getRoomMessagesById(roomId: number): Promise<any[]> {
     const messages = await this.prisma.messagesRooms.findMany({
@@ -906,6 +956,83 @@ export class DatabaseService {
       clientId: message.client.id,
       clientName: message.client.name,
     }));
+  }
+*/
+
+  async getRoomMessagesById(roomId: number, idClient: number): Promise<any[]> {
+    const messages = await this.prisma.messagesRooms.findMany({
+      where: {
+        roomId: roomId,
+        NOT: {
+          OR: [{
+            client: {
+              client1: {
+                some: {
+                  client1Id: idClient,
+                  status: 1
+                }
+              }
+            }
+          },
+          {
+            client: {
+              client2: {
+                some: {
+                  client2Id: idClient,
+                  status: 1
+                }
+              }
+            }
+          }
+        ]}
+      },
+      select: {
+        msg: true,
+        client: {
+          select: {
+            name: true,
+            id: true,
+          },
+        },
+      },
+    });
+
+    return messages.map((message) => ({
+      message: message.msg,
+      clientId: message.client.id,
+      clientName: message.client.name,
+    }));
+  }
+
+  async getBannedRelationshipsForId(clientId: number) {
+    const banned = await this.prisma.clientToClient.findMany({
+        where: {
+          OR: [{
+            client1Id: clientId,
+            status: 1
+          },
+          {
+            client2Id: clientId,
+            status: 1
+          }]
+        },
+        select: {
+          client1: {
+            select: {
+              name: true,
+              id: true,
+            }
+          },
+          client2: {
+            select: {
+              name: true,
+              id: true,
+            }
+          }
+        }
+      });
+
+      return banned;
   }
 
   async addClientsToClient(
@@ -1559,5 +1686,79 @@ export class DatabaseService {
     if (userStatus.status !== 1 && userStatus.status !== 0)
       throw new UnauthorizedException('acces denied');
     return { status: userStatus.status, roomId: roomId };
+  }
+
+  async getRoomIdByName(roomName: string)
+  {
+    const id = await this.prisma.rooms.findUnique({
+      where: {
+        name: roomName,
+      },
+      select: {
+        id: true,
+      }
+    });
+
+    return id;
+  }
+
+  async deleteClientById(clientId: number): Promise<void> {
+    await this.prisma.$transaction(async (prisma) => {
+      // Supprimer le client des membres de salle
+      await prisma.roomMembers.deleteMany({
+        where: {
+          memberId: clientId,
+        },
+      });
+
+      // Supprimer les enregistrements de l'historique de jeu du client
+      await prisma.gameHistoric.deleteMany({
+        where: {
+          OR: [
+            {
+              client1Id: clientId,
+            },
+            {
+              client2Id: clientId,
+            },
+          ],
+        },
+      });
+
+      // Supprimer les relations ClientToClient du client
+      await prisma.clientToClient.deleteMany({
+        where: {
+          OR: [
+            {
+              client1Id: clientId,
+            },
+            {
+              client2Id: clientId,
+            },
+          ],
+        },
+      });
+
+      // Supprimer les messages du client
+      await prisma.messagesRooms.deleteMany({
+        where: {
+          clientId: clientId,
+        },
+      });
+
+      // Supprimer les statistiques du client
+      await prisma.clientStats.deleteMany({
+        where: {
+          clientId: clientId,
+        },
+      });
+
+      // Supprimer le client lui-même
+      await prisma.clients.delete({
+        where: {
+          id: clientId,
+        },
+      });
+    });
   }
 }

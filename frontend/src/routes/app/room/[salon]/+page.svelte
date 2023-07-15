@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { hostname } from "../../../hostname";
-	import { img_path, userId42, clientName } from "../../../lib/storesores";
+	import { userId, userId42, clientName } from "$lib/stores";
 	import DelModal from './delete_resign.svelte'
 	import { goto } from '$app/navigation';
 
@@ -10,42 +9,41 @@
 	let choosenRoom: string;
 	let choosenRoomId: number;
 	let owned: boolean;
+	let members: any;
 
 	let roomMembers: any = [];
 	onMount(async () => {
 		choosenRoom = data.room;
+		members = firstFetchRoomMember();
 		choosenRoomId = data.members.roomId.id;
-		// $img_path = data.img_path;
-		// $userId42 = parseInt(data.userId42, 10);
-		owned = data.members.userStatus === 0;
+		owned = data.members.status === 0;
 
 		await fetchprivateRoomMembers();
 		await fetchAllRoomMembers();
-
-		// try
-		// {
-		// 	const response = await fetch(`http://${hostname}:3000/dashboard/${data.userId42}`);
-		// 	if (response.ok)
-		// 	{
-		// 		let vals = await response.json();
-		// 		$clientName = vals.name;
-		// 	}
-		// 	else
-		// 		console.error("layout");
-
-		// }
-		// catch (error)
-		// {
-		// 	console.error("layout" , error);
-		// }
 	});
+
+	async function firstFetchRoomMember()
+	{
+		try
+		{
+			const response = await fetch(`/api/rooms/allMemberwithStatus/${$userId42}/${data.room}`);
+			if (response.ok)
+				return await response.json();
+			else {
+				return response;
+			}
+		}
+		catch (error) {
+			console.error(error);
+		}
+	}
 
 	let privateRoomMembers: any = [];
 	async function fetchprivateRoomMembers()
 	{
 		try
 		{
-			const response = await fetch(`http://${hostname}:8080/api/rooms/privateRoomMember/${choosenRoomId}`);
+			const response = await fetch(`/api/rooms/privateRoomMember/${choosenRoomId}`);
 			if (response.ok)
 				privateRoomMembers = await response.json();
 			else
@@ -61,10 +59,10 @@
 	{
 		let url;
 		if (owned) {
-			url = `http://${hostname}:8080/api/rooms/allRoomMember/${choosenRoomId}/${data.id}`;
+			url = `/api/rooms/allRoomMember/${choosenRoomId}/${$userId}`;
 		}
 		else {
-			url = `http://${hostname}:8080/api/rooms/allRoomMemberForAdmins/${choosenRoomId}/${data.id}`;
+			url = `/api/rooms/allRoomMemberForAdmins/${choosenRoomId}/${$userId}`;
 		}
 
 		try
@@ -83,14 +81,13 @@
 
 	async function accept(client: any) {
 		try {
-			const response = await fetch(`http://${hostname}:8080/api/rooms/acceptNewMember/${choosenRoomId}/${client.id}`, {
+			const response = await fetch(`/api/rooms/acceptNewMember/${choosenRoomId}/${client.id}`, {
 				method: 'POST',
 			});
 
 			if (response.ok)
 			{
 				console.log('New member accepted');
-				// Mettez à jour votre état ou effectuez toute autre action nécessaire ici
 			}
 			else
 			{
@@ -108,7 +105,7 @@
 
 	async function updateClientStatus(roomId: number, clientId: number, status: number) {
 		try {
-			const response = await fetch(`http://${hostname}:8080/api/rooms/updateStatus/${roomId}/${clientId}/${status}`, {
+			const response = await fetch(`/api/rooms/updateStatus/${roomId}/${clientId}/${status}`, {
 				method: 'POST',
 			});
 
@@ -151,7 +148,7 @@
 	async function kick(client: any)
 	{
 		try {
-			const response = await fetch(`http://${hostname}:8080/api/rooms/kick/${choosenRoomId}/${client.id}`, {
+			const response = await fetch(`/api/rooms/kick/${choosenRoomId}/${client.id}`, {
 				method: 'POST',
 			});
 
@@ -191,7 +188,7 @@
 
 	function delReturn() {
 		delTab = "";
-		goto("/room");
+		goto("/app/room");
 	}
 
 	const memberStatusLabels: any = {
@@ -205,7 +202,7 @@
 </script>
 
 {#if delTab !== ""}
-	<DelModal {delTab} roomId={choosenRoomId} id={$userId42}
+	<DelModal {delTab} roomId={choosenRoomId} id={$userId}
 		on:click={()=> toggleDel("")}
 		on:validationClick={ delReturn }/>
 {/if}
@@ -214,7 +211,7 @@
 	<main class="container">
 		<div class="create-container">
 			<h1>{choosenRoom}</h1>
-			<a href="/room"><center><button class="toggle-btn">Back</button></center></a>
+			<a href="/app/room"><center><button class="toggle-btn">Back</button></center></a>
 
 		</div>
 
@@ -276,11 +273,10 @@
 
 		{#if owned}
 			<div class="create-container">
+				╭∩╮( •̀_•́ )╭∩╮
 				<center><button class="toggle-btn" style="background-color: red;"
 					on:click={() => toggleDel('del')}>Delete room
 				</button></center>
-				/̵͇̿̿/’̿’̿ ̿ ̿̿ ̿̿ ̿̿(╥﹏╥)
-
 				<button class="toggle-btn" style="background-color: red; margin-top: auto;"
 					on:click={() => toggleDel('res')}>Resign
 				</button>

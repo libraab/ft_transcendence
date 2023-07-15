@@ -36,35 +36,51 @@ export class DashboardController {
 
   @UseGuards(AuthGuard)
   @Get()
-  async getByid42(
+  async getMyDashboard(
     @Request() req: { user: IJWT },
   ) {
-    console.log("User Dashboard Request for id :", req.user);
     let ppp = await this.db.getClientById42Dashboard(+req.user.id);
-	  console.log(ppp);
 	  return ppp;
   }
 
-  @Get('/getByName/:id/:userName')
+  @UseGuards(AuthGuard)
+  @Get('/:id42')
+  async getDashboardById42(
+    @Request() req: { user: IJWT },
+    @Param('id42', ParseIntPipe) id: number
+  ) {
+    let ppp = await this.db.getClientById42Dashboard(id);
+	  return ppp;
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/getByName/:userName')
   async getByName(
-    @Param('id', ParseIntPipe) id: number,
+    @Request() req: { user: IJWT },
     @Param('userName') userName: string,
   ) {
     try {
-      return this.db.getClientByName(id, userName);
+      let client = await this.db.getClientById42(req.user.id);
+      return this.db.getClientByName(client.id, userName);
     } catch (error) {
       throw new HttpException('userNotFound', 404);
     }
   }
 
-  @Get('getTargetWithRelation/:id/:name')
+  @Get('/convert/:id42')
+  async getIdFromId42(@Param('id42', ParseIntPipe) id42: number)
+  {
+    return this.db.getIdFromId42(id42);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('getTargetWithRelation/:name')
   async getTarget(
-    @Param('id', ParseIntPipe) id: number,
+    @Request() req: { user: IJWT }, 
     @Param('name') name: string,
   ) {
-    console.log("i shouldn't be here");
     try {
-      return this.db.getTarget(id, name);
+      return this.db.getTarget(req.user.id, name);
     } catch (error) {
       console.error(error);
       throw new HttpException('userNotFound', 404);
@@ -117,11 +133,21 @@ export class DashboardController {
         data.file,
         fs.createWriteStream(process.cwd() + '/uploads/' + tmp_name),
       );
-      dto.img = 'http://localhost:3000/dashboard/getfile/' + tmp_name;
-      console.log('new image path is -> ', dto.img);
+      dto.img = '/api/dashboard/getfile/' + tmp_name;
       return this.db.updateClient(id, dto);
     }
     throw new BadRequestException();
+  }
+
+  @Post('/deleteUser/:id')
+  async deleteUser(@Param('id', ParseIntPipe) id: number)
+  {
+    try{
+      return this.db.deleteClientById(id);
+    }
+    catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   @Post('/updateName/:id')
@@ -147,24 +173,28 @@ export class DashboardController {
   //   return this.db.getClientByCookie(cookie);
   // }
 
-  @Get('/name/:id/:name')
+  @UseGuards(AuthGuard)
+  @Get('/name/:name')
   async searchFor(
-    @Param('id', ParseIntPipe) id: number,
+    @Request() req: { user: IJWT} ,
     @Param('name') name: string,
   ) {
-    return this.db.findClientsByName(id, name);
+    let client = await this.db.getClientById42(req.user.id);
+    return this.db.findClientsByName(client.id, name);
   }
 
-  @Post('/supprFriendship/:id1/:id2')
+  @UseGuards(AuthGuard)
+  @Post('/supprFriendship/:id2')
   async supprFriendship(
-    @Param('id1', ParseIntPipe) id1: number,
+    @Request() req: { user: IJWT} ,
     @Param('id2', ParseIntPipe) id2: number,
   ) {
-    if (id1 === id2)
+    let client = await this.db.getClientById42(req.user.id);
+    if (client.id === id2)
       throw new HttpException('you so funny Larry', HttpStatus.BAD_REQUEST);
 
     try {
-      await this.db.removeClientsFromClient(id1, id2);
+      await this.db.removeClientsFromClient(client.id, id2);
       return HttpStatus.NO_CONTENT;
     } catch (error) {
       console.error(error);

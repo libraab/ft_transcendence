@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { userId42 } from "$lib/stores.js";
 	import { onMount } from "svelte";
+	import { userId, userId42, jwt_cookie } from "$lib/stores";
 
-	// export let data;
 	let rooms: any = [];
 	let isFormVisible: boolean = false;
 	let roomName: string = '';
@@ -13,9 +12,18 @@
 		isFormVisible = !isFormVisible;
 	}
 
+	/**
+	 * Downloading all rooms 
+	 * from database EXCLUDED the ones that we are already logged in
+	 */
 	const fetchRooms = async () => {
-		const response = await fetch(`/api/rooms/valideRooms/${$userId42}`);
-		if (response.ok) {
+		const response = await fetch(`/api/rooms/valideRooms`, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${$jwt_cookie}`
+			}
+		});
+		if (response.status == 200) {
 			rooms = await response.json();
 		} else {
 			console.error('Failed to fetch rooms');
@@ -27,12 +35,16 @@
 	{
 		try
 		{
-			const response = await fetch(`/api/rooms/${$userId42}`);
-			if (response.ok)
+			const response = await fetch(`/api/rooms`, {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${$jwt_cookie}`
+				}
+			});
+			if (response.status == 200)
 				ownedRoom = await response.json();
 			else
 				ownedRoom = [];
-			console.log(ownedRoom);
 		}
 		catch (error)
 		{
@@ -44,27 +56,28 @@
 		if (password === "" && roomType == "protected")
 		{
 			alert("Please enter a password");
-			return
+			return ;
 		}
 		event.preventDefault();
-		console.log('Creating room:', roomName, 'of type', roomType);
 		if (roomType === 'protected') {
 				console.log('Password:', password);
 		}
 		else
 			password = "";
-		console.log(password);
-		// ici je fais api call  au back
+		/*
+		* Appel au Post du controller Chat qui va creer la Room dans la Db
+		*/
 		const response = await fetch(`/api/chat`, {
 			method: 'POST',
 			headers: {
+				'Authorization': `Bearer ${$jwt_cookie}`,
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
 				roomName,
 				roomType,
 				password,
-				iddata: $userId42,
+				iddata: $userId42
 			})
 		});
 		if (response.ok) {
@@ -97,10 +110,11 @@
 	};
 
 	const join = async (room: any) => {
-		const response = await fetch(`/api/rooms/join/${room.id}/${$userId42}`, {
+		const response = await fetch(`/api/rooms/join/${room.id}`, {
 			method: 'POST',
 			headers: {
-				'Content-Type': 'application/json'
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${$jwt_cookie}`,
 			},
 			body: JSON.stringify({ password })
 		});
@@ -151,7 +165,7 @@
 							{/if}
 							
 							<h3>{roomList.room.name}</h3>
-							<a href="/room/{roomList.room.name}"><button class="join-button">
+							<a href="/app/room/{roomList.room.name}"><button class="join-button">
 								Inspect
 							</button></a>
 						</div>

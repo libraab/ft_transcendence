@@ -12,13 +12,10 @@ export function load({ cookies }) {
 	let	PUBLIC_DOMAIN_BACK = process.env.PUBLIC_DOMAIN_BACK;
 	let PUBLIC_API_42 = process.env.PUBLIC_API_42;
 
-	if (PUBLIC_API_42 && PUBLIC_API_42)
-		console.log(`https://api.intra.42.fr/oauth/authorize?client_id=${PUBLIC_API_42}&redirect_uri=${encodeURI(PUBLIC_DOMAIN_BACK)}&response_type=code`);
-	else
+	if (!(PUBLIC_API_42 && PUBLIC_API_42))
 		throw error(500, {
 				message: "ENV variable error"
 			});
-		
 
 	return {
 		myJwtCookie,
