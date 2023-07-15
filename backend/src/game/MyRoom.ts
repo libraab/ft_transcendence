@@ -1,8 +1,10 @@
-import http from "http";
 import { Room, Client, Delayed } from "colyseus";
 import { createGameState, gameLoop } from "./MyGame";
+import fetch from 'node-fetch';
+
 
 const state: Record<string, any> = {};
+
 
 export class MyRoom extends Room<any> {
   maxClients = 2;
@@ -29,7 +31,7 @@ export class MyRoom extends Room<any> {
     }
     if (this.clients.length === 2) {
       this.joueur2 = client.id;
-      client.send("init", 2);
+      client.send("init", 2); 
       this.emitgamestate();
     }
     this.onMessage("keydown38player1", () => {
@@ -111,16 +113,29 @@ export class MyRoom extends Room<any> {
         }
         this.broadcast("gameState", JSON.stringify(state[this.roomId]));
       } else {
+
         this.broadcast("gameOver", JSON.stringify({ winner }));
+
+
+        //console.log('hello', state[this.roomId]);
+
+        fetch(`http://localhost:3000/api/game/saveScore?data=${ 
+          encodeURIComponent(JSON.stringify(state[this.roomId]))
+        }`, {
+          method: 'POST'
+        });
+
+
         state[this.roomId] = null;
         clearInterval(intervalId);
+
       }
     }, 1000 / 50);
   }
 
   // When a client leaves the room
   onLeave(client: Client, consented: boolean) {
-    //clean le state[room] !!!!!
+
   }
 
   // Cleanup callback, called after there are no more clients in the room. (see `autoDispose`)

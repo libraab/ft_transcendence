@@ -44,12 +44,12 @@ export function gameLoop(state: any) {
 
     if (state.ball.x - state.ball.radius < 0) {
         state.com.score++;
-        if (state.com.score === 20)
+        if (state.com.score === 1)
             return 2;
         resetBall(state);
     } else if (state.ball.x + state.ball.radius > 600) {
         state.user.score++;
-        if(state.user.score === 20)
+        if(state.user.score === 1)
             return 1;
         resetBall(state);
     }
