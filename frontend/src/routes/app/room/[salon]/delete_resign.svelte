@@ -158,7 +158,7 @@
 			console.log('Room created successfully');
 			// handle success -> make sure that room is added to the list updates etc
 		} else {
-			console.error('Failed to update room', response.statusText);
+			alert('Failed to update room');
 			// handle error
 		}
 		handleValidationClick();
@@ -222,7 +222,7 @@
 										<input type="password" id="password" bind:value={password} />
 									{/if}
 									<br />
-									<button type="submit">Update Room</button>
+									<button type="submit">Update</button>
 								</form>
 							{/if}
 						
