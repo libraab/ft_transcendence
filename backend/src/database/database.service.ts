@@ -486,6 +486,7 @@ export class DatabaseService {
             cookie: true,
             Dfa: true,
             DfaSecret: true,
+            dfaVerified: true,
           },
         },
         status: true,
@@ -502,6 +503,7 @@ export class DatabaseService {
           cookie: relation.client2?.cookie,
           Dfa: relation.client2?.Dfa,
           DfaSecret: relation.client2?.DfaSecret,
+          dfaVerified: relation.client2?.dfaVerified,
         },
         status: relation.status,
       }));
@@ -748,6 +750,7 @@ export class DatabaseService {
                 cookie: true,
                 Dfa: true,
                 DfaSecret: true,
+                dfaVerified: true,
               },
             },
             owner: {
@@ -759,6 +762,7 @@ export class DatabaseService {
                 cookie: true,
                 Dfa: true,
                 DfaSecret: true,
+                dfaVerified: true,
               },
             },
             secu: true,
