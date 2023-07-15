@@ -10,6 +10,7 @@ export function createGameState() {
             color: "WHITE"
         },
         user: {
+            id: 0,
             x: 0, // left side of canvas
             y: (400 - 100) / 2, // -100 the height of paddle
             width: 10,
@@ -18,6 +19,7 @@ export function createGameState() {
             color: "WHITE"
         },
         com: {
+            id: 0,
             x: 600 - 10, // - width of paddle
             y: (400 - 100) / 2, // -100 the height of paddle
             width: 10,
@@ -44,12 +46,12 @@ export function gameLoop(state: any) {
 
     if (state.ball.x - state.ball.radius < 0) {
         state.com.score++;
-        if (state.com.score === 1)
+        if (state.com.score === 2)
             return 2;
         resetBall(state);
     } else if (state.ball.x + state.ball.radius > 600) {
         state.user.score++;
-        if(state.user.score === 1)
+        if(state.user.score === 2)
             return 1;
         resetBall(state);
     }

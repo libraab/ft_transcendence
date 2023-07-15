@@ -44,7 +44,7 @@ export class DatabaseService {
 
   async ComTest(ghDto: gameHistoricDto)
   {
-    console.log("DB : ", ghDto);
+    console.log(ghDto);
     return 1;
   }
   
@@ -304,30 +304,6 @@ export class DatabaseService {
     }
   }
 
-  async createGameHistoric(dto: gameHistoricDto): Promise<gameHistoricDto> {
-    try {
-      const client = await this.prisma.clients.create({
-        data: {
-          id42: dto.id42,
-          name: dto.name,
-          cookie: dto.cookie,
-          img: dto.img,
-          Dfa: false,
-        },
-      });
-
-      return client;
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException('Credentials taken');
-        }
-      }
-      throw error;
-    }
-  }
-
-
   async createClientStat(dto: createStatsDto): Promise<ClientStats> {
     try {
       const { clientId, played, won, score, hf } = dto;
@@ -486,6 +462,7 @@ export class DatabaseService {
             cookie: true,
             Dfa: true,
             DfaSecret: true,
+            dfaVerified: true,
           },
         },
         status: true,
@@ -502,6 +479,7 @@ export class DatabaseService {
           cookie: relation.client2?.cookie,
           Dfa: relation.client2?.Dfa,
           DfaSecret: relation.client2?.DfaSecret,
+          dfaVerified: relation.client2?.dfaVerified,
         },
         status: relation.status,
       }));
@@ -702,6 +680,9 @@ export class DatabaseService {
     const roomMembers = await this.prisma.roomMembers.findMany({
       where: {
         memberId: clientId,
+        NOT: {
+          status: 5,
+        }
       },
       select: {
         room: {
@@ -748,6 +729,7 @@ export class DatabaseService {
                 cookie: true,
                 Dfa: true,
                 DfaSecret: true,
+                dfaVerified: true,
               },
             },
             owner: {
@@ -759,6 +741,7 @@ export class DatabaseService {
                 cookie: true,
                 Dfa: true,
                 DfaSecret: true,
+                dfaVerified: true,
               },
             },
             secu: true,
@@ -1828,5 +1811,31 @@ export class DatabaseService {
       }
     }
   }
+
+
+
+
+  async historicnewEntry(data: gameHistoricDto){
+    try {
+      const dataa =  await this.prisma.gameHistoric.create({
+        data: {
+          persScore: data.persScore,
+          vsScore: data.vsScore,
+          client1Id: data.client1Id,
+          client2Id: data.client2Id,
+        }
+      })
+      console.log(data);
+    }
+    catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException("User doesn't exist");
+        }
+      }
+    }
+  }
+
+
 
 }

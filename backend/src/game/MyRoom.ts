@@ -1,6 +1,7 @@
 import { Room, Client, Delayed } from "colyseus";
 import { createGameState, gameLoop } from "./MyGame";
 import fetch from 'node-fetch';
+import { captureRejectionSymbol } from "events";
 
 
 const state: Record<string, any> = {};
@@ -25,12 +26,14 @@ export class MyRoom extends Room<any> {
 
   // When client successfully join the room
   onJoin(client: Client, options: any, auth: any) {
+    console.log("Client joined!", options.id, client.id)
     if (this.clients.length === 1) {
-      this.joueur1 = client.id;
+      state[this.roomId].user.id = +options.id;
       client.send("init", 1);
     }
     if (this.clients.length === 2) {
-      this.joueur2 = client.id;
+      // this.joueur2 = client.id;
+      state[this.roomId].com.id = +options.id;
       client.send("init", 2); 
       this.emitgamestate();
     }

@@ -4,10 +4,10 @@ import { DatabaseService } from 'src/database/database.service';
 
 export class gameHistoricDto
 {
-    client1Id: string;
-    scoreClient1: number;
-    client2Id: string;
-    scoreClient2: number;
+    client1Id: number;
+    persScore: number;
+    client2Id: number;
+    vsScore: number;
 }
 
 @Controller('game')
@@ -19,10 +19,10 @@ export class GameController {
         console.log("ICI", JSON.parse(data));
         const alldata = JSON.parse(data);
         const gameHistoric = new gameHistoricDto();
-        gameHistoric.client1Id = "user";
-        gameHistoric.scoreClient1 = alldata.user.score;
-        gameHistoric.client2Id = "com";
-        gameHistoric.scoreClient2 = alldata.com.score;
+        gameHistoric.client1Id = alldata.user.id;
+        gameHistoric.persScore = alldata.user.score;
+        gameHistoric.client2Id = alldata.com.id;
+        gameHistoric.vsScore = alldata.com.score;
         const errors = await validateSync(gameHistoric);
         if (errors.length > 0) {
             console.log(errors);
@@ -31,11 +31,11 @@ export class GameController {
         else {
             // return this.db.saveScore(gameHistoric);
             console.log(">>>> ", gameHistoric);
-            this.ft_test(gameHistoric);
-            this.db.createClient
+          //  this.ft_test(gameHistoric);
+            this.db.historicnewEntry(gameHistoric);
+            
         }
     }
-
        // return 'bonjour';
 
     async ft_test(param: gameHistoricDto)

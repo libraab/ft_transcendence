@@ -4,7 +4,7 @@
     import { onDestroy } from "svelte";
 	  import { createEventDispatcher } from 'svelte';
 	  import { userId, jwt_cookie } from "$lib/stores";
-	import { goto } from "$app/navigation";
+	  import { goto } from "$app/navigation";
 
     export let data;
     export let isDFAActive;
