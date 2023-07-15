@@ -14,14 +14,14 @@
 	let roomMembers: any = [];
 	onMount(async () => {
 		choosenRoom = data.room;
-		members = firstFetchRoomMember();
+		members = data.members;
 		choosenRoomId = data.members.roomId.id;
 		owned = data.members.status === 0;
 
 		await fetchprivateRoomMembers();
 		await fetchAllRoomMembers();
 	});
-
+/*
 	async function firstFetchRoomMember()
 	{
 		try
@@ -37,7 +37,7 @@
 			console.error(error);
 		}
 	}
-
+*/
 	let privateRoomMembers: any = [];
 	async function fetchprivateRoomMembers()
 	{

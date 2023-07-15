@@ -4,7 +4,19 @@
 
 	export let deletePop: boolean;
 
-    async function supprUser() {
+    async function supprUser()
+	{
+        const check = await fetch(`/api/dashboard/preDelCheck/${$userId}`)
+		if (check.ok)
+		{
+			let ret = await check.json();
+			if (ret)
+			{
+				alert('You owne 1 or more room, please resign or delete them first');
+				return;
+			}
+		}
+			     
         const response = await fetch(`/api/dashboard/deleteUser/${$userId}`, {
             method: 'POST',
         });

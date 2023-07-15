@@ -7,7 +7,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ClientDto } from './dtos/dbBaseDto';
+import { ClientDto, updateRoomDto } from './dtos/dbBaseDto';
 import {
   ClientStats,
   ClientToClient,
@@ -26,12 +26,10 @@ import {
 } from 'src/dashboard/dashboardDtos/createsTablesDtos';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import { gameHistoricDto } from 'src/game/game.controller';
+import { response } from 'express';
 
 @Injectable()
 export class DatabaseService {
-  gameHistoric(gameHistoric: gameHistoricDto) {
-      throw new Error('Method not implemented.');
-  }
   constructor(private prisma: PrismaService) {}
 
   async getClientById42(id42: number): Promise<Clients | null> {
@@ -46,7 +44,7 @@ export class DatabaseService {
 
   async ComTest(ghDto: gameHistoricDto)
   {
-    console.log("DB : ", ghDto);
+    console.log(ghDto);
     return 1;
   }
   
@@ -141,6 +139,7 @@ export class DatabaseService {
         name: true,
         img: true,
         id: true,
+        id42: true,
         client1: {
           select: {
             status: true,
@@ -305,30 +304,6 @@ export class DatabaseService {
     }
   }
 
-  // async createGameHistoric(dto: gameHistoricDto): Promise<gameHistoricDto> {
-  //   try {
-  //     const client = await this.prisma.clients.create({
-  //       data: {
-  //         // id42: dto.id42,
-  //         // name: dto.name,
-  //         // cookie: dto.cookie,
-  //         // img: dto.img,
-  //         Dfa: false,
-  //       },
-  //     });
-
-  //     return client;
-  //   } catch (error) {
-  //     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-  //       if (error.code === 'P2002') {
-  //         throw new ForbiddenException('Credentials taken');
-  //       }
-  //     }
-  //     throw error;
-  //   }
-  // }
-
-
   async createClientStat(dto: createStatsDto): Promise<ClientStats> {
     try {
       const { clientId, played, won, score, hf } = dto;
@@ -373,7 +348,8 @@ export class DatabaseService {
       });
 
       return updatedClient;
-    } catch (error) {
+    }
+    catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new NotFoundException("User doesn't exist");
@@ -704,6 +680,9 @@ export class DatabaseService {
     const roomMembers = await this.prisma.roomMembers.findMany({
       where: {
         memberId: clientId,
+        NOT: {
+          status: 5,
+        }
       },
       select: {
         room: {
@@ -1613,7 +1592,8 @@ export class DatabaseService {
           },
         },
       });
-    } catch (error) {
+    }
+    catch (error) {
       throw new Error('Failed to remove client from room');
     }
   }
@@ -1793,6 +1773,132 @@ export class DatabaseService {
     });
   }
 
+  async roomUserCheck(roomId: number, memberId: number)
+  {
+    const response = await this.prisma.roomMembers.findUnique({
+      where: {
+          roomId_memberId: {
+            roomId,
+            memberId,
+          },
+      },
+      select: {
+        status: true,
+      }
+    });
+
+    return response || null;
+  }
+
+  async updateRoom(roomid: number, data: updateRoomDto)
+  {
+    try{
+      await this.prisma.rooms.update({
+        where: {
+          id: roomid,
+        },
+        data
+      });
+    }
+    catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException("Room doesn't exist");
+        }
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('name already taken');
+        }
+        throw error;
+      }
+    }
+  }
+  async preDelCheck(clientId: number)
+  {
+    const response = await this.prisma.rooms.findFirst({
+      where: {
+        ownerid: clientId
+      },
+      select: {
+        ownerid: true,
+      }
+    });
+
+    return response || null;
+  }
+
+  async clientInStat(clientId: number)
+  {
+    const client = await this.prisma.clientStats.findUnique({
+      where: {
+        clientId
+      },
+      select: {
+        clientId: true,
+      }
+    });
+
+    return client || null;
+  }
+
+  async win(clientId: number)
+  {
+    if (await this.clientInStat(clientId))
+    {
+      await this.prisma.clientStats.update({
+        where: {
+          clientId
+        },
+        data: {
+          played: {
+            increment: 1,
+          },
+          won:{
+            increment: 1,
+          }
+        }
+      });
+    }
+    else
+    {
+      await this.prisma.clientStats.create({
+        data: {
+          played: 1,
+          won: 1,
+          score: 10,
+          clientId
+        }
+      });
+    }
+  }
+
+  async lose(clientId: number)
+  {
+    if (await this.clientInStat(clientId))
+    {
+      await this.prisma.clientStats.update({
+        where: {
+          clientId
+        },
+        data: {
+          played: {
+            increment: 1,
+          }
+        }
+      });
+    }
+    else
+    {
+      await this.prisma.clientStats.create({
+        data: {
+          played: 1,
+          won: 0,
+          score: 0,
+          clientId
+        }
+      });
+    }
+  }
+  
   async historicnewEntry(data: gameHistoricDto){
     try {
       const dataa =  await this.prisma.gameHistoric.create({
@@ -1813,7 +1919,5 @@ export class DatabaseService {
       }
     }
   }
-
-
 
 }
