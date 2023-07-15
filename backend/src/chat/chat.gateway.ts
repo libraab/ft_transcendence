@@ -108,7 +108,8 @@ export class ChatGateway
   @SubscribeMessage('refuse')
   handleRefuse(client: Socket, data: any) {
     const socket_id = this.usersConnected.findSocketId(data.player_id);
-    client.to(socket_id).emit('refused');
+    if (socket_id != '')
+      client.to(socket_id).emit('refused');
   }
 
   @SubscribeMessage('joinChannel')
@@ -150,6 +151,7 @@ export class ChatGateway
   }
 
   async sendServerMsg(roomid: any, msg: any) {
+    console.log(msg);
     this.wss.to(roomid).emit('serverMessage', {
       channel: roomid,
       sender: 'server',

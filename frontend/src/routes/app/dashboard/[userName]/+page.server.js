@@ -4,7 +4,7 @@ async function fetchDataSupp(id42, targetName, fetch, authToken)
 {
 	try
 	{
-		const response = await fetch(`/api/dashboard/getTargetWithRelation/${targetName}`, {
+		const response = await fetch(`http://localhost:8080/api/dashboard/getTargetWithRelation/${targetName}`, {
 			method: 'GET',
 			headers: {
 				'Authorization': `Bearer ${authToken}`
@@ -30,7 +30,7 @@ export async function load( {cookies, fetch, params, depends} ) {
 	const authToken = cookies.get('jwt_cookie');
 	
 	if (authToken === undefined)
-		throw redirect(307, "/login");
+		throw redirect(307, "/");
 
 	const id42 = cookies.get('id42');
 	let isClient = false;

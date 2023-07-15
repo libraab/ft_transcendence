@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { ChatModule } from './chat/chat.module';
+// import { ChatModule } from './chat/chat.module';
 import { AuthModule } from './auth/auth.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { DatabaseModule } from './database/database.module';
@@ -12,7 +12,7 @@ import { RoomsModule } from './rooms/rooms.module';
 
 @Module({
   imports: [
-    ChatModule,
+    // ChatModule,
     GameModule,
     AuthModule,
     DashboardModule,
