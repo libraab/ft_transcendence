@@ -1,13 +1,16 @@
 import { error, redirect } from '@sveltejs/kit'; 
 
+
+let hostname = process.env.HOSTNAME
 	// @ts-ignore
 	async function fetchAllRoomMembers(id42, roomName, fetch)
 	{
 		try
 		{
-			const response = await fetch(`/api/rooms/allMemberwithStatus/${id42}/${roomName}`);
+			const response = await fetch(`http://localhost:8080/api/rooms/allMemberwithStatus/${id42}/${roomName}`);
 			if (response.ok) {
-				return await response.json();
+				let res =  await response.json();
+				return res;
 			}
 			else {
 				return response;
@@ -21,9 +24,10 @@ import { error, redirect } from '@sveltejs/kit';
 	async function fetchRoomId(roomName, fetch)
 	{
 		try {
-			const response = await fetch(`/api/rooms/getRoomId/${roomName}`)
+			const response = await fetch(`http://localhost:8080/api/rooms/getRoomId/${roomName}`)
 			if (response.ok){
-				return await response.json();
+				let res =  await response.json();
+				return res;
 			}
 			else {
 				return response;

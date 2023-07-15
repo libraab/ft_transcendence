@@ -29,7 +29,7 @@ export class RoomsController {
   @Get()
   async getOwnedRooms(@Request() req: { user: IJWT }) {
     const client = await this.db.getClientById42(req.user.id);
-    return this.db.getRoomsByOwnerId(client.id);
+    return await this.db.getRoomsByOwnerId(client.id);
   }
 
   @Get('/allMemberwithStatus/:id42/:name')
@@ -37,12 +37,12 @@ export class RoomsController {
     @Param('id42', ParseIntPipe) id42: number,
     @Param('name') roomName: string,
   ) {
-    return this.db.getAllRoomMembers(id42, roomName);
+    return await this.db.getAllRoomMembers(id42, roomName);
   }
 
   @Get('/privateRoomMember/:id')
   async getPrivateRoomMembers(@Param('id', ParseIntPipe) id: number) {
-    return this.db.getMembersForPrivateRoom(id);
+    return await this.db.getMembersForPrivateRoom(id);
   }
 
   @Get('/allRoomMember/:idRoom/:idMember')
@@ -50,7 +50,7 @@ export class RoomsController {
     @Param('idRoom', ParseIntPipe) idRoom: number,
     @Param('idMember', ParseIntPipe) idMember: number,
   ) {
-    return this.db.getMembersByRoomIdExcludingClient(idRoom, idMember);
+    return await this.db.getMembersByRoomIdExcludingClient(idRoom, idMember);
   }
 
   @Get('/allRoomMemberForAdmins/:idRoom/:idMember')
