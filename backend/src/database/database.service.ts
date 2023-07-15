@@ -138,6 +138,7 @@ export class DatabaseService {
         name: true,
         img: true,
         id: true,
+        id42: true,
         client1: {
           select: {
             status: true,
@@ -1760,5 +1761,22 @@ export class DatabaseService {
         },
       });
     });
+  }
+
+  async roomUserCheck(roomId: number, memberId: number)
+  {
+    const response = await this.prisma.roomMembers.findUnique({
+      where: {
+          roomId_memberId: {
+            roomId,
+            memberId,
+          },
+      },
+      select: {
+        status: true,
+      }
+    });
+
+    return response || null;
   }
 }

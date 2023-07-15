@@ -5,7 +5,7 @@
 
 import { error } from '@sveltejs/kit';
 
-export function load({ cookies }) {
+export function load({ cookies, fetch }) {
 	const myJwtCookie = cookies.get('jwt_cookie');
 	const myid42 = cookies.get('id42');
 
@@ -16,6 +16,28 @@ export function load({ cookies }) {
 		throw error(500, {
 				message: "ENV variable error"
 			});
+
+		try {
+                const connect = await fetch(`/api/dashboard`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${$jwt_cookie}`
+                    }
+                });
+                if (connect.status == 200)
+                {
+                    goto('/app/dashboard');
+                }
+                else
+                {
+                    //connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
+                    console.error("fetch failed in login page");
+					jwt_cookie.set("null");
+                }
+            }
+            catch (error) {
+                console.error("fetching in '/' :" , error);
+            }
 
 	return {
 		myJwtCookie,

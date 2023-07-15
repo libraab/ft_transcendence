@@ -212,7 +212,11 @@
 		<div class="create-container">
 			<h1>{choosenRoom}</h1>
 			<a href="/app/room"><center><button class="toggle-btn">Back</button></center></a>
-
+			{#if owned}	
+				<button class="toggle-btn" style="background-color: orange; margin-top: auto;"
+					on:click={() => toggleDel('update')}>Update room
+				</button>
+			{/if}
 		</div>
 
 		{#if privateRoomMembers && privateRoomMembers.length !== 0}
