@@ -10,8 +10,13 @@
 	// 	Connected: 1,
 	// 	InGame: 2
 	// }
+	enum e_status {
+		Connected,
+		InGame,
+		Disconnected
+	}
 
-	let userStatus = 0
+	let userStatus: e_status = e_status.Disconnected;
 	let intervalRefresh: NodeJS.Timer;
 
 	function sleep(ms: number){
@@ -36,6 +41,7 @@
 
 			const response = await fetch(`/api/chat/connected/${userId}`);
 			let status = await response.json();
+			console.log(status);
 			userStatus = status;
 		}
 		catch (error)
@@ -48,7 +54,7 @@
 
 </script>
 
-<div class="connectStats" class:connected={userStatus == 1} class:disconnected={userStatus == 0}>
+<div class="connectStats" class:connected={userStatus == e_status.Connected} class:disconnected={userStatus == e_status.Disconnected} class:inGame={userStatus == e_status.InGame}>
 </div>
 
 <style>
@@ -67,6 +73,11 @@
 .disconnected
 {
 	background-color: lightgray
+}
+
+.inGame
+{
+	background-color: orange;
 }
 
 </style>

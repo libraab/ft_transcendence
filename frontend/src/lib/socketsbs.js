@@ -3,9 +3,13 @@ import { get, writable } from 'svelte/store';
 import { userId42, rooms, userId, jwt_cookie, blockedUser} from '$lib/stores';
 import { hostname } from './hostname';
 
-export let alertPopupOn = false;
+// Socket chat
 export let socket;
+
+// value of not readed messages
 export let msgCount = 0;
+
+
 
 export let updateCount = () =>
 {
@@ -28,7 +32,6 @@ export async function initializeSocket() {
   	await reloadRooms();
 	socket.on('reloadrooms', reloadRooms);
 	defineSocketEvents();
-//   defineGameSocketEvents();
 }
 
 export async function reloadRooms() {

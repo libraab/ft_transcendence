@@ -1,6 +1,8 @@
 <script lang="ts" >
     import { browser } from '$app/environment';
+	import { game_mode } from '$lib/stores';
 	import { Client } from 'colyseus.js'
+	// import { client, connectClientToGame } from '$lib/gamesocket'
 
 	let matches: any;
 	//let width: any;
@@ -181,8 +183,11 @@ function drawText(text: string, x: number, y: number) {
     ctx.fillText(text, x, y);
 }
 
-function trender(state: any) {    
-    drawRect(0, 0, canvas.width, canvas.height, "#000");
+function trender(state: any) {
+	if ($game_mode == "ABC")
+		drawRect(0, 0, canvas.width, canvas.height, "#345");
+	else
+    	drawRect(0, 0, canvas.width, canvas.height, "#000");
 
     drawText(state.user.score, canvas.width / 4, canvas.height / 5);
 
@@ -190,9 +195,15 @@ function trender(state: any) {
 
     drawNet(state);
 
-    drawRect(state.user.x, state.user.y, state.user.width, state.user.height, state.user.color);
+	if ($game_mode == "ABC")
+		drawRect(state.user.x, state.user.y, state.user.width, state.user.height, "#161234");
+	else
+    	drawRect(state.user.x, state.user.y, state.user.width, state.user.height, state.user.color);
 
-    drawRect(state.com.x, state.com.y, state.com.width, state.com.height, state.com.color);
+	if ($game_mode == "ABC")
+		drawRect(state.com.x, state.com.y, state.com.width, state.com.height, "#161234");
+	else
+   		drawRect(state.com.x, state.com.y, state.com.width, state.com.height, state.com.color);
 
     drawArc(state.ball.x, state.ball.y, state.ball.radius, state.ball.color);
 }
@@ -267,7 +278,7 @@ function matchMaking() {
 
         #pong {
             border: 2px solid #FFF;
-            position: absolute;
+            position: relative;
             margin: auto;
             top: 0;
             right: 0;

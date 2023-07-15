@@ -3,12 +3,34 @@
 	import { goto, invalidate } from '$app/navigation';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { io } from 'socket.io-client'
-	import { initializeSocket, msgCount } from '$lib/socketsbs.js';
+	import { initializeSocket, msgCount, socket } from '$lib/socketsbs.js';
+	import { connectClientToColyseus } from '$lib/gamesocket';
+	import Alert from '$lib/popupAlert.svelte'
 	// import { redirect } from '@sveltejs/kit';
 
 	// la socket ICICICICI//
 	
 	let local_count = msgCount;
+
+	/**
+	 * Invitations
+	*/
+	let alertPopupOn = false;
+	let invitationData =  {player_id: 0, secret: "", name: "", img: ""};
+
+	
+	let setPopupToogleEvent = () =>
+	{
+		socket.on('invitationGame', invitationHandler);
+	}
+	
+	let invitationHandler = (invitData) =>
+	{
+		console.log("invitation!!!");
+		alertPopupOn = true;
+		invitationData = invitData;
+		//alert("Some guy invited you to a game!");
+	}
 
 	/**
 	 * La logique de ce Layout qui englobe tout App
@@ -32,7 +54,9 @@
 					$img_path = data.img;
 					$clientName = data.name;
 					$userId = data.id;
-					initializeSocket();
+					await initializeSocket();
+					setPopupToogleEvent();
+					connectClientToColyseus();
                 }
                 else
                 {
@@ -106,6 +130,8 @@
 		$rooms;
 		local_count = msgCount;
 	}
+
+	
 </script>
 
 
@@ -116,7 +142,7 @@
 	</div>
 	<div class="description">
 		<h1 class="glow-text">FT_TRANSCENDENCE</h1>
-		<p class="catch-phrase">A strange adventure into Pong Univers inside an Multiverse inside a jelly jar inside something else and go on ...</p>
+		<p class="catch-phrase">An adventure into Pong Univers inside an Multiverse inside a jelly jar inside something else and go on ...</p>
 	</div>
 </header>
 
@@ -149,6 +175,9 @@
 </div>
 
 <main>
+	{#if alertPopupOn}
+		<Alert invitationData={invitationData}/>
+	{/if}
 	<slot class="main_body"></slot>
 </main>
 
@@ -157,6 +186,12 @@
 </footer>
 
 <style>
+	:global(body) 
+    {
+        margin: 0 0 0 0;
+        padding: 0 0 0 0;
+    }
+
 	footer{
 		text-align: center;
 	}
@@ -316,4 +351,72 @@
 		object-fit: cover;
 		box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
 	}
+
+	html, body {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+body {
+	margin: 0;
+	padding: 0;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+
+a {
+	color: rgb(0,100,200);
+	text-decoration: none;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+a:visited {
+	color: rgb(0,80,160);
+}
+
+label {
+	display: block;
+}
+
+/* input, button, select, textarea {
+	font-family: inherit;
+	font-size: inherit;
+	-webkit-padding: 0.4em 0;
+	padding: 0.4em;
+	margin: 0 0 0.5em 0;
+	box-sizing: border-box;
+	border: 1px solid #ccc;
+	border-radius: 2px;
+} */
+
+input:disabled {
+	color: #ccc;
+}
+
+/* button {
+	color: #333;
+	background-color: #f4f4f4;
+	outline: none;
+} */
+
+button:disabled {
+	color: #999;
+}
+
+button:not(:disabled):active {
+	background-color: #ddd;
+}
+
+button:focus {
+	border-color: #666;
+}
+
+ul {
+	margin: 0;
+	padding: 0;
+}
 </style>

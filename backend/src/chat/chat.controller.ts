@@ -20,6 +20,7 @@ import { UserConnectedService } from './user-connected-service.service';
 import { ChatGateway } from './chat.gateway';
 import { AuthGuard } from 'src/auth/auth.guard';
 import IJWT from 'src/interfaces/jwt.interface';
+import { e_status } from 'src/interfaces/e_status.interface';
 
 @Controller('chat')
 export class ChatController {
@@ -78,8 +79,7 @@ export class ChatController {
 
   @Get('/connected/:id')
   async getConnectedStatus(@Param('id', ParseIntPipe) id: number) {
-	let find = this.usersConnected.checkStatus(id);
-	// let in_game = this.
+	let find: e_status = this.usersConnected.checkStatus(id);
 	return find;
   }
 
