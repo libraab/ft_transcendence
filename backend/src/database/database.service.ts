@@ -1762,4 +1762,21 @@ export class DatabaseService {
       });
     });
   }
+
+  async roomUserCheck(roomId: number, memberId: number)
+  {
+    const response = await this.prisma.roomMembers.findUnique({
+      where: {
+          roomId_memberId: {
+            roomId,
+            memberId,
+          },
+      },
+      select: {
+        status: true,
+      }
+    });
+
+    return response || null;
+  }
 }
