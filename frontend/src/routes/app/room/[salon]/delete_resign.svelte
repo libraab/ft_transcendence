@@ -1,15 +1,25 @@
 <script lang="ts">
+	import { userId42 } from '$lib/stores';
 	import { onMount, afterUpdate } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
 
+	export let data: any;
 	export let id: number;
 	export let delTab: string;
 	export let roomId: number;
 
 	let admins: any = [];
 	let members: any = [];
+	let roomName: string = '';
+	let roomType: string = 'public';
+	let password: string = '';
+
+	let isFormVisible: boolean = false;
+	const toggleForm = () => {
+		isFormVisible = !isFormVisible;
+	}
 
 	async function getReplacementLists () {
 		try
@@ -100,6 +110,59 @@
 			console.error('ERROR: falied on delete', error.message);
 		}
 	}
+	/*
+	const handleSubmit = async (event: any) => {
+		console.log(roomName);
+		console.log(roomType);
+		console.log(roomId);
+		console.log(password);
+	}
+	*/
+	
+	const roomTypeDict: { [key: string]: number } =
+	{
+		"public" : 0,
+		"protected" : 1,
+		"private" : 2
+	}
+
+	const handleSubmit = async (event: any) => {
+		if (password === "" && roomType == "protected")
+		{
+			alert("Please enter a password");
+			return ;
+		}
+		event.preventDefault();
+		if (roomType === 'protected') {
+				console.log('Password:', password);
+		}
+		else
+			password = "";
+		/*
+		* Appel au Post du controller Chat qui va creer la Room dans la Db
+		*/
+		let type: number = roomTypeDict[roomType];
+		const response = await fetch(`/api/rooms/updateRoom/${roomId}`, {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${data.authToken}`,
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				name: roomName,
+				secu: type,
+				password,
+			})
+		});
+		if (response.ok) {
+			console.log('Room created successfully');
+			// handle success -> make sure that room is added to the list updates etc
+		} else {
+			alert('Failed to update room');
+			// handle error
+		}
+		handleValidationClick();
+	}
 </script>
 
 	{#await getReplacementLists()}
@@ -127,12 +190,45 @@
 			{#if delTab === 'del'}
 				<!-- svelte-ignore a11y-no-static-element-interactions -->
 				<div class="backdrop" on:click|self on:keypress>
-				<div class="modal">
-					<h1>Are you sure ?</h1>
-					<button on:click={()=> eraseRoom()}>yes</button>
-					<button on:click>no</button>
+					<div class="modal">
+						<h1>Are you sure ?</h1>
+						<button on:click={()=> eraseRoom()}>yes</button>
+						<button on:click>no</button>
+					</div>
 				</div>
-			</div>
+
+			{:else if delTab === 'update'}
+				<!-- svelte-ignore a11y-no-static-element-interactions -->
+				<div class="backdrop" on:click|self on:keypress>
+					<div class="modal">
+						<h1>UPDATE</h1>
+						<div class="create-container">
+						
+							<button class="create-btn" on:click={toggleForm}>Update Room</button>
+							{#if isFormVisible}
+								<form on:submit={handleSubmit}>
+									<label for="room-name">Room Name:</label>
+									<input type="text" id="room-name" bind:value={roomName} />
+									<br />
+									<label for="room-type">Room Type:</label>
+									<select id="room-type" bind:value={roomType}>
+										<option value="public">Public</option>
+										<option value="private">Private</option>
+										<option value="protected">Protected</option>
+									</select>
+									{#if roomType === "protected"}
+										<br />
+										<label for="password">Password:</label>
+										<input type="password" id="password" bind:value={password} />
+									{/if}
+									<br />
+									<button type="submit">Update</button>
+								</form>
+							{/if}
+						
+						</div>
+					</div>
+				</div>
 
 			{:else if delTab === 'res'}
 				<!-- svelte-ignore a11y-no-static-element-interactions -->

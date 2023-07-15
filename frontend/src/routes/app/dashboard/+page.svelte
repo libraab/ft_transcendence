@@ -5,6 +5,7 @@
 	import DeleteModal from './Delete.svelte';
 	import RankModal from './Ranking.svelte';
 	import axios from "axios";
+	import ConnectStatus from "$lib/connectStatus.svelte";
 
 	// export let data;
 	let title: string;
@@ -17,59 +18,31 @@
 	let fl: any = [];
 	let isDFAActive: boolean;
 
-	// async function fetchData() {
-	// 	try
-	// 	{
-	// 		const response = await fetch(`http://${hostname}:8080/api/dashboard`);
-	// 		if (response.ok)
-	// 		{
-	// 			let vals = await response.json();
-	// 			$clientName = vals.name;
 
-	// 			img_path.set(vals.img);
-	// 			stats = vals.clientStats;
-	// 			title = vals.clientStats.title;
-	// 			score = vals.clientStats.score;
-	// 			won = vals.clientStats.won;
-	// 			played = vals.clientStats.played;
-	// 			hf = vals.clientStats.hf;
-	// 			Dfa = vals.Dfa;
-	// 			id = vals.id;
-	// 		}
-	// 		else
-	// 			console.error("fetch didnt worked well");
-	// 	}
-	// 	catch (error)
-	// 	{
-	// 		console.error("layout" , error);
-	// 	}
-	// }
+	async function getFlforId() {
+		try {
+			const response = await fetch(`/api/dashboard/fl`, {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${$jwt_cookie}`
+				}
+			});
+			if (response)
+			{
+				fl = await response.json();
+			}
+			else
+				fl = [];
+		}
+		catch (error) {
+			console.error(error);
+		}
+	}
 
-	// async function getFlforId() {
-	// 	try {
-	// 		const response = await fetch(`http://${hostname}:8080/api/dashboard/fl/${id}`)
-	// 		if (response)
-	// 		{
-	// 			fl = await response.json();
-	// 		}
-	// 		else
-	// 			fl = [];
-	// 	}
-	// 	catch (error) {
-	// 		console.error(error);
-	// 	}
-	// }
-
-	// onMount(async () => {
-	// 	Dfa = data.Dfa
-	// 	id = data.id;
-	// 	img_path.set(data.img);
-	// 	clientName.set(data.name);
-	// 	// $userId42 = data.userId42;
-	// 	// $img_path = data.img;
-	// 	// await fetchData();
-	// 	// await getFlforId();
-	// });
+	onMount(async () => {
+		await fetchData();
+		await getFlforId();
+	});
 
 	let qrCodeImageUrl = "";	
 
@@ -87,11 +60,6 @@
 	/*
 		TODO FOR FL REGULAR CONNECTED SOCKET
 	*/
-
-	onMount(async () => {
-		fetchData();
-	})
-
 	async function fetchData() {
 		try
 		{
@@ -144,33 +112,6 @@
 	{
 		fetchData();
 	}
-
-	// let id42NameInputNotEmpty: any;
-	// let searchRes: any = [];
-	// async function getSpecifiedClients()
-	// {
-	// 	const retName = document.getElementById('id42-name-input').value;
-	// 	id42NameInputNotEmpty = retName.trim() !== '';
-
-	// 	if (id42NameInputNotEmpty)
-	// 	{
-	// 		try
-	// 		{
-	// 			const response = await fetch(`/api/dashboard/name/${retName}`, {
-    //                 method: 'GET',
-    //                 headers: {
-    //                     'Authorization': `Bearer ${$jwt_cookie}`
-    //                 }
-    //             }); //cookie to do
-	// 			searchRes = await response.json();
-	// 		}
-	// 		catch (error) {
-	// 			console.error(error);
-	// 		}
-	// 	}
-	// 	else
-	// 		searchRes = [];
-	// }
 </script>
 
 <UpdateModal {updatePop} id={$userId} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
@@ -228,15 +169,7 @@
 							<a href="/app/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name}</h2></a>
 							<p>&nbsp;&nbsp;&nbsp;</p>
 							<div class="emoji-container">
-								<span>connected</span>
-								<span>🔴</span>
-								<span>🟢</span>
-							</div>
-							<p>&nbsp;&nbsp;&nbsp;</p>
-							<div class="emoji-container">
-								<span>in game</span>
-								<span>🔴</span>
-								<span>🟢</span>
+								<center><ConnectStatus userId={friend.id}/></center>
 							</div>
 						</div>
 					{:else}
@@ -247,35 +180,16 @@
 				<p>...</p>
 			{/if}
 		</div>
-	<!-- ---------------------------------------------------------------------------- -->
-	<!-- <div class="profile-container">
-		<div>
-			<label for="id42-name-input">search by Name:</label>
-			<input type="text" id="id42-name-input" on:input={() => getSpecifiedClients()} />
-			
-			<div class="popup_container">
-				{#if id42NameInputNotEmpty}
-					<div class="popup">
-						{#each searchRes as client}
-							<p class="link">
-								<a href="/app/dashboard/{client.name}"
-									style="text-decoration: none;"
-									>{client.name}</a> -->
-									<!-- on:click={() => fetchTarget(client.name)} -->
-									<!-- on:click={() => refreshInput(client)}>{client.name}</a> -->
-							<!-- </p>
-						{/each}
-					</div>
-				{/if}
-			</div>
 
-		</div>
-	</div> -->
-<!-- ---------------------------------------------------------------------------- -->
 	</main>
 </div>
 
 <style>
+	.main_body {
+		width: 100%;
+		padding: 20px;
+	}
+
 	.friend-container {
 		display: flex;
 		align-items: center;
@@ -293,10 +207,11 @@
 		margin-top: 5px;
 	}
 	.profile-container {
-		display: flex;
+		/* display: flex;
 		flex-direction: column;
 		align-items: center;
-		text-align: center;
+		text-align: center; */
+		margin-bottom: 20px;
   	}
 
 	.shiny-text {
@@ -311,13 +226,16 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		flex-wrap: wrap;
 	}
 
 	.container {
 		height: 100%; /* occupe 100% de la hauteur de main_body */
 		display: flex;
 		justify-content: space-around;
+		flex-direction: column;
 		align-items: center;
+		text-align: center;
 	}
 	
 	.round-button {
@@ -348,6 +266,32 @@
 
 	.dfa-button.inactive {
 		background-color: red;
+	}
+
+	/* Media query for tablets */
+	@media (min-width: 768px) {
+		.container {
+			flex-direction: row;
+			justify-content: space-around;
+		}
+
+		.profile-container {
+			flex-basis: 33.33%;
+			max-width: 33.33%;
+		}
+	}
+
+	/* Media query for desktops */
+	@media (min-width: 1024px) {
+		.container {
+			flex-direction: row;
+			justify-content: space-around;
+		}
+
+		.profile-container {
+			flex-basis: 25%;
+			max-width: 25%;
+		}
 	}
 </style>
 

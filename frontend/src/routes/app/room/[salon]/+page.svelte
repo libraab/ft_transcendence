@@ -202,7 +202,7 @@
 </script>
 
 {#if delTab !== ""}
-	<DelModal {delTab} roomId={choosenRoomId} id={$userId}
+	<DelModal {delTab} roomId={choosenRoomId} id={$userId} {data}
 		on:click={()=> toggleDel("")}
 		on:validationClick={ delReturn }/>
 {/if}
@@ -212,7 +212,11 @@
 		<div class="create-container">
 			<h1>{choosenRoom}</h1>
 			<a href="/app/room"><center><button class="toggle-btn">Back</button></center></a>
-
+			{#if owned}	
+				<button class="toggle-btn" style="background-color: orange; margin-top: auto;"
+					on:click={() => toggleDel('update')}>Update room
+				</button>
+			{/if}
 		</div>
 
 		{#if privateRoomMembers && privateRoomMembers.length !== 0}

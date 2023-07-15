@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { jwt_cookie, img_path, clientName, userId42, userId, rooms } from '$lib/stores';
-	import { goto } from '$app/navigation';
-	import { onDestroy, onMount } from 'svelte';
+	import { goto, invalidate } from '$app/navigation';
+	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { io } from 'socket.io-client'
 	import { initializeSocket, msgCount, socket } from '$lib/socketsbs.js';
 	import { connectClientToColyseus } from '$lib/gamesocket';
@@ -41,6 +41,29 @@
     {
 		if ($jwt_cookie)
         {
+		//--- Ici on va chercher la value de la DFA dans la BD
+			try{
+				const response = await fetch(`/api/auth/2fa`, {
+					method: 'GET',
+        	            headers: {
+        	                'Authorization': `Bearer ${$jwt_cookie}`
+        	            }
+				});
+				if (response.ok)
+				{
+					let dfastatus = await response.json();
+					if (dfastatus == true)
+						goto("/2FA");
+				}
+			}
+			catch
+			{
+				goto("/");
+			}
+		//---
+		//si la value est true on goto /2FA
+		//sinon rien
+		
             try {
                 const connect = await fetch(`/api/dashboard`, {
                     method: 'GET',
@@ -70,6 +93,8 @@
 				goto("/");
             }
         }
+		else
+			goto("/");
     })
 
 	onDestroy(() =>
@@ -95,7 +120,7 @@
 	let searchRes: any = [];
 	async function getSpecifiedClients()
 	{
-		// const retName = document.getElementById('id42-name-input').value;
+		const nameSearchInput = document.getElementById('id42-name-input').value;
 		id42NameInputNotEmpty = nameSearchInput.trim() !== '';
 
 		if (id42NameInputNotEmpty)
@@ -118,6 +143,14 @@
 			searchRes = [];
 	}
 
+	async function refreshInput(client: any)
+	{
+		document.getElementById('id42-name-input').value = "";
+		searchRes = [];
+		id42NameInputNotEmpty = null;
+		await goto(`/app/dashboard/${client.name}`, { replaceState: true});
+	}
+
 	$:{
 		$rooms;
 		local_count = msgCount;
@@ -134,12 +167,13 @@
 	</div>
 	<div class="description">
 		<h1 class="glow-text">FT_TRANSCENDENCE</h1>
-		<p class="catch-phrase">A strange adventure into Pong Univers inside an Multiverse inside a jelly jar inside something else and go on ...</p>
+		<p class="catch-phrase">An adventure into Pong Univers inside an Multiverse inside a jelly jar inside something else and go on ...</p>
 	</div>
 </header>
 
 <div>
 	<nav class="tabs">
+
 		<button on:click={ () => goto('/app/dashboard') } >DashBoard</button>
 		<button on:click={ () => goto('/app/game') } >Game</button>
 		<button on:click={ () => goto('/app/chat') } number={local_count} class:newMessage={local_count}>Chat</button>
@@ -154,9 +188,7 @@
 						<div class="popup">
 							{#each searchRes as client}
 								<div class="link">
-									<a href='/app/dashboard/{client.name}'>{client.name}</a>
-										<!-- on:click={() => fetchTarget(client.name)} -->
-										<!-- on:click={() => refreshInput(client)}>{client.name}</a> -->
+									<button on:click={() => refreshInput(client)}>{client.name}</button>
 								</div>
 							{/each}
 						</div>
@@ -308,52 +340,12 @@
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 		z-index: 1; /* Assure que la fenêtre contextuelle est au-dessus des autres éléments */
 	}
-	.button-container {
-		display: flex;
-		gap: 20px;
-		margin-right: 20px;
-	}
-
-	.button-profile {
-		padding: 10px 20px;
-		border: none;
-		border-radius: 20px;
-		font-size: 16px;
-		background-color: #4caf50;
-		color: white;
-		cursor: pointer;
-	}
-
-	.button-profile:hover {
-		background-color: #45a049;
-	}
-	
-	.button-profile:focus {
-		outline: none;
-  		box-shadow: 0 0 0 2px #4caf50;
-	}
-
 	.profile-container {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		text-align: center;
   	}
-
-	.shiny-text {
-		display: inline-block;
-		font-size: 36px; /* Increase the font size to make it bigger */
-		font-family: "Arial", sans-serif; /* Apply a specific font */
-		color: #333; /* Set a desired font color */
-		text-shadow: none; /* Remove the text shadow */
-	}
-
-	.container {
-		height: 100%; /* occupe 100% de la hauteur de main_body */
-		display: flex;
-		justify-content: space-around;
-		align-items: center;
-	}
 	.popup_container {
 		position: relative; /* Ajout du positionnement relatif */
 		width: 7vw;
@@ -373,59 +365,6 @@
 		padding: 8px;
 		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 		z-index: 1; /* Assure que la fenêtre contextuelle est au-dessus des autres éléments */
-	}
-	.popup-button {
-		display: block;
-		width: 100%;
-		margin-bottom: 8px;
-	}
-
-	.avatar {
-		width: 130px;
-		height: 130px;
-		border-radius: 60%;
-		overflow: hidden;
-		margin-top: 20px;
-	}
-
-	.avatar img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.round-button {
-		border: none;
-		background-color: #9e9c9c;
-		border-radius: 20px;
-		color: white;
-		font-size: 16px;
-		font-weight: bold;
-		cursor: pointer;
-		outline: none;
-		padding: 10px 20px;
-		margin: 10px;
-		transition: background-color 0.3s ease;
-	}
-
-	.round-button:hover {
-		background-color: #464947;
-	}
-
-	.round-button:active {
-		transform: scale(0.95);
-	}
-
-	.dfa-button.active {
-		background-color: green;
-	}
-
-	.dfa-button.inactive {
-		background-color: red;
-	}
-
-	.block-button.inactive {
-		background-color: red;
 	}
 	.image-container {
 		position: relative;

@@ -19,6 +19,7 @@ import { DatabaseService } from 'src/database/database.service';
 import * as bcrypt from 'bcrypt';
 import { AuthGuard } from 'src/auth/auth.guard';
 import IJWT from 'src/interfaces/jwt.interface';
+import { updateRoomDto } from 'src/database/dtos/dbBaseDto';
 
 @Controller('rooms')
 export class RoomsController {
@@ -85,6 +86,22 @@ export class RoomsController {
   async getRoomId(@Param('roomName') roomName: string)
   {
     return this.db.getRoomIdByName(roomName);
+  }
+
+  @Post('/updateRoom/:roomId')
+  async updateRoom(@Param('roomId', ParseIntPipe) roomId: number,
+                  @Body() data: updateRoomDto)
+  {
+    if (data.secu === 1) {
+      const saltRounds = 10;
+      data.password = await bcrypt.hash(data.password, saltRounds);
+    }
+    try {
+      return this.db.updateRoom(roomId, data);
+    }
+    catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   @UseGuards(AuthGuard)

@@ -54,6 +54,8 @@ services:
       backend_network:
         aliases:
           - db
+    volumes:
+      - database:/var/lib/postgresql/data
 
 networks:
   frontend_network:
@@ -74,3 +76,4 @@ volumes:
       type: none
       device: frontend
       o: bind
+  database:

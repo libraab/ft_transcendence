@@ -13,6 +13,8 @@ import {
   Request,
   Redirect,
   BadRequestException,
+  UseGuards,
+  NotFoundException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type User42Interface from './user42.interface';
@@ -23,6 +25,9 @@ import { ClientDto } from 'src/database/dtos/dbBaseDto';
 import { UpdateClientDto } from 'src/dashboard/dashboardDtos/updateClientDto';
 import { authenticator } from 'otplib';
 import { qrcode } from 'qrcode';
+import { AuthGuard } from './auth.guard';
+import IJWT from 'src/interfaces/jwt.interface';
+import { NotFoundError } from 'rxjs';
 const qrcode = require('qrcode');
 
 @Controller('auth')
@@ -74,22 +79,36 @@ export class AuthController {
     // response is a Fastify Reply object and not an Express Response object that is why we have to redirect redirect with Fastify by giving the status
   }
 
-  @Post('2fa/verify/:id')
+  @UseGuards(AuthGuard)
+  @Post('/2fa/verify')
   async verifyTwoFactorAuthCode(
-    @Param('id', ParseIntPipe) id: number,
+    @Request() req: { user: IJWT },
     @Body('code') code: string,
   ) {
-    const user = await this.databaseService.getClientById(id);
+    const user = await this.databaseService.getClientById42(req.user.id);
+    if (user == null)
+      throw new NotFoundException("user doesnt exist");
     const isVerified = authenticator.check(code, user.DfaSecret);
     const userDto: UpdateClientDto = new UpdateClientDto();
     if (isVerified) {
-      // userDto.dfa = false;
-      // await this.databaseService.updateClient(user.id, userDto);
+      userDto.dfaVerified = true;
+      await this.databaseService.updateClient(user.id, userDto);
       return {
         message: '2Fa is valide',
       };
     }
     return new BadRequestException('Error check 2FA');
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/2fa')
+  async DfaIsActive(
+    @Request() req: { user: IJWT },
+  ) {
+    const user = await this.databaseService.getClientById42(req.user.id);
+    if (!user)
+      throw new NotFoundException("user doesnt exist");
+    return user.Dfa;
   }
 
   @Post('/2fa/:id')

@@ -1,147 +1,81 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { img_path, userId, jwt_cookie, userId42 } from "$lib/stores.js"; // noooop
-	import { error } from "@sveltejs/kit";
-	import Status from "$lib/connectStatus.svelte"
+	import { userId } from "$lib/stores.js";
 
 	export let data;
 	let stats: any;
 	let vals: any;
 	let blocked: boolean;
-	let supp: any;
-	let befriended: boolean;
-
-		
-	onMount(async () => {
-		await todo();
-		if (supp.client2 && supp.client2.length > 0 && supp.client2[0].status === 1)
-			blocked = true;
-		else
-			blocked = false;
-		if (supp.client1 && supp.client1.length > 0)
-			befriended = true;
-		else
-			befriended = false;
-	});
-
-	async function todo() {
-		await fetchTarget(data.userName);
-		if (supp.client2 && supp.client2.length > 0 && supp.client2[0].status === 1)
-			blocked = true;
-		else
-			blocked = false;
-		if (supp.client1 && supp.client1.length > 0)
-			befriended = true;
-		else
-			befriended = false;
-	}
-
-	$:{
-		if (data)
-			console.log("nothing");
-		todo();
-    }
-
+	let target_img: string = "";
 
 	async function fetchTarget(target: string)
 	{
 		try
 		{
 			const response = await fetch(`/api/dashboard/getByName/${target}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${$jwt_cookie}`
-                    }
-                });
-			if (response.status == 200)
-			{
-				let resjson = await response.json();
-				// if (vals.img === "undefined")
-				// 	$img_path = ""; /// nooo
-				// else
-				// 	$img_path = vals.img;
-				vals = resjson;
-				fetchDataSupp();
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${data.authToken}`
+				}
+			});
+			if (response.ok) {
+				vals = await response.json();
+				if (vals.img === 'undefined')
+				{
+					console.log('no image');
+					target_img = "";
+				}
+				else
+					target_img = vals.img;
 			}
-			else{
+			else
 				console.error("layout");
-				throw error;
-			}
 
 		}
 		catch (error)
 		{
 			console.error("layout" , error);
-			throw error;
 		}
 	}
 
-	async function fetchDataSupp()
-	{
-		try
-		{
-			const response = await fetch(`/api/dashboard/getTargetWithRelation/${data.userName}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${$jwt_cookie}`
-                    }
-                }); //cookie to do
-			if (response.ok)
-			{
-				const data = await response.json();
-				supp = data;
-			}
-			else {
-				console.log("no supp fetched");
-			}
-		}
-		catch (error)
-		{
-			console.error(error);
-		}
+	let befriended: boolean;
+
+	async function loadReload() {
+		await fetchTarget(data.target);
+		if (data.supp.client2 && data.supp.client2.length > 0 && data.supp.client2[0].status === 1)
+			blocked = true;
+		else
+			blocked = false;
+		if (data.supp.client1 && data.supp.client1.length > 0)
+			befriended = true;
+		else
+			befriended = false;
 	}
 
-	// let id42NameInputNotEmpty: any;
-	// let searchRes: any = [];
-	// async function getSpecifiedClients()
-	// {
-	// 	const retName = document.getElementById('id42-name-input').value;
-	// 	id42NameInputNotEmpty = retName.trim() !== '';
+	onMount(async () => {
+		await loadReload();
+	});
 
-	// 	if (id42NameInputNotEmpty)
-	// 	{
-	// 		try
-	// 		{
-	// 			const response = await fetch(`/api/dashboard/name/${retName}`, {
-    //                 method: 'GET',
-    //                 headers: {
-    //                     'Authorization': `Bearer ${$jwt_cookie}`
-    //                 }
-    //             }); //cookie to do
-	// 			searchRes = await response.json();
-	// 		}
-	// 		catch (error) {
-	// 			console.error(error);
-	// 		}
-	// 	}
-	// 	else
-	// 		searchRes = [];
-	// }
+	$: {
+		data;
+		loadReload();
+	}
 
 	const blockUser = async (blockedId: number) => {
 		const response = await fetch(`/api/chat/blockUser`, {
 			method: 'POST',
 			headers: {
-
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${$jwt_cookie}`,
+				'Authorization': `Bearer ${data.authToken}`
 			},
 			body: JSON.stringify({
 				blockedId: blockedId,
+				iddata: $userId
 			})
 		});
 		if (response.ok) {
 			console.log('User blocked');
+			toggleBlockState();
 		} else {
 			console.error('Failed to block user');
 		}
@@ -152,14 +86,16 @@
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${$jwt_cookie}`,
+				'Authorization': `Bearer ${data.authToken}`
 			},
 			body: JSON.stringify({
 				unblockedId: unblockedId,
+				iddata: $userId
 			})
 		});
 		if (response.ok) {
 			console.log('User unblocked');
+			toggleBlockState();
 		} else {
 			console.error('Failed to unblock user');
 		}
@@ -171,52 +107,37 @@
 		blocked = !blocked;
 	}
 
-	// async function refreshInput(client: any)
-	// {
-	// 	const newdata = await fetchDataSupp(data.id42, client.name);
-	// 	if (newdata)
-	// 	{
-	// 		if (newdata.client2 && newdata.client2.length > 0 && newdata.client2[0].status === 1)
-	// 			blocked = true;
-	// 		else
-	// 			blocked = false;
-	// 		if (newdata.client1 && newdata.client1.length > 0)
-	// 			befriended = true;
-	// 		else
-	// 			befriended = false;
-	// 	}
-
-	// 	document.getElementById('id42-name-input').value = "";
-	// 	searchRes = [];
-	// 	id42NameInputNotEmpty = null;
-	// }
-
 	const addFriend = async (newFriendId: number) => {
 		const response = await fetch(`/api/chat/addFriend`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${$jwt_cookie}`,
+				'Authorization': `Bearer ${data.authToken}`
 			},
 			body: JSON.stringify({
 				newFriendId: newFriendId,
+				iddata: $userId
 			})
 		});
-		befriended = true;
+		if (response.ok)
+			befriended = true;
+		else
+		{
+			befriended = false;
+			console.error(response.status, response.statusText);
+		}
 	};
 
 	async function deleteFriendship(id2: number)
 	{
 		try{
-			console.error("STARTING FETCH DELETE FRIEND");
+
 			const response = await fetch(`/api/dashboard/supprFriendship/${id2}`, {
 				method: "POST",
 				headers: {
-					'Authorization': `Bearer ${$jwt_cookie}`,
+					'Authorization': `Bearer ${data.authToken}`
 				},
 			});
-
-			console.error("RESPONSE OK");
 			if (response.ok)
 			{
 				befriended = false;
@@ -235,21 +156,21 @@
 	
 	function sendInvitation()
 	{
-		//socket.chat.emit('inviteToPlay', {player_id: data.id, opponent_id: opponent_id});
+		//socket.chat.emit('inviteToPlay', {player_id: $userId, opponent_id: opponent_id});
 		//appeler une foncion de creation de la game + redirection vers la game
 		//mais je sais pas faire
 	}
 	
 	const MP = async (newFriendId: number) => {
 /*
-		const response = await fetch(`http://${hostname}:3000/chat/sendMsg`, {
+		const response = await fetch(`/api/chat/sendMsg`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json'
 			},
 			body: JSON.stringify({
 				newFriendId: newFriendId,
-				iddata: data.id
+				iddata: $userId
 			})
 		});
 		if (response.ok) {
@@ -264,18 +185,16 @@
 <main class="container">
 <!-- ---------------------------------------------------------------------------- -->
 	<div class="profile-container">
-		{#await vals}
-			<p>Loading...</p>
-		{:then _}
-			<!-- {#if vals.id == $userId} -->
-			{#if false}
-				<h2 class="shiny-text">↖ Me Myself and I &lt;3</h2>
-			{:else if vals}
-				<h2 class="shiny-text">{vals.name}</h2>
-				<div class="image-container">
-					<img src={vals.img != "undefined" ? vals.img : "/logo.jpeg"} alt="logo" class="rick">
+		{#if data.targetMyself}
+			<h2 class="shiny-text">↖ Me Myself and I &lt;3</h2>
+		{:else if vals}
+			{#await vals}
+				<p>Loading...</p>
+			{:then _}
+				<div class="button-container">
+					<img src={target_img} alt="logo" class="rick">
+					<h2 class="shiny-text">{vals.name}</h2>
 				</div>
-				<Status userId={vals.id} />
 				<div class="button-container">
 					{#if !befriended && !blocked}
 						<button class="button-profile" on:click={() => addFriend(vals.id)}>Add Friend</button>
@@ -289,23 +208,23 @@
 						on:click={() => {
 							if (blocked) {
 								unblockUser(vals.id);
-							} else {
+							}
+							else {
 								blockUser(vals.id);
 							}
-							toggleBlockState();
-							}}
-						>
-							{blocked ? 'Unblock' : 'Block'}
+						}}>
+						{blocked ? 'Unblock' : 'Block'}
 					</button>
 					{#if !blocked}
 						<button class="button-profile" on:click={() => MP(vals.id)}>Send Msg</button>
 						<button class="button-profile" on:click={sendInvitation}>Play</button>
 					{/if}
 				</div>
-			{/if}
-		{:catch error}
-			<p>Error: {error.message}</p>
-		{/await}
+
+			{:catch error}
+				<p>Error: {error.message}</p>
+			{/await}
+		{/if}
 	</div>
 <!-- ---------------------------------------------------------------------------- -->
 	<div class="profile-container">
@@ -325,67 +244,17 @@
 			<p>didn't play yet</p>
 		{/if}
 	</div>
-<!-- ---------------------------------------------------------------------------- -->
-	<!-- <div class="profile-container">
-		<div>
-			<label for="id42-name-input">search by Name:</label>
-			<input type="text" id="id42-name-input" on:input={() => getSpecifiedClients()} />
-			
-			<div class="popup_container">
-				{#if id42NameInputNotEmpty}
-					<div class="popup">
-						{#each searchRes as client}
-							<p class="link">
-								<a href='/app/dashboard/{client.name}'
-									style="text-decoration: none;"
-									>{client.name}</a> -->
-									<!-- on:click={() => fetchTarget(client.name)} -->
-									<!-- on:click={() => refreshInput(client)}>{client.name}</a> -->
-							<!-- </p>
-						{/each}
-					</div>
-				{/if}
-			</div>
-
-		</div>
-	</div> -->
-<!-- ---------------------------------------------------------------------------- -->
 </main>
 	
   
 <style>
-	.link {
-		text-decoration: none;
-		transition: background-color 0.3s ease;
-	}
-	.link:hover {
-		background-color: #f0f0f0; /* Couleur de fond grisé */
-	}
-	.profile-container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		text-align: center;
-  	}
-	.popup_container {
-		position: relative; /* Ajout du positionnement relatif */
-		width: 7vw;
-		left: 50%;
-		transform: translateX(-50%);
-	}
-	.popup {
-		position: absolute;
-		top: calc(100% + 10px); /* Positionnement en dessous de l'input */
-		left: 0;
-		width: 100%;
-		max-height: 200px;
-		overflow-y: auto;
-		background-color: #fff;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		padding: 8px;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-		z-index: 1; /* Assure que la fenêtre contextuelle est au-dessus des autres éléments */
+	.rick {
+		width: 150px;
+		height: 150px;
+		border-radius: 50%;
+		margin-right: 20px;
+		object-fit: cover;
+		box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
 	}
 	.button-container {
 		display: flex;
@@ -433,88 +302,7 @@
 		justify-content: space-around;
 		align-items: center;
 	}
-	.popup_container {
-		position: relative; /* Ajout du positionnement relatif */
-		width: 7vw;
-		left: 50%;
-		transform: translateX(-50%);
-	}
-	.popup {
-		position: absolute;
-		top: calc(100% + 10px); /* Positionnement en dessous de l'input */
-		left: 0;
-		width: 100%;
-		max-height: 200px;
-		overflow-y: auto;
-		background-color: #fff;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		padding: 8px;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-		z-index: 1; /* Assure que la fenêtre contextuelle est au-dessus des autres éléments */
-	}
-	/* .popup-button {
-		display: block;
-		width: 100%;
-		margin-bottom: 8px;
-	}
-
-	.avatar {
-		width: 130px;
-		height: 130px;
-		border-radius: 60%;
-		overflow: hidden;
-		margin-top: 20px;
-	}
-
-	.avatar img {
-		width: 100%;
-		height: 100%;
-		object-fit: cover;
-	}
-
-	.round-button {
-		border: none;
-		background-color: #9e9c9c;
-		border-radius: 20px;
-		color: white;
-		font-size: 16px;
-		font-weight: bold;
-		cursor: pointer;
-		outline: none;
-		padding: 10px 20px;
-		margin: 10px;
-		transition: background-color 0.3s ease;
-	}
-
-	.round-button:hover {
-		background-color: #464947;
-	}
-
-	.round-button:active {
-		transform: scale(0.95);
-	}
-
-	.dfa-button.active {
-		background-color: green;
-	}
-
-	.dfa-button.inactive {
-		background-color: red;
-	} */
-
 	.block-button.inactive {
 		background-color: red;
-	}
-	.image-container {
-		position: relative;
-	}
-	.rick {
-		width: 150px;
-		height: 150px;
-		border-radius: 50%;
-		margin-right: 20px;
-		object-fit: cover;
-		box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-	}
+	}	
 </style>
