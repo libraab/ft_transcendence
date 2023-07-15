@@ -61,13 +61,13 @@ model GameHistoric {
 
 model ClientStats {
   id     Int    @id @default(autoincrement())
-  played Int
-  won    Int
-  score  Int      // score dans l'absolue -> rank
-  title  String? @db.VarChar(50)
-  hf     String? @db.VarChar(100)
+  played Int // need
+  won    Int // need
+  score  Int      // osef
+  title  String? @db.VarChar(50) // osef
+  hf     String? @db.VarChar(100) // osef
 
-  clientId Int     @unique
+  clientId Int     @unique // need
   client   Clients @relation(fields: [clientId], references: [id])
 
   @@map("client_stats")

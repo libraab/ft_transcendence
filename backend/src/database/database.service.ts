@@ -29,6 +29,9 @@ import { gameHistoricDto } from 'src/game/game.controller';
 
 @Injectable()
 export class DatabaseService {
+  gameHistoric(gameHistoric: gameHistoricDto) {
+      throw new Error('Method not implemented.');
+  }
   constructor(private prisma: PrismaService) {}
 
   async getClientById42(id42: number): Promise<Clients | null> {
@@ -302,28 +305,28 @@ export class DatabaseService {
     }
   }
 
-  async createGameHistoric(dto: gameHistoricDto): Promise<gameHistoricDto> {
-    try {
-      const client = await this.prisma.clients.create({
-        data: {
-          id42: dto.id42,
-          name: dto.name,
-          cookie: dto.cookie,
-          img: dto.img,
-          Dfa: false,
-        },
-      });
+  // async createGameHistoric(dto: gameHistoricDto): Promise<gameHistoricDto> {
+  //   try {
+  //     const client = await this.prisma.clients.create({
+  //       data: {
+  //         // id42: dto.id42,
+  //         // name: dto.name,
+  //         // cookie: dto.cookie,
+  //         // img: dto.img,
+  //         Dfa: false,
+  //       },
+  //     });
 
-      return client;
-    } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2002') {
-          throw new ForbiddenException('Credentials taken');
-        }
-      }
-      throw error;
-    }
-  }
+  //     return client;
+  //   } catch (error) {
+  //     if (error instanceof Prisma.PrismaClientKnownRequestError) {
+  //       if (error.code === 'P2002') {
+  //         throw new ForbiddenException('Credentials taken');
+  //       }
+  //     }
+  //     throw error;
+  //   }
+  // }
 
 
   async createClientStat(dto: createStatsDto): Promise<ClientStats> {
@@ -1785,4 +1788,28 @@ export class DatabaseService {
       });
     });
   }
+
+  async historicnewEntry(data: gameHistoricDto){
+    try {
+      const dataa =  await this.prisma.gameHistoric.create({
+        data: {
+          persScore: data.persScore,
+          vsScore: data.vsScore,
+          client1Id: data.client1Id,
+          client2Id: data.client2Id,
+        }
+      })
+      console.log(data);
+    }
+    catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException("User doesn't exist");
+        }
+      }
+    }
+  }
+
+
+
 }

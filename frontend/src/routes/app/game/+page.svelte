@@ -25,9 +25,13 @@
 		client = new Client("ws://" + location.hostname + ":3001/ws");
 	}
 
+	let localstorage = localStorage.getItem('userId');
+	
+
 	async function createGame() {
 		try {
-			room = await client?.joinOrCreate("my_room"); // this will create "my_room" if it doesn't exist already or join it if it does exist
+			console.log(localstorage);
+			room = await client?.joinOrCreate("my_room", {id: localstorage}); // this will create "my_room" if it doesn't exist already or join it if it does exist
 			name = room.id;
 			return room.id;
 		} catch(e) {
@@ -41,7 +45,7 @@
 
 	async function joinGame() {
 		try {
-			room = await client?.joinById(input);
+			room = await client?.joinById(input, {id: localstorage});
 		} catch(e) {
 			console.error(e);
 		}
@@ -218,7 +222,7 @@ function handleGameState(gameState: any) {
 
 async function joinMatchMaking() {
 	try {
-		matchroom = await client?.joinOrCreate("matchMaking"); // this will create "my_room" if it doesn't exist already or join it if it does exist
+		matchroom = await client?.joinOrCreate("matchMaking", {id: localstorage} ); // this will create "my_room" if it doesn't exist already or join it if it does exist
 		return (matchroom);
 	} catch(e) {
 		console.error(e);
