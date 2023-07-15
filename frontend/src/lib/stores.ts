@@ -88,3 +88,12 @@ game_mode.subscribe((value: string) => {
 	}
 })
 //----------------------------------------------------------------//
+const persistedGame_mode: string = browser ? localStorage.getItem('game_mode') ?? "" : "";
+export const game_mode = writable(persistedGame_mode);
+
+game_mode.subscribe((value: string) => {
+    if (browser) {
+        window.localStorage.setItem('game_mode', value);
+	}
+})
+//----------------------------------------------------------------//
