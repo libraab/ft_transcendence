@@ -172,6 +172,11 @@
 								<span>connected</span>
 								<center><ConnectStatus userId={$userId}/></center>
 							</div>
+							<p>&nbsp;&nbsp;&nbsp;</p>
+							<div class="emoji-container">
+								<span>in game</span>
+								<center><ConnectStatus userId={$userId}/></center>
+							</div>
 						</div>
 					{:else}
 						<a href="/app/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name} ⛔️ </h2></a>
