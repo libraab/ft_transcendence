@@ -80,13 +80,13 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('2fa/verify')
+  @Post('/2fa/verify')
   async verifyTwoFactorAuthCode(
     @Request() req: { user: IJWT },
     @Body('code') code: string,
   ) {
     const user = await this.databaseService.getClientById42(req.user.id);
-    if (!user)
+    if (user == null)
       throw new NotFoundException("user doesnt exist");
     const isVerified = authenticator.check(code, user.DfaSecret);
     const userDto: UpdateClientDto = new UpdateClientDto();
@@ -101,7 +101,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  @Get('2fa')
+  @Get('/2fa')
   async DfaIsActive(
     @Request() req: { user: IJWT },
   ) {

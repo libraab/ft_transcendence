@@ -15,7 +15,7 @@
   
     async function handleSubmit() {
       console.log(code);
-      const url = `/api/2fa/verify`;
+      const url = `/api/auth/2fa/verify`;
       const params = {
           method: "POST",
           headers: {

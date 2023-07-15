@@ -102,7 +102,7 @@
         }
         catch (error) {
             console.error(error);
-            goto("/api/chat");
+            goto("/app/chat");
         }
     }
     
