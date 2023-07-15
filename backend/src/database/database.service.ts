@@ -43,7 +43,7 @@ export class DatabaseService {
 
   async ComTest(ghDto: gameHistoricDto)
   {
-    console.log(ghDto);
+    console.log("DB : ", ghDto);
     return 1;
   }
   
@@ -301,6 +301,30 @@ export class DatabaseService {
       throw error;
     }
   }
+
+  async createGameHistoric(dto: gameHistoricDto): Promise<gameHistoricDto> {
+    try {
+      const client = await this.prisma.clients.create({
+        data: {
+          id42: dto.id42,
+          name: dto.name,
+          cookie: dto.cookie,
+          img: dto.img,
+          Dfa: false,
+        },
+      });
+
+      return client;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('Credentials taken');
+        }
+      }
+      throw error;
+    }
+  }
+
 
   async createClientStat(dto: createStatsDto): Promise<ClientStats> {
     try {

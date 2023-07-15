@@ -117,9 +117,9 @@ export class MyRoom extends Room<any> {
         this.broadcast("gameOver", JSON.stringify({ winner }));
 
 
-        console.log('hello', state[this.roomId]);
+        //console.log('hello', state[this.roomId]);
 
-        fetch(`http://localhost:3000/api/game/saveScore?data=${
+        fetch(`http://localhost:3000/api/game/saveScore?data=${ 
           encodeURIComponent(JSON.stringify(state[this.roomId]))
         }`, {
           method: 'POST'

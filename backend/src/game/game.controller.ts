@@ -4,9 +4,9 @@ import { DatabaseService } from 'src/database/database.service';
 
 export class gameHistoricDto
 {
-    client1Id: number;
+    client1Id: string;
     scoreClient1: number;
-    client2Id: number;
+    client2Id: string;
     scoreClient2: number;
 }
 
@@ -14,16 +14,32 @@ export class gameHistoricDto
 export class GameController {
     constructor(private db: DatabaseService){}
 
-    @Post('saveScore')
-    async saveScore(@Query('data') data: any) {
+    @Post('saveScore') // http://localhost:3000/api/game/saveScore?data={"client1Id":1,"scoreClient1":1,"client2Id":2,"scoreClient2":2}
+    async saveScore(@Query('data') data: any) { 
         console.log("ICI", JSON.parse(data));
-        return 'boinjour';
+        const alldata = JSON.parse(data);
+        const gameHistoric = new gameHistoricDto();
+        gameHistoric.client1Id = "user";
+        gameHistoric.scoreClient1 = alldata.user.score;
+        gameHistoric.client2Id = "com";
+        gameHistoric.scoreClient2 = alldata.com.score;
+        const errors = await validateSync(gameHistoric);
+        if (errors.length > 0) {
+            console.log(errors);
+            return errors;
+        }
+        else {
+            // return this.db.saveScore(gameHistoric);
+            console.log(">>>> ", gameHistoric);
+            this.ft_test(gameHistoric);
+            this.db.createClient
+        }
     }
 
-    
+       // return 'bonjour';
+
     async ft_test(param: gameHistoricDto)
     {
         return this.db.ComTest(param);
     }
-
 }
