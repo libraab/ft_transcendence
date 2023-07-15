@@ -34,7 +34,6 @@
                 {
                     //connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
                     console.error("fetch failed in login page");
-					jwt_cookie.set("null");
                 }
             }
             catch (error) {

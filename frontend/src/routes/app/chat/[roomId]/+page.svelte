@@ -36,7 +36,7 @@
         deleteAlertOn(roomId);
     }
 
-    async function fetchMembers(room_id: any) {
+    async function fetchMembers(room_id) {
 		try {
 			const response = await fetch(`/api/chat/room/${room_id}`, {
 				method: 'GET',
