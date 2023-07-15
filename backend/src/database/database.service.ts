@@ -7,7 +7,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { ClientDto } from './dtos/dbBaseDto';
+import { ClientDto, updateRoomDto } from './dtos/dbBaseDto';
 import {
   ClientStats,
   ClientToClient,
@@ -26,6 +26,7 @@ import {
 } from 'src/dashboard/dashboardDtos/createsTablesDtos';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import { gameHistoricDto } from 'src/game/game.controller';
+import { response } from 'express';
 
 @Injectable()
 export class DatabaseService {
@@ -347,7 +348,8 @@ export class DatabaseService {
       });
 
       return updatedClient;
-    } catch (error) {
+    }
+    catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new NotFoundException("User doesn't exist");
@@ -460,6 +462,7 @@ export class DatabaseService {
             cookie: true,
             Dfa: true,
             DfaSecret: true,
+            dfaVerified: true,
           },
         },
         status: true,
@@ -476,6 +479,7 @@ export class DatabaseService {
           cookie: relation.client2?.cookie,
           Dfa: relation.client2?.Dfa,
           DfaSecret: relation.client2?.DfaSecret,
+          dfaVerified: relation.client2?.dfaVerified,
         },
         status: relation.status,
       }));
@@ -722,6 +726,7 @@ export class DatabaseService {
                 cookie: true,
                 Dfa: true,
                 DfaSecret: true,
+                dfaVerified: true,
               },
             },
             owner: {
@@ -733,6 +738,7 @@ export class DatabaseService {
                 cookie: true,
                 Dfa: true,
                 DfaSecret: true,
+                dfaVerified: true,
               },
             },
             secu: true,
@@ -1779,4 +1785,28 @@ export class DatabaseService {
 
     return response || null;
   }
+
+  async updateRoom(roomid: number, data: updateRoomDto)
+  {
+    try{
+      await this.prisma.rooms.update({
+        where: {
+          id: roomid,
+        },
+        data
+      });
+    }
+    catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException("Room doesn't exist");
+        }
+        if (error.code === 'P2002') {
+          throw new ForbiddenException('name already taken');
+        }
+        throw error;
+      }
+    }
+  }
+
 }

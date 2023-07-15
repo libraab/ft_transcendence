@@ -60,5 +60,6 @@ export async function load( {cookies, fetch, params} ) {
 	return {
 		members: ret,
 		room: params.salon,
+		authToken
 	}
 }

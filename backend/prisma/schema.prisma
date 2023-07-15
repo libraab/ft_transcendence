@@ -18,6 +18,7 @@ model Clients {
   cookie String
   Dfa    Boolean
   DfaSecret String?
+  dfaVerified Boolean?
 
   client1     ClientToClient[]         @relation("ClientToClient_client1")
   client2     ClientToClient[]         @relation("ClientToClient_client2")

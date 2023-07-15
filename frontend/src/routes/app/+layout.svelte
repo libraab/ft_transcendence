@@ -41,6 +41,29 @@
     {
 		if ($jwt_cookie)
         {
+		//--- Ici on va chercher la value de la DFA dans la BD
+			try{
+				const response = await fetch(`/api/2fa`, {
+					method: 'GET',
+        	            headers: {
+        	                'Authorization': `Bearer ${$jwt_cookie}`
+        	            }
+				});
+				if (response.ok)
+				{
+					let dfastatus = await response.json();
+					if (dfastatus == true)
+						goto("/2FA");
+				}
+			}
+			catch
+			{
+				goto("/");
+			}
+		//---
+		//si la value est true on goto /2FA
+		//sinon rien
+		
             try {
                 const connect = await fetch(`/api/dashboard`, {
                     method: 'GET',
@@ -70,6 +93,8 @@
 				goto("/");
             }
         }
+		else
+			goto("/");
     })
 
 	onDestroy(() =>
@@ -142,12 +167,13 @@
 	</div>
 	<div class="description">
 		<h1 class="glow-text">FT_TRANSCENDENCE</h1>
-		<p class="catch-phrase">A strange adventure into Pong Univers inside an Multiverse inside a jelly jar inside something else and go on ...</p>
+		<p class="catch-phrase">An adventure into Pong Univers inside an Multiverse inside a jelly jar inside something else and go on ...</p>
 	</div>
 </header>
 
 <div>
 	<nav class="tabs">
+
 		<button on:click={ () => goto('/app/dashboard') } >DashBoard</button>
 		<button on:click={ () => goto('/app/game') } >Game</button>
 		<button on:click={ () => goto('/app/chat') } number={local_count} class:newMessage={local_count}>Chat</button>
