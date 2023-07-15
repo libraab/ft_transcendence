@@ -49,6 +49,7 @@
 	async function toggleDFAState() {
 		isDFAActive = !isDFAActive;
 		// Send API request to update DFA status
+		console.log("--> " + isDFAActive);
 		try {
 			const response = await axios.post(`/api/auth/2fa/${$userId}`, { isDFAActive });
 			qrCodeImageUrl = response.data.qrCodeImageUrl;
@@ -294,5 +295,3 @@
 		}
 	}
 </style>
-
-  

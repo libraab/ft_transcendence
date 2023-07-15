@@ -101,6 +101,8 @@ export class DashboardController {
   @Get('/fl')
   async getFlForId42(@Request() req: {user: IJWT}) {
     let client = await this.db.getClientById42(req.user.id)
+    if (!client)
+      
     return this.db.getRelationsByClientId1(client.id);
   }
 
