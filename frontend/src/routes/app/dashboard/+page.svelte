@@ -5,6 +5,7 @@
 	import DeleteModal from './Delete.svelte';
 	import RankModal from './Ranking.svelte';
 	import axios from "axios";
+	import ConnectStatus from "$lib/connectStatus.svelte";
 
 	// export let data;
 	let title: string;
@@ -59,7 +60,6 @@
 	/*
 		TODO FOR FL REGULAR CONNECTED SOCKET
 	*/
-
 	async function fetchData() {
 		try
 		{
@@ -112,33 +112,6 @@
 	{
 		fetchData();
 	}
-
-	// let id42NameInputNotEmpty: any;
-	// let searchRes: any = [];
-	// async function getSpecifiedClients()
-	// {
-	// 	const retName = document.getElementById('id42-name-input').value;
-	// 	id42NameInputNotEmpty = retName.trim() !== '';
-
-	// 	if (id42NameInputNotEmpty)
-	// 	{
-	// 		try
-	// 		{
-	// 			const response = await fetch(`/api/dashboard/name/${retName}`, {
-    //                 method: 'GET',
-    //                 headers: {
-    //                     'Authorization': `Bearer ${$jwt_cookie}`
-    //                 }
-    //             }); //cookie to do
-	// 			searchRes = await response.json();
-	// 		}
-	// 		catch (error) {
-	// 			console.error(error);
-	// 		}
-	// 	}
-	// 	else
-	// 		searchRes = [];
-	// }
 </script>
 
 <UpdateModal {updatePop} id={$userId} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
@@ -197,14 +170,7 @@
 							<p>&nbsp;&nbsp;&nbsp;</p>
 							<div class="emoji-container">
 								<span>connected</span>
-								<span>🔴</span>
-								<span>🟢</span>
-							</div>
-							<p>&nbsp;&nbsp;&nbsp;</p>
-							<div class="emoji-container">
-								<span>in game</span>
-								<span>🔴</span>
-								<span>🟢</span>
+								<center><ConnectStatus userId={$userId}/></center>
 							</div>
 						</div>
 					{:else}
@@ -215,31 +181,7 @@
 				<p>...</p>
 			{/if}
 		</div>
-	<!-- ---------------------------------------------------------------------------- -->
-	<!-- <div class="profile-container">
-		<div>
-			<label for="id42-name-input">search by Name:</label>
-			<input type="text" id="id42-name-input" on:input={() => getSpecifiedClients()} />
-			
-			<div class="popup_container">
-				{#if id42NameInputNotEmpty}
-					<div class="popup">
-						{#each searchRes as client}
-							<p class="link">
-								<a href="/app/dashboard/{client.name}"
-									style="text-decoration: none;"
-									>{client.name}</a> -->
-									<!-- on:click={() => fetchTarget(client.name)} -->
-									<!-- on:click={() => refreshInput(client)}>{client.name}</a> -->
-							<!-- </p>
-						{/each}
-					</div>
-				{/if}
-			</div>
 
-		</div>
-	</div> -->
-<!-- ---------------------------------------------------------------------------- -->
 	</main>
 </div>
 

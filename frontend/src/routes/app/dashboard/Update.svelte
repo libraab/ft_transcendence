@@ -78,8 +78,10 @@
 			<div class="file-input-container">
 				<input type="text" name="name-upload" id="name-upload">
 			</div>
-
-			<label for="file upload">Select a File</label>
+			<br>
+			<label for="file upload">What's your new face?</label>
+			<br>
+			<br>
 			<div class="file-input-container">
 				<input type="file" name="file-upload" id="file-upload">
 			</div>

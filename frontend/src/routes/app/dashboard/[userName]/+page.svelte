@@ -6,6 +6,7 @@
 	let stats: any;
 	let vals: any;
 	let blocked: boolean;
+	let target_img: string = "";
 
 	async function fetchTarget(target: string)
 	{
@@ -19,6 +20,13 @@
 			});
 			if (response.ok) {
 				vals = await response.json();
+				if (vals.img === 'undefined')
+				{
+					console.log('no image');
+					target_img = "";
+				}
+				else
+					target_img = vals.img;
 			}
 			else
 				console.error("layout");
@@ -183,8 +191,10 @@
 			{#await vals}
 				<p>Loading...</p>
 			{:then _}
-				<h2 class="shiny-text">{vals.name}</h2>
-
+				<div class="button-container">
+					<img src={target_img} alt="logo" class="rick">
+					<h2 class="shiny-text">{vals.name}</h2>
+				</div>
 				<div class="button-container">
 					{#if !befriended && !blocked}
 						<button class="button-profile" on:click={() => addFriend(vals.id)}>Add Friend</button>
@@ -238,6 +248,14 @@
 	
   
 <style>
+	.rick {
+		width: 150px;
+		height: 150px;
+		border-radius: 50%;
+		margin-right: 20px;
+		object-fit: cover;
+		box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+	}
 	.button-container {
 		display: flex;
 		gap: 20px;

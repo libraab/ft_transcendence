@@ -10,6 +10,14 @@
 
 	let admins: any = [];
 	let members: any = [];
+	let roomName: string = '';
+	let roomType: string = 'public';
+	let password: string = '';
+
+	let isFormVisible: boolean = false;
+	const toggleForm = () => {
+		isFormVisible = !isFormVisible;
+	}
 
 	async function getReplacementLists () {
 		try
@@ -100,6 +108,12 @@
 			console.error('ERROR: falied on delete', error.message);
 		}
 	}
+	const handleSubmit = async (event: any) => {
+		console.log(roomName);
+		console.log(roomType);
+		console.log(roomId);
+		console.log(password);
+	}
 </script>
 
 	{#await getReplacementLists()}
@@ -127,12 +141,45 @@
 			{#if delTab === 'del'}
 				<!-- svelte-ignore a11y-no-static-element-interactions -->
 				<div class="backdrop" on:click|self on:keypress>
-				<div class="modal">
-					<h1>Are you sure ?</h1>
-					<button on:click={()=> eraseRoom()}>yes</button>
-					<button on:click>no</button>
+					<div class="modal">
+						<h1>Are you sure ?</h1>
+						<button on:click={()=> eraseRoom()}>yes</button>
+						<button on:click>no</button>
+					</div>
 				</div>
-			</div>
+
+			{:else if delTab === 'update'}
+				<!-- svelte-ignore a11y-no-static-element-interactions -->
+				<div class="backdrop" on:click|self on:keypress>
+					<div class="modal">
+						<h1>UPDATE</h1>
+						<div class="create-container">
+						
+							<button class="create-btn" on:click={toggleForm}>Update Room</button>
+							{#if isFormVisible}
+								<form on:submit={handleSubmit}>
+									<label for="room-name">Room Name:</label>
+									<input type="text" id="room-name" bind:value={roomName} />
+									<br />
+									<label for="room-type">Room Type:</label>
+									<select id="room-type" bind:value={roomType}>
+										<option value="public">Public</option>
+										<option value="private">Private</option>
+										<option value="protected">Protected</option>
+									</select>
+									{#if roomType === "protected"}
+										<br />
+										<label for="password">Password:</label>
+										<input type="password" id="password" bind:value={password} />
+									{/if}
+									<br />
+									<button type="submit">Update Room</button>
+								</form>
+							{/if}
+						
+						</div>
+					</div>
+				</div>
 
 			{:else if delTab === 'res'}
 				<!-- svelte-ignore a11y-no-static-element-interactions -->
