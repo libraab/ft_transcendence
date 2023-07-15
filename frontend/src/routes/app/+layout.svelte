@@ -43,7 +43,7 @@
         {
 		//--- Ici on va chercher la value de la DFA dans la BD
 			try{
-				const response = await fetch(`/api/2fa`, {
+				const response = await fetch(`/api/auth/2fa`, {
 					method: 'GET',
         	            headers: {
         	                'Authorization': `Bearer ${$jwt_cookie}`
