@@ -80,7 +80,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  @Post('2fa/verify')
+  @Post('/2fa/verify')
   async verifyTwoFactorAuthCode(
     @Request() req: { user: IJWT },
     @Body('code') code: string,
@@ -101,7 +101,7 @@ export class AuthController {
   }
 
   @UseGuards(AuthGuard)
-  @Get('2fa')
+  @Get('/2fa')
   async DfaIsActive(
     @Request() req: { user: IJWT },
   ) {
