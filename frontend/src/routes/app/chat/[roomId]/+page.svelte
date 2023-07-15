@@ -4,11 +4,8 @@
 	import { jwt_cookie, rooms, userId42 } from "$lib/stores";
 	import { onMount, onDestroy } from "svelte";
 	import { socket, add_alert_On, deleteSocketEvents, deleteAlertOn, defineSocketEvents, isBlockedUser } from '$lib/socketsbs'
-<<<<<<< HEAD
     import Invite from '$lib/invitation.svelte'
-=======
 	import { error } from "@sveltejs/kit";
->>>>>>> dmercadi
 
     export let data: any;
     let roomId: string = data.roomId;
@@ -39,7 +36,7 @@
         deleteAlertOn(roomId);
     }
 
-    async function fetchMembers(room_id) {
+    async function fetchMembers(room_id: any) {
 		try {
 			const response = await fetch(`/api/chat/room/${room_id}`, {
 				method: 'GET',
