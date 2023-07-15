@@ -19,5 +19,8 @@ export class UpdateClientDto {
   dfa?: boolean;
 
   @IsOptional()
+  dfaVerified?: boolean;
+
+  @IsOptional()
   dfaSecret?: string;
 }

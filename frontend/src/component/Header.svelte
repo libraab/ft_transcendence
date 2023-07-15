@@ -31,18 +31,6 @@
 		align-items: center;
 	}
 
-	.description {
-		max-width: 500px;
-		color: whitesmoke;
-		padding: 20px;
-		display: flex;
-		flex-direction: column;
-		justify-content: center;
-		text-align: center;
-		flex-grow: 1;
-		overflow-wrap: break-word;
-	}
-
 	.catch-phrase {
 		font-style: italic;
 		margin-top: 10px; 
@@ -71,28 +59,47 @@
 	}
 
 	/* Media query for desktops */
-	@media (min-width: 1024px) {
+	/* @media (min-width: 1024px) {
 		header {
 			padding: 20px 300px;
 		}
-	}
+	} */
 
 	/* Media query for small screens */
-	@media (max-width: 480px) {
-		.glow-text {
+	@media (min-width: 768px) {
+		/* .glow-text {
 			display: none;
 		}
 
 		.catch-phrase {
-			font-size: 3vw; /* Adjust the value as needed */
-		}
-	}
-
-	/* Media query to hide "FT_TRANSCENDENCE" on small screens in landscape orientation */
-	@media (max-width: 480px) and (orientation: landscape) {
-		.glow-text {
+			font-size: 3vw;
+		} */
+		.description {
 			display: none;
 		}
 	}
+
+	/* Media query for big screen */
+	@media (min-width: 1024px) {
+		.description {
+			max-width: 500px;
+			color: whitesmoke;
+			padding: 20px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			text-align: center;
+			flex-grow: 1;
+			overflow-wrap: break-word;
+		}
+	}
+
+
+	/* Media query to hide "FT_TRANSCENDENCE" on small screens in landscape orientation */
+	/* @media (min-width: 480px) and (orientation: landscape) {
+		.glow-text {
+			display: none;
+		}
+	} */
 
 </style>
