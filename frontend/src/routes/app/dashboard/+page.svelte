@@ -21,7 +21,7 @@
 
 	async function getFlforId() {
 		try {
-			const response = await fetch(`/api/dashboard/fl/${$userId}`, {
+			const response = await fetch(`/api/dashboard/fl`, {
 				method: 'GET',
 				headers: {
 					'Authorization': `Bearer ${$jwt_cookie}`
@@ -169,13 +169,7 @@
 							<a href="/app/dashboard/{friend.client.name}" style="text-decoration: none;"><h2>{friend.client.name}</h2></a>
 							<p>&nbsp;&nbsp;&nbsp;</p>
 							<div class="emoji-container">
-								<span>connected</span>
-								<center><ConnectStatus userId={$userId}/></center>
-							</div>
-							<p>&nbsp;&nbsp;&nbsp;</p>
-							<div class="emoji-container">
-								<span>in game</span>
-								<center><ConnectStatus userId={$userId}/></center>
+								<center><ConnectStatus userId={friend.id}/></center>
 							</div>
 						</div>
 					{:else}

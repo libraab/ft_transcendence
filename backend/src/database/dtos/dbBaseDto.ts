@@ -24,3 +24,11 @@ export class ClientDto {
   @MaxLength(250)
   cookie: string;
 }
+
+export class updateRoomDto {
+  name?:string;
+
+  @IsNumber()
+  secu?: number;
+  password?: string;
+}

@@ -1,9 +1,11 @@
 <script lang="ts">
+	import { userId42 } from '$lib/stores';
 	import { onMount, afterUpdate } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
 
+	export let data: any;
 	export let id: number;
 	export let delTab: string;
 	export let roomId: number;
@@ -108,11 +110,58 @@
 			console.error('ERROR: falied on delete', error.message);
 		}
 	}
+	/*
 	const handleSubmit = async (event: any) => {
 		console.log(roomName);
 		console.log(roomType);
 		console.log(roomId);
 		console.log(password);
+	}
+	*/
+	
+	const roomTypeDict: { [key: string]: number } =
+	{
+		"public" : 0,
+		"protected" : 1,
+		"private" : 2
+	}
+
+	const handleSubmit = async (event: any) => {
+		if (password === "" && roomType == "protected")
+		{
+			alert("Please enter a password");
+			return ;
+		}
+		event.preventDefault();
+		if (roomType === 'protected') {
+				console.log('Password:', password);
+		}
+		else
+			password = "";
+		/*
+		* Appel au Post du controller Chat qui va creer la Room dans la Db
+		*/
+		let type: number = roomTypeDict[roomType];
+		const response = await fetch(`/api/rooms/updateRoom/${roomId}`, {
+			method: 'POST',
+			headers: {
+				'Authorization': `Bearer ${data.authToken}`,
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify({
+				name: roomName,
+				secu: type,
+				password,
+			})
+		});
+		if (response.ok) {
+			console.log('Room created successfully');
+			// handle success -> make sure that room is added to the list updates etc
+		} else {
+			console.error('Failed to update room', response.statusText);
+			// handle error
+		}
+		handleValidationClick();
 	}
 </script>
 

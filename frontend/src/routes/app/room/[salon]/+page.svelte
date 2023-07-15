@@ -202,7 +202,7 @@
 </script>
 
 {#if delTab !== ""}
-	<DelModal {delTab} roomId={choosenRoomId} id={$userId}
+	<DelModal {delTab} roomId={choosenRoomId} id={$userId} {data}
 		on:click={()=> toggleDel("")}
 		on:validationClick={ delReturn }/>
 {/if}

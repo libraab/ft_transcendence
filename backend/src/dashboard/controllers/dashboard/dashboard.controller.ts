@@ -97,9 +97,11 @@ export class DashboardController {
     return this.db.getClientStatsById(id);
   }
 
-  @Get('/fl/:id')
-  async getFlForId42(@Param('id', ParseIntPipe) id: number) {
-    return this.db.getRelationsByClientId1(id);
+  @UseGuards(AuthGuard)
+  @Get('/fl')
+  async getFlForId42(@Request() req: {user: IJWT}) {
+    let client = await this.db.getClientById42(req.user.id)
+    return this.db.getRelationsByClientId1(client.id);
   }
 
   @Get('/getfile/:filename')
