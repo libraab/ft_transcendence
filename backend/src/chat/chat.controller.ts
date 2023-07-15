@@ -12,6 +12,7 @@ import {
   BadRequestException,
   UseGuards,
   Request,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { createRoomDto } from '../dashboard/dashboardDtos/createsTablesDtos';
@@ -55,6 +56,12 @@ export class ChatController {
   @UseGuards(AuthGuard)
   @Get('/messages/:roomid')
   async getAllMessages(@Request() req: { user: IJWT }, @Param('roomid', ParseIntPipe) roomid: number) {
+	let client = await this.db.getClientById42(req.user.id);
+	let status = await this.db.roomUserCheck(roomid, req.user.id);
+	if (status == null || status.status == 5)
+	{
+		throw new UnauthorizedException("You are not member");
+	}
     const json = await this.db.getRoomMessagesById(roomid, req.user.id);
     const res = [];
     await Promise.all(

@@ -4,6 +4,7 @@
 	import { jwt_cookie, rooms, userId42 } from "$lib/stores";
 	import { onMount, onDestroy } from "svelte";
 	import { socket, add_alert_On, deleteSocketEvents, deleteAlertOn, defineSocketEvents, isBlockedUser } from '$lib/socketsbs'
+	import { error } from "@sveltejs/kit";
 
     export let data: any;
     let roomId: string = data.roomId;
@@ -87,8 +88,15 @@
             const response = await fetch(`/api/chat/messages/${roomId}`, {
                     headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
                 });
-            let messages = await response.json();
-            RoomsMessages = messages;
+			if (response.ok)
+			{
+				let messages = await response.json();
+				RoomsMessages = messages;
+			}
+			else
+			{
+				throw error(response.status, response.statusText);
+			}
         }
         catch (error) {
             console.error(error);

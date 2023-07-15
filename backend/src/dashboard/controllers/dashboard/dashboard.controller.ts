@@ -12,6 +12,7 @@ import {
   UseGuards,
   Request,
   Logger,
+  NotFoundException,
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
@@ -28,6 +29,7 @@ import * as fs from 'fs';
 import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import { AuthGuard } from 'src/auth/auth.guard';
 import IJWT from 'src/interfaces/jwt.interface';
+import { NOTFOUND } from 'dns';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -40,6 +42,8 @@ export class DashboardController {
     @Request() req: { user: IJWT },
   ) {
     let ppp = await this.db.getClientById42Dashboard(+req.user.id);
+	if (ppp == null)
+		throw new NotFoundException("You're cookie is a bad cookie");
 	  return ppp;
   }
 
@@ -50,7 +54,9 @@ export class DashboardController {
     @Param('id42', ParseIntPipe) id: number
   ) {
     let ppp = await this.db.getClientById42Dashboard(id);
-	  return ppp;
+	if (ppp == null)
+		throw new NotFoundException("You're cookie is a bad cookie");
+	return ppp;
   }
 
   @UseGuards(AuthGuard)
