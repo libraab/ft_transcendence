@@ -33,7 +33,16 @@ export class GameController {
             console.log(">>>> ", gameHistoric);
           //  this.ft_test(gameHistoric);
             this.db.historicnewEntry(gameHistoric);
-            
+            if (gameHistoric.persScore > gameHistoric.vsScore)
+            {
+                this.db.win(gameHistoric.client1Id);
+                this.db.lose(gameHistoric.client2Id);
+            }
+            else
+            {
+                this.db.win(gameHistoric.client2Id);
+                this.db.lose(gameHistoric.client1Id);
+            }
         }
     }
        // return 'bonjour';

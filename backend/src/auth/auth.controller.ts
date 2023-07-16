@@ -86,7 +86,7 @@ export class AuthController {
     @Body('code') code: string,
   ) {
     const user = await this.databaseService.getClientById42(req.user.id);
-    if (!user)
+    if (user == null)
       throw new NotFoundException("user doesnt exist");
     const isVerified = authenticator.check(code, user.DfaSecret);
     const userDto: UpdateClientDto = new UpdateClientDto();

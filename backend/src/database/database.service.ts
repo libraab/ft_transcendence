@@ -1592,7 +1592,8 @@ export class DatabaseService {
           },
         },
       });
-    } catch (error) {
+    }
+    catch (error) {
       throw new Error('Failed to remove client from room');
     }
   }
@@ -1811,10 +1812,93 @@ export class DatabaseService {
       }
     }
   }
+  async preDelCheck(clientId: number)
+  {
+    const response = await this.prisma.rooms.findFirst({
+      where: {
+        ownerid: clientId
+      },
+      select: {
+        ownerid: true,
+      }
+    });
 
+    return response || null;
+  }
 
+  async clientInStat(clientId: number)
+  {
+    const client = await this.prisma.clientStats.findUnique({
+      where: {
+        clientId
+      },
+      select: {
+        clientId: true,
+      }
+    });
 
+    return client || null;
+  }
 
+  async win(clientId: number)
+  {
+    if (await this.clientInStat(clientId))
+    {
+      await this.prisma.clientStats.update({
+        where: {
+          clientId
+        },
+        data: {
+          played: {
+            increment: 1,
+          },
+          won:{
+            increment: 1,
+          }
+        }
+      });
+    }
+    else
+    {
+      await this.prisma.clientStats.create({
+        data: {
+          played: 1,
+          won: 1,
+          score: 10,
+          clientId
+        }
+      });
+    }
+  }
+
+  async lose(clientId: number)
+  {
+    if (await this.clientInStat(clientId))
+    {
+      await this.prisma.clientStats.update({
+        where: {
+          clientId
+        },
+        data: {
+          played: {
+            increment: 1,
+          }
+        }
+      });
+    }
+    else
+    {
+      await this.prisma.clientStats.create({
+        data: {
+          played: 1,
+          won: 0,
+          score: 0,
+          clientId
+        }
+      });
+    }
+  }
+  
   async historicnewEntry(data: gameHistoricDto){
     try {
       const dataa =  await this.prisma.gameHistoric.create({
@@ -1835,7 +1919,4 @@ export class DatabaseService {
       }
     }
   }
-
-
-
 }
