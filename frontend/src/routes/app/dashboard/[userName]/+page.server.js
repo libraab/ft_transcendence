@@ -30,7 +30,7 @@ export async function load( {cookies, fetch, params, depends} ) {
 	const authToken = cookies.get('jwt_cookie');
 	
 	if (authToken === undefined)
-		throw redirect(307, "/login");
+		throw redirect(307, "/");
 
 	const id42 = cookies.get('id42');
 	let isClient = false;

@@ -79,6 +79,7 @@ export class ChatGateway
       sender: client_id.id,
       msg: message.message,
     });
+    console.log("OKOKOK");
     this.wss.to(message.channel).emit('serverToChat', { ...message, sender: client_id.name});
     this.wss.to(message.channel).emit('serverAlertToChat', { ...message, sender: client_id.name});
     // WsResponse<string>
@@ -108,7 +109,8 @@ export class ChatGateway
   @SubscribeMessage('refuse')
   handleRefuse(client: Socket, data: any) {
     const socket_id = this.usersConnected.findSocketId(data.player_id);
-    client.to(socket_id).emit('refused');
+    if (socket_id != '')
+      client.to(socket_id).emit('refused');
   }
 
   @SubscribeMessage('joinChannel')
@@ -116,6 +118,7 @@ export class ChatGateway
     // check if channel id is existing if not do nothing
     // check if client is a member of channel then proceed
     client.join(channel);
+    console.log('JOINED');
     client.emit('joinedChannel', channel);
   }
 
@@ -149,8 +152,9 @@ export class ChatGateway
     this.db.addMessageToRoom(data.id, data.sender, data.msg);
   }
 
-  async sendServerMsg(roomid: any, msg: any) {
-    this.wss.to(roomid).emit('serverMessage', {
+  async sendServerMsg(roomid: number, msg: any) {
+    console.log(msg);
+    this.wss.to(`${roomid}`).emit('serverMessage', {
       channel: roomid,
       sender: 'server',
       message: msg,

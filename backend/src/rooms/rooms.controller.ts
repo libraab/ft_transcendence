@@ -20,16 +20,18 @@ import * as bcrypt from 'bcrypt';
 import { AuthGuard } from 'src/auth/auth.guard';
 import IJWT from 'src/interfaces/jwt.interface';
 import { updateRoomDto } from 'src/database/dtos/dbBaseDto';
+import { ChatGateway } from 'src/chat/chat.gateway';
 
 @Controller('rooms')
 export class RoomsController {
-  constructor(private db: DatabaseService) {}
+  constructor(private db: DatabaseService, 
+    private cg: ChatGateway) {}
 
   @UseGuards(AuthGuard)
   @Get()
   async getOwnedRooms(@Request() req: { user: IJWT }) {
     const client = await this.db.getClientById42(req.user.id);
-    return await this.db.getRoomsByOwnerId(client.id);
+    return this.db.getRoomsByOwnerId(client.id);
   }
 
   @Get('/allMemberwithStatus/:id42/:name')
@@ -58,7 +60,7 @@ export class RoomsController {
     @Param('idRoom', ParseIntPipe) idRoom: number,
     @Param('idMember', ParseIntPipe) idMember: number,
   ) {
-    return this.db.getMembersByRoomIdExcludingClientForAdmins(idRoom, idMember);
+    return await this.db.getMembersByRoomIdExcludingClientForAdmins(idRoom, idMember);
   }
 
   @UseGuards(AuthGuard)
@@ -177,6 +179,19 @@ export class RoomsController {
     if (ownerCheck) throw new UnauthorizedException();
     try {
       await this.db.changeMemberStatus(roomId, clientId, status);
+      let client = await this.db.getClientById(clientId);
+      if (client != null)
+      {
+        if (status == 3)
+          this.cg.sendServerMsg(roomId, `${client.name} is muted`);
+        else if (status == 5)
+          this.cg.sendServerMsg(roomId, `${client.name} is banned`);
+        else if (status == 1)
+          this.cg.sendServerMsg(roomId, `${client.name} is now an Admin`);
+        else
+
+        return HttpStatus.NO_CONTENT;
+      }
       return HttpStatus.NO_CONTENT;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
@@ -194,7 +209,13 @@ export class RoomsController {
 
     try {
       await this.db.removeClientFromRoom(roomId, memberId);
-      return HttpStatus.NO_CONTENT;
+      let client = await this.db.getClientById(memberId);
+      if (client != null)
+      {
+        console.log("sending");
+        this.cg.sendServerMsg(roomId, `${client.name} has been kicked`);
+        return HttpStatus.NO_CONTENT;
+      }
     } catch (error) {
       console.error(error);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
