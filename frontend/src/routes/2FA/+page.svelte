@@ -5,10 +5,7 @@
 	  import { createEventDispatcher } from 'svelte';
 	  import { userId, jwt_cookie } from "$lib/stores";
 	  import { goto } from "$app/navigation";
-
-    export let data;
-    export let isDFAActive;
-    
+   
 	  const dispatch = createEventDispatcher();
 
     let code = ""; // variable to store the user's 2FA code
@@ -31,17 +28,8 @@
         let response = await fetch(url, params);
         if (response.ok)
         {
-            const value = await response.json();
             console.log("GOOD");
             goto("/app/dashboard");
-              // if (res.status == 201) {
-              //       console.log("ces good")
-              //       isDFAActive = false;
-              //       console.log("pas de catch");
-              //   } else {
-              //       console.log("pas good")
-              //   }
-              //   console.log(value.message)
         }
         else
         {

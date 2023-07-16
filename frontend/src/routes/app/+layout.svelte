@@ -51,8 +51,7 @@
 				});
 				if (response.ok)
 				{
-					let dfastatus = await response.json();
-					if (dfastatus == true)
+					if (dfastatus == true && !dfaverified)
 						goto("/2FA");
 				}
 			}

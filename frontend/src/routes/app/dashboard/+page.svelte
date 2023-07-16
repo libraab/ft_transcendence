@@ -27,9 +27,9 @@
 					'Authorization': `Bearer ${$jwt_cookie}`
 				}
 			});
-			if (response)
-			{
-				fl = await response.json();
+			if (response.ok) {
+				const text = await response.text();
+				fl = text ? JSON.parse(text) : [];
 			}
 			else
 				fl = [];
