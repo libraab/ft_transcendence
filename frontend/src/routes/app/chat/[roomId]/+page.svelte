@@ -10,13 +10,13 @@
     export let data: any;
     let roomId: string = data.roomId;
 	// let roomName = $rooms.find((el) => el.roomId == Number(roomId))?.roomName;
-    let RoomsMessages: any = [];
+    let RoomsMessages: any = data.messages;
     let members: any = [];
     let user_message: string;
 
     onMount(async () => {
-        await fetchData(roomId);
-        await fetchMembers(roomId);
+        // await fetchData(roomId);
+        // await fetchMembers(roomId);
 		deleteSocketEvents();
 		deleteAlertOn(roomId);
 		socket.on('serverToChat', recieveMessage);

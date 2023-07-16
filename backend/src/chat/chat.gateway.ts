@@ -7,11 +7,12 @@ import {
   WebSocketServer,
   WsResponse,
 } from '@nestjs/websockets';
-import { Logger } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { Server, Socket } from 'socket.io';
 import { DatabaseService } from 'src/database/database.service';
 import { UserConnectedService } from './user-connected-service.service';
 
+@Injectable()
 @WebSocketGateway({
   path: '/chatsockets',
   namespace: '/chat',
@@ -68,6 +69,11 @@ export class ChatGateway
     const room_exist = await this.db.getRoomById(Number(message.channel));
     if (room_exist == null) return;
     // if (! this.db.userIsMemberOfRoom()) return ;
+    let status = await this.db.roomUserCheck(room_exist.id, client_id.id);
+    if (status == null || status.status == 3 || status.status == 4 || status.status == 5 || status.status == 6)
+    {
+      return ;
+    }
     await this.addMessageToRoom({
       id: Number(message.channel),
       sender: client_id.id,
@@ -102,7 +108,8 @@ export class ChatGateway
   @SubscribeMessage('refuse')
   handleRefuse(client: Socket, data: any) {
     const socket_id = this.usersConnected.findSocketId(data.player_id);
-    client.to(socket_id).emit('refused');
+    if (socket_id != '')
+      client.to(socket_id).emit('refused');
   }
 
   @SubscribeMessage('joinChannel')
@@ -144,6 +151,7 @@ export class ChatGateway
   }
 
   async sendServerMsg(roomid: any, msg: any) {
+    console.log(msg);
     this.wss.to(roomid).emit('serverMessage', {
       channel: roomid,
       sender: 'server',
