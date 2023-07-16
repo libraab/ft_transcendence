@@ -188,6 +188,8 @@ export class RoomsController {
           this.cg.sendServerMsg(roomId, `${client.name} is banned`);
         else if (status == 1)
           this.cg.sendServerMsg(roomId, `${client.name} is now an Admin`);
+        else
+
         return HttpStatus.NO_CONTENT;
       }
       return HttpStatus.NO_CONTENT;
@@ -210,6 +212,7 @@ export class RoomsController {
       let client = await this.db.getClientById(memberId);
       if (client != null)
       {
+        console.log("sending");
         this.cg.sendServerMsg(roomId, `${client.name} has been kicked`);
         return HttpStatus.NO_CONTENT;
       }
