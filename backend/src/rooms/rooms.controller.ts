@@ -94,7 +94,7 @@ export class RoomsController {
   async updateRoom(@Param('roomId', ParseIntPipe) roomId: number,
                   @Body() data: updateRoomDto)
   {
-    if (data.secu === 1) {
+    if (data.password && data.secu === 1) {
       const saltRounds = 10;
       data.password = await bcrypt.hash(data.password, saltRounds);
     }

@@ -686,9 +686,9 @@ export class DatabaseService {
     const roomMembers = await this.prisma.roomMembers.findMany({
       where: {
         memberId: clientId,
-        NOT: {
-          status: 5,
-        }
+          NOT: {
+            status: { in: [5, 6] },
+          }
       },
       select: {
         room: {
@@ -1683,6 +1683,7 @@ export class DatabaseService {
       },
       select: {
         id: true,
+        secu: true
       },
     });
     if (!roomId) throw new NotFoundException('Object Not Found');
@@ -1796,28 +1797,32 @@ export class DatabaseService {
     return response || null;
   }
 
-  async updateRoom(roomid: number, data: updateRoomDto)
-  {
-    try{
+  async updateRoom(roomid: number, data: updateRoomDto) {
+    try {
       await this.prisma.rooms.update({
         where: {
           id: roomid,
         },
-        data
+        data: {
+          name: data.name !== '' ? data.name : undefined,
+          secu: data.secu !== undefined ? data.secu : undefined,
+          password: data.password && data.password !== '' ? data.password : undefined,
+        },
       });
-    }
-    catch (error) {
+    } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new NotFoundException("Room doesn't exist");
         }
         if (error.code === 'P2002') {
-          throw new ForbiddenException('name already taken');
+          throw new ForbiddenException('Name already taken');
         }
         throw error;
       }
     }
   }
+
+
   async preDelCheck(clientId: number)
   {
     const response = await this.prisma.rooms.findFirst({
