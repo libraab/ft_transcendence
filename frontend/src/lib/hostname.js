@@ -1,3 +1,3 @@
-const hostname = 'c2r8p4';
+const hostname = 'localhost';
 
 export { hostname };
