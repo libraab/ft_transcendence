@@ -16,8 +16,8 @@ let hostname = process.env.HOSTNAME
 				return response;
 			}
 		}
-		else {
-			return response;
+		catch (error) {
+			console.error(error);
 		}
 	}
 
@@ -37,7 +37,6 @@ let hostname = process.env.HOSTNAME
 			console.error(error);
 		}
 	}
-}
 
 export async function load( {cookies, fetch, params} ) {
 	const authToken = cookies.get('jwt_cookie');
@@ -48,11 +47,18 @@ export async function load( {cookies, fetch, params} ) {
 	const id42 = cookies.get('id42');
 	const roomName = params.salon;
 	let ret = await fetchAllRoomMembers(id42, roomName, fetch)
+	let roomid = await fetchRoomId(roomName, fetch);
 	if (ret instanceof Response)
 	{
 		throw error(ret.status, {
 			message: ret.statusText
 		});
+	}
+	if (roomid instanceof Response)
+	{
+		throw error(roomid.status, {
+			message: roomid.statusText
+		})
 	}
 
 	return {

@@ -32,6 +32,7 @@
         if (response.ok)
         {
             const value = await response.json();
+            console.log("GOOD");
             goto("/app/dashboard");
               // if (res.status == 201) {
               //       console.log("ces good")
