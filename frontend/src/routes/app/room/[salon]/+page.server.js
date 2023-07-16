@@ -37,7 +37,7 @@ let hostname = process.env.HOSTNAME
 			console.error(error);
 		}
 	}
-}
+
 
 export async function load( {cookies, fetch, params} ) {
 	const authToken = cookies.get('jwt_cookie');

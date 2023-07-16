@@ -1860,6 +1860,7 @@ export class DatabaseService {
     }
     else
     {
+      console.log(">>>>>>>>>>>>>>>> ", clientId)
       await this.prisma.clientStats.create({
         data: {
           played: 1,

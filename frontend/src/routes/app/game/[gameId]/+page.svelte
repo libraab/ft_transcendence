@@ -23,7 +23,8 @@ let gameActive: boolean = false;
 let promise: any;
 let gameCode: any;
 let playerNumber: number;
-
+let changecolor: boolean = false
+;
 
 let quitGame = () =>
 {
@@ -150,48 +151,71 @@ function init() {
 */
 
 function drawRect(x: number, y: number, w: number, h: number, color: any) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, w, h);
-}
-
-function drawArc(x: number, y: number, r: number, color: any) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2, true);
-    ctx.closePath();
-    ctx.fill();
-}
-
-function drawNet(statenet: any) {
-    for (let i = 0; i <= canvas.height; i += 15) {
-        drawRect(statenet.net.x, statenet.net.y + i, statenet.net.width, statenet.net.height, statenet.net.color);
+    if (ctx) {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, w, h);
     }
 }
 
-function drawText(text: string, x: number, y: number) {
-    ctx.fillStyle = "#FFF";
-    ctx.font = "75px fantasy";
-    ctx.fillText(text, x, y);
+function drawArc(x: number, y: number, r: number, color: any) {
+    if (ctx) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fill();
+    }
 }
 
-function trender(state: any) {    
-    if ($game_mode == "ABC")
-        drawRect(0, 0, canvas.width, canvas.height, "#333");
-    else
-        drawRect(0, 0, canvas.width, canvas.height, "#000");
 
-    drawText(state.user.score, canvas.width / 4, canvas.height / 5);
+function drawNet(statenet: any, color: any) {
+    for (let i = 0; i <= canvas.height; i += 15) {
+//        drawRect(statenet.net.x, statenet.net.y + i, statenet.net.width, statenet.net.height, statenet.net.color);
+		drawRect(statenet.net.x, statenet.net.y + i, statenet.net.width, statenet.net.height, color);
 
-    drawText(state.com.score, 3 * canvas.width / 4, canvas.height / 5);
-
-    drawNet(state);
-
-    drawRect(state.user.x, state.user.y, state.user.width, state.user.height, state.user.color);
-
-    drawRect(state.com.x, state.com.y, state.com.width, state.com.height, state.com.color);
-
-    drawArc(state.ball.x, state.ball.y, state.ball.radius, state.ball.color);
+    }
 }
+
+function drawText(text: string, x: number, y: number, color: any) {
+    if (ctx) {
+        //ctx.fillStyle = "#FFF";
+		ctx.fillStyle = color;
+        ctx.font = "75px fantasy";
+        ctx.fillText(text, x, y);
+    }
+}
+
+
+function trender(state: any) {
+	if (changecolor === false)
+		drawRect(0, 0, canvas.width, canvas.height, "#000");
+	else
+    	drawRect(0, 0, canvas.width, canvas.height, "#FFF");
+
+    	drawText(state.user.score, canvas.width / 4, canvas.height / 5, "#FF0000");
+
+    	drawText(state.com.score, 3 * canvas.width / 4, canvas.height / 5, "#FF0000");
+	if (changecolor === false)
+    	drawNet(state, "#FFF");
+	else
+		drawNet(state, "#000");
+
+	if (changecolor === false)
+		drawRect(state.user.x, state.user.y, state.user.width, state.user.height, "#FFF");
+	else
+    	drawRect(state.user.x, state.user.y, state.user.width, state.user.height, "#000");
+
+	if (changecolor === false)
+		drawRect(state.com.x, state.com.y, state.com.width, state.com.height, "#FFF");
+	else
+   		drawRect(state.com.x, state.com.y, state.com.width, state.com.height, "#000");
+
+	if (changecolor === false)
+    	drawArc(state.ball.x, state.ball.y, state.ball.radius, "#FFF");
+	else
+		drawArc(state.ball.x, state.ball.y, state.ball.radius, "#000");
+}
+
 //------------------------------------------------------------------------------------------------
 
 

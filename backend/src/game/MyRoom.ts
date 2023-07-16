@@ -119,9 +119,6 @@ export class MyRoom extends Room<any> {
 
         this.broadcast("gameOver", JSON.stringify({ winner }));
 
-
-        //console.log('hello', state[this.roomId]);
-
         fetch(`http://localhost:3000/api/game/saveScore?data=${ 
           encodeURIComponent(JSON.stringify(state[this.roomId]))
         }`, {
@@ -138,9 +135,14 @@ export class MyRoom extends Room<any> {
 
   // When a client leaves the room
   onLeave(client: Client, consented: boolean) {
-
+    state[this.roomId] = null;
+    this.disconnect();
+   
   }
 
   // Cleanup callback, called after there are no more clients in the room. (see `autoDispose`)
-  onDispose() { }
+  onDispose() { 
+    console.log("Dispose MyRoom");
+    //clean the room
+  }
 }
