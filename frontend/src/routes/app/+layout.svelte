@@ -51,7 +51,7 @@
 				});
 				if (response.ok)
 				{
-					if (dfastatus == true && !dfaverified)
+					if (dfastatus == true)
 						goto("/2FA");
 				}
 			}
