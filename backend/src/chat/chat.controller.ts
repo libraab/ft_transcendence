@@ -71,6 +71,7 @@ export class ChatController {
         res.push({ sender: e.clientName, message: e.message });
       }),
     );
+    console.log(res); 
     return res;
   }
 

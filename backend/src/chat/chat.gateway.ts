@@ -79,6 +79,7 @@ export class ChatGateway
       sender: client_id.id,
       msg: message.message,
     });
+    console.log("OKOKOK");
     this.wss.to(message.channel).emit('serverToChat', { ...message, sender: client_id.name});
     this.wss.to(message.channel).emit('serverAlertToChat', { ...message, sender: client_id.name});
     // WsResponse<string>
@@ -117,6 +118,7 @@ export class ChatGateway
     // check if channel id is existing if not do nothing
     // check if client is a member of channel then proceed
     client.join(channel);
+    console.log('JOINED');
     client.emit('joinedChannel', channel);
   }
 
@@ -150,9 +152,9 @@ export class ChatGateway
     this.db.addMessageToRoom(data.id, data.sender, data.msg);
   }
 
-  async sendServerMsg(roomid: any, msg: any) {
+  async sendServerMsg(roomid: number, msg: any) {
     console.log(msg);
-    this.wss.to(roomid).emit('serverMessage', {
+    this.wss.to(`${roomid}`).emit('serverMessage', {
       channel: roomid,
       sender: 'server',
       message: msg,
