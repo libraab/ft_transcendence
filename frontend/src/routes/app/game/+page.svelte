@@ -132,18 +132,18 @@
 		room.onMessage("gameOver", (data: any) => {
 			let date = JSON.parse(data);
     		if (date.winner === playerNumber) {
-        		//alert('You win!');
-				const result = confirm("Vous avez Gagné !! Souhaitez-vous continuer ?");
-				console.log(result);
+				const result = confirm("You Win !!");
+				//console.log(result);
 				if(result)
 				{
+					//alert('You win!');
 					goto("/app/dashboard");
 				}
 				
     		}
     		else {
+				alert('You lose!');
 				goto("/app/dashboard");
-      			alert('You lose!');
     		}
 			});
 			//room.send("canvas", 1000);
@@ -202,10 +202,6 @@ function drawArc(x: number, y: number, r: number, color: any) {
         ctx.closePath();
         ctx.fill();
     }
-}
-
-function redirecttodash() {
-	goto("/app/dashboard");
 }
 
 
@@ -304,9 +300,11 @@ function changeColor() {
 
 <main>
 	<body>
-	<div bind:this={initialScreen} class="h-100">
+	<div bind:this={initialScreen} class="h-100 center-div">
         <div class="d-flex flex-column align-items-center justify-content-center h-100">
-            <h1>Multiplayer Pong Game</h1>
+            
+			
+			<h1>Multiplayer Pong Game</h1>
             <!-- <button on:click={handleCreateGame} class="btn btn-success" id="newGameBtn">
                 Create New Game
             </button>
@@ -319,9 +317,6 @@ function changeColor() {
             </button> -->
 			<button on:click={matchMaking} class="btn btn-success" id="matchMaking">
 				Match Making
-			</button>
-			<button on:click={redirecttodash} >
-				test
 			</button>
 			<form method="post" id="form">
 				<input type="radio" on:click={changeColor}> night mode
@@ -346,20 +341,29 @@ function changeColor() {
         }
 
         #pong {
-            border: 2px solid #FFF;
+            border: 2px solid rgb(32, 31, 31);
             position: relative;
             margin: auto;
-            top: 0;
+            /* top: 0;
             right: 0;
             left: 0;
-            bottom: 0;
+            bottom: 0; */
+			display: flex; 
+    		justify-content: center;
+   		 	align-items: center;
         }
 	h1	{
 		color: rgb(28, 99, 88);
 		position: center;
+		display: flex; 
+    	justify-content: center;
+   		align-items: center;
 
 	}
 	button {
+		display: flex; 
+    	justify-content: center;
+   		align-items: center;
 		border: none;
 		background-color: #9e9c9c;
 		border-radius: 20px;
@@ -369,9 +373,22 @@ function changeColor() {
 		cursor: pointer;
 		outline: none;
 		padding: 10px 20px;
-		margin: 10px;
+		margin: 0 auto;
 		transition: background-color 0.3s ease;
 	}
+
+	#form {
+		margin: 40px;
+		display: flex; 
+		justify-content: center;
+   		align-items: center;
+	}
+
+	.center-div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 	
 		/*@media (min-width: 1px) and (max-width: 1000px) {
 			canvas {
