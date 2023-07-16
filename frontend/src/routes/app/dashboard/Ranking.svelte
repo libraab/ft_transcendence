@@ -32,6 +32,7 @@
 				<h1>Ranking</h1>
 				{#if classment.length !== 0}
 					{#each classment as score}
+						<p>score</p>
 						<pre>{JSON.stringify(score, null, 0)}</pre>
 					{/each}
 				{:else}

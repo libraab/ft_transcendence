@@ -6,6 +6,7 @@
 	import RankModal from './Ranking.svelte';
 	import axios from "axios";
 	import ConnectStatus from "$lib/connectStatus.svelte";
+	import MathHistory from "./Math_history.svelte";
 
 	// export let data;
 	let title: string;
@@ -109,15 +110,19 @@
 	function toggleRanksTab(){
 		ranksTab = !ranksTab;
 	}
-	async function profileUpdate()
-	{
+	async function profileUpdate(){
 		fetchData();
+	}
+	let historyTab: boolean;
+	async function toggleHistoryTab(){
+		historyTab = !historyTab;
 	}
 </script>
 
 <UpdateModal {updatePop} id={$userId} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
 <DeleteModal {deletePop} on:click={() => toggleDeletePopup()}/>
 <RankModal {ranksTab} on:click={() => toggleRanksTab()} />
+<MathHistory {historyTab} on:click= {() => toggleHistoryTab()}/>
 
 <div class="main_body">
 	<main class="container">
@@ -127,6 +132,7 @@
 				<button class="round-button" on:click={() => toggleUpdatePopup()}>Update</button>
 				<button class="round-button" on:click={() => toggleDeletePopup()}>Delete</button>
 				<button class="round-button" on:click={() => toggleRanksTab()}>Ranking</button>
+				<button class="round-button" on:click={() => toggleHistoryTab()}>Historic</button>
 				<button
 					class:active={isDFAActive}
 					class:inactive={!isDFAActive}
@@ -146,14 +152,7 @@
 			{#if stats && Object.keys(stats).length > 0}
 				<p> played: { stats.played } </p>
 				<p> won: { stats.won } </p>
-				{#if stats.hf}
-					<p> hf: { stats.hf } </p>
-				{/if}
-				{#if stats.title}
-					<p> hf: { stats.title } </p>
-				{/if}
 				<p> {stats.won * 100 / stats.played}% victory </p>
-				<p> score: { stats.score } </p>
 			{:else}
 				<p>didn't play yet</p>
 				<a href="/app/game" style="text-decoration: none;">─=≡Σ((( つ•̀ω•́)つLET’SGOOOO!</a>
