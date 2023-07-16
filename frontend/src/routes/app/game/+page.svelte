@@ -224,6 +224,9 @@ function drawText(text: string, x: number, y: number, color: any) {
 
 
 function trender(state: any) {
+	if (canvas === null) {
+        return; // Sortir de la fonction si le canvas est nul
+    }
 	if (changecolor === false)
 		drawRect(0, 0, canvas.width, canvas.height, "#000");
 	else
