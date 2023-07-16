@@ -110,7 +110,7 @@ export class AuthController {
     const user = await this.databaseService.getClientById42(req.user.id);
     if (!user)
       throw new NotFoundException("user doesnt exist");
-    return user.Dfa;
+    return {dfa: user.Dfa, dfaVerifies: user.dfaVerified};
   }
 
   @Post('/2fa/:id')
@@ -123,8 +123,8 @@ export class AuthController {
     // if user activate the dfa
     if (isDFAActive) {
       user.dfa = true;
+      user.dfaVerified = false;
       user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key
-      console.log("-->" + isDFAActive);
       await this.databaseService.updateClient(id, user);
       // Generate the QR code image
       const otpauthUrl = authenticator.keyuri(

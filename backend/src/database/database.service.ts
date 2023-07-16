@@ -290,6 +290,7 @@ export class DatabaseService {
           cookie: dto.cookie,
           img: dto.img,
           Dfa: false,
+          dfaVerified: false,
         },
       });
 
@@ -363,12 +364,17 @@ export class DatabaseService {
   }
 
   async updateClient(id: number, data: UpdateClientDto): Promise<Clients> {
+    console.log('--------------------------------------');
+    console.log(data);
+    console.log(data.dfaVerified);
+    console.log('--------------------------------------');
     try {
       const updateData: Prisma.ClientsUpdateInput = {
         img: data.img ? { set: data.img } : undefined,
         name: data.name ? { set: data.name } : undefined,
         Dfa: data.dfa,
         DfaSecret: data.dfaSecret ? { set: data.dfaSecret } : undefined,
+        dfaVerified: data.dfaVerified ? { set: data.dfaVerified } : undefined,
       };
 
       const updatedClient = await this.prisma.clients.update({
