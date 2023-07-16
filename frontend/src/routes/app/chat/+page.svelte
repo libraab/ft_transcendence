@@ -2,6 +2,14 @@
 	/*
 		This is just a default page when no chat is selected
 	*/
+	import { onMount } from 'svelte';
+
+    let messages = [];
+
+    onMount(async () => {
+        const response = await fetch('/api/chat/messages/1');
+        messages = await response.json();
+    });
 </script>
 
 <div class="room_wrap">

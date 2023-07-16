@@ -1,5 +1,6 @@
 <script lang="ts" >
     import { browser } from '$app/environment';
+	import { goto } from '$app/navigation';
 	import { game_mode } from '$lib/stores';
 	import { Client } from 'colyseus.js'
 	// import { client, connectClientToGame } from '$lib/gamesocket'
@@ -21,17 +22,23 @@
 	let promise: any;
 	let gameCode: any;
 	let playerNumber: number;
+	let changecolor: boolean = false;
 	if (browser) {
 		client = new Client("ws://" + location.hostname + ":3001/ws");
 	}
-
-	let localstorage = localStorage.getItem('userId');
 	
-
-	async function createGame() {
-		try {
-			console.log(localstorage);
-			room = await client?.joinOrCreate("my_room", {id: localstorage}); // this will create "my_room" if it doesn't exist already or join it if it does exist
+	// if (browser){
+		// }
+		
+		
+		async function createGame() {
+			try {
+				// console.log(localstorage);
+			if(browser)
+			{
+				const localstorage =  localStorage.getItem('userId');
+				room = await client?.joinOrCreate("my_room", {id: localstorage}); // this will create "my_room" if it doesn't exist already or join it if it does exist
+			}
 			name = room.id;
 			return room.id;
 		} catch(e) {
@@ -45,7 +52,12 @@
 
 	async function joinGame() {
 		try {
-			room = await client?.joinById(input, {id: localstorage});
+			if(browser)
+			{
+				const localstorage =  localStorage.getItem('userId');
+				// input = (<HTMLInputElement>document.getElementById('gameCodeInput')).value;
+				room = await client?.joinById(input, {id: localstorage});
+			}
 		} catch(e) {
 			console.error(e);
 		}
@@ -55,21 +67,22 @@
 		promise = joinGame();
 	}
 	
-	 function init() {
-		initialScreen.style.display = "none";
-    	game.style.display = "block";
-    	canvas = pong;
-		const { width, height } = canvas.getBoundingClientRect();
-		canvas.width = width;
-		canvas.height = height;
-    	ctx = canvas.getContext('2d');
-		gameCode = document.getElementById('gameCode');
-		gameCode.innerText = name;
-		gameActive = true;
-    	document.addEventListener('keydown', keydown);
-    	document.addEventListener('keyup', keyup);
-    	//gameActive = true;
-	}
+	function init() {
+    initialScreen.style.display = "none";
+    game.style.display = "block";
+    canvas = document.getElementById('pong');
+    const { width, height } = canvas.getBoundingClientRect();
+    canvas.width = width;
+    canvas.height = height;
+    ctx = canvas.getContext('2d');
+    gameCode = document.getElementById('gameCode');
+    if (gameCode) {
+        gameCode.innerText = name;
+    }
+    gameActive = true;
+    document.addEventListener('keydown', keydown);
+    document.addEventListener('keyup', keyup);
+}
 
 	function keydown(e: any) {
 		(e.keyCode);
@@ -119,11 +132,18 @@
 		room.onMessage("gameOver", (data: any) => {
 			let date = JSON.parse(data);
     		if (date.winner === playerNumber) {
-        		alert('You win!');
+				const result = confirm("You Win !!");
+				//console.log(result);
+				if(result)
+				{
+					//alert('You win!');
+					goto("/app/dashboard");
+				}
 				
     		}
     		else {
-      			alert('You lose!');
+				alert('You lose!');
+				goto("/app/dashboard");
     		}
 			});
 			//room.send("canvas", 1000);
@@ -162,54 +182,79 @@
 	// });
 
 
+// function drawRect(x: number, y: number, w: number, h: number, color: any) {
+//     ctx.fillStyle = color;
+//     ctx.fillRect(x, y, w, h);
+// }
+
 function drawRect(x: number, y: number, w: number, h: number, color: any) {
-    ctx.fillStyle = color;
-    ctx.fillRect(x, y, w, h);
-}
-
-function drawArc(x: number, y: number, r: number, color: any) {
-    ctx.fillStyle = color;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2, true);
-    ctx.closePath();
-    ctx.fill();
-}
-
-function drawNet(statenet: any) {
-    for (let i = 0; i <= canvas.height; i += 15) {
-        drawRect(statenet.net.x, statenet.net.y + i, statenet.net.width, statenet.net.height, statenet.net.color);
+    if (ctx) {
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, w, h);
     }
 }
 
-function drawText(text: string, x: number, y: number) {
-    ctx.fillStyle = "#FFF";
-    ctx.font = "75px fantasy";
-    ctx.fillText(text, x, y);
+function drawArc(x: number, y: number, r: number, color: any) {
+    if (ctx) {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, Math.PI * 2, true);
+        ctx.closePath();
+        ctx.fill();
+    }
 }
 
+
+function drawNet(statenet: any, color: any) {
+    for (let i = 0; i <= canvas.height; i += 15) {
+//        drawRect(statenet.net.x, statenet.net.y + i, statenet.net.width, statenet.net.height, statenet.net.color);
+		drawRect(statenet.net.x, statenet.net.y + i, statenet.net.width, statenet.net.height, color);
+
+    }
+}
+
+function drawText(text: string, x: number, y: number, color: any) {
+    if (ctx) {
+        //ctx.fillStyle = "#FFF";
+		ctx.fillStyle = color;
+        ctx.font = "75px fantasy";
+        ctx.fillText(text, x, y);
+    }
+}
+
+
 function trender(state: any) {
-	if ($game_mode == "ABC")
-		drawRect(0, 0, canvas.width, canvas.height, "#345");
+	if (changecolor === false)
+		drawRect(0, 0, canvas.width, canvas.height, "#000");
 	else
-    	drawRect(0, 0, canvas.width, canvas.height, "#000");
+    	drawRect(0, 0, canvas.width, canvas.height, "#FFF");
 
-    drawText(state.user.score, canvas.width / 4, canvas.height / 5);
+	//if (changecolor === true)
+    	drawText(state.user.score, canvas.width / 4, canvas.height / 5, "#FF0000");
+	//else
 
-    drawText(state.com.score, 3 * canvas.width / 4, canvas.height / 5);
-
-    drawNet(state);
-
-	if ($game_mode == "ABC")
-		drawRect(state.user.x, state.user.y, state.user.width, state.user.height, "#161234");
+    	drawText(state.com.score, 3 * canvas.width / 4, canvas.height / 5, "#FF0000");
+	if (changecolor === false)
+    	drawNet(state, "#FFF");
 	else
-    	drawRect(state.user.x, state.user.y, state.user.width, state.user.height, state.user.color);
+		drawNet(state, "#000");
 
-	if ($game_mode == "ABC")
-		drawRect(state.com.x, state.com.y, state.com.width, state.com.height, "#161234");
+	if (changecolor === false)
+		drawRect(state.user.x, state.user.y, state.user.width, state.user.height, "#FFF");
 	else
-   		drawRect(state.com.x, state.com.y, state.com.width, state.com.height, state.com.color);
+    	drawRect(state.user.x, state.user.y, state.user.width, state.user.height, "#000");
 
-    drawArc(state.ball.x, state.ball.y, state.ball.radius, state.ball.color);
+    //drawRect(state.user.x, state.user.y, state.user.width, state.user.height, state.user.color);
+
+	if (changecolor === false)
+		drawRect(state.com.x, state.com.y, state.com.width, state.com.height, "#FFF");
+	else
+   		drawRect(state.com.x, state.com.y, state.com.width, state.com.height, "#000");
+
+	if (changecolor === false)
+    	drawArc(state.ball.x, state.ball.y, state.ball.radius, "#FFF");
+	else
+		drawArc(state.ball.x, state.ball.y, state.ball.radius, "#000");
 }
 
 function handleGameState(gameState: any) {
@@ -222,8 +267,12 @@ function handleGameState(gameState: any) {
 
 async function joinMatchMaking() {
 	try {
-		matchroom = await client?.joinOrCreate("matchMaking", {id: localstorage} ); // this will create "my_room" if it doesn't exist already or join it if it does exist
-		return (matchroom);
+		if(browser)
+		{
+			const localstorage =  localStorage.getItem('userId');
+			matchroom = await client?.joinOrCreate("matchMaking", {id: localstorage} ); // this will create "my_room" if it doesn't exist already or join it if it does exist
+			return (matchroom);
+		}
 	} catch(e) {
 		console.error(e);
 	}
@@ -231,6 +280,12 @@ async function joinMatchMaking() {
 
 function matchMaking() {
 	promise = joinMatchMaking();
+	initGame()
+}
+
+function changeColor() {
+	changecolor = true;
+	console.log('change color');
 }
 
 </script>
@@ -238,17 +293,19 @@ function matchMaking() {
 {#await promise}
 	<p>attente</p>
 {:then test} 
-	<button on:click={initGame}>init game</button>
+	<!--<button on:click={initGame}>init game</button>-->
 {:catch err}
 	<p>error: {err}</p>
 {/await}
 
 <main>
 	<body>
-	<div bind:this={initialScreen} class="h-100">
+	<div bind:this={initialScreen} class="h-100 center-div">
         <div class="d-flex flex-column align-items-center justify-content-center h-100">
-            <h1>Multiplayer Pong Game</h1>
-            <button on:click={handleCreateGame} class="btn btn-success" id="newGameBtn">
+            
+			
+			<h1>Multiplayer Pong Game</h1>
+            <!-- <button on:click={handleCreateGame} class="btn btn-success" id="newGameBtn">
                 Create New Game
             </button>
             <div>OR</div>
@@ -257,17 +314,20 @@ function matchMaking() {
             </div>
             <button on:click={handleJoinGame} class="btn btn-success" id="joinGameBtn">
                 Join Game
-            </button>
+            </button> -->
 			<button on:click={matchMaking} class="btn btn-success" id="matchMaking">
 				Match Making
 			</button>
+			<form method="post" id="form">
+				<input type="radio" on:click={changeColor}> night mode
+			</form>
         </div>
     </div>
     <div bind:this={game} id="game">
 
-			<h1>Your game code is: <span id="gameCode"></span></h1>
+			<!-- <h1>Your game code is: <span id="gameCode"></span></h1> -->
 
-        <canvas bind:this={pong} id="pong" width=600 height=400></canvas>
+			<canvas bind:this={canvas} id="pong" width=600 height=400></canvas>
     </div>
 	</body>
 </main>
@@ -277,18 +337,59 @@ function matchMaking() {
             display: none;
         }
 	body {
-            background-color: dimgray;
+            background-color: rgb(255, 255, 255);
         }
 
         #pong {
-            border: 2px solid #FFF;
+            border: 2px solid rgb(32, 31, 31);
             position: relative;
             margin: auto;
-            top: 0;
+            /* top: 0;
             right: 0;
             left: 0;
-            bottom: 0;
+            bottom: 0; */
+			display: flex; 
+    		justify-content: center;
+   		 	align-items: center;
         }
+	h1	{
+		color: rgb(28, 99, 88);
+		position: center;
+		display: flex; 
+    	justify-content: center;
+   		align-items: center;
+
+	}
+	button {
+		display: flex; 
+    	justify-content: center;
+   		align-items: center;
+		border: none;
+		background-color: #9e9c9c;
+		border-radius: 20px;
+		color: white;
+		font-size: 16px;
+		font-weight: bold;
+		cursor: pointer;
+		outline: none;
+		padding: 10px 20px;
+		margin: 0 auto;
+		transition: background-color 0.3s ease;
+	}
+
+	#form {
+		margin: 40px;
+		display: flex; 
+		justify-content: center;
+   		align-items: center;
+	}
+
+	.center-div {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+	
 		/*@media (min-width: 1px) and (max-width: 1000px) {
 			canvas {
 				width: 600px;
