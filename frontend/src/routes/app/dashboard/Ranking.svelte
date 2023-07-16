@@ -1,4 +1,6 @@
 <script lang='ts'>
+	import { goto } from "$app/navigation";
+
 	export let ranksTab: boolean;
 
 	let classment: any = [];
@@ -9,6 +11,7 @@
 			if (response)
 			{
 				classment = await response.json();
+				console.log(classment);
 			}
 			else
 				classment = [];
@@ -31,8 +34,10 @@
 			<div class="modal">
 				<h1>Ranking</h1>
 				{#if classment.length !== 0}
-					{#each classment as score}
-						<pre>{JSON.stringify(score, null, 0)}</pre>
+					{#each classment as score, index}
+						<div>
+							<button on:click={() => goto(`/app/dashboard/${score.client.name}`)}>{index + 1}: {score.client.name}</button>
+						</div>
 					{/each}
 				{:else}
 					<p>nobody has played yet</p>

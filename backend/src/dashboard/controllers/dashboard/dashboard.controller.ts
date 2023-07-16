@@ -30,6 +30,7 @@ import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import { AuthGuard } from 'src/auth/auth.guard';
 import IJWT from 'src/interfaces/jwt.interface';
 import { NOTFOUND } from 'dns';
+import { Client } from 'colyseus.js';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -57,6 +58,12 @@ export class DashboardController {
 	if (ppp == null)
 		throw new NotFoundException("You're cookie is a bad cookie");
 	return ppp;
+  }
+
+  @Get('/history/:clientId')
+  async getGameHistoric(@Param('clientId', ParseIntPipe) clientId: number)
+  { 
+    return this.db.getGameHistoric(clientId);
   }
 
   @UseGuards(AuthGuard)

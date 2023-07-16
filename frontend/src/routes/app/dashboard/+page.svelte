@@ -6,6 +6,7 @@
 	import RankModal from './Ranking.svelte';
 	import axios from "axios";
 	import ConnectStatus from "$lib/connectStatus.svelte";
+	import MathHistory from "./Math_history.svelte";
 
 	// export let data;
 	let title: string;
@@ -112,11 +113,16 @@
 	{
 		fetchData();
 	}
+	let historyTab: boolean = false;
+	function toggleHistoryTab(){
+		historyTab = !historyTab;
+	}
 </script>
 
 <UpdateModal {updatePop} id={$userId} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
 <DeleteModal {deletePop} on:click={() => toggleDeletePopup()}/>
 <RankModal {ranksTab} on:click={() => toggleRanksTab()} />
+<MathHistory {historyTab} id={$userId} on:click={() => toggleHistoryTab()}/>
 
 <div class="main_body">
 	<main class="container">
@@ -126,6 +132,7 @@
 				<button class="round-button" on:click={() => toggleUpdatePopup()}>Update</button>
 				<button class="round-button" on:click={() => toggleDeletePopup()}>Delete</button>
 				<button class="round-button" on:click={() => toggleRanksTab()}>Ranking</button>
+				<button class="round-button" on:click={() => toggleHistoryTab()}>History</button>
 				<button
 					class:active={isDFAActive}
 					class:inactive={!isDFAActive}
@@ -143,16 +150,15 @@
 		<div class="profile-container">
 			<h2>Stats</h2>
 			{#if stats && Object.keys(stats).length > 0}
-				<p> played: { stats.played } </p>
-				<p> won: { stats.won } </p>
+				<p> played: { stats[0].played } </p>
+				<p> won: { stats[0].won } </p>
 				{#if stats.hf}
-					<p> hf: { stats.hf } </p>
+					<p> hf: { stats[0].hf } </p>
 				{/if}
 				{#if stats.title}
-					<p> hf: { stats.title } </p>
+					<p> hf: { stats[0].title } </p>
 				{/if}
-				<p> {stats.won * 100 / stats.played}% victory </p>
-				<p> score: { stats.score } </p>
+				<p> {(stats[0].won * 100 / stats[0].played).toFixed(2)}% victory </p>
 			{:else}
 				<p>didn't play yet</p>
 				<a href="/app/game" style="text-decoration: none;">─=≡Σ((( つ•̀ω•́)つLET’SGOOOO!</a>
@@ -207,12 +213,13 @@
 		margin-top: 5px;
 	}
 	.profile-container {
-		/* display: flex;
-		flex-direction: column;
-		align-items: center;
-		text-align: center; */
-		margin-bottom: 20px;
-  	}
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        justify-content: center; /* Ajout de la propriété justify-content */
+        margin-bottom: 20px;
+    }
 
 	.shiny-text {
 		display: inline-block;

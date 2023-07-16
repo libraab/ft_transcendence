@@ -424,12 +424,19 @@ export class DatabaseService {
     return clientStats;
   }
 
-  async getTop100Scores(): Promise<ClientStats[]> {
+  async getTop100Scores(){
     const top100Scores = await this.prisma.clientStats.findMany({
       orderBy: {
-        score: 'asc',
+        won: 'desc',
       },
       take: 100,
+      select: {
+        client: {
+          select: {
+            name: true,
+          }
+        }
+      }
     });
 
     return top100Scores;
@@ -1809,4 +1816,35 @@ export class DatabaseService {
     }
   }
 
+  async getGameHistoric(clientId: number)
+  {
+    const response = await this.prisma.gameHistoric.findMany({
+      where: {
+        OR: [{
+          client1Id: clientId,
+        },
+        {
+          client2Id: clientId,
+        }]
+      },
+      select: {
+        persScore: true,
+        vsScore: true,
+        client1: {
+          select: {
+            name: true,
+            id: true
+          }
+        },
+        client2: {
+          select: {
+            name: true,
+            id: true
+          }
+        }
+      }
+    });
+
+    return response;
+  }
 }

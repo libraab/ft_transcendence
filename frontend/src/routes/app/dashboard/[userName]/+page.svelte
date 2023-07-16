@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { userId } from "$lib/stores.js";
+	import MathHistory from "../Math_history.svelte";
 
 	export let data;
 	let stats: any;
@@ -20,6 +21,7 @@
 			});
 			if (response.ok) {
 				vals = await response.json();
+				stats = vals.clientStats;
 				if (vals.img === 'undefined')
 				{
 					console.log('no image');
@@ -179,8 +181,14 @@
 			console.error('Failed to join room:', room.name);
 		}
 */	};
-
+	let historyTab: boolean = false;
+	let targetId: number;
+	function toggleHistoryTab(){
+		historyTab = !historyTab;
+	}
 </script>
+
+<MathHistory {historyTab} id={targetId} on:click={() => toggleHistoryTab()}/>
 
 <main class="container">
 <!-- ---------------------------------------------------------------------------- -->
@@ -218,6 +226,7 @@
 					{#if !blocked}
 						<button class="button-profile" on:click={() => MP(vals.id)}>Send Msg</button>
 						<button class="button-profile" on:click={sendInvitation}>Play</button>
+						<button class="button-profile" on:click={() => {targetId=vals.id; toggleHistoryTab()}}>Historic</button>
 					{/if}
 				</div>
 
@@ -229,19 +238,19 @@
 <!-- ---------------------------------------------------------------------------- -->
 	<div class="profile-container">
 		<h2>Stats</h2>
-		{#if stats}
-			<p> played: { stats.played } </p>
-			<p> won: { stats.won } </p>
+		{#if stats && Object.keys(stats).length > 0}
+			<p> played: { stats[0].played } </p>
+			<p> won: { stats[0].won } </p>
 			{#if stats.hf}
-				<p> hf: { stats.hf } </p>
+				<p> hf: { stats[0].hf } </p>
 			{/if}
 			{#if stats.title}
-				<p> hf: { stats.title } </p>
+				<p> hf: { stats[0].title } </p>
 			{/if}
-			<p> {stats.won * 100 / stats.played}% victory </p>
-			<p> score: { stats.score } </p>
+			<p> {(stats[0].won * 100 / stats[0].played).toFixed(2)}% victory </p>
 		{:else}
 			<p>didn't play yet</p>
+			<a href="/app/game" style="text-decoration: none;">─=≡Σ((( つ•̀ω•́)つLET’SGOOOO!</a>
 		{/if}
 	</div>
 </main>
