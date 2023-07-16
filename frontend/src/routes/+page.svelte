@@ -63,7 +63,7 @@
     }
 
     .wrapper {
-        background-image: src('/background42.jpg');
+        background-image: url('/background42.jpg');
         background-size: cover;
         background-position: center;
         width: 100%;

@@ -4,7 +4,7 @@
     import { onDestroy } from "svelte";
 	  import { createEventDispatcher } from 'svelte';
 	  import { userId, jwt_cookie } from "$lib/stores";
-	import { goto } from "$app/navigation";
+	  import { goto } from "$app/navigation";
 
     export let data;
     export let isDFAActive;
@@ -32,6 +32,7 @@
         if (response.ok)
         {
             const value = await response.json();
+            console.log("GOOD");
             goto("/app/dashboard");
               // if (res.status == 201) {
               //       console.log("ces good")

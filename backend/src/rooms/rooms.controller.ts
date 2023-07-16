@@ -20,10 +20,12 @@ import * as bcrypt from 'bcrypt';
 import { AuthGuard } from 'src/auth/auth.guard';
 import IJWT from 'src/interfaces/jwt.interface';
 import { updateRoomDto } from 'src/database/dtos/dbBaseDto';
+import { ChatGateway } from 'src/chat/chat.gateway';
 
 @Controller('rooms')
 export class RoomsController {
-  constructor(private db: DatabaseService) {}
+  constructor(private db: DatabaseService, 
+    private cg: ChatGateway) {}
 
   @UseGuards(AuthGuard)
   @Get()
@@ -37,12 +39,12 @@ export class RoomsController {
     @Param('id42', ParseIntPipe) id42: number,
     @Param('name') roomName: string,
   ) {
-    return this.db.getAllRoomMembers(id42, roomName);
+    return await this.db.getAllRoomMembers(id42, roomName);
   }
 
   @Get('/privateRoomMember/:id')
   async getPrivateRoomMembers(@Param('id', ParseIntPipe) id: number) {
-    return this.db.getMembersForPrivateRoom(id);
+    return await this.db.getMembersForPrivateRoom(id);
   }
 
   @Get('/allRoomMember/:idRoom/:idMember')
@@ -50,7 +52,7 @@ export class RoomsController {
     @Param('idRoom', ParseIntPipe) idRoom: number,
     @Param('idMember', ParseIntPipe) idMember: number,
   ) {
-    return this.db.getMembersByRoomIdExcludingClient(idRoom, idMember);
+    return await this.db.getMembersByRoomIdExcludingClient(idRoom, idMember);
   }
 
   @Get('/allRoomMemberForAdmins/:idRoom/:idMember')
@@ -58,7 +60,7 @@ export class RoomsController {
     @Param('idRoom', ParseIntPipe) idRoom: number,
     @Param('idMember', ParseIntPipe) idMember: number,
   ) {
-    return this.db.getMembersByRoomIdExcludingClientForAdmins(idRoom, idMember);
+    return await this.db.getMembersByRoomIdExcludingClientForAdmins(idRoom, idMember);
   }
 
   @UseGuards(AuthGuard)
@@ -177,6 +179,17 @@ export class RoomsController {
     if (ownerCheck) throw new UnauthorizedException();
     try {
       await this.db.changeMemberStatus(roomId, clientId, status);
+      let client = await this.db.getClientById(clientId);
+      if (client != null)
+      {
+        if (status == 3)
+          this.cg.sendServerMsg(roomId, `${client.name} is muted`);
+        else if (status == 5)
+          this.cg.sendServerMsg(roomId, `${client.name} is banned`);
+        else if (status == 1)
+          this.cg.sendServerMsg(roomId, `${client.name} is now an Admin`);
+        return HttpStatus.NO_CONTENT;
+      }
       return HttpStatus.NO_CONTENT;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
@@ -194,7 +207,12 @@ export class RoomsController {
 
     try {
       await this.db.removeClientFromRoom(roomId, memberId);
-      return HttpStatus.NO_CONTENT;
+      let client = await this.db.getClientById(memberId);
+      if (client != null)
+      {
+        this.cg.sendServerMsg(roomId, `${client.name} has been kicked`);
+        return HttpStatus.NO_CONTENT;
+      }
     } catch (error) {
       console.error(error);
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);

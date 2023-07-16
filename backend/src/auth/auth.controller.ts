@@ -90,6 +90,8 @@ export class AuthController {
       throw new NotFoundException("user doesnt exist");
     const isVerified = authenticator.check(code, user.DfaSecret);
     const userDto: UpdateClientDto = new UpdateClientDto();
+    console.log("code received -->" + code);
+    console.log("code is -->" + isVerified);
     if (isVerified) {
       userDto.dfaVerified = true;
       await this.databaseService.updateClient(user.id, userDto);
@@ -122,19 +124,20 @@ export class AuthController {
     if (isDFAActive) {
       user.dfa = true;
       user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key
+      console.log("-->" + isDFAActive);
       await this.databaseService.updateClient(id, user);
       // Generate the QR code image
       const otpauthUrl = authenticator.keyuri(
         'asmabouhlel@student.42nice.fr',
         'ft_transcendence',
         user.dfaSecret,
-      );
-      const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
-      return { qrCodeImageUrl };
-    } else {
-      user.dfa = false;
-      await this.databaseService.updateClient(id, user);
+        );
+        const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
+        return { qrCodeImageUrl };
+      } else {
+        user.dfa = false;
+        await this.databaseService.updateClient(id, user);
+      }
+      return {};
     }
-    return {};
   }
-}
