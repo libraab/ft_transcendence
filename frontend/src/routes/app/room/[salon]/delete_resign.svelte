@@ -9,6 +9,7 @@
 	export let id: number;
 	export let delTab: string;
 	export let roomId: number;
+	export let secu: number;
 
 	let admins: any = [];
 	let members: any = [];
@@ -47,6 +48,12 @@
 	onMount(async () => {
 		await getReplacementLists();
 		firstLoad = false;
+		if (secu === 0)
+			roomType = 'public';
+		else if (secu === 1)
+			roomType = 'protected';
+		else if (secu === 2)
+			roomType = 'private';
 	});
 
 	afterUpdate(() => {
@@ -110,14 +117,6 @@
 			console.error('ERROR: falied on delete', error.message);
 		}
 	}
-	/*
-	const handleSubmit = async (event: any) => {
-		console.log(roomName);
-		console.log(roomType);
-		console.log(roomId);
-		console.log(password);
-	}
-	*/
 	
 	const roomTypeDict: { [key: string]: number } =
 	{
@@ -127,7 +126,7 @@
 	}
 
 	const handleSubmit = async (event: any) => {
-		if (password === "" && roomType == "protected")
+		if (password === "" && roomType == "protected" && secu !== 1)
 		{
 			alert("Please enter a password");
 			return ;
@@ -155,11 +154,11 @@
 			})
 		});
 		if (response.ok) {
-			console.log('Room created successfully');
+			console.log('Room updated successfully');
 			// handle success -> make sure that room is added to the list updates etc
 		} else {
 			alert('Failed to update room');
-			// handle error
+			return;
 		}
 		handleValidationClick();
 	}

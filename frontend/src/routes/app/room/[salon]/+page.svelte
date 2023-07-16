@@ -10,6 +10,7 @@
 	let choosenRoomId: number;
 	let owned: boolean;
 	let members: any;
+	let secu: number;
 
 	let roomMembers: any = [];
 	onMount(async () => {
@@ -17,6 +18,7 @@
 		members = data.members;
 		choosenRoomId = data.members.roomId.id;
 		owned = data.members.status === 0;
+		secu = data.members.roomId.secu;
 
 		await fetchprivateRoomMembers();
 		await fetchAllRoomMembers();
@@ -202,7 +204,7 @@
 </script>
 
 {#if delTab !== ""}
-	<DelModal {delTab} roomId={choosenRoomId} id={$userId} {data}
+	<DelModal {delTab} roomId={choosenRoomId} id={$userId} {data} {secu}
 		on:click={()=> toggleDel("")}
 		on:validationClick={ delReturn }/>
 {/if}
