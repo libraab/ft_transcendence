@@ -31,35 +31,36 @@
 
     $:{
         roomId = data.roomId;
-        fetchData(roomId);
-        fetchMembers(roomId);
+        fetchData();
+        fetchMembers();
         deleteAlertOn(roomId);
     }
 
-    async function fetchMembers(room_id) {
-		try {
-			const response = await fetch(`/api/chat/room/${room_id}`, {
-				method: 'GET',
-				headers: {
-					'Authorization': `Bearer ${$jwt_cookie}`
-				}
-			});
-            if (response.ok)
-            {
-			    let rjson = await response.json();
-                members = rjson;
-            }
-            else
-            {
-                console.error("fetch failed on fetchMember");
-                console.error(response.status);
-                goto("/");
-            }
-		}
-		catch (error) {
-			console.error(error);
-		}
-	}
+function fetchMembers() {
+  fetch(`/api/chat/room/${data.roomId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${$jwt_cookie}`
+      }
+    })
+  .then(async (response) => {
+      if (response.ok)
+      {
+        let rjson = await response.json();
+        members = rjson;
+      }
+      else
+      {
+        console.error("fetch failed on fetchMember");
+        console.error(response.status);
+        // goto("/");
+      }
+    })
+  .catch((error) => {
+    console.log(error);
+    // goto("/app/chat")
+  });
+}
 
     /**
      * The behaviour of serverToChat event is now different. When we recieve message and if we are in the rooom corresponding to message :
@@ -85,26 +86,28 @@
      * Extract all messages from a room database
      * blocked users are excluded
      */
-    async function fetchData(roomId) {
-        try {
-            const response = await fetch(`/api/chat/messages/${roomId}`, {
-                    headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
-                });
-			if (response.ok)
-			{
-				let messages = await response.json();
-				RoomsMessages = messages;
-			}
-			else
-			{
-				throw error(response.status, response.statusText);
-			}
-        }
-        catch (error) {
-            console.error(error);
-            goto("/app/chat");
-        }
-    }
+	 function fetchData() {
+  	console.log("load chat[roomid]/page fetchData");
+  fetch(`/api/chat/messages/${data.roomId}`, {
+    headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
+  })
+    .then(async (response) => {
+      if (response.ok)
+      {
+        console.log("load chat[roomid]/page fetchData ok");
+        let messages = await response.json();
+        console.log('before')
+        console.log(messages);
+        console.log('after');
+        RoomsMessages = messages;
+      }
+      console.log(response.status)
+    })
+    .catch((error) => {
+      console.error(error);
+      // goto("/app/chat");
+    });
+  }
     
     let sendMessage = () => {
             socket.emit('chatToServer', {channel: roomId, message: user_message, sender_id: $userId42});

@@ -4,6 +4,7 @@
     import { userId } from '$lib/stores';
 	import { StartPlayProcess, roomData } from '$lib/gamesocket';
 	
+	
     export let opponent_id: number;
 
 	async function sendInvitation()

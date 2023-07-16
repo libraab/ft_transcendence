@@ -1,12 +1,15 @@
 <script lang='ts'>
     import { goto } from "$app/navigation";
 	import { socket } from "./socketsbs";
+  import { createEventDispatcher } from 'svelte';
+	const dispatch = createEventDispatcher();
 
     export let invitationData;
 
     let hanndleRefuse = () =>
     {
       socket.emit('refuse', invitationData);
+      dispatch("refuseInvitation");
     }
 </script>
 
@@ -14,6 +17,7 @@
 	<p>You got an invitation to a game from {invitationData.name}</p>
 	<div class="buttons">
 	  <button on:click={() => {
+      dispatch("refuseInvitation");
       goto(`/app/game/${invitationData.secret}`);
     }} class="accept-button">Accept</button>
 	  <button class="decline-button" on:click={hanndleRefuse}>Decline</button>

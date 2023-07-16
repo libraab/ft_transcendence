@@ -24,7 +24,7 @@ export async function initializeSocket() {
 //   socketData = await data;
 //   if (!socketData)
 //   	return;
-
+	console.log("on mount");
 	socket = io(hostname+':3000/chat', {path: '/chatsockets'});//, auth: {token: }});
   	socket.emit('whoAmI', get(userId));
 //   socket.game = io(hostname+':3000/game', {path: '/gamesockets'});//, auth: {token: }});
@@ -35,8 +35,10 @@ export async function initializeSocket() {
 }
 
 export async function reloadRooms() {
+	console.log("reload here");
 	let loadedRooms = await fetchRoomData();
 	rooms.set(loadedRooms);
+	console.log(loadedRooms);
 	connectToRooms();
 	fetchBlockedData();
 }

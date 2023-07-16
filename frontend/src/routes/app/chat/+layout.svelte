@@ -2,6 +2,7 @@
 	import { rooms } from '$lib/stores'
 	import { onMount } from 'svelte';
 	import { reloadRooms, updateCount } from '$lib/socketsbs';
+	import { page } from '$app/stores';
 
 
 	onMount( () =>
@@ -10,7 +11,9 @@
 		 * Reloading $rooms here is not mandatory but is recomended
 		 * otherwise reload is trigered when some rooms changes are done on the backend and signaled trought the socket to the user if connected
 		*/
+		// console.log("onmount chat layout");
 		reloadRooms();
+		// console.log($page.route);
 	})
 </script>
 

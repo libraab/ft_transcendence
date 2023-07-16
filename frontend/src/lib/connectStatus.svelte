@@ -41,7 +41,7 @@
 
 			const response = await fetch(`/api/chat/connected/${userId}`);
 			let status = await response.json();
-			console.log(status);
+			// console.log(status);
 			userStatus = status;
 		}
 		catch (error)
