@@ -161,7 +161,9 @@
 
 <header>
 	<div class="image-container">
-		<img src={$img_path} alt="logo" class="rick">
+		{#if $img_path}
+			<img src={$img_path} alt="logo" class="rick">
+		{/if}
 		<button class="Log Out" on:click={handleLogOut}>Log Out</button>
 	</div>
 	<div class="description">
@@ -201,7 +203,7 @@
 
 <main>
 	{#if alertPopupOn}
-		<Alert invitationData={invitationData}/>
+		<Alert invitationData={invitationData} on:refuseInvitation={ () => {alertPopupOn = false}}/>
 	{/if}
 	<slot class="main_body"></slot>
 </main>

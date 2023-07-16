@@ -8,7 +8,6 @@
 	$userId42 = 0;
     $userId = 0;
 
-
 </script>
 
 <center>
