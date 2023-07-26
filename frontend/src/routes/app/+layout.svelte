@@ -52,7 +52,8 @@
 				if (response.ok)
 				{
 					let dfastatus = await response.json();
-					if (dfastatus == true)
+					console.log("verified  --> " + dfastatus.dfaVerifies)
+					if (dfastatus.dfa == true && dfastatus.dfaVerifies == false)
 						goto("/2FA");
 				}
 			}

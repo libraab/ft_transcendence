@@ -90,6 +90,8 @@ export class AuthController {
       throw new NotFoundException("user doesnt exist");
     const isVerified = authenticator.check(code, user.DfaSecret);
     const userDto: UpdateClientDto = new UpdateClientDto();
+    console.log("code received -->" + code);
+    console.log("code is -->" + isVerified);
     if (isVerified) {
       userDto.dfaVerified = true;
       await this.databaseService.updateClient(user.id, userDto);
@@ -108,7 +110,7 @@ export class AuthController {
     const user = await this.databaseService.getClientById42(req.user.id);
     if (!user)
       throw new NotFoundException("user doesnt exist");
-    return user.Dfa;
+    return {dfa: user.Dfa, dfaVerifies: user.dfaVerified};
   }
 
   @Post('/2fa/:id')
@@ -121,6 +123,7 @@ export class AuthController {
     // if user activate the dfa
     if (isDFAActive) {
       user.dfa = true;
+      user.dfaVerified = false;
       user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key
       await this.databaseService.updateClient(id, user);
       // Generate the QR code image
@@ -128,13 +131,13 @@ export class AuthController {
         'asmabouhlel@student.42nice.fr',
         'ft_transcendence',
         user.dfaSecret,
-      );
-      const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
-      return { qrCodeImageUrl };
-    } else {
-      user.dfa = false;
-      await this.databaseService.updateClient(id, user);
+        );
+        const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
+        return { qrCodeImageUrl };
+      } else {
+        user.dfa = false;
+        await this.databaseService.updateClient(id, user);
+      }
+      return {};
     }
-    return {};
   }
-}

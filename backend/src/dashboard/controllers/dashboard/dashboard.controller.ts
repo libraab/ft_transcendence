@@ -73,6 +73,12 @@ export class DashboardController {
     }
   }
 
+  @Get('preDelCheck/:clientId')
+  async preDelCheck(@Param('clientId', ParseIntPipe) clientId: number)
+  {
+    return this.db.preDelCheck(clientId);
+  }
+
   @Get('/convert/:id42')
   async getIdFromId42(@Param('id42', ParseIntPipe) id42: number)
   {
@@ -107,6 +113,8 @@ export class DashboardController {
   @Get('/fl')
   async getFlForId42(@Request() req: {user: IJWT}) {
     let client = await this.db.getClientById42(req.user.id)
+    if (!client)
+      
     return this.db.getRelationsByClientId1(client.id);
   }
 

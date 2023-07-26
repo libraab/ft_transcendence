@@ -290,6 +290,7 @@ export class DatabaseService {
           cookie: dto.cookie,
           img: dto.img,
           Dfa: false,
+          dfaVerified: false,
         },
       });
 
@@ -363,12 +364,17 @@ export class DatabaseService {
   }
 
   async updateClient(id: number, data: UpdateClientDto): Promise<Clients> {
+    console.log('--------------------------------------');
+    console.log(data);
+    console.log(data.dfaVerified);
+    console.log('--------------------------------------');
     try {
       const updateData: Prisma.ClientsUpdateInput = {
         img: data.img ? { set: data.img } : undefined,
         name: data.name ? { set: data.name } : undefined,
         Dfa: data.dfa,
         DfaSecret: data.dfaSecret ? { set: data.dfaSecret } : undefined,
+        dfaVerified: data.dfaVerified ? { set: data.dfaVerified } : undefined,
       };
 
       const updatedClient = await this.prisma.clients.update({
@@ -680,6 +686,9 @@ export class DatabaseService {
     const roomMembers = await this.prisma.roomMembers.findMany({
       where: {
         memberId: clientId,
+        NOT: {
+          status: 5,
+        }
       },
       select: {
         room: {
@@ -1589,7 +1598,8 @@ export class DatabaseService {
           },
         },
       });
-    } catch (error) {
+    }
+    catch (error) {
       throw new Error('Failed to remove client from room');
     }
   }
@@ -1808,5 +1818,112 @@ export class DatabaseService {
       }
     }
   }
+  async preDelCheck(clientId: number)
+  {
+    const response = await this.prisma.rooms.findFirst({
+      where: {
+        ownerid: clientId
+      },
+      select: {
+        ownerid: true,
+      }
+    });
 
+    return response || null;
+  }
+
+  async clientInStat(clientId: number)
+  {
+    const client = await this.prisma.clientStats.findUnique({
+      where: {
+        clientId
+      },
+      select: {
+        clientId: true,
+      }
+    });
+
+    return client || null;
+  }
+
+  async win(clientId: number)
+  {
+    if (await this.clientInStat(clientId))
+    {
+      await this.prisma.clientStats.update({
+        where: {
+          clientId
+        },
+        data: {
+          played: {
+            increment: 1,
+          },
+          won:{
+            increment: 1,
+          }
+        }
+      });
+    }
+    else
+    {
+      console.log(">>>>>>>>>>>>>>>> ", clientId)
+      await this.prisma.clientStats.create({
+        data: {
+          played: 1,
+          won: 1,
+          score: 10,
+          clientId
+        }
+      });
+    }
+  }
+
+  async lose(clientId: number)
+  {
+    if (await this.clientInStat(clientId))
+    {
+      await this.prisma.clientStats.update({
+        where: {
+          clientId
+        },
+        data: {
+          played: {
+            increment: 1,
+          }
+        }
+      });
+    }
+    else
+    {
+      await this.prisma.clientStats.create({
+        data: {
+          played: 1,
+          won: 0,
+          score: 0,
+          clientId
+        }
+      });
+    }
+  }
+  
+  async historicnewEntry(data: gameHistoricDto){
+    try {
+      const dataa =  await this.prisma.gameHistoric.create({
+        data: {
+          persScore: data.persScore,
+          vsScore: data.vsScore,
+          client1Id: data.client1Id,
+          client2Id: data.client2Id,
+        }
+      })
+      console.log(data);
+    }
+    catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException("User doesn't exist");
+        }
+      }
+    }
+  }
 }

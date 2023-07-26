@@ -1,71 +1,30 @@
 <script lang='ts'>
 	import { goto } from "$app/navigation";
 	import ConnectStatus from "$lib/connectStatus.svelte";
-	import { jwt_cookie, rooms, userId42 } from "$lib/stores";
+	import { jwt_cookie, rooms, userId42, userId } from "$lib/stores";
 	import { onMount, onDestroy } from "svelte";
-	import { socket, add_alert_On, deleteSocketEvents, deleteAlertOn, defineSocketEvents, isBlockedUser } from '$lib/socketsbs'
+	import { add_alert_On, deleteSocketEvents, deleteAlertOn, defineSocketEvents, isBlockedUser } from '$lib/socketsbs'
     import Invite from '$lib/invitation.svelte'
 	import { error } from "@sveltejs/kit";
+	import { Socket, io } from 'socket.io-client'
+	import { get, writable } from 'svelte/store';
 
     export let data: any;
     let roomId: string = data.roomId;
-	// let roomName = $rooms.find((el) => el.roomId == Number(roomId))?.roomName;
     let RoomsMessages: any = data.messages;
     let members: any = [];
     let user_message: string;
+	let socket: Socket<DefaultEventsMap, DefaultEventsMap> | undefined = undefined;
 
-    onMount(async () => {
-        // await fetchData(roomId);
-        // await fetchMembers(roomId);
+	onMount(() => {
+		socket = io('localhost:3000/chat', {path: '/chatsockets'});
+		socket.emit('whoAmI', get(userId));
 		deleteSocketEvents();
 		deleteAlertOn(roomId);
 		socket.on('serverToChat', recieveMessage);
 		socket.on('serverMessage', recieveServerMessage);
-    })
-
-    onDestroy(() => {
-		socket.off('serverToChat', recieveMessage);
-        socket.off('serverMessage', recieveServerMessage);
-		defineSocketEvents();
 	})
 
-    $:{
-        roomId = data.roomId;
-        fetchData();
-        fetchMembers();
-        deleteAlertOn(roomId);
-    }
-
-function fetchMembers() {
-  fetch(`/api/chat/room/${data.roomId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${$jwt_cookie}`
-      }
-    })
-  .then(async (response) => {
-      if (response.ok)
-      {
-        let rjson = await response.json();
-        members = rjson;
-      }
-      else
-      {
-        console.error("fetch failed on fetchMember");
-        console.error(response.status);
-        // goto("/");
-      }
-    })
-  .catch((error) => {
-    console.log(error);
-    // goto("/app/chat")
-  });
-}
-
-    /**
-     * The behaviour of serverToChat event is now different. When we recieve message and if we are in the rooom corresponding to message :
-     *  - we add the message directly to the array of fetched messages so we dont need to fetche again (all throught sockets)
-     */
 	let recieveMessage = (msg) => {
         if (isBlockedUser(msg.sender_id))
         {
@@ -110,10 +69,13 @@ function fetchMembers() {
   }
     
     let sendMessage = () => {
-            socket.emit('chatToServer', {channel: roomId, message: user_message, sender_id: $userId42});
-            user_message = "";
+		if (socket && user_message) {
+			RoomsMessages.push({sender: $userId42, message: user_message})
+			RoomsMessages = RoomsMessages
+			socket.emit('chatToServer', {channel: roomId, message: user_message, sender_id: $userId42});
+			user_message = "";
+		}
     }
-    
 	
 </script>
     
@@ -282,7 +244,7 @@ function fetchMembers() {
 
 	.messages {
 		max-height: 50vh;
-		overflow: scroll;
+		overflow: auto;
 	}
 
 	.one_message {
