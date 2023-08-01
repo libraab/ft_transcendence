@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { jwt_cookie, img_path, clientName, userId42, userId, rooms } from '$lib/stores';
 	import { goto, invalidate } from '$app/navigation';
+	import { page } from '$app/stores';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { io } from 'socket.io-client'
 	import { initializeSocket, msgCount, socket } from '$lib/socketsbs.js';
@@ -162,46 +163,40 @@
 
 
 <header>
-	<div class="image-container">
-		{#if $img_path}
-			<img src={$img_path} alt="logo" class="rick">
+	<div class="search-bar">
+		<input class="input" type="text" placeholder="search ..." id="id42-name-input" on:input={() => getSpecifiedClients()} bind:value={nameSearchInput}/>
+		{#if id42NameInputNotEmpty}
+			<div class="popup">
+				{#each searchRes as client}
+					<div class="link">
+						<button on:click={() => refreshInput(client)}>{client.name}</button>
+					</div>
+				{/each}
+			</div>
 		{/if}
-		<button class="Log Out" on:click={handleLogOut}>Log Out</button>
 	</div>
-	<div class="description">
-		<h1 class="glow-text">FT_TRANSCENDENCE</h1>
-		<p class="catch-phrase">An adventure into Pong Univers inside an Multiverse inside a jelly jar inside something else and go on ...</p>
+	<div class="content">
+		<h1>The Pong</h1>
+		<div class="panel">
+			<div class="controls">
+				<p class="controls-one">{$clientName}</p>
+				<button on:click={ () => goto('/app/settings') } class="controls-one">settings</button>
+				<button class="controls-one" on:click={handleLogOut}>log out</button>
+			</div>
+			{#if $img_path}
+				<img src={$img_path} alt="logo" class="rick">
+			{:else}
+				<img src='logo.jpeg' alt="logo" class="rick">
+			{/if}
+		</div>
 	</div>
 </header>
-
-<div>
-	<nav class="tabs">
-
-		<button on:click={ () => goto('/app/dashboard') } >DashBoard</button>
-		<button on:click={ () => goto('/app/game') } >Game</button>
-		<button on:click={ () => goto('/app/chat') } number={local_count} class:newMessage={local_count}>Chat</button>
-		<button on:click={ () => goto('/app/room') } >Room</button>
-		<div class="profile-container">
-			<div>
-				<label for="id42-name-input">search by Name:</label>
-				<input type="text" id="id42-name-input" on:input={() => getSpecifiedClients()} bind:value={nameSearchInput}/>
-				
-				<div class="popup_container">
-					{#if id42NameInputNotEmpty}
-						<div class="popup">
-							{#each searchRes as client}
-								<div class="link">
-									<button on:click={() => refreshInput(client)}>{client.name}</button>
-								</div>
-							{/each}
-						</div>
-					{/if}
-				</div>
-	
-			</div>
-		</div>
-	</nav>
-</div>
+<nav class="navbar">
+	<button on:click={ () => goto('/app/dashboard') } class:selected={$page.url.pathname === '/app/dashboard'}>DashBoard</button>
+	<button on:click={ () => goto('/app/friends') } class:selected={$page.url.pathname === '/app/friends'}>Friends</button>
+	<button on:click={ () => goto('/app/game') } class:selected={$page.url.pathname === '/app/game'}>Game</button>
+	<button on:click={ () => goto('/app/chat') } number={local_count} class:newMessage={local_count} class:selected={$page.url.pathname === '/app/chat'}>Chat</button>
+</nav>
 
 <main>
 	{#if alertPopupOn}
@@ -210,90 +205,123 @@
 	<slot class="main_body"></slot>
 </main>
 
-<footer>
-	<div class="bigup">Transcendental team42 - share like suscribe</div>
-</footer>
-
 <style>
-	:global(body) 
-    {
-        margin: 0 0 0 0;
-        padding: 0 0 0 0;
-    }
 
-	footer{
+	header {
+		/* background: no-repeat center/100% url('https://profile.intra.42.fr/assets/background_login-a4e0666f73c02f025f590b474b394fd86e1cae20e95261a6e4862c2d0faa1b04.jpg'); */
+		height: 25vh;
+		color: white;
+		padding: 0 100px;
+	}
+
+	h1 {
+		text-transform: uppercase;
+		font-weight: normal;
+	}
+
+	.content {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		align-items: center;
+		height: 100%;
+		max-width: 1000px;
+		margin: auto;
+		padding: auto;
+	}
+
+	.panel {
+		align-items: center;
+		display: flex;
+	}
+
+	.controls {
+		float: left;
+		display: flex;
+		justify-content: space-around;
+		flex-direction: column;
+		font-size: 15px;
+		margin-right: 15px;
+		font-weight: lighter;
 		text-align: center;
 	}
-	.bigup{
-		color: #aaa;
-		font-size: 14px;
-		display: inline-block;
-		padding: 10px;
-		border-top: 1px solid #ddd;
+
+
+	button {
+		text-decoration: none;
+		border: none;
+		background: none;
+		font-weight: normal;
+		font-family: 'Oxanium';
 	}
-	.tabs{
+
+	.controls button {
+		margin-top: 5px;
+		text-decoration: none;
+		color: white;
+		border: none;
+		background: none;
+		font-size: 15px;
+		font-weight: lighter;
+		font-family: 'Oxanium';
+	}
+
+	.controls button:hover {
+		text-decoration: underline;
+		cursor: pointer;
+	}
+
+	.rick {
+		width: 90px;
+		height: 90px;
+		border-radius: 50%;
+		/* margin-right: 20px; */
+		object-fit: cover;
+		/* box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); */
+	}
+
+	.search-bar {
+		text-align: left;
+	}
+	
+	.input {
+		width: 150px;
+		height: 20px;
+		padding-left: 20px;
+		font-family: 'Oxanium';
+		border: none;
+	}
+
+	.navbar {
+		padding: 0 100px;
+		background-color: #404040;
+		display: flex;
+		justify-content: space-around;
+	}
+
+	.navbar button {
+		padding: 8px 30px;
+		color: white;
+		font-size: 12px;
+		font-weight: 200;
+	}
+
+	.navbar button:hover {
+		cursor: pointer;
+	}
+
+	.selected {
+		background-color: #3AB45C;
+	}
+
+
+	/* .tabs{
 		display: flex;
 		justify-content: space-around;
 		padding: 0 150px;
 		margin: 0;
 		background-color: #292d39;
 		color: lightgray
-	}
-	button{
-		position: relative;
-		text-decoration: none;
-		color: rgb(148, 146, 193);
-		text-align: center;
-		width: 120px;
-		margin: 5px 20px;
-		list-style-type: none;
-		background: none;
-		border: none;
-		cursor: pointer;
-	}
-	.image-container {
-		position: relative;
-	}
-	.rick {
-		width: 150px;
-		height: 150px;
-		border-radius: 50%;
-		margin-right: 20px;
-		object-fit: cover;
-		box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-	}
-	.main_body {
-		/* height: 50vh; 33% de la hauteur de la fenêtre */
-		width: 100%; /* 100% de la largeur de la fenêtre */
-		/* background: url('path/to/img.png') center/cover no-repeat, blue; */
-
-		/* color: white; */
-		margin: 0 auto;
-		font-size: 6px;
-		font-size: 1vw;
-	}
-	header {
-		background: no-repeat center/100% url('https://profile.intra.42.fr/assets/background_login-a4e0666f73c02f025f590b474b394fd86e1cae20e95261a6e4862c2d0faa1b04.jpg');
-		padding: 20px 200px;
-		display: flex;
-		justify-content: flex-start;
-	}
-	.description {
-		max-width: 500px;
-		color: whitesmoke;
-		padding: 20px;
-		display: flex;
-		flex-direction: column;
-		justify-content: end;
-	}
-	.catch-phrase {
-		font-style: italic;
-	}
-	.image-container {
-		position: relative;
-	}
-	.glow-text {
-		text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
 	}
 
 	.newMessage::after {
@@ -309,143 +337,53 @@
 		text-align: center;
 		line-height: 20px;
 		font-size: 12px;
-	}
+	} */
 	.link {
 		text-decoration: none;
+		background-color: white;
+		height: 20px;
+		width: 150px;
+		padding-left: 20px;
 		transition: background-color 0.3s ease;
+		transition: color 0.3s ease;
 	}
 	.link:hover {
-		background-color: #f0f0f0; /* Couleur de fond grisé */
+		color:#3AB45C;
+		cursor: pointer;
 	}
-	.profile-container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		text-align: center;
-  	}
-	.popup_container {
-		position: relative; /* Ajout du positionnement relatif */
-		width: 7vw;
-		left: 50%;
-		transform: translateX(-50%);
+	.link button:hover {
+		color:#3AB45C;
+		cursor: pointer;
 	}
-	.popup {
+
+	.popup
+	{
 		position: absolute;
-		top: calc(100% + 10px); /* Positionnement en dessous de l'input */
-		left: 0;
-		width: 100%;
-		max-height: 200px;
-		overflow-y: auto;
-		background-color: #fff;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		padding: 8px;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-		z-index: 1; /* Assure que la fenêtre contextuelle est au-dessus des autres éléments */
 	}
-	.profile-container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		text-align: center;
-  	}
-	.popup_container {
-		position: relative; /* Ajout du positionnement relatif */
-		width: 7vw;
-		left: 50%;
-		transform: translateX(-50%);
-	}
-	.popup {
-		position: absolute;
-		top: calc(100% + 10px); /* Positionnement en dessous de l'input */
-		left: 0;
-		width: 100%;
-		max-height: 200px;
-		overflow-y: auto;
-		background-color: #fff;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		padding: 8px;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-		z-index: 1; /* Assure que la fenêtre contextuelle est au-dessus des autres éléments */
-	}
-	.image-container {
+	
+	/* .popup_container {
 		position: relative;
+		width: 7vw;
+		left: 50%;
+		transform: translateX(-50%);
 	}
-	.rick {
-		width: 150px;
-		height: 150px;
-		border-radius: 50%;
-		margin-right: 20px;
-		object-fit: cover;
-		box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-	}
-
-	html, body {
-	position: relative;
-	width: 100%;
-	height: 100%;
-}
-
-body {
-	margin: 0;
-	padding: 0;
-	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
-}
-
-
-a {
-	color: rgb(0,100,200);
-	text-decoration: none;
-}
-
-a:hover {
-	text-decoration: underline;
-}
-
-a:visited {
-	color: rgb(0,80,160);
-}
-
-label {
-	display: block;
-}
-
-/* input, button, select, textarea {
-	font-family: inherit;
-	font-size: inherit;
-	-webkit-padding: 0.4em 0;
-	padding: 0.4em;
-	margin: 0 0 0.5em 0;
-	box-sizing: border-box;
-	border: 1px solid #ccc;
-	border-radius: 2px;
-} */
+	.popup {
+		position: absolute;
+		top: calc(100% + 10px);
+		left: 0;
+		width: 100%;
+		max-height: 200px;
+		overflow-y: auto;
+		background-color: #fff;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		padding: 8px;
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		z-index: 1;
+	} */
 
 input:disabled {
 	color: #ccc;
 }
 
-/* button {
-	color: #333;
-	background-color: #f4f4f4;
-	outline: none;
-} */
-
-button:disabled {
-	color: #999;
-}
-
-button:not(:disabled):active {
-	background-color: #ddd;
-}
-
-button:focus {
-	border-color: #666;
-}
-
-ul {
-	margin: 0;
-	padding: 0;
-}
 </style>

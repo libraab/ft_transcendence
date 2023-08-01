@@ -18,6 +18,8 @@
 	let fl: any = [];
 	let isDFAActive: boolean;
 
+	//to fetch
+	stats = {win: 3, loose: 3, gp: 20}
 
 	async function getFlforId() {
 		try {
@@ -115,15 +117,21 @@
 	}
 </script>
 
-<UpdateModal {updatePop} id={$userId} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
+<!-- <UpdateModal {updatePop} id={$userId} on:click={() => toggleUpdatePopup()} on:updated={() => profileUpdate()}/>
 <DeleteModal {deletePop} on:click={() => toggleDeletePopup()}/>
-<RankModal {ranksTab} on:click={() => toggleRanksTab()} />
+<RankModal {ranksTab} on:click={() => toggleRanksTab()} /> -->
 
-<div class="main_body">
-	<main class="container">
+	<main class="main_body">
 		<div class="profile-container">
-		<h2 class="shiny-text">{$clientName}</h2>
-			<div class="profile-info">
+			<img src={$img_path} alt="logo" class="rick">
+			<h2>{$clientName}</h2>
+			<div class="stats">
+				<p>victory - {stats.win}</p>
+				<p>loses - {stats.loose}</p>
+				<p>ratio - 50%</p> <!-- ici faire un calcul division et truc -->
+				<p>game points - {stats.gp}</p>
+			</div>
+			<!-- <div class="profile-info">
 				<button class="round-button" on:click={() => toggleUpdatePopup()}>Update</button>
 				<button class="round-button" on:click={() => toggleDeletePopup()}>Delete</button>
 				<button class="round-button" on:click={() => toggleRanksTab()}>Ranking</button>
@@ -138,10 +146,53 @@
 				{#if qrCodeImageUrl}
 					<img src={qrCodeImageUrl} alt="QR Code" />
 				{/if}
-			</div>
+			</div> -->
 		</div>
-
-		<div class="profile-container">
+		<div class="list-container">
+			<h3>Match History</h3>
+			<ul>
+				<li class="mh-list">
+					<div class="mh-opponent">
+						<img src={$img_path} alt="logo" class="mh-img">
+						<p>dmercadi</p>
+					</div>
+					<p>7</p>
+					<p>-</p>
+					<p>4</p>
+					<div class="mh-opponent">
+						<p>bob l'eponge</p>
+						<img src={$img_path} alt="logo" class="mh-img">
+					</div>
+				</li>
+				<li class="mh-list">
+					<div class="mh-opponent">
+						<img src={$img_path} alt="logo" class="mh-img">
+						<p>dmercadi</p>
+					</div>
+					<p>7</p>
+					<p>-</p>
+					<p>6</p>
+					<div class="mh-opponent">
+						<p>patrick</p>
+						<img src={$img_path} alt="logo" class="mh-img">
+					</div>
+				</li>
+				<li class="mh-list">
+					<div class="mh-opponent">
+						<img src={$img_path} alt="logo" class="mh-img">
+						<p>Grimlins</p>
+					</div>
+					<p>7</p>
+					<p>-</p>
+					<p>0</p>
+					<div class="mh-opponent">
+						<p>dmercadi</p>
+						<img src={$img_path} alt="logo" class="mh-img">
+					</div>
+				</li>
+			</ul>
+		</div>
+		<!-- <div class="profile-container">
 			<h2>Stats</h2>
 			{#if stats && Object.keys(stats).length > 0}
 				<p> played: { stats.played } </p>
@@ -158,10 +209,10 @@
 				<p>didn't play yet</p>
 				<a href="/app/game" style="text-decoration: none;">─=≡Σ((( つ•̀ω•́)つLET’SGOOOO!</a>
 			{/if}
-		</div>
-
+		</div> -->
+	
 	<!-- ---------------------------------------------------------------------------- -->
-		<div class="profile-container">
+		<!-- <div class="profile-container">
 			<h1>My Friends</h1>
 			{#if fl.length !== 0}
 				{#each fl as friend}
@@ -180,118 +231,166 @@
 			{:else}
 				<p>...</p>
 			{/if}
-		</div>
-
+		</div> -->
 	</main>
-</div>
-
-<style>
-	.main_body {
-		width: 100%;
-		padding: 20px;
-	}
-
-	.friend-container {
-		display: flex;
-		align-items: center;
-	}
-
-	.friend-container h2 {
-		margin-right: 10px;
-	}
-	.emoji-container {
-		display: flex;
-		flex-direction: column;
-	}
-
-	.emoji-container span {
-		margin-top: 5px;
-	}
-	.profile-container {
-		/* display: flex;
-		flex-direction: column;
-		align-items: center;
-		text-align: center; */
-		margin-bottom: 20px;
-  	}
-
-	.shiny-text {
-		display: inline-block;
-		font-size: 36px; /* Increase the font size to make it bigger */
-		font-family: "Arial", sans-serif; /* Apply a specific font */
-		color: #333; /* Set a desired font color */
-		text-shadow: none; /* Remove the text shadow */
-	}
-
-	.profile-info {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		flex-wrap: wrap;
-	}
-
-	.container {
-		height: 100%; /* occupe 100% de la hauteur de main_body */
-		display: flex;
-		justify-content: space-around;
-		flex-direction: column;
-		align-items: center;
-		text-align: center;
-	}
 	
-	.round-button {
-		border: none;
-		background-color: #9e9c9c;
-		border-radius: 20px;
-		color: white;
-		font-size: 16px;
-		font-weight: bold;
-		cursor: pointer;
-		outline: none;
-		padding: 10px 20px;
-		margin: 10px;
-		transition: background-color 0.3s ease;
-	}
-
-	.round-button:hover {
-		background-color: #464947;
-	}
-
-	.round-button:active {
-		transform: scale(0.95);
-	}
-
-	.dfa-button.active {
-		background-color: green;
-	}
-
-	.dfa-button.inactive {
-		background-color: red;
-	}
-
-	/* Media query for tablets */
-	@media (min-width: 768px) {
-		.container {
-			flex-direction: row;
-			justify-content: space-around;
+	<style>
+		.main_body {
+			width: 100%;
+			padding: 20px 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
 		}
-
+	
 		.profile-container {
-			flex-basis: 33.33%;
-			max-width: 33.33%;
+			padding: 30px 50px;
+			background-color: #404040;
+			max-width: 300px;
+			border-radius: 8px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			text-align: center;
+			color: white;
+			font-size: 20px;
+		  }
+	
+		h2 {
+			font-weight: normal;
+			font-size: 20px;
 		}
-	}
-
-	/* Media query for desktops */
-	@media (min-width: 1024px) {
-		.container {
+	
+		.rick {
+			width: 150px;
+			height: 150px;
+			border-radius: 50%;
+			/* margin-right: 20px; */
+			object-fit: cover;
+			/* box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); */
+		}
+	
+		.list-container {
+			padding: 50px 50px;
+			border-radius: 8px;
+			color: white;
+			width: 100%;
+		}
+	
+		.list-container h3 {
+			font-weight: normal;
+			font-size: 25px;
+		}
+	
+		.list-container ul {
+			margin: 0;
+			padding: 0;
+		}
+	
+		.mh-list {
+			background-color: #404040;
+			text-decoration: none;
+			list-style: none;
+			display: flex;
 			flex-direction: row;
-			justify-content: space-around;
+			justify-content: space-between;
+			margin: 10px 50px;
+			border-radius: 8px;
 		}
-
-		.profile-container {
-			flex-basis: 25%;
-			max-width: 25%;
+	
+		.mh-img {
+			width: 50px;
+			height: 50px;
+			border-radius: 50%;
+			/* margin-right: 20px; */
+			object-fit: cover;
+			/* box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); */
 		}
-	}
-</style>
+	
+		.mh-opponent {
+			display: flex;
+		}
+	
+		/* .friend-container {
+			display: flex;
+			align-items: center;
+		}
+	
+		.friend-container h2 {
+			margin-right: 10px;
+		} */
+		/* .emoji-container {
+			display: flex;
+			flex-direction: column;
+		}
+	
+		.emoji-container span {
+			margin-top: 5px;
+		} */
+		/* 
+	
+		.profile-info {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-wrap: wrap;
+		}
+	
+		.round-button {
+			border: none;
+			background-color: #9e9c9c;
+			border-radius: 20px;
+			color: white;
+			font-size: 16px;
+			font-weight: bold;
+			cursor: pointer;
+			outline: none;
+			padding: 10px 20px;
+			margin: 10px;
+			transition: background-color 0.3s ease;
+		}
+	
+		.round-button:hover {
+			background-color: #464947;
+		}
+	
+		.round-button:active {
+			transform: scale(0.95);
+		}
+	
+		.dfa-button.active {
+			background-color: green;
+		}
+	
+		.dfa-button.inactive {
+			background-color: red;
+		} */
+	
+		/* Media query for tablets */
+		/* @media (min-width: 768px) {
+			.container {
+				flex-direction: row;
+				justify-content: space-around;
+			}
+	
+			.profile-container {
+				flex-basis: 33.33%;
+				max-width: 33.33%;
+			}
+		} */
+	
+		/* Media query for desktops */
+		/* @media (min-width: 1024px) {
+			.container {
+				flex-direction: row;
+				justify-content: space-around;
+			}
+	
+			.profile-container {
+				flex-basis: 25%;
+				max-width: 25%;
+			}
+		} */
+	</style>
+	
