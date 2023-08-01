@@ -43,70 +43,52 @@
     })
 </script>
 
-<div class="wrapper">
-    <form>
-        <h1>FT_TRANSCENDENCE</h1>
-        <h2>Hello traveler, to start you pong journey please use the button bellow</h2>
-        <a href={data.url} class="login-button">
-            Sign in with 42
-        </a>
-    </form>
+
+<div class="screen">
+	<h1>THE PONG</h1>
+	<!-- <h2>Hello traveler, to start you pong journey please use the button bellow</h2> -->
+	<a href={data.url} class="login-button">
+		Sign in
+	</a>
 </div>
 
 
-<style global>
-
-    :global(body) 
-    {
-        margin: 0 0 0 0;
-        padding: 0 0 0 0;
-    }
-
-    .wrapper {
-        background-image: url('/background42.jpg');
-        background-size: cover;
-        background-position: center;
-        width: 100%;
-        height: 100vh;
-    }
-
-    form {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #fff;
-        padding: 100px;
-        border-radius: 10px;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    form h1 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-    form h2 {
-    text-align: center;
-    margin-bottom: 20px;
+<style>
+.screen {
+	height: 100vh;
+	width: 100vw;
+	background: rgb(23,23,23);
+	background: linear-gradient(135deg, rgba(23,23,23,1) 0%, rgba(23,23,23,0) 100%);
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 }
 
-    .login-button {
-        display: block;
-        width: 100%;
-        max-width: 240px;
-        padding: 16px;
-        font-size: 16px;
-        font-weight: bold;
-        text-align: center;
-        text-decoration: none;
-        color: #fff;
-        background-color: #007bff;
-        border-radius: 8px;
-        transition: background-color 0.2s ease-in-out;
-        margin: auto auto;
-    }
+h1 {
+text-align: center;
+margin-bottom: 20px;
+text-transform: uppercase;
+font-size: 64px;
+color: #fff;
+}
 
-    .login-button:hover {
-        background-color: #0062cc;
-    }
+.login-button {
+	display: block;
+	width: 100%;
+	max-width: 240px;
+	padding: 16px;
+	font-size: 16px;
+	font-weight: bold;
+	text-align: center;
+	text-decoration: none;
+	color: #fff;
+	background-color: #DF0000;
+	/* border-radius: 8px; */
+	transition: background-color 0.2s ease-in-out;
+	margin: 30px auto;
+}
+
+.login-button:hover {
+	background-color: #00cc1b;
+}
 </style>
