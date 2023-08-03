@@ -9,7 +9,6 @@ interface User {
   interface Room {
 	roomId: number;
 	roomName: String;
-	newMsgCount: number;
   }
 export let rooms = writable<Room[]>([]);
 export let blockedUser = writable<User[]>([]);

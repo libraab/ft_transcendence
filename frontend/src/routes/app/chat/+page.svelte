@@ -7,32 +7,28 @@
     let messages = [];
 
     onMount(async () => {
-        const response = await fetch('/api/chat/messages/1');
-        messages = await response.json();
+        // const response = await fetch('/api/chat/messages/1');
+        // messages = await response.json();
     });
 </script>
 
-<div class="room_wrap">
+<div class="chat-content">
 			<p class="info">no room selected</p>
-	<!-- Le bouton est desactivé car on est dans aucune room
-	<form on:submit|preventDefault={() => {}} class="component_send_box">
-		<input type="text" placeholder="write a message, or shut up">
-		<button>send</button>
-	</form> -->
 </div>
+<div class="chat-users-content"></div>
 
 <style>
 
-	.room_wrap {
+	.chat-content {
 		width: 100%;
 		/* max-height: 60vh; */
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		background: #ffffff;
-		color: #292d39;
-		padding: 5px;
-		max-height: 60vh;
+		margin: 30px 0;
+	}
+
+	.chat-users-content
+	{
+		background-color: #404040;
+		width: 30vw;
 	}
 /* 
 	.component_send_box {
