@@ -153,10 +153,10 @@
 		await goto(`/app/dashboard/${client.name}`, { replaceState: true});
 	}
 
-	$:{
-		$rooms;
-		local_count = msgCount;
-	}
+	// $:{
+	// 	$rooms;
+	// 	local_count = msgCount;
+	// }
 
 	
 </script>
@@ -180,7 +180,7 @@
 		<div class="panel">
 			<div class="controls">
 				<p class="controls-one">{$clientName}</p>
-				<button on:click={ () => goto('/app/settings') } class="controls-one">settings</button>
+				<button on:click={ () => goto('/app/settings') } class:settings-select={$page.url.pathname === '/app/settings'} class="controls-one" >settings</button>
 				<button class="controls-one" on:click={handleLogOut}>log out</button>
 			</div>
 			{#if $img_path}
@@ -255,15 +255,25 @@
 		font-family: 'Oxanium';
 	}
 
+	
+
 	.controls button {
 		margin-top: 5px;
 		text-decoration: none;
-		color: white;
+		
 		border: none;
 		background: none;
 		font-size: 15px;
 		font-weight: lighter;
 		font-family: 'Oxanium';
+	}
+
+	.controls-one {
+		color: white; 
+	}
+
+	.settings-select {
+		color: #05E300;
 	}
 
 	.controls button:hover {

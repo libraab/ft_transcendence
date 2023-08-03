@@ -10,6 +10,9 @@ let blocked_users = [{block_id: 3, block_name: "LeGugusQuiMeSaoule"},
 
 	let badUpdate = false;
 	let indexBadUpdate = 0;
+	let new_img_data;
+	let fileInput : any = null;
+	let files : any;
 
 	
 	async function submitForm()
@@ -60,6 +63,18 @@ let blocked_users = [{block_id: 3, block_name: "LeGugusQuiMeSaoule"},
 		}
 		goto('/app/dashboard');
 	}
+
+	//for previsualisation we extract file data
+	function getBase64(image: any) {
+        const reader = new FileReader();
+        reader.readAsDataURL(image);
+        reader.onload = e => {
+            new_img_data = e.target.result;
+        };
+    };
+
+
+	// $:{console.log(files)}
 </script>
 
 <div class="settings-wrap">
@@ -72,12 +87,14 @@ let blocked_users = [{block_id: 3, block_name: "LeGugusQuiMeSaoule"},
 		<div class="inputs inputs-avatar">
 			<h4>Avatar :</h4>
 			<label>
-				{#if $img_path}
+				{#if fileInput && fileInput.value != ''}
+					<div class="selected-img"><img src={new_img_data} alt="logo" class="rick"><button class="btn-image-delete-selected" on:click={ () => fileInput.value = '' }>x</button></div>
+				{:else if $img_path}
 					<img src={$img_path} alt="logo" class="rick">
 				{:else}
 					<img src='logo.jpeg' alt="logo" class="rick">
 				{/if}
-				<p><input type="file" id="file-upload" name="file-upload"></p>
+				<p><input type="file" accept=".png,.jpg" id="file-upload" name="file-upload" bind:this={fileInput} bind:files on:change={() => getBase64(files[0])}></p>
 				<!-- <input type="file" name="file-upload" id="file-upload"> -->
 			</label>
 		</div>
@@ -159,6 +176,27 @@ let blocked_users = [{block_id: 3, block_name: "LeGugusQuiMeSaoule"},
 		font-family: 'Oxanium';
 		font-size: 10px;
 		cursor: pointer;
+	}
+
+	.selected-img {
+		position: relative;
+	}
+
+	.btn-image-delete-selected {
+		position: absolute;
+		top: 0;
+		right: 0;
+		border: none;
+		background-color: #DF0000;
+		border-radius: 50%;
+		color: white;
+		cursor: pointer;
+		font-size: 8px;
+		font-weight: bold;
+		font-family: 'Oxanium';
+		width: 20px;
+		height: 20px;
+		padding: 5px;
 	}
 
 	.btn-wrap {
