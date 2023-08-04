@@ -47,8 +47,6 @@ export class AuthController {
   ) {
     const { code } = query;
     const access_token = await this.authService.get_token(code);
-    if (access_token == undefined)
-      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     const user_info: User42Interface = await this.authService.get_user_info(
       access_token,
     );

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { HttpException, Injectable } from '@nestjs/common';
 import axios from 'axios'; // import default without scopes
 import type User42Interface from './user42.interface';
 
@@ -19,7 +19,7 @@ export class AuthService {
       })
       .catch((err: any) => {
         console.error(err);
-        return undefined;
+        throw new HttpException(err.response.data.error, err.response.status);
       });
     return token;
   }
