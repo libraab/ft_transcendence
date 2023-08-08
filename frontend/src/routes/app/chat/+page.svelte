@@ -59,11 +59,11 @@
 		height: 100%;
 		background: lightseagreen;
 	} */
-
+/* 
 	.messages {
 		max-height: 50vh;
 		overflow: scroll;
-	}
+	} */
 
 	.info {
 		width: 100%;

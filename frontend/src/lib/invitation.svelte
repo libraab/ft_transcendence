@@ -17,8 +17,11 @@
 
 </script>
 
-<button on:click={sendInvitation}>Defier</button>
+<button on:click={sendInvitation}>⚔️</button>
 
 <style>
-
+	button {
+		border: none;
+		background-color: none;
+	}
 </style>

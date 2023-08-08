@@ -114,8 +114,17 @@ export class DashboardController {
   async getFlForId42(@Request() req: {user: IJWT}) {
     let client = await this.db.getClientById42(req.user.id)
     if (!client)
-      
+		return [];
     return this.db.getRelationsByClientId1(client.id);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/blockedusers')
+  async getBlockedUser(@Request() req: {user: IJWT}) {
+    let client = await this.db.getClientById42(req.user.id)
+    if (!client)
+      return [];
+	return this.db.blockedMemberForClientId(client.id);
   }
 
   @Get('/getfile/:filename')

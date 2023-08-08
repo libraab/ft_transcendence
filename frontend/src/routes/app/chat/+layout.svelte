@@ -1,8 +1,9 @@
 <script lang='ts'>
 	import { type Rooms, jwt_cookie } from '$lib/stores'
+	import { socket } from '$lib/socketsbs';
 	import { onMount } from 'svelte';
 	import { afterNavigate } from '$app/navigation';
-	import { reloadRooms, updateCount } from '$lib/socketsbs';
+	// import { reloadRooms, updateCount } from '$lib/socketsbs';
 	import { page } from '$app/stores';
 	import type { AfterNavigate } from '@sveltejs/kit';
 
@@ -10,7 +11,7 @@
 	// let rooms_promise;
 	let rooms_promise = fetchRooms();
 
-	onMount( () => {
+	onMount( async () => {
 		/**
 		 * Reloading $rooms here is not mandatory but is recomended
 		 * otherwise reload is trigered when some rooms changes are done on the backend and signaled trought the socket to the user if connected
@@ -18,9 +19,17 @@
 		// console.log("onmount chat layout");
 		//reloadRooms();
 		// console.log($page.route);
+		let rooms = await rooms_promise;
+		if (socket)
+		{
+			rooms.forEach((room) => {
+				socket.emit('joinChannel', String(room.roomId));
+			});
+		}
 	});
 
 	//pour l'instant cette partie est inutile car le layout est reload a chaque navigation, mais en mettant le fetch seulement en onMount, le block await each saute, Mystere.
+	// solution? mettre le fetch dans le load?
 	// afterNavigate( (navigation: AfterNavigate) => {
 	// 	if (navigation && navigation.from('/app/chat/create'))
 	// 		rooms_promise = fetchRooms();
@@ -96,13 +105,13 @@
 
 	.list_box {
 		color: whitesmoke;
-		background-color: #292d39;
+		background-color: #404040;
 		width: 30vw;
 		overflow: scroll;
 	}
 
 	.one-room {
-		padding: 15px 20px;
+		/* padding: 15px 20px; */
 		text-align: center;
 	}
 
@@ -111,6 +120,8 @@
 	}
 
 	.one-room a {
+		display: block;
+		padding: 15px 0;
 		text-decoration: none;
 		color: white;
 	}

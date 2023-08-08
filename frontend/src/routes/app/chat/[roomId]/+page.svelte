@@ -1,97 +1,140 @@
 <script lang='ts'>
-	import { goto } from "$app/navigation";
+	import { afterNavigate, goto } from "$app/navigation";
 	import ConnectStatus from "$lib/connectStatus.svelte";
-	import { jwt_cookie, rooms, userId42, userId } from "$lib/stores";
+	import { jwt_cookie, rooms, userId42, userId, clientName } from "$lib/stores";
 	import { onMount, onDestroy } from "svelte";
-	import { add_alert_On, deleteSocketEvents, deleteAlertOn, defineSocketEvents, isBlockedUser } from '$lib/socketsbs'
+	import { socket } from '$lib/socketsbs'
     import Invite from '$lib/invitation.svelte'
 	import { error } from "@sveltejs/kit";
-	import { Socket, io } from 'socket.io-client'
+	// import { Socket, io } from 'socket.io-client'
 	import { get, writable } from 'svelte/store';
 
-    export let data: any;
-    let roomId: string = data.roomId;
-    let RoomsMessages: any = data.messages;
+    // export let data: any;
+	export let data : any;
+	let roomId = data.roomId;
+    // let roomId: string = data.roomId;
+    let RoomsMessages: any = [];
     let members: any = [];
     let user_message: string;
-	let socket: Socket<DefaultEventsMap, DefaultEventsMap> | undefined = undefined;
-
+	
+	// let socket: Socket<DefaultEventsMap, DefaultEventsMap> | undefined = undefined;
+	
 	onMount(() => {
-		socket = io('localhost:3000/chat', {path: '/chatsockets'});
-		socket.emit('whoAmI', get(userId));
-		deleteSocketEvents();
-		deleteAlertOn(roomId);
-		socket.on('serverToChat', recieveMessage);
-		socket.on('serverMessage', recieveServerMessage);
+		fetchData();
+		fetchMembers();
+		// socket = io('localhost:3000/chat', {path: '/chatsockets'});
+		// socket.emit('whoAmI', get(userId));
+		// deleteSocketEvents();
+		// deleteAlertOn(roomId);
+		if (socket)
+		{
+			socket.emit('joinChannel', String(roomId));
+			socket.on('serverToChat', recieveMessage);
+			socket.on('serverMessage', recieveServerMessage);
+		}
+	})
+
+	onDestroy(() => {
+		socket.emit('leaveChannel', String(roomId));
+		socket.off('serverToChat', recieveMessage);
+		socket.off('serverMessage', recieveServerMessage);
 	})
 
 	let recieveMessage = (msg) => {
-        if (isBlockedUser(msg.sender_id))
-        {
-            return;
-        }
-		if (msg.channel == roomId)
+        // if (isBlockedUser(msg.sender_id))
+        // {
+        //     return;
+        // }
 			RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
-		else
-			add_alert_On(msg.channel);
-	}
+		}
 
 	let recieveServerMessage = (msg) => {
-		if (msg.channel == roomId)
-			RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
+		RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
 	}
 
     /**
      * Extract all messages from a room database
      * blocked users are excluded
      */
-	 function fetchData() {
-  	console.log("load chat[roomid]/page fetchData");
-  fetch(`/api/chat/messages/${data.roomId}`, {
-    headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
-  })
-    .then(async (response) => {
-      if (response.ok)
-      {
-        console.log("load chat[roomid]/page fetchData ok");
-        let messages = await response.json();
-        console.log('before')
-        console.log(messages);
-        console.log('after');
-        RoomsMessages = messages;
-      }
-      console.log(response.status)
-    })
-    .catch((error) => {
-      console.error(error);
-      // goto("/app/chat");
-    });
-  }
+	function fetchData() {
+  		console.log("load chat[roomid]/page fetchData");
+  		fetch(`/api/chat/messages/${data.roomId}`, {
+			headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
+		})
+		.then(async (response) => {
+			if (response.ok)
+			{
+				console.log("load chat[roomid]/page fetchData ok");
+				let messages = await response.json();
+				console.log('before')
+				console.log(messages);
+				console.log('after');
+				RoomsMessages = messages;
+			}
+			console.log(response.status)
+		})
+		.catch((error) => {
+			console.error(error);
+			// goto("/app/chat");
+    	});
+  	}
+
+	  function fetchMembers() {
+		fetch(`/api/chat/room/${data.roomId}`, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${$jwt_cookie}`
+			}
+			})
+		.then(async (response) => {
+			if (response.ok)
+			{
+				let rjson = await response.json();
+				members = rjson;
+			}
+			else
+			{
+				console.error("fetch failed on fetchMember");
+				console.error(response.status);
+				// goto("/");
+			}
+			})
+		.catch((error) => {
+			console.log(error);
+			// goto("/app/chat")
+		});
+	}
     
     let sendMessage = () => {
 		if (socket && user_message) {
-			RoomsMessages.push({sender: $userId42, message: user_message})
-			RoomsMessages = RoomsMessages
+			// RoomsMessages.push({sender: $userId42, message: user_message}) haha non merci
+			// RoomsMessages = RoomsMessages
 			socket.emit('chatToServer', {channel: roomId, message: user_message, sender_id: $userId42});
 			user_message = "";
 		}
     }
-	
+
+	afterNavigate( (navigation: AfterNavigate) => {
+		// if (navigation && navigation.from('/app/chat/create'))
+		// 	rooms_promise = fetchRooms();
+			fetchData();
+			fetchMembers();
+	})
 </script>
     
 <div class="room_wrap"> 
     <!-- rajouter un link bouton fermer qui retourne sur /chat -->
     <ul class="messages">
         {#each RoomsMessages as message}
-                <li class="one_message" class:servermsg={message.sender === 'server'}>
-                    <strong>{message.sender}</strong>: {message.message}
+                <li class="one_message" class:servermsg={message.sender === 'server'} class:myMessage={message.sender === $clientName}>
+                    {message.sender}: {message.message}
                 </li>
         {:else}
                 <p class="info">no messages, be the first one</p>
         {/each}
     </ul>
     <form on:submit|preventDefault={sendMessage} class="component_send_box">
-        <input type="text" placeholder="write a message, or shut up" bind:value={user_message}>
+        <input type="text" placeholder="Type something ..." bind:value={user_message}>
         <button>send</button>
     </form>
 </div>
@@ -99,46 +142,42 @@
     <ul>
         {#each members as member}
         <li class="one_member">
-            <strong>{member.member.name}</strong><ConnectStatus userId={member.member.id} />
-            {#if member.status == 0}
+            <a href="/app/dashboard/{member.member.name}">{member.member.name}</a>
+            <!-- {#if member.status == 0}
             ♚
             {:else if member.status == 1}
             ♟
-            {/if}
+            {/if} -->
             <!-- si on est admin ou owner   -->
-           {#if member.member.id != data.id}
-                <button on:click={() => goto(`/app/dashboard/${member.member.name}`)}>Profil</button>
+           	{#if member.member.id != data.id}
                 <Invite opponent_id={member.member.id} />
             {/if}
+			<ConnectStatus userId={member.member.id} />
         </li>
         {/each}
     </ul>
 </div>
     
 <style>
+	.members {
+		width: 30vw;
+		background-color: #404040;
+	}
+
+	.room_wrap {
+		width: 100%;
+		margin: 30px 0;
+		display: flex;
+		flex-direction: column;
+		justify-content: end;
+	}
+
      a {
 	color: rgb(0,100,200);
 	text-decoration: none;
     }
 
-    .container {
-		background-color: white;
-		border-radius: 10px;
-		border: solid;
-		border-color: #eaeaea;
-		border-width: 1px 0px 0px 1px;
 
-		color: black;
-		/* height: 100%; occupe 100% de la hauteur de main_body */
-		margin: 0px 200px;
-		max-width: 80wv;
-		min-height: 50vh;
-
-		display: flex;
-		flex-direction: row;
-		justify-content: flex-start;
-		overflow: hidden;
-	}
 
 	.list_box {
 		color: whitesmoke;
@@ -207,27 +246,26 @@
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
-		background: #ffffff;
-		color: #292d39;
+		color: #ffffff;
 		padding: 5px;
 		max-height: 60vh;
 	}
 
 	.component_send_box {
-		border: solid 1px lightseagreen;
-		border-radius: 50px;
+		background-color: #FFFFFF;
 		overflow: hidden;
-		margin: 0px 20px;
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
 		align-items: baseline;
+		padding: 5px 10px;
 	}
 
 	.component_send_box input {
 		border: none;
 		width: 100%;
 		max-width: 80%;
+		font-family: 'Oxanium';
 	}
 
 	input:focus {
@@ -236,19 +274,31 @@
 
 	.component_send_box button {
 		border: none;
-		border-radius: 0px;
-		width: 100px;
-		height: 100%;
-		background: lightseagreen;
+		border-radius: 10px;
+		width: 80px;
+		height: 30px;
+		background: #DBDBDB;
+		font-family: 'Oxanium';
 	}
 
 	.messages {
-		max-height: 50vh;
+		display: flex;
+		flex-direction: column;
+		max-height: 60vh;
 		overflow: auto;
 	}
 
 	.one_message {
-		padding: 2px;
+		background-color: #404040;
+		max-width: 50%;
+		border-radius: 5px;
+		margin: 10px 0;
+		padding: 15px 20px;
+	}
+
+	.myMessage {
+		background-color: #3AB45C;
+		align-self: flex-end;
 	}
 
 	.servermsg {
@@ -264,5 +314,18 @@
 		text-align: center;
 	}
 
+
+	/* Member Block */
+
+	.one_member {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-around;
+	}
+
+	.one_member a {
+		text-decoration: none;
+		color: white;
+	}
 
 </style>

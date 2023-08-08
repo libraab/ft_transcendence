@@ -4,14 +4,10 @@
 	import { page } from '$app/stores';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { io } from 'socket.io-client'
-	import { initializeSocket, msgCount, socket } from '$lib/socketsbs.js';
+	import { initializeSocket, socket } from '$lib/socketsbs.js';
 	import { connectClientToColyseus } from '$lib/gamesocket';
 	import Alert from '$lib/popupAlert.svelte'
 	// import { redirect } from '@sveltejs/kit';
-
-	// la socket ICICICICI//
-	
-	let local_count = msgCount;
 
 	/**
 	 * Invitations
@@ -195,7 +191,7 @@
 	<button on:click={ () => goto('/app/dashboard') } class:selected={$page.url.pathname === '/app/dashboard'}>DashBoard</button>
 	<button on:click={ () => goto('/app/friends') } class:selected={$page.url.pathname === '/app/friends'}>Friends</button>
 	<button on:click={ () => goto('/app/game') } class:selected={$page.url.pathname === '/app/game'}>Game</button>
-	<button on:click={ () => goto('/app/chat') } number={local_count} class:newMessage={local_count} class:selected={$page.url.pathname === '/app/chat'}>Chat</button>
+	<button on:click={ () => goto('/app/chat') } class:selected={$page.url.pathname === '/app/chat'}>Chat</button>
 </nav>
 
 <main>

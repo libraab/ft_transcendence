@@ -1051,6 +1051,25 @@ export class DatabaseService {
       return banned;
   }
 
+  async blockedMemberForClientId(id: number){
+	const response = await this.prisma.clientToClient.findMany({
+	  where: {
+		client1Id: id,
+		status: 1
+	  },
+	  select: {
+		client2: {
+		  select: {
+			id: true,
+			name: true,
+		  },
+		},
+	  },
+	});
+  
+	return response || null;
+  }
+
   async addClientsToClient(
     id1: number,
     id2: number,

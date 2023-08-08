@@ -61,18 +61,18 @@
 .connectStats
 {
 	border-radius: 50%;
-	width: 10px;
-	height: 10px;
+	width: 15px;
+	height: 15px;
 }
 
 .connected
 {
-	background-color: green;
+	background-color: #05E300;
 }
 
 .disconnected
 {
-	background-color: lightgray
+	background-color: #EAEAEA
 }
 
 .inGame

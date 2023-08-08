@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
-	import { clientName, img_path, userId } from "$lib/stores";
+	import { clientName, img_path, jwt_cookie, userId } from "$lib/stores";
 
-let blocked_users = [{block_id: 3, block_name: "LeGugusQuiMeSaoule"},
-{block_id: 4, block_name: "LautreGus"},
-{block_id: 5, block_name: "LeTricheur"},
-{block_id: 6, block_name: "LeSpammeur"},
-					];
+// let blocked_users = [{block_id: 3, block_name: "LeGugusQuiMeSaoule"},
+// {block_id: 4, block_name: "LautreGus"},
+// {block_id: 5, block_name: "LeTricheur"},
+// {block_id: 6, block_name: "LeSpammeur"},
+// 					];
 
 	let badUpdate = false;
 	let indexBadUpdate = 0;
@@ -14,7 +14,30 @@ let blocked_users = [{block_id: 3, block_name: "LeGugusQuiMeSaoule"},
 	let fileInput : any = null;
 	let files : any;
 
+	let blocked_users = fetchBlockedUsers();
 	
+	async function fetchBlockedUsers() {
+		try {
+			const response = await fetch(`/api/dashboard/blockedusers`, {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${$jwt_cookie}`
+				}
+			});
+			if (response.status == 200)
+			{
+				let block_list = await response.json();
+				return block_list;
+			}
+			else
+				console.error(response.status, response.statusText);
+			return null;
+		}
+		catch (error) {
+			console.error(error);
+		}
+	}
+
 	async function submitForm()
 	{
 		const nameInput = document.getElementById("input-name") as HTMLInputElement;
@@ -73,7 +96,6 @@ let blocked_users = [{block_id: 3, block_name: "LeGugusQuiMeSaoule"},
         };
     };
 
-
 	// $:{console.log(files)}
 </script>
 
@@ -109,14 +131,16 @@ let blocked_users = [{block_id: 3, block_name: "LeGugusQuiMeSaoule"},
 	</div>
 	<div class="block-list">
 		<h3>Blocked Users :</h3>
-		<ul>
-			{#each blocked_users as blocked_user}
+		{#await blocked_users then blocked_users}
+			<ul>
+				{#each blocked_users as blocked_user}
 				<li>
 					<button class="btn-unblock">Unblock</button>
 					{blocked_user.block_name}
 				</li>
-			{/each}
-		</ul>
+				{/each}
+			</ul>
+		{/await}
 	</div>
 </div>
 

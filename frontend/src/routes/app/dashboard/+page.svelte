@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { img_path, jwt_cookie, clientName, userId } from '$lib/stores';
-	import UpdateModal from './Update.svelte';
-	import DeleteModal from './Delete.svelte';
-	import RankModal from './Ranking.svelte';
+	// import UpdateModal from './Update.svelte';
+	// import DeleteModal from './Delete.svelte';
+	// import RankModal from './Ranking.svelte';
 	import axios from "axios";
-	import ConnectStatus from "$lib/connectStatus.svelte";
+	// import ConnectStatus from "$lib/connectStatus.svelte";
 
 	// export let data;
 	let title: string;

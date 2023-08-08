@@ -128,7 +128,7 @@ export class ChatGateway
     // check if client is a member of channel then proceed
     // ask the chat service to delete the user from members
     client.leave(channel);
-
+    console.log('LEAVED');
     client.emit('leavedChannel', channel);
   }
 
