@@ -37,7 +37,7 @@ export const userId42 = writable(persitedUserId42);
 
 userId42.subscribe((value: number) => {
     if (browser) {
-        window.localStorage.setItem('userId42', value.toString());
+        window.localStorage.setItem('userId42', value);
 	}
 })
 
@@ -47,7 +47,7 @@ export const userId = writable(persitedUserId);
 
 userId.subscribe((value: number) => {
     if (browser) {
-        window.localStorage.setItem('userId', value.toString());
+        window.localStorage.setItem('userId', value);
 	}
 })
 //----------------------------------------------------------------//

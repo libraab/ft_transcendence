@@ -5,23 +5,23 @@
 	import { onMount, onDestroy } from "svelte";
 	import { socket } from '$lib/socketsbs'
     import Invite from '$lib/invitation.svelte'
-	import { error } from "@sveltejs/kit";
+	import type { AfterNavigate } from "@sveltejs/kit";
 	// import { Socket, io } from 'socket.io-client'
 	import { get, writable } from 'svelte/store';
 
     // export let data: any;
 	export let data : any;
-	let roomId = data.roomId;
-    // let roomId: string = data.roomId;
-    let RoomsMessages: any = [];
-    let members: any = [];
+    let roomId: string = data.roomId;
+    let RoomsMessages: any = data.messages;
+    let members: any = data.members;
     let user_message: string;
+	let my_status: number = data.status;
 	
 	// let socket: Socket<DefaultEventsMap, DefaultEventsMap> | undefined = undefined;
 	
 	onMount(() => {
-		fetchData();
-		fetchMembers();
+		// fetchData();
+		// fetchMembers();
 		// socket = io('localhost:3000/chat', {path: '/chatsockets'});
 		// socket.emit('whoAmI', get(userId));
 		// deleteSocketEvents();
@@ -35,9 +35,12 @@
 	})
 
 	onDestroy(() => {
-		socket.emit('leaveChannel', String(roomId));
-		socket.off('serverToChat', recieveMessage);
-		socket.off('serverMessage', recieveServerMessage);
+		if (socket)
+		{
+			socket.emit('leaveChannel', String(roomId));
+			socket.off('serverToChat', recieveMessage);
+			socket.off('serverMessage', recieveServerMessage);
+		}
 	})
 
 	let recieveMessage = (msg) => {
@@ -51,59 +54,6 @@
 	let recieveServerMessage = (msg) => {
 		RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
 	}
-
-    /**
-     * Extract all messages from a room database
-     * blocked users are excluded
-     */
-	function fetchData() {
-  		console.log("load chat[roomid]/page fetchData");
-  		fetch(`/api/chat/messages/${data.roomId}`, {
-			headers: { 'Authorization': `Bearer ${$jwt_cookie}` }
-		})
-		.then(async (response) => {
-			if (response.ok)
-			{
-				console.log("load chat[roomid]/page fetchData ok");
-				let messages = await response.json();
-				console.log('before')
-				console.log(messages);
-				console.log('after');
-				RoomsMessages = messages;
-			}
-			console.log(response.status)
-		})
-		.catch((error) => {
-			console.error(error);
-			// goto("/app/chat");
-    	});
-  	}
-
-	  function fetchMembers() {
-		fetch(`/api/chat/room/${data.roomId}`, {
-			method: 'GET',
-			headers: {
-				'Authorization': `Bearer ${$jwt_cookie}`
-			}
-			})
-		.then(async (response) => {
-			if (response.ok)
-			{
-				let rjson = await response.json();
-				members = rjson;
-			}
-			else
-			{
-				console.error("fetch failed on fetchMember");
-				console.error(response.status);
-				// goto("/");
-			}
-			})
-		.catch((error) => {
-			console.log(error);
-			// goto("/app/chat")
-		});
-	}
     
     let sendMessage = () => {
 		if (socket && user_message) {
@@ -115,11 +65,38 @@
     }
 
 	afterNavigate( (navigation: AfterNavigate) => {
-		// if (navigation && navigation.from('/app/chat/create'))
-		// 	rooms_promise = fetchRooms();
-			fetchData();
-			fetchMembers();
+		roomId = data.roomId;
+    	RoomsMessages = data.messages;
+		members = data.members;
+		my_status = data.status;
+		console.log(my_status);
 	})
+
+	let sendQuitPost = async () => {
+		await fetch(`/api/rooms/quit/${roomId}`,{
+					method: 'POST',
+					headers: {
+              			'Authorization': `Bearer ${$jwt_cookie}`
+          	},
+			}).then((res) => {
+				if (res.ok)
+					console.error('quit successfully');
+				else 
+					console.error('failed to quit');
+			}).catch(() => {
+				console.error('failed to quit');
+			});
+	}
+
+	let handleQuit = () => {
+		if (data.status.status != 0)
+		{
+			sendQuitPost();
+			goto("/app/chat");
+		}
+		else
+			sendQuitPost();
+	}
 </script>
     
 <div class="room_wrap"> 
@@ -156,12 +133,17 @@
         </li>
         {/each}
     </ul>
+	<button on:click={handleQuit} class="btn-room-quit">Quit</button>
 </div>
     
 <style>
 	.members {
 		width: 30vw;
 		background-color: #404040;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+		align-items: center;
 	}
 
 	.room_wrap {
@@ -326,6 +308,16 @@
 	.one_member a {
 		text-decoration: none;
 		color: white;
+	}
+
+	.btn-room-quit {
+		border: none;
+		background-color: #939393;
+		color: white;
+		font-family: 'Oxanium';
+		padding: 15px 60px;
+		margin: 10px 10px;
+		text-transform: uppercase;
 	}
 
 </style>

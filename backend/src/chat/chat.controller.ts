@@ -95,14 +95,24 @@ export class ChatController {
   @UseGuards(AuthGuard)
   @Get('/room/:id')
   async getRoomsMembers(@Request() req: { user: IJWT }, @Param('id', ParseIntPipe) room_id: number) {
-    const json = await this.db.getMembersByRoomId(room_id);
-    // let res : number;
-    // return this.usersConnected.checkStatus(id);
-    // await Promise.all(json.map(async (e) => {
-    //     res.push({ sender: e.clientName, message: e.message});
-    // }));
-    // console.log(res);
+	const client = await this.db.getClientById42(req.user.id);
+	let status = await this.db.roomUserCheck(room_id, client.id);
+	console.log(status);
+	if (status == null || status.status == 5)
+	{
+		throw new UnauthorizedException("You are not member");
+	}
+	
+	const json = await this.db.getMembersByRoomId(room_id);
     return json;
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/room/:id/status')
+  async getMyStatus(@Request() req: { user: IJWT }, @Param('id', ParseIntPipe) room_id: number) {
+	const client = await this.db.getClientById42(req.user.id);
+	let status = await this.db.roomUserCheck(room_id, client.id);
+	return status;
   }
 
   //----------------------------------------------------------------------//

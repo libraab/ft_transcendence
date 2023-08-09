@@ -9,7 +9,7 @@
 
 	
 	// let rooms_promise;
-	let rooms_promise = fetchRooms();
+	let rooms: Rooms[] = [];
 
 	onMount( async () => {
 		/**
@@ -19,7 +19,7 @@
 		// console.log("onmount chat layout");
 		//reloadRooms();
 		// console.log($page.route);
-		let rooms = await rooms_promise;
+		fetchRooms();
 		if (socket)
 		{
 			rooms.forEach((room) => {
@@ -30,10 +30,10 @@
 
 	//pour l'instant cette partie est inutile car le layout est reload a chaque navigation, mais en mettant le fetch seulement en onMount, le block await each saute, Mystere.
 	// solution? mettre le fetch dans le load?
-	// afterNavigate( (navigation: AfterNavigate) => {
-	// 	if (navigation && navigation.from('/app/chat/create'))
-	// 		rooms_promise = fetchRooms();
-	// })
+	afterNavigate( (navigation: AfterNavigate) => {
+		// if (navigation && navigation.from('/app/chat/create'))
+			fetchRooms();
+	})
 
 	async function fetchRooms() {
 		try {
@@ -52,7 +52,7 @@
 				// 		return { ...el, newMsgCount: 0 };
 				// 	return (item);
 				// });
-				return tmp_rooms;
+				rooms = tmp_rooms;
 			}
 			else
 				console.error(response.status, response.statusText);
@@ -78,7 +78,7 @@
 					<a href="/app/chat/rooms">+</a>
 				{/if}
 			</li>
-			{#await rooms_promise then rooms}
+			<!-- {#await rooms_promise then rooms} -->
 				{#each rooms as room (room.roomId)}
 					<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 					<li class="one-room" class:selected-room={$page.url.pathname === `/app/chat/${room.roomId}`}>
@@ -87,7 +87,7 @@
 				{:else}
 				<li class="one-room"><p>You don't have rooms</p></li>
 				{/each}
-			{/await}
+			<!-- {/await} -->
 		</ul>
 	</div>
 	<slot></slot>

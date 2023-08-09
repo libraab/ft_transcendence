@@ -67,7 +67,9 @@ export class RoomsController {
   @Get('valideRooms')
   async getAuthorizedRoomsForId(@Request() req: { user: IJWT }) {
     const client = await this.db.getClientById42(req.user.id);
-    return this.db.getRoomsExcludingWhereClientIsMember(client.id);
+	const response = await this.db.getRoomsExcludingWhereClientIsMember(15);
+	console.log(response);
+    return response;
   }
 
   @Get('getAdmins/:roomId')
@@ -166,6 +168,26 @@ export class RoomsController {
     // ça y était en théorie on ne passe plus ici,
     // mais la flemme de check l'ensemble des cas de figure donc ça reste
     await this.db.addMemberToRoom(roomId, client.id, 2);
+    return HttpStatus.NO_CONTENT;
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('/quit/:roomId')
+  async quitRoom(
+    @Request() req: { user: IJWT },
+    @Param('roomId', ParseIntPipe) roomId: number,
+  ) {
+	const room = await this.db.getRoomById(roomId);
+    const client = await this.db.getClientById42(req.user.id);
+	const status = await this.db.roomUserCheck(roomId, client.id);
+	// if (!room || !client || !status || status.status === 0) {
+	// 	throw new HttpException(
+	// 	  'room id or client id or client status invalid',
+	// 	  HttpStatus.BAD_REQUEST,
+	// 	);
+	// }
+	await this.db.removeClientFromRoom(roomId, client.id);
+    this.cg.sendServerMsg(roomId, `${client.name} quit the room`);
     return HttpStatus.NO_CONTENT;
   }
 
