@@ -684,12 +684,15 @@ export class DatabaseService {
     clientId: number,
   ): Promise<{ roomId: number; roomName: string }[]> {
     const roomMembers = await this.prisma.roomMembers.findMany({
-      where: {
-        memberId: clientId,
-        NOT: {
-          status: 5,
-        }
-      },
+		where: {
+			memberId: clientId,
+			NOT: {
+				OR : [
+				{status: 5},
+				{status: 6}
+				]
+			}
+			},
       select: {
         room: {
           select: {

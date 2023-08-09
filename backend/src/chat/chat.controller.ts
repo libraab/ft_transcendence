@@ -103,7 +103,9 @@ export class ChatController {
 		throw new UnauthorizedException("You are not member");
 	}
 	
-	const json = await this.db.getMembersByRoomId(room_id);
+	let json = await this.db.getMembersByRoomId(room_id);
+	if (status.status != 0 && status.status != 1) //not owner or admin
+		json = json.filter((el) => el.status != 5 && el.status != 6 && el.status != 4);
     return json;
   }
 

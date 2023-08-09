@@ -52,7 +52,7 @@ export async function load({ cookies, params, fetch }) {
 				roomId,
 				messages: await res.json(), 
 				members: members,
-				status : status,
+				status : status.status,
 			}
 		}).catch(() => {
 			return {

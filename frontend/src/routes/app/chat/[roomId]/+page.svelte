@@ -89,7 +89,7 @@
 	}
 
 	let handleQuit = () => {
-		if (data.status.status != 0)
+		if (data.status != 0)
 		{
 			sendQuitPost();
 			goto("/app/chat");
@@ -118,15 +118,21 @@
 <div class="members">
     <ul>
         {#each members as member}
-        <li class="one_member">
+		<li class="one_member">
+			{#if my_status === 0 || my_status === 1}
+				{#if member.status === 6}
+					<button>✅</button>
+					<button>❌</button>
+				{:else if member.status === 5}
+					<button>❌</button>
+				{:else if member.status !== 0 && member.status !== 1}
+					<button>🚪</button>
+					<button>❌</button>
+					<button>🔇</button>
+				{/if}
+			{/if}
             <a href="/app/dashboard/{member.member.name}">{member.member.name}</a>
-            <!-- {#if member.status == 0}
-            ♚
-            {:else if member.status == 1}
-            ♟
-            {/if} -->
-            <!-- si on est admin ou owner   -->
-           	{#if member.member.id != data.id}
+           	{#if member.member.id != $userId && member.status !== 6 && member.status !== 5}
                 <Invite opponent_id={member.member.id} />
             {/if}
 			<ConnectStatus userId={member.member.id} />

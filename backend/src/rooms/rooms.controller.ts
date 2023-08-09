@@ -136,13 +136,12 @@ export class RoomsController {
     // si room est protected par mot de passe
     if (room.secu === 1) {
       // check password
-      await bcrypt
+      const response = await bcrypt
         .compare(data.password, room.password)
         .then((passwordsMatch) => {
           if (passwordsMatch) {
             // valid case
             this.db.addMemberToRoom(room.id, client.id, 2);
-
             // check password
             return HttpStatus.NO_CONTENT;
           } // error case
@@ -153,6 +152,7 @@ export class RoomsController {
         .catch((error) => {
           throw new InternalServerErrorException(error);
         });
+		return response;
     }
     // si room est publique
     else if (room.secu === 2) {
