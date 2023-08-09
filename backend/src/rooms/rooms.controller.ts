@@ -67,7 +67,10 @@ export class RoomsController {
   @Get('valideRooms')
   async getAuthorizedRoomsForId(@Request() req: { user: IJWT }) {
     const client = await this.db.getClientById42(req.user.id);
-	const response = await this.db.getRoomsExcludingWhereClientIsMember(15);
+	const rooms_data = await this.db.getRoomsAndMembersExcludingWhereClientIsMember(client.id);
+	const response = rooms_data.map((el) => {
+		return ({id: el.id, name: el.name, secu: el.secu, quantity: el.members.length});
+	});
 	console.log(response);
     return response;
   }
