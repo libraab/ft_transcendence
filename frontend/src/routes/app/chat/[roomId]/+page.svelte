@@ -31,6 +31,7 @@
 			socket.emit('joinChannel', String(roomId));
 			socket.on('serverToChat', recieveMessage);
 			socket.on('serverMessage', recieveServerMessage);
+			socket.on('reloadMembers', reloadMembers);
 		}
 	})
 
@@ -40,8 +41,13 @@
 			socket.emit('leaveChannel', String(roomId));
 			socket.off('serverToChat', recieveMessage);
 			socket.off('serverMessage', recieveServerMessage);
+			socket.off('reloadMembers', reloadMembers);
 		}
 	})
+
+	/**
+	 * Socket functions handlers event
+	 */
 
 	let recieveMessage = (msg) => {
         // if (isBlockedUser(msg.sender_id))
@@ -64,6 +70,27 @@
 		}
     }
 
+	async function reloadMembers() {
+		const url_api_members = `/api/chat/room/${roomId}`;
+
+		const update_members = await fetch(url_api_members, {
+					method: 'GET',
+					headers: {
+						'Authorization': `Bearer ${$jwt_cookie}`
+					}
+				})
+				.then(async (response) => {
+					if (response.ok)
+						return await response.json();
+					else
+						return [];
+				})
+				.catch((error) => {
+					return [];
+		});
+		members = update_members;
+	}
+
 	afterNavigate( (navigation: AfterNavigate) => {
 		roomId = data.roomId;
     	RoomsMessages = data.messages;
@@ -77,7 +104,7 @@
 					method: 'POST',
 					headers: {
               			'Authorization': `Bearer ${$jwt_cookie}`
-          	},
+          			},
 			}).then((res) => {
 				if (res.ok)
 					console.error('quit successfully');
@@ -97,6 +124,104 @@
 		else
 			sendQuitPost();
 	}
+
+	/**
+	 * All functions related to admin/owner activity
+	 * Kick/Ban/Mute/Promote/Demote 
+	*/
+	async function updateClientStatus(clientId: number, status: number) {
+		try {
+			const response = await fetch(`/api/rooms/updateStatus/${roomId}/${clientId}/${status}`, {
+				method: 'POST',
+				headers: {
+              			'Authorization': `Bearer ${$jwt_cookie}`
+          			},
+			});
+
+			if (response.ok)
+			{
+				console.log('Status updated successfully');
+			}
+			else
+			{
+				console.error(response.statusText);
+				console.error('Failed to update status');
+			}
+		}
+		catch (error)
+		{
+			console.error('An error occurred', error);
+		}
+	}
+
+
+	// async function promote(member: any)
+	// {
+	// 	await updateClientStatus(choosenRoomId, member.id, 1);
+	// 	await fetchAllRoomMembers();
+	// }
+	
+	// async function demote(member: any)
+	// {
+	// 	await updateClientStatus(choosenRoomId, member.id, 2);
+	// 	await fetchAllRoomMembers();
+	// }
+	
+	async function kick(clientId: any)
+	{
+		try {
+			const response = await fetch(`/api/rooms/kick/${roomId}/${clientId}`, {
+				method: 'POST',
+				headers: {
+              			'Authorization': `Bearer ${$jwt_cookie}`
+          			},
+			});
+
+			if (response.ok)
+				console.log('client kicked');
+			else
+			{
+				const errorText = await response.text();
+				throw new Error(errorText);
+			}
+		}
+		catch (error: any)
+		{
+			throw new Error(error.message);
+		}
+	}
+
+	async function accept(clientId: any) {
+		try {
+			const response = await fetch(`/api/rooms/acceptNewMember/${roomId}/${clientId}`, {
+				method: 'POST',
+				headers: {
+              			'Authorization': `Bearer ${$jwt_cookie}`
+          			},
+			});
+
+			if (response.ok)
+			{
+				console.log('New member accepted');
+			}
+			else
+			{
+				const errorText = await response.text();
+				throw new Error(errorText);
+			}
+		}
+		catch (error)
+		{
+			console.error(error);
+		}
+	}
+
+	// async function unmute(client: any)
+	// {
+	// 	await updateClientStatus(choosenRoomId, client.id, 2);
+	// 	await fetchAllRoomMembers();
+	// }
+
 </script>
     
 <div class="room_wrap"> 
@@ -121,17 +246,27 @@
 		<li class="one_member">
 			{#if my_status === 0 || my_status === 1}
 				{#if member.status === 6}
-					<button>✅</button>
-					<button>❌</button>
+					<button on:click={() => accept(member.member.id)}>✅</button>
+					<button on:click={() => kick(member.member.id)}>❌</button>
 				{:else if member.status === 5}
-					<button>❌</button>
+					<button on:click={() => kick(member.member.id)}>❌</button>
 				{:else if member.status !== 0 && member.status !== 1}
-					<button>🚪</button>
-					<button>❌</button>
-					<button>🔇</button>
+					<button on:click={() => kick(member.member.id)}>🚪</button>
+					<button on:click={() => updateClientStatus(member.member.id, 5)}>❌</button>
+					<button on:click={() => {
+						if (member.status === 3)
+							updateClientStatus(member.member.id, 2);
+						else 
+							updateClientStatus(member.member.id, 3);
+					}}>🔇</button>
 				{/if}
 			{/if}
-            <a href="/app/dashboard/{member.member.name}">{member.member.name}</a>
+            <a href="/app/dashboard/{member.member.name}">
+				{member.member.name}
+				{#if member.status === 3}
+					🤐
+				{/if}
+			</a>
            	{#if member.member.id != $userId && member.status !== 6 && member.status !== 5}
                 <Invite opponent_id={member.member.id} />
             {/if}

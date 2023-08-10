@@ -142,6 +142,8 @@ export class RoomsController {
           if (passwordsMatch) {
             // valid case
             this.db.addMemberToRoom(room.id, client.id, 2);
+			this.cg.sendServerMsg(roomId, `Welcome to a new member : ${client.name}!`);
+			this.cg.emitMemberReload(roomId);
             // check password
             return HttpStatus.NO_CONTENT;
           } // error case
@@ -158,6 +160,7 @@ export class RoomsController {
     else if (room.secu === 2) {
       try {
         await this.db.addMemberToRoom(roomId, client.id, 6);
+		this.cg.emitMemberReload(roomId);
         return HttpStatus.NO_CONTENT;
       } catch (error) {
         throw new BadRequestException(error);
@@ -171,6 +174,7 @@ export class RoomsController {
     // ça y était en théorie on ne passe plus ici,
     // mais la flemme de check l'ensemble des cas de figure donc ça reste
     await this.db.addMemberToRoom(roomId, client.id, 2);
+	this.cg.emitMemberReload(roomId);
     return HttpStatus.NO_CONTENT;
   }
 
@@ -191,17 +195,25 @@ export class RoomsController {
 	// }
 	await this.db.removeClientFromRoom(roomId, client.id);
     this.cg.sendServerMsg(roomId, `${client.name} quit the room`);
+	this.cg.emitMemberReload(roomId);
     return HttpStatus.NO_CONTENT;
   }
 
+  @UseGuards(AuthGuard)
   @Post('updateStatus/:id/:client/:status')
   async updateClientStatus(
+	@Request() req: { user: IJWT },
     @Param('id', ParseIntPipe) roomId: number,
     @Param('client', ParseIntPipe) clientId: number,
     @Param('status', ParseIntPipe) status: number,
   ) {
+	const sender = await this.db.getClientById42(req.user.id);
+	const sender_status = await this.db.roomUserCheck(roomId, sender.id);
+	if (sender_status.status !== 0 && sender_status.status !== 1)
+		throw new UnauthorizedException();
     const ownerCheck = await this.db.checkRoomOwner(roomId, clientId);
     if (ownerCheck) throw new UnauthorizedException();
+	const old_status = await this.db.roomUserCheck(roomId, clientId);
     try {
       await this.db.changeMemberStatus(roomId, clientId, status);
       let client = await this.db.getClientById(clientId);
@@ -213,8 +225,11 @@ export class RoomsController {
           this.cg.sendServerMsg(roomId, `${client.name} is banned`);
         else if (status == 1)
           this.cg.sendServerMsg(roomId, `${client.name} is now an Admin`);
-        else
-
+		else if (status == 2 && old_status.status == 3)
+			this.cg.sendServerMsg(roomId, `${client.name} is unmuted`);
+		else if (status == 2 && old_status.status == 1)
+			this.cg.sendServerMsg(roomId, `${client.name} is no longer an Admin`);
+        this.cg.emitMemberReload(roomId);
         return HttpStatus.NO_CONTENT;
       }
       return HttpStatus.NO_CONTENT;
@@ -223,37 +238,55 @@ export class RoomsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post('kick/:roomId/:clientId')
   async kickClient(
+	@Request() req: { user: IJWT },
     @Param('roomId', ParseIntPipe) roomId: number,
     @Param('clientId', ParseIntPipe) memberId: number,
   ) {
-    const ownerCheck = await this.db.checkRoomOwner(roomId, memberId);
-    if (ownerCheck)
-      throw new HttpException("can't kick room owner", HttpStatus.BAD_REQUEST);
-
-    try {
-      await this.db.removeClientFromRoom(roomId, memberId);
-      let client = await this.db.getClientById(memberId);
-      if (client != null)
-      {
-        console.log("sending");
-        this.cg.sendServerMsg(roomId, `${client.name} has been kicked`);
-        return HttpStatus.NO_CONTENT;
-      }
-    } catch (error) {
-      console.error(error);
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
-    }
+	const sender = await this.db.getClientById42(req.user.id);
+	const sender_status = await this.db.roomUserCheck(roomId, sender.id);
+	if (sender_status.status !== 0 && sender_status.status !== 1)
+		throw new UnauthorizedException();
+	const ownerCheck = await this.db.checkRoomOwner(roomId, memberId);
+	if (ownerCheck)
+	throw new HttpException("can't kick room owner", HttpStatus.BAD_REQUEST);
+	const status = await this.db.roomUserCheck(roomId, memberId);
+	try {
+	await this.db.removeClientFromRoom(roomId, memberId);
+	let client = await this.db.getClientById(memberId);
+	if (client != null)
+	{
+		if (status.status === 5)
+			this.cg.sendServerMsg(roomId, `${client.name} has been unbanned`);
+		else if (status.status !== 6)
+			this.cg.sendServerMsg(roomId, `${client.name} has been kicked`);
+		this.cg.emitMemberReload(roomId);
+		return HttpStatus.NO_CONTENT;
+	}
+	} catch (error) {
+	console.error(error);
+	throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+	}
   }
 
+  @UseGuards(AuthGuard)
   @Post('acceptNewMember/:roomId/:clientId')
   async acceptNewMember(
+	@Request() req: { user: IJWT },
     @Param('roomId', ParseIntPipe) roomId: number,
     @Param('clientId', ParseIntPipe) memberId: number,
   ) {
+	const sender = await this.db.getClientById42(req.user.id);
+	const sender_status = await this.db.roomUserCheck(roomId, sender.id);
+	if (sender_status.status !== 0 && sender_status.status !== 1)
+		throw new UnauthorizedException();
     try {
+		const newMember = await this.db.getClientById(memberId);
       await this.db.addMemberToRoom(roomId, memberId);
+	  this.cg.sendServerMsg(roomId, `Welcome to a new member : ${newMember.name}!`);
+	  this.cg.emitMemberReload(roomId);
       return HttpStatus.NO_CONTENT;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);

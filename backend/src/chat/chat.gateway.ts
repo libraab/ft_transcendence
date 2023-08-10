@@ -170,4 +170,9 @@ export class ChatGateway
       this.wss.to(socket_id).emit('reloadrooms');
     }
   }
+
+  async emitMemberReload(roomId: number)
+  {
+	this.wss.to(`${roomId}`).emit("reloadMembers");
+  }
 }
