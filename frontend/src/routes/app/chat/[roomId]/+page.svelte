@@ -245,21 +245,23 @@
         {#each members as member}
 		<li class="one_member">
 			{#if my_status === 0 || my_status === 1}
-				{#if member.status === 6}
-					<button on:click={() => accept(member.member.id)}>✅</button>
-					<button on:click={() => kick(member.member.id)}>❌</button>
-				{:else if member.status === 5}
-					<button on:click={() => kick(member.member.id)}>❌</button>
-				{:else if member.status !== 0 && member.status !== 1}
-					<button on:click={() => kick(member.member.id)}>🚪</button>
-					<button on:click={() => updateClientStatus(member.member.id, 5)}>❌</button>
-					<button on:click={() => {
-						if (member.status === 3)
-							updateClientStatus(member.member.id, 2);
-						else 
-							updateClientStatus(member.member.id, 3);
-					}}>🔇</button>
-				{/if}
+				<div class="owner-admin-block">
+					{#if member.status === 6}
+						<button on:click={() => accept(member.member.id)}>✅</button>
+						<button on:click={() => kick(member.member.id)}>❌</button>
+					{:else if member.status === 5}
+						<button on:click={() => kick(member.member.id)}>❌</button>
+					{:else if member.status !== 0 && member.status !== 1}
+						<button on:click={() => kick(member.member.id)}>🚪</button>
+						<button on:click={() => updateClientStatus(member.member.id, 5)}>❌</button>
+						<button on:click={() => {
+							if (member.status === 3)
+								updateClientStatus(member.member.id, 2);
+							else 
+								updateClientStatus(member.member.id, 3);
+						}}>🔇</button>
+					{/if}
+				</div>
 			{/if}
             <a href="/app/dashboard/{member.member.name}">
 				{member.member.name}
@@ -444,6 +446,19 @@
 		display: flex;
 		flex-direction: row;
 		justify-content: space-around;
+	}
+
+	.owner-admin-block {
+		width: 77px;
+		display: flex;
+		flex-direction: row;
+		justify-content: left;
+	}
+
+	.owner-admin-block button {
+		border: none;
+		background: none;
+		cursor: pointer;
 	}
 
 	.one_member a {

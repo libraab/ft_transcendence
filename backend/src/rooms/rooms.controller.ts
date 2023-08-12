@@ -174,6 +174,7 @@ export class RoomsController {
     // ça y était en théorie on ne passe plus ici,
     // mais la flemme de check l'ensemble des cas de figure donc ça reste
     await this.db.addMemberToRoom(roomId, client.id, 2);
+	this.cg.sendServerMsg(roomId, `Welcome to a new member : ${client.name}!`);
 	this.cg.emitMemberReload(roomId);
     return HttpStatus.NO_CONTENT;
   }

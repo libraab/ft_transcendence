@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { goto } from "$app/navigation";
+	import { client } from "$lib/gamesocket";
 	import { clientName, img_path, jwt_cookie, userId } from "$lib/stores";
+	import { onMount } from "svelte";
 
 // let blocked_users = [{block_id: 3, block_name: "LeGugusQuiMeSaoule"},
 // {block_id: 4, block_name: "LautreGus"},
@@ -14,8 +16,12 @@
 	let fileInput : any = null;
 	let files : any;
 
-	let blocked_users = fetchBlockedUsers();
-	
+	let blocked_users: any = [];
+
+	onMount(() =>
+	{
+		fetchBlockedUsers();
+	})
 	async function fetchBlockedUsers() {
 		try {
 			const response = await fetch(`/api/dashboard/blockedusers`, {
@@ -27,7 +33,8 @@
 			if (response.status == 200)
 			{
 				let block_list = await response.json();
-				return block_list;
+				console.log(block_list);
+				blocked_users = block_list;
 			}
 			else
 				console.error(response.status, response.statusText);
@@ -97,6 +104,26 @@
     };
 
 	// $:{console.log(files)}
+
+	const unblockUser = async (unblockedId: number) => {
+		const response = await fetch(`/api/chat/unblockUser`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${$jwt_cookie}`
+			},
+			body: JSON.stringify({
+				unblockedId: unblockedId,
+				iddata: $userId
+			})
+		});
+		if (response.ok) {
+			console.log('User unblocked');
+			blocked_users = blocked_users.filter((user) => user.client2.id !== unblockedId);
+		} else {
+			console.error('Failed to unblock user');
+		}
+	};
 </script>
 
 <div class="settings-wrap">
@@ -131,16 +158,14 @@
 	</div>
 	<div class="block-list">
 		<h3>Blocked Users :</h3>
-		{#await blocked_users then blocked_users}
 			<ul>
 				{#each blocked_users as blocked_user}
 				<li>
-					<button class="btn-unblock">Unblock</button>
-					{blocked_user.block_name}
+					<button class="btn-unblock" on:click={() => unblockUser(blocked_user.client2.id)}>Unblock</button>
+					{blocked_user.client2.name}
 				</li>
 				{/each}
 			</ul>
-		{/await}
 	</div>
 </div>
 
@@ -264,6 +289,7 @@
 		color: white;
 		padding: 10px 20px;
 		margin-right: 10px;
+		cursor: pointer;
 	}
 
 .switch {
