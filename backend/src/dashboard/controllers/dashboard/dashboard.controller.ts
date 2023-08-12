@@ -60,6 +60,27 @@ export class DashboardController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('/history/:clientId')
+  async getGameHistoric(
+	@Request() req: { user: IJWT },
+  	@Param('clientId', ParseIntPipe) clientId: number)
+  { 
+    return this.db.getGameHistoric(clientId);
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/avatar/:clientId')
+  async getImagePath(
+	@Request() req: { user: IJWT },
+  	@Param('clientId', ParseIntPipe) clientId: number)
+  { 
+	let client = await this.db.getClientById(clientId);
+	if (!client)
+		throw new HttpException('userNotFound', 404);
+    return client;
+  }
+
+  @UseGuards(AuthGuard)
   @Get('/getByName/:userName')
   async getByName(
     @Request() req: { user: IJWT },
@@ -104,8 +125,12 @@ export class DashboardController {
     return this.db.getClientById(id);
   }
 
+  @UseGuards(AuthGuard)
   @Get('/stats/:id')
-  async getStatsbyId(@Param('id', ParseIntPipe) id: number) {
+  async getStatsbyId(
+	@Request() req: {user: IJWT},
+	@Param('id', ParseIntPipe) id: number
+  ) {
     return this.db.getClientStatsById(id);
   }
 

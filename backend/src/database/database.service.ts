@@ -1976,4 +1976,36 @@ export class DatabaseService {
       }
     }
   }
+
+  async getGameHistoric(clientId: number)
+  {
+    const response = await this.prisma.gameHistoric.findMany({
+      where: {
+        OR: [{
+          client1Id: clientId,
+        },
+        {
+          client2Id: clientId,
+        }]
+      },
+      select: {
+        persScore: true,
+        vsScore: true,
+        client1: {
+          select: {
+            name: true,
+            id: true
+          }
+        },
+        client2: {
+          select: {
+            name: true,
+            id: true
+          }
+        }
+      }
+    });
+
+    return response;
+  }
 }
