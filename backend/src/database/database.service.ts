@@ -447,6 +447,7 @@ export class DatabaseService {
     const clientRelations = await this.prisma.clientToClient.findMany({
       where: {
         client1Id: id1,
+		status: 0,
       },
       orderBy: [
         {

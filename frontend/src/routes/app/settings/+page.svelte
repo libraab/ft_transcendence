@@ -141,7 +141,7 @@
 				{:else if $img_path}
 					<img src={$img_path} alt="logo" class="rick">
 				{:else}
-					<img src='logo.jpeg' alt="logo" class="rick">
+					<img src='/logo.jpeg' alt="logo" class="rick">
 				{/if}
 				<p><input type="file" accept=".png,.jpg" id="file-upload" name="file-upload" bind:this={fileInput} bind:files on:change={() => getBase64(files[0])}></p>
 				<!-- <input type="file" name="file-upload" id="file-upload"> -->

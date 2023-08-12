@@ -193,7 +193,7 @@
 			{#if $img_path}
 				<img src={$img_path} alt="logo" class="rick">
 			{:else}
-				<img src='logo.jpeg' alt="logo" class="rick">
+				<img src='/logo.jpeg' alt="logo" class="rick">
 			{/if}
 		</div>
 	</div>
@@ -205,45 +205,12 @@
 	<button on:click={ () => goto('/app/room') } class:selected={$page.url.pathname === '/app/room'}>Room</button>
 </nav>
 
-<!-- <div>
-	<nav class="tabs">
-
-		<button on:click={ () => goto('/app/dashboard') } >DashBoard</button>
-		<button on:click={ () => goto('/app/game') } >Game</button>
-		<button on:click={ () => goto('/app/chat') } number={local_count} class:newMessage={local_count}>Chat</button>
-		<button on:click={ () => goto('/app/room') } >Room</button>
-		<div class="profile-container">
-			<div>
-				<label for="id42-name-input">search by Name:</label>
-				<input type="text" id="id42-name-input" on:input={() => getSpecifiedClients()} bind:value={nameSearchInput}/>
-				
-				<div class="popup_container">
-					{#if id42NameInputNotEmpty}
-						<div class="popup">
-							{#each searchRes as client}
-								<div class="link">
-									<button on:click={() => refreshInput(client)}>{client.name}</button>
-								</div>
-							{/each}
-						</div>
-					{/if}
-				</div>
-	
-			</div>
-		</div>
-	</nav>
-</div> -->
-
 <main>
 	{#if alertPopupOn}
 		<Alert invitationData={invitationData} on:refuseInvitation={ () => {alertPopupOn = false}}/>
 	{/if}
 	<slot class="main_body"></slot>
 </main>
-
-<!-- <footer>
-	<div class="bigup">Transcendental team42 - share like suscribe</div>
-</footer> -->
 
 <style>
 

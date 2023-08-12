@@ -59,7 +59,7 @@ export async function load({ cookies, params, fetch }) {
 				roomId,
 				messages: [],
 				members: members,
-				status: status,
+				status: status.status,
 			}
 	})
 }

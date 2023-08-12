@@ -182,7 +182,7 @@
 			{#if $img_path}
 				<img src={$img_path} alt="logo" class="rick">
 			{:else}
-				<img src='logo.jpeg' alt="logo" class="rick">
+				<img src='/logo.jpeg' alt="logo" class="rick">
 			{/if}
 		</div>
 	</div>

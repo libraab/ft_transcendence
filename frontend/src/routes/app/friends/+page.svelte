@@ -1,0 +1,85 @@
+<script lang="ts">
+	import ConnectStatus from "$lib/connectStatus.svelte";
+
+
+export let data: any;
+let fl = data.fl;
+console.log(fl);
+</script>
+
+<div class="fl-wrapper">
+	<ul>
+		{#each fl as friend}
+			<li class="fl-friend">
+				<div class="fl-data">
+					<img src={friend.client.img} alt="logo" class="fl-img">
+					<a href="/app/dashboard/{friend.client.name}" class="fl-name">{friend.client.name}</a>
+					<ConnectStatus userId={friend.client.id} />
+				</div>
+				<div>
+					<button>Play</button>
+				</div>
+			</li>
+		{/each}
+	</ul>
+</div>
+
+<style>
+	ul {
+		margin: 0;
+		padding: 40px 0;
+	}
+
+	li {
+		text-decoration: none;
+	}
+
+	.fl-wrapper {
+		max-width: 800px;
+		margin: 0 auto;
+	}
+
+	.fl-friend {
+		background-color: #404040;
+		border-radius: 10px;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;;
+		margin: 20px;
+		padding: 10px 40px;
+	}
+
+	.fl-data {
+		display: flex;
+		flex-direction: row;
+		justify-content: space-between;
+		min-width: 30%;
+		color: white;
+		align-items: center;
+	}
+
+	.fl-name {
+		text-decoration: none;
+		margin-right: 10px;
+		color: white;
+		cursor: pointer;
+	}
+
+	.fl-img {
+		width: 50px;
+		height: 50px;
+		border-radius: 50%;
+		object-fit: cover;
+		margin-right: 10px;
+	}
+
+	button {
+		border: none;
+		cursor: pointer;
+		background-color: #17ACFF;
+		color: white;
+		font-family: 'Oxanium';
+		padding: 10px 30px;
+	}
+
+</style>
