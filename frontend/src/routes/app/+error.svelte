@@ -1,7 +1,7 @@
 <script>
 	import { page } from '$app/stores';
 
-	console.log($page.error)
+	console.log($page);
 </script>
 
 <div class="error">
@@ -9,20 +9,10 @@
 	{#if $page.error}
 		<h2>{$page.error.message}</h2>
 	{/if}
-	<a href="/app/chat">go back</a>
 </div>
-<div class="chat-users-content"></div>
 
 <style>
-	.chat-users-content{
-		background-color: #404040;
-		width: 30vw;
-	}
-
 	.error {
-		width: 100%;
-		/* max-height: 60vh; */
-		margin: 30px 0;
 		text-align: center;
 	}
 
@@ -37,11 +27,5 @@
 		font-weight: lighter;
 		font-size: 15px;
 		font-style: italic;
-	}
-
-	a {
-		color: white;
-		text-decoration: none;
-		cursor: pointer;
 	}
 </style>

@@ -82,7 +82,11 @@
 				{#each rooms as room (room.roomId)}
 					<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
 					<li class="one-room" class:selected-room={$page.url.pathname === `/app/chat/${room.roomId}`}>
-						<a href='/app/chat/{room.roomId}'>{room.roomName}</a>
+						{#if $page.url.pathname === `/app/chat/${room.roomId}`}
+							<p>{room.roomName}</p>
+						{:else}
+							<a href='/app/chat/{room.roomId}'>{room.roomName}</a>
+						{/if}
 					</li>
 				{:else}
 				<li class="one-room"><p>You don't have rooms</p></li>
@@ -120,6 +124,13 @@
 	}
 
 	.one-room a {
+		display: block;
+		padding: 15px 0;
+		text-decoration: none;
+		color: white;
+	}
+
+	.one-room p {
 		display: block;
 		padding: 15px 0;
 		text-decoration: none;

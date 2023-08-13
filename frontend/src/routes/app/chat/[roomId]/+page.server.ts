@@ -1,4 +1,4 @@
-import { redirect } from "@sveltejs/kit";
+import { redirect, error } from "@sveltejs/kit";
 
 export async function load({ cookies, params, fetch }) {
 	const authToken = cookies.get('jwt_cookie');
@@ -20,11 +20,15 @@ export async function load({ cookies, params, fetch }) {
 				if (response.ok)
 					return await response.json();
 				else
-					return [];
+					return response;
 			})
-			.catch((error) => {
-				return [];
+			.catch((err) => {
+				throw error(err.status, {
+					message: err.message});
 	});
+
+	if (members.status)
+		throw error(members.status, { message: members.statusText});
 
 	const status = await fetch(url_api_status, {
 			method: 'GET',
@@ -38,28 +42,37 @@ export async function load({ cookies, params, fetch }) {
 			else
 				return null;
 		})
-		.catch((error) => {
-			return null;
+		.catch((err) => {
+			throw error(err.status, {
+				message: err.message});
 	});
 
-	return await fetch(url_api_message, {
+	if (status === null)
+		throw error(401, { message: 'Unauthorized'});
+
+	const messages = await fetch(url_api_message, {
 			method: "GET",
 			headers: {
 				'Authorization': `Bearer ${authToken}`
 			}
 		}).then(async (res) => {
-			return {
-				roomId,
-				messages: await res.json(), 
-				members: members,
-				status : status.status,
-			}
-		}).catch(() => {
-			return {
-				roomId,
-				messages: [],
-				members: members,
-				status: status.status,
-			}
+			if (res.ok)
+				return await res.json();
+			else
+				return res;
+				
+		}).catch((err) => {
+			throw error(err.status, {
+				message: err.message});
 	})
+
+	if (messages.status)
+		throw error(messages.status, { message: messages.statusText});
+
+	return {
+		roomId,
+		messages: messages, 
+		members: members,
+		status : status.status,
+	}
 }

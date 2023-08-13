@@ -9,20 +9,11 @@
 	{#if $page.error}
 		<h2>{$page.error.message}</h2>
 	{/if}
-	<a href="/app/chat">go back</a>
+	<a href="/">go back</a>
 </div>
-<div class="chat-users-content"></div>
 
 <style>
-	.chat-users-content{
-		background-color: #404040;
-		width: 30vw;
-	}
-
 	.error {
-		width: 100%;
-		/* max-height: 60vh; */
-		margin: 30px 0;
 		text-align: center;
 	}
 

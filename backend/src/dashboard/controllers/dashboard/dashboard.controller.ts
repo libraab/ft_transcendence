@@ -117,7 +117,7 @@ export class DashboardController {
       return this.db.getTarget(req.user.id, name);
     } catch (error) {
       console.error(error);
-      throw new HttpException('userNotFound', 404);
+      throw new HttpException('User Not Found', 404);
     }
   }
 

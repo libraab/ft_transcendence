@@ -26,9 +26,9 @@
 // 	})
 // }
 
-import { redirect } from "@sveltejs/kit";
+import { redirect, error } from "@sveltejs/kit";
 
-export async function load({ cookies, params, fetch }) {
+export async function load({ cookies , fetch }) {
 	const authToken = cookies.get('jwt_cookie');
 	const id42 = cookies.get('id42');
 	console.log("LOAD CALLED");
@@ -47,26 +47,35 @@ export async function load({ cookies, params, fetch }) {
 				if (response.ok)
 					return await response.json();
 				else
-					return [];
+					return response;
 			})
-			.catch((error) => {
-				return [];
+			.catch((err) => {
+				throw error(err.status, {
+					message: err.message});
 	});
 
-	return await fetch(url_api_stats, {
+	if (history.status)
+		throw error(history.status, { message: history.statusText});
+
+	const stats = await fetch(url_api_stats, {
 			method: "GET",
 			headers: {
 				'Authorization': `Bearer ${authToken}`
 			}
 		}).then(async (res) => {
-			return {
-				stats: await res.json(), 
-				history: history,
-			}
-		}).catch(() => {
-			return {
-				stats: null,
-				history: history,
-			}
+			if (res.ok)
+				return await res.json()
+			return res;
+		}).catch((err) => {
+			throw error(err.status, {
+				message: err.message});
 	})
+
+	if (stats.status)
+		throw error(stats.status, { message: stats.statusText});
+
+	return {
+		history: history,
+		stats: stats,
+	}
 }

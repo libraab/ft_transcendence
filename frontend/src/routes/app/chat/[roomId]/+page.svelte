@@ -5,7 +5,7 @@
 	import { onMount, onDestroy } from "svelte";
 	import { socket } from '$lib/socketsbs'
     import Invite from '$lib/invitation.svelte'
-	import type { AfterNavigate } from "@sveltejs/kit";
+	import { error, type AfterNavigate } from "@sveltejs/kit";
 	// import { Socket, io } from 'socket.io-client'
 	import { get, writable } from 'svelte/store';
 
@@ -80,23 +80,30 @@
 					}
 				})
 				.then(async (response) => {
+					console.log("we are here");
 					if (response.ok)
 						return await response.json();
 					else
-						return [];
+						await goto('/app/chat');
 				})
-				.catch((error) => {
-					return [];
+				.catch((err) => {
+					throw error(err.status, { message: err.statusText});
 		});
 		members = update_members;
 	}
 
 	afterNavigate( (navigation: AfterNavigate) => {
+		// console.log(navigation);
 		roomId = data.roomId;
     	RoomsMessages = data.messages;
 		members = data.members;
 		my_status = data.status;
-		console.log(my_status);
+		if (socket)
+		{
+			if (navigation.from?.params)
+				socket.emit('leaveChannel', String(navigation.from?.params.roomId));
+			socket.emit('joinChannel', String(roomId));
+		}
 	})
 
 	let sendQuitPost = async () => {
@@ -153,19 +160,6 @@
 			console.error('An error occurred', error);
 		}
 	}
-
-
-	// async function promote(member: any)
-	// {
-	// 	await updateClientStatus(choosenRoomId, member.id, 1);
-	// 	await fetchAllRoomMembers();
-	// }
-	
-	// async function demote(member: any)
-	// {
-	// 	await updateClientStatus(choosenRoomId, member.id, 2);
-	// 	await fetchAllRoomMembers();
-	// }
 	
 	async function kick(clientId: any)
 	{
@@ -215,12 +209,6 @@
 			console.error(error);
 		}
 	}
-
-	// async function unmute(client: any)
-	// {
-	// 	await updateClientStatus(choosenRoomId, client.id, 2);
-	// 	await fetchAllRoomMembers();
-	// }
 
 </script>
     

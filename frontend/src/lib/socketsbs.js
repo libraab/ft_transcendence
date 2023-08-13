@@ -20,7 +20,7 @@ export let socket;//: Socket<DefaultEventsMap, DefaultEventsMap> | undefined = u
 // 	msgCount = count;
 // }
 
-export async function initializeSocket() {
+export let initializeSocket = () => {
 //   socketData = await data;
 //   if (!socketData)
 //   	return;

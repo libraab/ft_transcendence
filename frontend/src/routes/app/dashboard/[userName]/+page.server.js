@@ -73,16 +73,22 @@ export async function load({ cookies, fetch, params }) {
 			'Authorization': `Bearer ${authToken}`
 		}
 	}).then(async (res) => {
-		return await res.json();
+		if (res.ok)
+			return await res.json();
+		else
+			return res;
 	}).catch((err) => {
 		throw error(err.status, {
-			message: err.statusText});
+			message: err.message});
 	});
+	
+	//if fetch failed
+	if (target.status)
+		throw error(target.status, { message: target.statusText});
 		
-	if (Number(target.id) === Number(id42))
+	if (Number(target.id42) === Number(id42))
 		throw redirect(307, "/app/dashboard");
 	
-	console.log(target);
 	if ((target.client1.length != 0 && target.client1[0].status == 1) 
 		|| (target.client2.length != 0 && target.client2[0].status == 1))
 		throw redirect(307, "/app/dashboard");
@@ -100,28 +106,37 @@ export async function load({ cookies, fetch, params }) {
 				if (response.ok)
 					return await response.json();
 				else
-					return [];
+					return response;
 			})
-			.catch((error) => {
-				return [];
+			.catch((err) => {
+				throw error(err.status, {
+					message: err.message});
 	});
 
-	return await fetch(url_api_stats, {
+	if (history.status)
+		throw error(history.status, { message: history.statusText});
+
+	const stats = await fetch(url_api_stats, {
 			method: "GET",
 			headers: {
 				'Authorization': `Bearer ${authToken}`
 			}
 		}).then(async (res) => {
-			return {
-				target: target,
-				stats: await res.json(), 
-				history: history,
-			}
-		}).catch(() => {
-			return {
-				target: target,
-				stats: null,
-				history: history,
-			}
+			if (res.ok)
+				return await res.json();
+			else
+				return res;
+		}).catch((err) => {
+			throw error(err.status, {
+				message: err.message});
 	})
+
+	if (stats.status)
+		throw error(stats.status, { message: stats.statusText});
+
+	return {
+		target: target,
+		stats: stats,
+		history: history,
+	}
 }
