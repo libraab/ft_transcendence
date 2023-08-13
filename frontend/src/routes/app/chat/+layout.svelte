@@ -16,19 +16,17 @@
 		 * Reloading $rooms here is not mandatory but is recomended
 		 * otherwise reload is trigered when some rooms changes are done on the backend and signaled trought the socket to the user if connected
 		*/
-		// console.log("onmount chat layout");
-		//reloadRooms();
-		// console.log($page.route);
 		fetchRooms();
-		if (socket)
-		{
-			rooms.forEach((room) => {
-				socket.emit('joinChannel', String(room.roomId));
-			});
-		}
+		// if (socket)
+		// {
+		// 	console.log("comment ça?");
+		// 	rooms.forEach((room) => {
+		// 		socket.emit('joinChannel', String(room.roomId));
+		// 	});
+		// }
 	});
 
-	//pour l'instant cette partie est inutile car le layout est reload a chaque navigation, mais en mettant le fetch seulement en onMount, le block await each saute, Mystere.
+	//En mettant le fetch seulement en onMount, le block await each saute, Mystere.
 	// solution? mettre le fetch dans le load?
 	afterNavigate( (navigation: AfterNavigate) => {
 		// if (navigation && navigation.from('/app/chat/create'))
