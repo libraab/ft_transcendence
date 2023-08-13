@@ -162,7 +162,6 @@
 	}
 	
 	const MP = async (newFriendId: number) => {
-/*
 		const response = await fetch(`/api/chat/sendMsg`, {
 			method: 'POST',
 			headers: {
@@ -178,7 +177,7 @@
 		} else {
 			console.error('Failed to join room:', room.name);
 		}
-*/	};
+	};
 
 </script>
 

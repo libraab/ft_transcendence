@@ -8,23 +8,35 @@ console.log(fl);
 </script>
 
 <div class="fl-wrapper">
-	<ul>
-		{#each fl as friend}
-			<li class="fl-friend">
-				<div class="fl-data">
-					<img src={friend.client.img} alt="logo" class="fl-img">
-					<a href="/app/dashboard/{friend.client.name}" class="fl-name">{friend.client.name}</a>
-					<ConnectStatus userId={friend.client.id} />
-				</div>
-				<div>
-					<button>Play</button>
-				</div>
-			</li>
-		{/each}
-	</ul>
+	{#if fl.length !== 0}
+		<ul>
+			{#each fl as friend}
+				<li class="fl-friend">
+					<div class="fl-data">
+						<img src={friend.client.img} alt="logo" class="fl-img">
+						<a href="/app/dashboard/{friend.client.name}" class="fl-name">{friend.client.name}</a>
+						<ConnectStatus userId={friend.client.id} />
+					</div>
+					<div class="btn-play-wrap">
+						<button>Play</button>
+					</div>
+				</li>
+			{/each}
+		</ul>
+	{:else}
+		<p class="msg-void-fl">You don't have friends for the moment</p>
+	{/if}
 </div>
 
 <style>
+	.msg-void-fl {
+		color: white;
+		font-style: italic;
+		text-align: center;
+		font-weight: lighter;
+		padding: 50px;
+	}
+
 	ul {
 		margin: 0;
 		padding: 40px 0;
@@ -80,6 +92,11 @@ console.log(fl);
 		color: white;
 		font-family: 'Oxanium';
 		padding: 10px 30px;
+	}
+
+	.btn-play-wrap {
+		display: flex;
+		align-items: center;
 	}
 
 </style>

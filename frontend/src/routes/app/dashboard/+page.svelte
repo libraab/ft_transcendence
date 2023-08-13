@@ -2,71 +2,21 @@
 	import { onMount } from "svelte";
 	import { img_path, jwt_cookie, clientName, userId } from '$lib/stores';
 
-	// let stats: any = null;
-	let match_history: any = [];
+	export let data: any;
+	let stats = data.stats;
+	let match_history = data.history;
+	console.log(match_history);
+	console.log(stats);
 
 
 	onMount(() => {
-		fetchData();
-		fetchStats();
+		
 	});
-
-	/*
-		TODO FOR FL REGULAR CONNECTED SOCKET
-	*/
-	async function fetchData() {
-		try
-		{
-			const response = await fetch(`/api/dashboard/history/${$userId}`, {
-				method: 'GET',
-				headers: {
-					'Authorization': `Bearer ${$jwt_cookie}`
-				}
-			});
-			if (response.ok)
-			{
-				let vals = await response.json();
-				console.log(vals);
-				match_history = vals;
-			}
-			else
-				console.error("history");
-		}
-		catch (error)
-		{
-			console.error("history" , error);
-		}
-	}
-
-	async function fetchStats() {
-		try
-		{
-			const response = await fetch(`/api/dashboard/stats/${$userId}`, {
-				method: 'GET',
-				headers: {
-					'Authorization': `Bearer ${$jwt_cookie}`
-				}
-			});
-			if (response.ok)
-			{
-				let stats = await response.json();
-				console.log(stats);
-				// stats = stats;
-				return stats
-			}
-			else
-				console.error("history");
-		}
-		catch (error)
-		{
-			console.error("history" , error);
-		}
-	}
 
 	async function getImage(id: number) {
 		try
 		{
-			const response = await fetch(`/api/dashboard/avatar/${id}`, {
+			const response = await fetch(`http://localhost:8080/api/dashboard/avatar/${id}`, {
 				method: 'GET',
 				headers: {
 					'Authorization': `Bearer ${$jwt_cookie}`
@@ -92,55 +42,59 @@
 			<img src={$img_path} alt="logo" class="rick">
 			<h2>{$clientName}</h2>
 			<div class="stats">
-			{#await fetchStats()}
-				<p>Loading stats...</p>
-			{:then stats} 
+			{#if stats}
 				<p>victory - {stats.won}</p>
 				<p>loses - {stats.played - stats.won}</p>
-				<p>ratio - {stats.won * 100 / stats.played}%</p> <!-- ici faire un calcul division et truc -->
+				{#if stats.played !== 0}
+					<p>ratio - {stats.won * 100 / stats.played}%</p>
+				{/if}
 				<p>game points - {stats.won * 5}</p>
-			{/await}
+			{/if}
 			</div>
 		</div>
 		<div class="list-container">
 			<h3>Match History</h3>
-			<ul>
-				{#each match_history as match}
-					<li class="mh-list">
-						<div class="mh-opponent">
-							{#if match.client1.id === $userId}
-								<img src={$img_path} alt="logo" class="mh-img">
-							{:else}
-								{#await getImage(match.client1.id)}
-									<img src="/logo.jpeg" alt="logo" class="mh-img">
-								{:then user}
-									<img src={user.img} alt="logo" class="mh-img">
-								{/await}
-							{/if}
-							<p>{match.client1.name}</p>
-						</div>
-						<div class="mh-score">
-							<p class:winScore={match.persScore === 4 && match.client1.id === $userId}
-								class:looseScore={match.persScore !== 4 && match.client1.id === $userId}>{match.persScore}</p>
-							<p>-</p>
-							<p class:winScore={match.vsScore === 4 && match.client2.id === $userId}
-							class:looseScore={match.vsScore !== 4 && match.client2.id === $userId}>{match.vsScore}</p>
-						</div>
-						<div class="mh-opponent">
-							<p>{match.client2.name}</p>
-							{#if match.client2.id === $userId}
-								<img src={$img_path} alt="logo" class="mh-img">
-							{:else}
-								{#await getImage(match.client2.id)}
-									<img src="/logo.jpeg" alt="logo" class="mh-img">
-								{:then user}
-									<img src={user.img} alt="logo" class="mh-img">
-								{/await}
-							{/if}
-						</div>
-					</li>
-				{/each}
-			</ul>
+			{#if match_history.length !== 0}
+				<ul>
+					{#each match_history as match}
+						<li class="mh-list">
+							<div class="mh-opponent">
+								{#if match.client1.id === $userId}
+									<img src={$img_path} alt="logo" class="mh-img">
+								{:else}
+									{#await getImage(match.client1.id)}
+										<img src="/logo.jpeg" alt="logo" class="mh-img">
+									{:then user}
+										<img src={user.img} alt="logo" class="mh-img">
+									{/await}
+								{/if}
+								<p>{match.client1.name}</p>
+							</div>
+							<div class="mh-score">
+								<p class:winScore={match.persScore === 4 && match.client1.id === $userId}
+									class:looseScore={match.persScore !== 4 && match.client1.id === $userId}>{match.persScore}</p>
+								<p>-</p>
+								<p class:winScore={match.vsScore === 4 && match.client2.id === $userId}
+								class:looseScore={match.vsScore !== 4 && match.client2.id === $userId}>{match.vsScore}</p>
+							</div>
+							<div class="mh-opponent">
+								<p>{match.client2.name}</p>
+								{#if match.client2.id === $userId}
+									<img src={$img_path} alt="logo" class="mh-img">
+								{:else}
+									{#await getImage(match.client2.id)}
+										<img src="/logo.jpeg" alt="logo" class="mh-img">
+									{:then user}
+										<img src={user.img} alt="logo" class="mh-img">
+									{/await}
+								{/if}
+							</div>
+						</li>
+					{/each}
+				</ul>
+			{:else}
+				<p class="msg-void-mh">You didn't play any game for the moment</p>
+			{/if}
 		</div>
 	</main>
 	
@@ -198,6 +152,14 @@
 		.list-container ul {
 			margin: 0;
 			padding: 0;
+		}
+
+		.msg-void-mh {
+			color: white;
+			font-style: italic;
+			text-align: center;
+			font-weight: lighter;
+			padding: 50px;
 		}
 	
 		.mh-list {

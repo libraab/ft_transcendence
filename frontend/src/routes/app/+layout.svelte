@@ -1,14 +1,16 @@
 <script lang="ts">
 	import { jwt_cookie, img_path, clientName, userId42, userId, rooms } from '$lib/stores';
-	import { goto, invalidate } from '$app/navigation';
+	import { afterNavigate, goto, invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
 	import { io } from 'socket.io-client'
 	import { initializeSocket, socket } from '$lib/socketsbs.js';
 	import { connectClientToColyseus } from '$lib/gamesocket';
 	import Alert from '$lib/popupAlert.svelte'
+	import type { AfterNavigate } from '@sveltejs/kit';
 	// import { redirect } from '@sveltejs/kit';
 
+	export let data: any;
 	/**
 	 * Invitations
 	*/
@@ -36,6 +38,8 @@
 	*/
 	onMount( async () =>
     {
+		jwt_cookie.set(data.myJwtCookie);
+        userId42.set(data.myid42);
 		if ($jwt_cookie)
         {
 		//--- Ici on va chercher la value de la DFA dans la BD
@@ -99,6 +103,32 @@
 	{
 		
 	});
+
+	afterNavigate( async (navigation: AfterNavigate) => {
+		try {
+                const connect = await fetch(`/api/dashboard`, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${$jwt_cookie}`
+                    }
+                });
+                if (connect.status == 200)
+                {
+					const data = await connect.json();
+					$img_path = data.img;
+					$clientName = data.name;
+					$userId = data.id;
+                }
+                else
+                {
+                    //connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
+                    console.error("fetch failed in app layout");
+                }
+            }
+            catch (error) {
+                console.error("fetching in '/app' :" , error);
+            }
+	})
 
 	/**
 	 * La fonction handleLogOut est appelee lorsque le user click sur le bouton LogOut

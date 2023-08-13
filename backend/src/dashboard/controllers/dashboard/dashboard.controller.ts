@@ -65,7 +65,8 @@ export class DashboardController {
 	@Request() req: { user: IJWT },
   	@Param('clientId', ParseIntPipe) clientId: number)
   { 
-    return this.db.getGameHistoric(clientId);
+	const client = await this.db.getClientById42(clientId)
+    return this.db.getGameHistoric(client.id);
   }
 
   @UseGuards(AuthGuard)
@@ -131,7 +132,8 @@ export class DashboardController {
 	@Request() req: {user: IJWT},
 	@Param('id', ParseIntPipe) id: number
   ) {
-    return this.db.getClientStatsById(id);
+	const client = await this.db.getClientById42(id);
+    return this.db.getClientStatsById(client.id));
   }
 
   @UseGuards(AuthGuard)

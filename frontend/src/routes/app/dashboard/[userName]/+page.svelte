@@ -1,147 +1,98 @@
 <script lang="ts">
 	import { onMount } from "svelte";
-	import { userId } from "$lib/stores.js";
+	import { img_path, jwt_cookie, clientName, userId } from '$lib/stores';
+	import { goto } from "$app/navigation";
 
-	export let data;
-	let stats: any;
-	let vals: any;
-	let blocked: boolean;
-	let target_img: string = "";
+	export let data: any;
+	let target = data.target;
+	let stats = data.stats;
+	let match_history = data.history;
+	console.log(match_history);
+	console.log(stats);
 
-	async function fetchTarget(target: string)
-	{
+
+	onMount(() => {
+		
+	});
+
+	async function getImage(id: number) {
 		try
 		{
-			const response = await fetch(`/api/dashboard/getByName/${target}`, {
+			const response = await fetch(`http://localhost:8080/api/dashboard/avatar/${id}`, {
 				method: 'GET',
 				headers: {
-					'Authorization': `Bearer ${data.authToken}`
+					'Authorization': `Bearer ${$jwt_cookie}`
 				}
 			});
-			if (response.ok) {
-				vals = await response.json();
-				if (vals.img === 'undefined')
-				{
-					console.log('no image');
-					target_img = "";
-				}
-				else
-					target_img = vals.img;
+			if (response.ok)
+			{
+				let client = await response.json();
+				return client;
 			}
 			else
-				console.error("layout");
-
+				console.error("avatar");
 		}
 		catch (error)
 		{
-			console.error("layout" , error);
+			console.error("avatar" , error);
 		}
 	}
 
-	let befriended: boolean;
-
-	async function loadReload() {
-		await fetchTarget(data.target);
-		if (data.supp.client2 && data.supp.client2.length > 0 && data.supp.client2[0].status === 1)
-			blocked = true;
-		else
-			blocked = false;
-		if (data.supp.client1 && data.supp.client1.length > 0)
-			befriended = true;
-		else
-			befriended = false;
-	}
-
-	onMount(async () => {
-		await loadReload();
-	});
-
-	$: {
-		data;
-		loadReload();
-	}
-
-	const blockUser = async (blockedId: number) => {
+	const blockUser = async () => {
 		const response = await fetch(`/api/chat/blockUser`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${data.authToken}`
+				'Authorization': `Bearer ${$jwt_cookie}`
 			},
 			body: JSON.stringify({
-				blockedId: blockedId,
+				blockedId: target.id,
 				iddata: $userId
 			})
 		});
 		if (response.ok) {
 			console.log('User blocked');
-			toggleBlockState();
+			goto('/app/dashboard');
 		} else {
 			console.error('Failed to block user');
 		}
 	};
-	//---------------------------------------------------------------------------//
-	const unblockUser = async (unblockedId: number) => {
-		const response = await fetch(`/api/chat/unblockUser`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${data.authToken}`
-			},
-			body: JSON.stringify({
-				unblockedId: unblockedId,
-				iddata: $userId
-			})
-		});
-		if (response.ok) {
-			console.log('User unblocked');
-			toggleBlockState();
-		} else {
-			console.error('Failed to unblock user');
-		}
-		befriended = false;
-		blocked = false;
-	};
 
-	function toggleBlockState() {
-		blocked = !blocked;
-	}
-
-	const addFriend = async (newFriendId: number) => {
+	const addFriend = async () => {
 		const response = await fetch(`/api/chat/addFriend`, {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${data.authToken}`
+				'Authorization': `Bearer ${$jwt_cookie}`
 			},
 			body: JSON.stringify({
-				newFriendId: newFriendId,
+				newFriendId: target.id,
 				iddata: $userId
 			})
 		});
 		if (response.ok)
-			befriended = true;
-		else
 		{
-			befriended = false;
-			console.error(response.status, response.statusText);
+			target.client1 = [{status: 0}];
+			target.client2 = [{status: 0}];
 		}
+		else
+			console.error(response.status, response.statusText);
 	};
 
-	async function deleteFriendship(id2: number)
+	async function deleteFriendship()
 	{
 		try{
 
-			const response = await fetch(`/api/dashboard/supprFriendship/${id2}`, {
+			const response = await fetch(`/api/dashboard/supprFriendship/${target.id}`, {
 				method: "POST",
 				headers: {
-					'Authorization': `Bearer ${data.authToken}`
+					'Authorization': `Bearer ${$jwt_cookie}`
 				},
 			});
 			if (response.ok)
 			{
-				befriended = false;
-				blocked = false;
+				target.client1 = [];
+				target.client2 = [];
 			}
 			else
 			{
@@ -153,156 +104,318 @@
 			console.error(error);
 		}
 	}
-	
-	function sendInvitation()
-	{
-		//socket.chat.emit('inviteToPlay', {player_id: $userId, opponent_id: opponent_id});
-		//appeler une foncion de creation de la game + redirection vers la game
-		//mais je sais pas faire
-	}
-	
-	const MP = async (newFriendId: number) => {
-/*
-		const response = await fetch(`/api/chat/sendMsg`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				newFriendId: newFriendId,
-				iddata: $userId
-			})
-		});
-		if (response.ok) {
-			console.log('Joined room:', room.name);
-		} else {
-			console.error('Failed to join room:', room.name);
-		}
-*/	};
 
 </script>
-
-<main class="container">
-<!-- ---------------------------------------------------------------------------- -->
-	<div class="profile-container">
-		{#if data.targetMyself}
-			<h2 class="shiny-text">↖ Me Myself and I &lt;3</h2>
-		{:else if vals}
-			{#await vals}
-				<p>Loading...</p>
-			{:then _}
-				<div class="button-container">
-					<img src={target_img} alt="logo" class="rick">
-					<h2 class="shiny-text">{vals.name}</h2>
-				</div>
-				<div class="button-container">
-					{#if !befriended && !blocked}
-						<button class="button-profile" on:click={() => addFriend(vals.id)}>Add Friend</button>
-					{:else if !blocked}
-						<button class="button-profile" on:click={() => deleteFriendship(vals.id)}>Remove</button>
+	<main class="main_body">
+			<div class="profile-container">
+				{#if target}
+				<img src={target.img} alt="logo" class="rick">
+				{#if target.client1.length !== 0 && target.client1[0].status === 0}
+					<p class="friend-info">Friend</p>
+				{/if}
+				<h2>{target.name}</h2>
+				<div class="stats">
+					{#if stats}
+					<p>victory - {stats.won}</p>
+					<p>loses - {stats.played - stats.won}</p>
+					{#if stats.played !== 0}
+					<p>ratio - {stats.won * 100 / stats.played}%</p>
 					{/if}
-					<button
-						class:active={!blocked}
-						class:inactive={blocked}
-						class="button-profile block-button"
-						on:click={() => {
-							if (blocked) {
-								unblockUser(vals.id);
-							}
-							else {
-								blockUser(vals.id);
-							}
-						}}>
-						{blocked ? 'Unblock' : 'Block'}
-					</button>
-					{#if !blocked}
-						<button class="button-profile" on:click={() => MP(vals.id)}>Send Msg</button>
-						<button class="button-profile" on:click={sendInvitation}>Play</button>
+					<p>game points - {stats.won * 5}</p>
 					{/if}
 				</div>
-
-			{:catch error}
-				<p>Error: {error.message}</p>
-			{/await}
-		{/if}
-	</div>
-<!-- ---------------------------------------------------------------------------- -->
-	<div class="profile-container">
-		<h2>Stats</h2>
-		{#if stats}
-			<p> played: { stats.played } </p>
-			<p> won: { stats.won } </p>
-			{#if stats.hf}
-				<p> hf: { stats.hf } </p>
+				<div class="control-panel">
+					{#if target.client1.length !== 0 && target.client1[0].status === 0}
+						<button class="hovertext" data-hover="remove friendship" on:click={deleteFriendship}>🙏</button>
+					{:else}
+						<button class="hovertext" data-hover="add to friendlist" on:click={addFriend}>🙏</button>
+					{/if}
+					<button class="hovertext" data-hover="block" on:click={blockUser}>❌</button>
+					<button class="hovertext" data-hover="send a message">💬</button>
+					<button class="hovertext" data-hover="play">🕹️</button>
+				</div>
+				{/if}
+			</div>
+		<div class="list-container">
+			<h3>Match History</h3>
+			{#if match_history.length !== 0}
+				<ul>
+					{#each match_history as match}
+						<li class="mh-list">
+							<div class="mh-opponent">
+								{#if match.client1.id === target.id}
+									<img src={target.img} alt="logo" class="mh-img">
+								{:else}
+									{#await getImage(match.client1.id)}
+										<img src="/logo.jpeg" alt="logo" class="mh-img">
+									{:then user}
+										<img src={user.img} alt="logo" class="mh-img">
+									{/await}
+								{/if}
+								<p>{match.client1.name}</p>
+							</div>
+							<div class="mh-score">
+								<p class:winScore={match.persScore === 4 && match.client1.id === target.id}
+									class:looseScore={match.persScore !== 4 && match.client1.id === target.id}>{match.persScore}</p>
+								<p>-</p>
+								<p class:winScore={match.vsScore === 4 && match.client2.id === target.id}
+								class:looseScore={match.vsScore !== 4 && match.client2.id === target.id}>{match.vsScore}</p>
+							</div>
+							<div class="mh-opponent">
+								<p>{match.client2.name}</p>
+								{#if match.client2.id === target.id}
+									<img src={target.img} alt="logo" class="mh-img">
+								{:else}
+									{#await getImage(match.client2.id)}
+										<img src="/logo.jpeg" alt="logo" class="mh-img">
+									{:then user}
+										<img src={user.img} alt="logo" class="mh-img">
+									{/await}
+								{/if}
+							</div>
+						</li>
+					{/each}
+				</ul>
+			{:else}
+				<p class="msg-void-mh">You didn't play any game for the moment</p>
 			{/if}
-			{#if stats.title}
-				<p> hf: { stats.title } </p>
-			{/if}
-			<p> {stats.won * 100 / stats.played}% victory </p>
-			<p> score: { stats.score } </p>
-		{:else}
-			<p>didn't play yet</p>
-		{/if}
-	</div>
-</main>
+		</div>
+	</main>
 	
-  
-<style>
-	.rick {
-		width: 150px;
-		height: 150px;
-		border-radius: 50%;
-		margin-right: 20px;
-		object-fit: cover;
-		box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-	}
-	.button-container {
-		display: flex;
-		gap: 20px;
-		margin-right: 20px;
-	}
-
-	.button-profile {
-		padding: 10px 20px;
-		border: none;
-		border-radius: 20px;
-		font-size: 16px;
-		background-color: #4caf50;
-		color: white;
-		cursor: pointer;
-	}
-
-	.button-profile:hover {
-		background-color: #45a049;
-	}
+	<style>
+		.main_body {
+			width: 100%;
+			padding: 20px 0;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
 	
-	.button-profile:focus {
-		outline: none;
-  		box-shadow: 0 0 0 2px #4caf50;
-	}
+		.profile-container {
+			padding: 30px 50px;
+			background-color: #404040;
+			max-width: 300px;
+			border-radius: 8px;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			align-items: center;
+			text-align: center;
+			color: white;
+			font-size: 20px;
+		  }
 
-	.profile-container {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		text-align: center;
-  	}
+		.friend-info {
+			color: #30EF00;
+			text-transform: lowercase;
+			font-size: 15px;
+		}
 
-	.shiny-text {
-		display: inline-block;
-		font-size: 36px; /* Increase the font size to make it bigger */
-		font-family: "Arial", sans-serif; /* Apply a specific font */
-		color: #333; /* Set a desired font color */
-		text-shadow: none; /* Remove the text shadow */
-	}
+		.control-panel {
+			text-align: center;
+		}
 
-	.container {
-		height: 100%; /* occupe 100% de la hauteur de main_body */
-		display: flex;
-		justify-content: space-around;
-		align-items: center;
-	}
-	.block-button.inactive {
-		background-color: red;
-	}	
-</style>
+		.control-panel button {
+			text-align: center;
+			border: none;
+			cursor: pointer;
+			background: none;
+		}
+
+		.hovertext {
+			position: relative;
+			border-bottom: 1px dotted black;
+		}
+
+		.hovertext:before {
+  			content: attr(data-hover);
+			visibility: hidden;
+			opacity: 0;
+			background-color: black;
+			color: #fff;
+			text-align: center;
+			border-radius: 5px;
+			padding: 5px 5px;
+			transition: opacity 1s ease-in-out;
+
+			position: absolute;
+			z-index: 1;
+			left: 0;
+			top: 110%;
+		}
+
+		.hovertext:hover:before {
+			opacity: 1;
+			visibility: visible;
+		}
+	
+		h2 {
+			font-weight: normal;
+			font-size: 20px;
+		}
+	
+		.rick {
+			width: 150px;
+			height: 150px;
+			border-radius: 50%;
+			/* margin-right: 20px; */
+			object-fit: cover;
+			/* box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); */
+		}
+	
+		.list-container {
+			padding: 50px 50px;
+			border-radius: 8px;
+			color: white;
+			width: 100%;
+			max-width: 800px;
+		}
+	
+		.list-container h3 {
+			font-weight: normal;
+			font-size: 20px;
+			text-align: center;
+		}
+	
+		.list-container ul {
+			margin: 0;
+			padding: 0;
+		}
+
+		.msg-void-mh {
+			color: white;
+			font-style: italic;
+			text-align: center;
+			font-weight: lighter;
+			padding: 50px;
+		}
+	
+		.mh-list {
+			background-color: #404040;
+			text-decoration: none;
+			list-style: none;
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			margin: 15px 50px;
+			padding: 10px 30px;
+			border-radius: 5px;
+		}
+	
+		.mh-img {
+			width: 25px;
+			height: 25px;
+			border-radius: 50%;
+			/* margin-right: 20px; */
+			object-fit: cover;
+			/* box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); */
+		}
+	
+		.mh-opponent {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+
+		.mh-opponent p {
+			margin: 0 20px;
+		}
+	
+		.mh-score {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-around;
+			align-items: center;
+			width: 30%;
+		}
+
+		.winScore {
+			color: #30EF00;
+		}
+
+		.looseScore {
+			color: #EF0000;
+		}
+
+		/* .friend-container {
+			display: flex;
+			align-items: center;
+		}
+	
+		.friend-container h2 {
+			margin-right: 10px;
+		} */
+		/* .emoji-container {
+			display: flex;
+			flex-direction: column;
+		}
+	
+		.emoji-container span {
+			margin-top: 5px;
+		} */
+		/* 
+	
+		.profile-info {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			flex-wrap: wrap;
+		}
+	
+		.round-button {
+			border: none;
+			background-color: #9e9c9c;
+			border-radius: 20px;
+			color: white;
+			font-size: 16px;
+			font-weight: bold;
+			cursor: pointer;
+			outline: none;
+			padding: 10px 20px;
+			margin: 10px;
+			transition: background-color 0.3s ease;
+		}
+	
+		.round-button:hover {
+			background-color: #464947;
+		}
+	
+		.round-button:active {
+			transform: scale(0.95);
+		}
+	
+		.dfa-button.active {
+			background-color: green;
+		}
+	
+		.dfa-button.inactive {
+			background-color: red;
+		} */
+	
+		/* Media query for tablets */
+		/* @media (min-width: 768px) {
+			.container {
+				flex-direction: row;
+				justify-content: space-around;
+			}
+	
+			.profile-container {
+				flex-basis: 33.33%;
+				max-width: 33.33%;
+			}
+		} */
+	
+		/* Media query for desktops */
+		/* @media (min-width: 1024px) {
+			.container {
+				flex-direction: row;
+				justify-content: space-around;
+			}
+	
+			.profile-container {
+				flex-basis: 25%;
+				max-width: 25%;
+			}
+		} */
+	</style>
+	
