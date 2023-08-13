@@ -247,14 +247,14 @@
 			{#if my_status === 0 || my_status === 1}
 				<div class="owner-admin-block">
 					{#if member.status === 6}
-						<button on:click={() => accept(member.member.id)}>✅</button>
-						<button on:click={() => kick(member.member.id)}>❌</button>
+						<button class="hovertext" data-hover="accept" on:click={() => accept(member.member.id)}>✅</button>
+						<button class="hovertext" data-hover="refuse access" on:click={() => kick(member.member.id)}>❌</button>
 					{:else if member.status === 5}
-						<button on:click={() => kick(member.member.id)}>❌</button>
+						<button class="hovertext" data-hover="unban" on:click={() => kick(member.member.id)}>❌</button>
 					{:else if member.status !== 0 && member.status !== 1}
-						<button on:click={() => kick(member.member.id)}>🚪</button>
-						<button on:click={() => updateClientStatus(member.member.id, 5)}>❌</button>
-						<button on:click={() => {
+						<button class="hovertext" data-hover="kick" on:click={() => kick(member.member.id)}>🚪</button>
+						<button class="hovertext" data-hover="ban" on:click={() => updateClientStatus(member.member.id, 5)}>❌</button>
+						<button class="hovertext" data-hover="toggle mute" on:click={() => {
 							if (member.status === 3)
 								updateClientStatus(member.member.id, 2);
 							else 
@@ -263,16 +263,31 @@
 					{/if}
 				</div>
 			{/if}
+			{#if my_status === 0}
+				<div class="owner-block">
+					{#if member.status === 1}
+						<button class="hovertext" data-hover="demote" on:click={() => updateClientStatus(member.member.id, 2)}>⬇️</button>
+					{:else if member.status === 2}
+						<button class="hovertext" data-hover="promote" on:click={() => updateClientStatus(member.member.id, 1)}>⬆️</button>
+					{/if}
+				</div>
+			{/if}
             <a href="/app/dashboard/{member.member.name}">
-				{member.member.name}
-				{#if member.status === 3}
+				{#if member.status === 0}
+					👑
+				{:else if member.status === 1}
+					💂
+				{:else if member.status === 3}
 					🤐
 				{/if}
+				{member.member.name}
 			</a>
-           	{#if member.member.id != $userId && member.status !== 6 && member.status !== 5}
-                <Invite opponent_id={member.member.id} />
-            {/if}
-			<ConnectStatus userId={member.member.id} />
+			<div class="member-status-block">
+				{#if member.member.id != $userId && member.status !== 6 && member.status !== 5}
+				 <Invite opponent_id={member.member.id} where=""/>
+			 	{/if}
+			 	<ConnectStatus userId={member.member.id} />
+			</div>
         </li>
         {/each}
     </ul>
@@ -442,17 +457,28 @@
 
 	/* Member Block */
 
+	.members ul {
+		padding: 0;
+		margin: 0;
+	}
+
 	.one_member {
 		display: flex;
 		flex-direction: row;
-		justify-content: space-around;
+		margin: 0 10px;
+		max-width: 100%;
+		justify-content: space-between;
+		align-items: center;
+		margin-top: 15px;
+		font-size: 12px;
 	}
 
 	.owner-admin-block {
+		max-width: 77px;
 		width: 77px;
 		display: flex;
 		flex-direction: row;
-		justify-content: left;
+		align-items: center;
 	}
 
 	.owner-admin-block button {
@@ -461,9 +487,25 @@
 		cursor: pointer;
 	}
 
+	.owner-block button {
+		border: none;
+		background: none;
+		cursor: pointer;
+	}
+
 	.one_member a {
 		text-decoration: none;
 		color: white;
+		font-size: 12px;
+	}
+
+	.member-status-block {
+		max-width: 40px;
+		width: 40px;
+		display: flex;
+		flex-direction: row;
+		justify-content: end;
+		align-items: center;
 	}
 
 	.btn-room-quit {
@@ -475,5 +517,31 @@
 		margin: 10px 10px;
 		text-transform: uppercase;
 	}
+
+	.hovertext {
+			position: relative;
+		}
+
+	.hovertext:before {
+  			content: attr(data-hover);
+			visibility: hidden;
+			opacity: 0;
+			background-color: black;
+			color: #fff;
+			text-align: center;
+			border-radius: 5px;
+			padding: 5px 5px;
+			transition: opacity 1s ease-in-out;
+
+			position: absolute;
+			z-index: 1;
+			left: 0;
+			top: 110%;
+		}
+
+		.hovertext:hover:before {
+			opacity: 1;
+			visibility: visible;
+		}
 
 </style>
