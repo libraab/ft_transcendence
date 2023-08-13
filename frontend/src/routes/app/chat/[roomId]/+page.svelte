@@ -1,13 +1,11 @@
 <script lang='ts'>
 	import { afterNavigate, goto } from "$app/navigation";
 	import ConnectStatus from "$lib/connectStatus.svelte";
-	import { jwt_cookie, rooms, userId42, userId, clientName } from "$lib/stores";
+	import { jwt_cookie, userId42, userId, clientName } from "$lib/stores";
 	import { onMount, onDestroy } from "svelte";
 	import { socket } from '$lib/socketsbs'
     import Invite from '$lib/invitation.svelte'
 	import { error, type AfterNavigate } from "@sveltejs/kit";
-	// import { Socket, io } from 'socket.io-client'
-	import { get, writable } from 'svelte/store';
 
     // export let data: any;
 	export let data : any;
@@ -17,18 +15,27 @@
     let user_message: string;
 	let my_status: number = data.status;
 	
-	// let socket: Socket<DefaultEventsMap, DefaultEventsMap> | undefined = undefined;
 	
 	onMount(() => {
-		// fetchData();
-		// fetchMembers();
-		// socket = io('localhost:3000/chat', {path: '/chatsockets'});
-		// socket.emit('whoAmI', get(userId));
-		// deleteSocketEvents();
-		// deleteAlertOn(roomId);
-		if (socket)
+		if (!socket)
+			setTimeout(function(){
+				if (socket)
+				{
+					socket.emit('joinChannel', String(roomId));
+					socket.off('serverToChat', recieveMessage);
+					socket.off('serverMessage', recieveServerMessage);
+					socket.off('reloadMembers', reloadMembers);
+					socket.on('serverToChat', recieveMessage);
+					socket.on('serverMessage', recieveServerMessage);
+					socket.on('reloadMembers', reloadMembers);
+				}
+		}, 1000);
+		else if (socket)
 		{
 			socket.emit('joinChannel', String(roomId));
+			socket.off('serverToChat', recieveMessage);
+			socket.off('serverMessage', recieveServerMessage);
+			socket.off('reloadMembers', reloadMembers);
 			socket.on('serverToChat', recieveMessage);
 			socket.on('serverMessage', recieveServerMessage);
 			socket.on('reloadMembers', reloadMembers);
