@@ -1,5 +1,6 @@
 <script lang="ts">
 	import ConnectStatus from "$lib/connectStatus.svelte";
+	import Invitation from "$lib/invitation.svelte";
 
 
 export let data: any;
@@ -18,7 +19,7 @@ console.log(fl);
 						<ConnectStatus userId={friend.client.id} />
 					</div>
 					<div class="btn-play-wrap">
-						<button>Play</button>
+						<Invitation opponent_id={friend.client.id} where="friendlist" />
 					</div>
 				</li>
 			{/each}
@@ -85,14 +86,14 @@ console.log(fl);
 		margin-right: 10px;
 	}
 
-	button {
+	/* button {
 		border: none;
 		cursor: pointer;
 		background-color: #17ACFF;
 		color: white;
 		font-family: 'Oxanium';
 		padding: 10px 30px;
-	}
+	} */
 
 	.btn-play-wrap {
 		display: flex;

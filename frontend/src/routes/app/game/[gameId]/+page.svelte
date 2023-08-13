@@ -3,7 +3,7 @@
     import { client, connectClientToColyseus, joinGame, roomData, resetroomData } from '$lib/gamesocket.js'
 	import { socket } from '$lib/socketsbs.js';
     import { onDestroy, onMount } from 'svelte';
-    import { game_mode } from '$lib/stores'
+    import { game_mode, userId } from '$lib/stores'
 
 export let data;
 

@@ -133,7 +133,7 @@ export class DashboardController {
 	@Param('id', ParseIntPipe) id: number
   ) {
 	const client = await this.db.getClientById42(id);
-    return this.db.getClientStatsById(client.id));
+    return this.db.getClientStatsById(client.id);
   }
 
   @UseGuards(AuthGuard)

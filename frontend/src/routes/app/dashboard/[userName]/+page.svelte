@@ -2,6 +2,7 @@
 	import { onMount } from "svelte";
 	import { img_path, jwt_cookie, clientName, userId } from '$lib/stores';
 	import { goto } from "$app/navigation";
+	import Invitation from "$lib/invitation.svelte";
 
 	export let data: any;
 	let target = data.target;
@@ -132,7 +133,7 @@
 					{/if}
 					<button class="hovertext" data-hover="block" on:click={blockUser}>❌</button>
 					<button class="hovertext" data-hover="send a message">💬</button>
-					<button class="hovertext" data-hover="play">🕹️</button>
+					<Invitation opponent_id={target.id} where="" />
 				</div>
 				{/if}
 			</div>

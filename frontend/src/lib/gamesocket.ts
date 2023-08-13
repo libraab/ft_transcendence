@@ -22,12 +22,12 @@ export let connectClientToColyseus = () =>
 
 async function createGame()
 {
-    roomData = await client?.create("my_room");
+    roomData = await client?.create("my_room", {id: get(userId)});
 }
 
 export async function joinGame(secret: string)
 {
-    roomData = await client?.joinById(secret);
+    roomData = await client?.joinById(secret, {id: get(userId)});
 }
 
 export function resetroomData () {
