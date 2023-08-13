@@ -8,6 +8,7 @@ export async function load({ cookies, params, fetch }) {
 	const url_api_message = `http://localhost:8080/api/chat/messages/${params.roomId}`;
 	const url_api_members = `http://localhost:8080/api/chat/room/${params.roomId}`;
 	const url_api_status = `http://localhost:8080/api/chat/room/${params.roomId}/status`;
+	const url_api_blocked = `http://localhost:8080/api/chat/blocked`;
 
 	if (authToken === undefined) throw redirect(307, "/");
 	const members = await fetch(url_api_members, {
@@ -69,10 +70,32 @@ export async function load({ cookies, params, fetch }) {
 	if (messages.status)
 		throw error(messages.status, { message: messages.statusText});
 
+	const blocked = await fetch(url_api_blocked, {
+			method: "GET",
+			headers: {
+				'Authorization': `Bearer ${authToken}`
+			}
+		}).then(async (res) => {
+			if (res.ok)
+				return await res.json();
+			else
+				return res;
+				
+		}).catch((err) => {
+			throw error(err.status, {
+				message: err.message});
+	})
+
+	if (blocked.status)
+		throw error(blocked.status, { message: blocked.statusText});
+
+	//todo modifier les messages pour effacer les user blocked avec filter?
+
 	return {
 		roomId,
 		messages: messages, 
 		members: members,
 		status : status.status,
+		blocked: blocked,
 	}
 }

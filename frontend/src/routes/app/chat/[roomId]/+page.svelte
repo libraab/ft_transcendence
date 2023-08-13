@@ -14,6 +14,9 @@
     let members: any = data.members;
     let user_message: string;
 	let my_status: number = data.status;
+	let blocked: any = data.blocked;
+
+	console.log(blocked);
 	
 	
 	onMount(() => {
@@ -56,15 +59,21 @@
 	 * Socket functions handlers event
 	 */
 
-	let recieveMessage = (msg) => {
-        // if (isBlockedUser(msg.sender_id))
-        // {
-        //     return;
-        // }
+	let recieveMessage = (msg: any) => {
+			let found: boolean = false;
+
+			blocked.forEach( (el: any) => {
+				if ((el.client1.name !== $clientName && el.client1.name === msg.sender) || (el.client2.name !== $clientName && el.client2.name == msg.sender))
+					found = true;
+			})
+			// let found = blocked.find((el: any) => { console.log((el.client1.name !== $clientName && el.client1.name === msg.sender) || (el.client2.name !== $clientName && el.client2.name == msg.sender))});
+			
+			if (found)
+				return ;
 			RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
 		}
 
-	let recieveServerMessage = (msg) => {
+	let recieveServerMessage = (msg: any) => {
 		RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
 	}
     
@@ -105,6 +114,7 @@
     	RoomsMessages = data.messages;
 		members = data.members;
 		my_status = data.status;
+		blocked = data.blocked;
 		if (socket)
 		{
 			if (navigation.from?.params)
