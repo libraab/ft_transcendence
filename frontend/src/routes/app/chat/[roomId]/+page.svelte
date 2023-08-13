@@ -231,7 +231,7 @@
         {/each}
     </ul>
     <form on:submit|preventDefault={sendMessage} class="component_send_box">
-        <input type="text" placeholder="Type something ..." bind:value={user_message}>
+        <input type="text" placeholder="Type something ..." maxlength="500" bind:value={user_message}>
         <button>send</button>
     </form>
 </div>
@@ -429,6 +429,7 @@
 		border-radius: 5px;
 		margin: 10px 0;
 		padding: 15px 20px;
+		font-size: 12px;
 	}
 
 	.myMessage {

@@ -74,6 +74,8 @@ export class ChatGateway
     {
       return ;
     }
+	if (! this.areWordsLessThanLength(message.message, 15))
+		return ;
     await this.addMessageToRoom({
       id: Number(message.channel),
       sender: client_id.id,
@@ -174,5 +176,17 @@ export class ChatGateway
   async emitMemberReload(roomId: number)
   {
 	this.wss.to(`${roomId}`).emit("reloadMembers");
+  }
+
+  areWordsLessThanLength(inputString: string, maxLength: number) 
+  {
+    const words = inputString.split(' ');
+    console.log(words);
+    for (let i = 0; i < words.length; i++) {
+        if (words[i].length > maxLength) {
+            return false;
+        }
+    }
+    return true;
   }
 }
