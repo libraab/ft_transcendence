@@ -97,8 +97,7 @@ export class ChatController {
   async getRoomsMembers(@Request() req: { user: IJWT }, @Param('id', ParseIntPipe) room_id: number) {
 	const client = await this.db.getClientById42(req.user.id);
 	let status = await this.db.roomUserCheck(room_id, client.id);
-	console.log(status);
-	if (status == null || status.status == 5)
+	if (status == null || status.status == 5)// || status.status == 6)
 	{
 		throw new UnauthorizedException("You are not member");
 	}

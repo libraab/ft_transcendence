@@ -89,8 +89,6 @@ export async function load({ cookies, params, fetch }) {
 	if (blocked.status)
 		throw error(blocked.status, { message: blocked.statusText});
 
-	//todo modifier les messages pour effacer les user blocked avec filter?
-
 	return {
 		roomId,
 		messages: messages, 

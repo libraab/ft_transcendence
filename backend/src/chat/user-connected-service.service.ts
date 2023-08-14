@@ -48,4 +48,13 @@ export class UserConnectedService {
     });
     return res;
   }
+
+  findId(socket_id: string): number {
+    let res = null;
+    console.log("Searching in GateWay Data the socket_id : ", socket_id);
+    this.hmapconnected.forEach((value, key, map) => {
+      if (key == socket_id) res = value;
+    });
+    return res;
+  }
 }

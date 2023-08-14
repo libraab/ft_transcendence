@@ -4,7 +4,7 @@
   import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 
-    export let invitationData;
+    export let invitationData: any;
 
     let hanndleRefuse = () =>
     {

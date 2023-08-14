@@ -116,12 +116,20 @@ export class ChatGateway
   }
 
   @SubscribeMessage('joinChannel')
-  handleJoinChannel(client: Socket, channel: string) {
-    // check if channel id is existing if not do nothing
-    // check if client is a member of channel then proceed
-    client.join(channel);
-    console.log('JOINED');
-    client.emit('joinedChannel', channel);
+  async handleJoinChannel(client: Socket, channel: string) {
+	let room = await this.db.getRoomById(Number(channel));
+	if (null)
+		return ;
+	let id = this.usersConnected.findId(client.id);
+	if (id === null)
+		return ;
+	let status = await this.db.roomUserCheck(Number(channel), id);
+	if (status !== null && status.status != 5 && status.status != 6)
+	{
+		client.join(channel);
+		console.log('JOINED');
+		client.emit('joinedChannel', channel);
+	}
   }
 
   @SubscribeMessage('leaveChannel')

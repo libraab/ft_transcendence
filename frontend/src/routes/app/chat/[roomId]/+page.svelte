@@ -16,6 +16,15 @@
 	let my_status: number = data.status;
 	let blocked: any = data.blocked;
 
+	RoomsMessages = RoomsMessages.filter((msg: any) => {
+			let found = false;
+			blocked.forEach( (el: any) => {
+				if ((el.client1.name !== $clientName && el.client1.name === msg.sender) || (el.client2.name !== $clientName && el.client2.name == msg.sender))
+					found = true;
+			})
+			return (!found);
+	});
+
 	console.log(blocked);
 	
 	
@@ -115,6 +124,15 @@
 		members = data.members;
 		my_status = data.status;
 		blocked = data.blocked;
+			//todo modifier les messages pour effacer les user blocked avec filter?
+		RoomsMessages = RoomsMessages.filter((msg: any) => {
+			let found = false;
+			blocked.forEach( (el: any) => {
+				if ((el.client1.name !== $clientName && el.client1.name === msg.sender) || (el.client2.name !== $clientName && el.client2.name == msg.sender))
+					found = true;
+			});
+			return (!found);
+	});
 		if (socket)
 		{
 			if (navigation.from?.params)
