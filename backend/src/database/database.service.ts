@@ -699,6 +699,7 @@ export class DatabaseService {
           select: {
             id: true,
             name: true,
+			secu: true,
           },
         },
       },
@@ -707,6 +708,7 @@ export class DatabaseService {
     const roomIdsAndNames = roomMembers.map((roomMember) => ({
       roomId: roomMember.room.id,
       roomName: roomMember.room.name,
+	  secu: roomMember.room.secu,
     }));
 
     return roomIdsAndNames;

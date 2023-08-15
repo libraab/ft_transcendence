@@ -21,6 +21,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 import IJWT from 'src/interfaces/jwt.interface';
 import { updateRoomDto } from 'src/database/dtos/dbBaseDto';
 import { ChatGateway } from 'src/chat/chat.gateway';
+import { error } from 'console';
 
 @Controller('rooms')
 export class RoomsController {
@@ -80,12 +81,33 @@ export class RoomsController {
     return this.db.getRoomAdmins(roomId);
   }
 
+  @UseGuards(AuthGuard)
   @Get('/replacementList/:id')
-  async getReplacements(@Param('id', ParseIntPipe) roomId: number) {
+  async getReplacements(@Request() req: { user: IJWT }, @Param('id', ParseIntPipe) roomId: number) {
     try {
-      return this.db.getRoomReplacementMembers(roomId);
+		const client = await this.db.getClientById42(req.user.id);
+		if (!client)
+			throw error("not a known user");
+		const status = await this.db.roomUserCheck(roomId, client.id);
+		if (status && status.status === 0)
+      		return await this.db.getRoomReplacementMembers(roomId);
+		else
+			throw error("not an owner");
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/info/:id')
+  async getRoomInfo(@Request() req: { user: IJWT }, @Param('id', ParseIntPipe) roomId: number) {
+    try {
+		let room = await this.db.getRoomById(roomId);
+		if (!room)
+			throw error('room not found');
+      return {id: room.id, name: room.name, secu: room.secu};
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
     }
   }
 
@@ -95,16 +117,28 @@ export class RoomsController {
     return this.db.getRoomIdByName(roomName);
   }
 
+  @UseGuards(AuthGuard)
   @Post('/updateRoom/:roomId')
-  async updateRoom(@Param('roomId', ParseIntPipe) roomId: number,
-                  @Body() data: updateRoomDto)
+  async updateRoom( @Request() req: { user: IJWT },
+  					@Param('roomId', ParseIntPipe) roomId: number,
+                  	@Body() data: updateRoomDto)
   {
+	let client = await this.db.getClientById42(req.user.id);
+	if (!client)
+		throw new BadRequestException("Unauthorized to update");
+
+	let status = await this.db.roomUserCheck(roomId, client.id);
+	if (! status && status.status !== 0)
+		throw new BadRequestException("not an owner");
+
     if (data.secu === 1) {
       const saltRounds = 10;
       data.password = await bcrypt.hash(data.password, saltRounds);
     }
     try {
-      return this.db.updateRoom(roomId, data);
+
+	console.log("ok");
+      return await this.db.updateRoom(roomId, data);
     }
     catch (error) {
       throw new BadRequestException(error.message);
@@ -188,12 +222,12 @@ export class RoomsController {
 	const room = await this.db.getRoomById(roomId);
     const client = await this.db.getClientById42(req.user.id);
 	const status = await this.db.roomUserCheck(roomId, client.id);
-	// if (!room || !client || !status || status.status === 0) {
-	// 	throw new HttpException(
-	// 	  'room id or client id or client status invalid',
-	// 	  HttpStatus.BAD_REQUEST,
-	// 	);
-	// }
+	if (!room || !client || !status || status.status === 0) {
+		throw new HttpException(
+		  'room id or client id or client status invalid',
+		  HttpStatus.BAD_REQUEST,
+		);
+	}
 	await this.db.removeClientFromRoom(roomId, client.id);
     this.cg.sendServerMsg(roomId, `${client.name} quit the room`);
 	this.cg.emitMemberReload(roomId);

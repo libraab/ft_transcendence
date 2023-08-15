@@ -44,6 +44,7 @@
 			if (response.status == 200)
 			{
 				let tmp_rooms = await response.json();
+				console.log(tmp_rooms);
 				// tmp_rooms = tmp_rooms.map((el) => {
 				// 	let item = curr_rooms.find((room) => (room.roomId == el.roomId));
 				// 	if (item == undefined)

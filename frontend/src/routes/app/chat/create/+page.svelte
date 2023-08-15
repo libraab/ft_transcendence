@@ -127,6 +127,10 @@
 		border: #DCDCDC 1px solid;
 	}
 
+	select {
+		font-family: 'Oxanium';
+	}
+
 	.void-content
 	{
 		background-color: #404040;

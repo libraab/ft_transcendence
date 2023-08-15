@@ -6,6 +6,7 @@
 	import { socket } from '$lib/socketsbs'
     import Invite from '$lib/invitation.svelte'
 	import { error, type AfterNavigate } from "@sveltejs/kit";
+	import { Manager } from "socket.io-client";
 
     // export let data: any;
 	export let data : any;
@@ -157,14 +158,14 @@
 			});
 	}
 
-	let handleQuit = () => {
+	let handleButton = () => {
 		if (data.status != 0)
 		{
 			sendQuitPost();
 			goto("/app/chat");
 		}
 		else
-			sendQuitPost();
+			goto(`/app/chat/${roomId}/manage`);
 	}
 
 	/**
@@ -314,7 +315,13 @@
         </li>
         {/each}
     </ul>
-	<button on:click={handleQuit} class="btn-room-quit">Quit</button>
+	<button on:click={handleButton} class="btn-room-quit">
+		{#if (my_status === 0)}
+			Manage
+		{:else}
+			Quit
+		{/if}
+	</button>
 </div>
     
 <style>
@@ -540,6 +547,13 @@
 		padding: 15px 60px;
 		margin: 10px 10px;
 		text-transform: uppercase;
+		cursor: pointer;
+		transition: all ease-in-out 0.3s;
+		
+	}
+
+	.btn-room-quit:hover {
+		background-color: #3AB45C;
 	}
 
 	.hovertext {
