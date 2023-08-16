@@ -14,6 +14,7 @@
 	let roomType: string = 'public';
 	let password: string = '';
 	let owner_choice: any;
+	let successor_id: number;
 
 	if (data.roomInfo.secu === 1)
 		roomType = 'protected';
@@ -137,7 +138,7 @@
 
 	const handleSubmit = async (event: any) => {
 		let type: number = roomTypeDict[roomType];
-		if (password === "" && roomType == "protected")
+		if (password === "" && roomType == "protected" && data.roomInfo.secu !== 1)
 		{
 			alert("Please enter a password");
 			return ;
@@ -148,7 +149,7 @@
 		}
 		else
 				password = "";
-		if (roomName = '')
+		if (roomName === '')
 			roomName = data.roomInfo.name;
 		/*
 		* Appel au Post du controller Chat qui va creer la Room dans la Db
@@ -169,11 +170,20 @@
 		if (response.ok) {
 			console.log('Room updated successfully');
 			// handle success -> make sure that room is added to the list updates etc
-		} else {
+		}
+		else {
+			console.log(response);
 			alert('Failed to update room');
 			// handle error
 		}
 		goto(`/app/chat/${data.roomInfo.id}`);
+	}
+
+	const handleOwnerSubmit = async (event: any) => {
+		event.preventDefault();
+		if (owner_choice == "")
+			return ;
+		console.log(owner_choice);
 	}
 </script>
 
@@ -205,67 +215,36 @@
 		</form>
 	</div>
 	<div class="manage-block">
-		<h3>Owner Option</h3>
-		<label for="owner-choice">
-			<select id="room-type" bind:value={owner_choice} class="input-box">
-				<option value="resign">resign</option>
-				<option value="resignquit">resign and quit</option>
-				<option value="deleteroom">delete room</option>
-			</select>
-			{#if false}
-				<br />
+		<form on:submit={handleOwnerSubmit}>
+			<h3>Owner Option</h3>
+			<label for="owner-choice">
+				<select id="owher-choice" bind:value={owner_choice} class="input-box">
+					<option disabled selected value> -- select an option -- </option>
+					{#if (admins && admins.length !== 0)
+					|| (members && members.length !== 0)}
+					<option value="resign">resign</option>
+					<option value="resignquit">resign and quit</option>
+					{/if}
+					<option value="deleteroom">delete room</option>
+				</select>
+			</label>
+			{#if owner_choice === 'resign' || owner_choice === 'resignquit'}
+				<h3>Select the successor</h3>
+				<label for="owner-successor">
+					<select id="successor" bind:value={successor_id} class="input-box">
+						<option disabled selected value> -- select a successor -- </option>
+						<!-- {#if (admins && admins.length !== 0)
+						|| (members && members.length !== 0)}
+						<option value="resign">resign</option>
+						<option value="resignquit">resign and quit</option>
+						{/if}
+						<option value="deleteroom">delete room</option> -->
+					</select>
+				</label>
 			{/if}
-		</label>
-		<div class="btn-submit-room-wrapper"><button type="submit" class="btn-submit">Confirm</button></div>
+			<div class="btn-submit-room-wrapper"><button type="submit" class="btn-submit">Confirm</button></div>
+		</form>
 	</div>
-	{#if (!admins || admins.length === 0)
-		&& (!members || members.length === 0)}
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div class="backdrop" on:click|self on:keypress>
-			<div class="modal">
-				<h1>empty room</h1>
-				<p>do you want to delete it ?</p>
-				<button on:click={()=> eraseRoom()}>yes</button>
-				<button on:click>no</button>
-			</div>
-		</div>
-		
-	{:else}
-		<!-- svelte-ignore a11y-no-static-element-interactions -->
-		<div class="backdrop" on:click|self on:keypress>
-			<div class="modal">
-				<h1>To whom do you want to pass ownership ?</h1>
-				<br>
-				<label>
-					<input type="radio" value="leave" name="stayOption" on:change={() => stayOption = 'leave'} checked={stayOption === 'leave'} />
-					and leave
-				</label>
-				<label>
-					<input type="radio" value="stay" name="stayOption" on:change={() => stayOption = 'stay'} checked={stayOption === 'stay'} />
-					and stay
-				</label>
-
-				<h3>admins</h3>
-
-				{#if admins.length > 0}
-					{#each admins as admin}
-						<button on:click={() => resign(admin)}>{admin.name}</button>
-					{/each}
-				{:else}
-					<p>there's no admins<p>
-				{/if}
-				<br>
-				{#if members.length > 0}
-					<h3>members</h3>
-					{#each members as member}
-						<button on:click={() => resign(member)}>{member.name}</button>
-					{/each}
-				{:else}
-					<p>there's no member</p>
-				{/if}
-			</div>
-		</div>
-	{/if}
 </div>
 
 <div class="chat-users-content"></div>

@@ -181,6 +181,12 @@ export class ChatGateway
     }
   }
 
+  async sendReloadRoomToAllMembers(roomId: any)
+  {
+	this.wss.to(roomId).emit('reloadrooms');
+  }
+
+
   async emitMemberReload(roomId: number)
   {
 	this.wss.to(`${roomId}`).emit("reloadMembers");

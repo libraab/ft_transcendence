@@ -71,7 +71,7 @@ export async function load({ cookies , fetch }) {
 				message: err.message});
 	})
 
-	if (stats.status)
+	if (stats && stats.status)
 		throw error(stats.status, { message: stats.statusText});
 
 	return {

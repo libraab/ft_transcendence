@@ -33,27 +33,25 @@
 		if (!socket)
 			setTimeout(function(){
 				if (socket)
-				{
-					socket.emit('joinChannel', String(roomId));
+					configSocket();
+		}, 1000);
+		else if (socket)
+			configSocket();
+		else {
+			console.error("socket is not initialised");
+			goto("/app/chat");
+		}
+	})
+
+	let configSocket = () => {
+		socket.emit('joinChannel', String(roomId));
 					socket.off('serverToChat', recieveMessage);
 					socket.off('serverMessage', recieveServerMessage);
 					socket.off('reloadMembers', reloadMembers);
 					socket.on('serverToChat', recieveMessage);
 					socket.on('serverMessage', recieveServerMessage);
 					socket.on('reloadMembers', reloadMembers);
-				}
-		}, 1000);
-		else if (socket)
-		{
-			socket.emit('joinChannel', String(roomId));
-			socket.off('serverToChat', recieveMessage);
-			socket.off('serverMessage', recieveServerMessage);
-			socket.off('reloadMembers', reloadMembers);
-			socket.on('serverToChat', recieveMessage);
-			socket.on('serverMessage', recieveServerMessage);
-			socket.on('reloadMembers', reloadMembers);
-		}
-	})
+	}
 
 	onDestroy(() => {
 		if (socket)
@@ -136,7 +134,7 @@
 	});
 		if (socket)
 		{
-			if (navigation.from?.params)
+			if (navigation.from?.params && navigation.from?.params.roomId)
 				socket.emit('leaveChannel', String(navigation.from?.params.roomId));
 			socket.emit('joinChannel', String(roomId));
 		}

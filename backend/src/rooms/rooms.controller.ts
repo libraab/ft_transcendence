@@ -123,25 +123,47 @@ export class RoomsController {
   					@Param('roomId', ParseIntPipe) roomId: number,
                   	@Body() data: updateRoomDto)
   {
+	console.log(data);
+	
 	let client = await this.db.getClientById42(req.user.id);
 	if (!client)
-		throw new BadRequestException("Unauthorized to update");
-
+	throw new BadRequestException("Unauthorized to update");
+	
+	let roomToUpdate = await this.db.getRoomById(roomId);
+	if (!roomToUpdate)
+	throw new BadRequestException("room doesn't exist");
+	
 	let status = await this.db.roomUserCheck(roomId, client.id);
 	if (! status && status.status !== 0)
-		throw new BadRequestException("not an owner");
+	throw new BadRequestException("not an owner");
 
-    if (data.secu === 1) {
+	let message = '';
+	if (roomToUpdate.name !== data.name)
+		message += `New room name is ${data.name}. Please consider to refresh the page to see the change.`;
+	if (roomToUpdate.secu !== data.secu)
+	{
+	message += "The room is now ";
+	if (data.secu === 0)
+		message += 'public.';
+	else if (data.secu === 1)
+		message += 'protected by a pass.';
+	else if (data.secu === 2)
+		message += 'private.';
+	}
+    if (roomToUpdate.secu !== 1 && data.secu === 1) {
       const saltRounds = 10;
+	  if (data.password === '')
+	  	throw new BadRequestException("missing password to update");
       data.password = await bcrypt.hash(data.password, saltRounds);
     }
+	else if (roomToUpdate.secu === 1 && data.secu === 1)
+		data = {name: data.name};
     try {
-
-	console.log("ok");
-      return await this.db.updateRoom(roomId, data);
+    	await this.db.updateRoom(roomId, data);
+		this.cg.sendServerMsg(roomId, `The room configuration are changed by the owner : ${message}`);
     }
     catch (error) {
-      throw new BadRequestException(error.message);
+      throw new BadRequestException("Update failed");
     }
   }
 
