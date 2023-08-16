@@ -54,7 +54,7 @@ export async function load({ cookies , fetch }) {
 					message: err.message});
 	});
 
-	if (history.status)
+	if (history && history.status)
 		throw error(history.status, { message: history.statusText});
 
 	const stats = await fetch(url_api_stats, {
