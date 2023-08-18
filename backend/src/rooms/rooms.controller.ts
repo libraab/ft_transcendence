@@ -87,14 +87,14 @@ export class RoomsController {
     try {
 		const client = await this.db.getClientById42(req.user.id);
 		if (!client)
-			throw error("not a known user");
+			throw error({message: "not a known user"});
 		const status = await this.db.roomUserCheck(roomId, client.id);
 		if (status && status.status === 0)
       		return await this.db.getRoomReplacementMembers(roomId);
 		else
-			throw error("not an owner");
+			throw error({message: "not an owner"});
     } catch (error) {
-      throw new HttpException(error.message, HttpStatus.BAD_REQUEST);
+      throw new HttpException('Unaithorised', HttpStatus.UNAUTHORIZED);
     }
   }
 
@@ -134,7 +134,7 @@ export class RoomsController {
 	throw new BadRequestException("room doesn't exist");
 	
 	let status = await this.db.roomUserCheck(roomId, client.id);
-	if (! status && status.status !== 0)
+	if (! status || status.status !== 0)
 	throw new BadRequestException("not an owner");
 
 	let message = '';
@@ -266,7 +266,7 @@ export class RoomsController {
   ) {
 	const sender = await this.db.getClientById42(req.user.id);
 	const sender_status = await this.db.roomUserCheck(roomId, sender.id);
-	if (sender_status.status !== 0 && sender_status.status !== 1)
+	if (!sender_status || (sender_status.status !== 0 && sender_status.status !== 1))
 		throw new UnauthorizedException();
     const ownerCheck = await this.db.checkRoomOwner(roomId, clientId);
     if (ownerCheck) throw new UnauthorizedException();
@@ -304,7 +304,7 @@ export class RoomsController {
   ) {
 	const sender = await this.db.getClientById42(req.user.id);
 	const sender_status = await this.db.roomUserCheck(roomId, sender.id);
-	if (sender_status.status !== 0 && sender_status.status !== 1)
+	if (!sender_status || (sender_status.status !== 0 && sender_status.status !== 1))
 		throw new UnauthorizedException();
 	const ownerCheck = await this.db.checkRoomOwner(roomId, memberId);
 	if (ownerCheck)
@@ -337,7 +337,7 @@ export class RoomsController {
   ) {
 	const sender = await this.db.getClientById42(req.user.id);
 	const sender_status = await this.db.roomUserCheck(roomId, sender.id);
-	if (sender_status.status !== 0 && sender_status.status !== 1)
+	if (!sender_status || (sender_status.status !== 0 && sender_status.status !== 1))
 		throw new UnauthorizedException();
     try {
 		const newMember = await this.db.getClientById(memberId);
@@ -350,8 +350,16 @@ export class RoomsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post('/delete/:roomId')
-  async deleteRoom(@Param('roomId', ParseIntPipe) roomId: number) {
+  async deleteRoom(@Request() req: { user: IJWT },
+  	@Param('roomId', ParseIntPipe) roomId: number) {
+	let client = await this.db.getClientById42(req.user.id);
+	if (!client)
+		throw new UnauthorizedException();
+	let status = await this.db.roomUserCheck(roomId, client.id);
+	if (!status || status.status !== 0)
+		throw new UnauthorizedException();
     try {
       await this.db.deleteRoomWithMembers(roomId);
       return HttpStatus.NO_CONTENT;
@@ -360,14 +368,22 @@ export class RoomsController {
     }
   }
 
-  @Post('/resign/:roomId/:ownerId/:adminId/:stay')
+  @UseGuards(AuthGuard)
+  @Post('/resign/:roomId/:adminId/:stay')
   async resign(
+	@Request() req: { user: IJWT },
     @Param('roomId', ParseIntPipe) roomId: number,
-    @Param('ownerId', ParseIntPipe) ownerId: number,
     @Param('adminId', ParseIntPipe) adminId: number,
     @Param('stay', ParseBoolPipe) stay: boolean,
   ) {
-    const ownerCheck = await this.db.checkRoomOwner(roomId, ownerId);
+	const client = await this.db.getClientById42(req.user.id);
+	const sucessor = await this.db.getClientById(adminId);
+	if (!client || !sucessor)
+		throw new HttpException(
+        'unknown user',
+        HttpStatus.BAD_REQUEST,
+    );
+    const ownerCheck = await this.db.checkRoomOwner(roomId, client.id);
     const roomUserCheck = await this.db.checkRoomMember(roomId, adminId);
     if (!ownerCheck || !roomUserCheck) {
       throw new HttpException(
@@ -375,19 +391,21 @@ export class RoomsController {
         HttpStatus.BAD_REQUEST,
       );
     }
-    if (ownerId === adminId) {
+    if (client.id === adminId) {
       throw new HttpException('you so funny Larry', HttpStatus.BAD_REQUEST);
     }
 
     try {
-      await this.db.changeMemberStatus(roomId, ownerId, 1); // owner becomes admin |__ > table roomMembers
+      await this.db.changeMemberStatus(roomId, client.id, 1); // owner becomes admin |__ > table roomMembers
       await this.db.changeMemberStatus(roomId, adminId, 0); // admin becomes owner |
       await this.db.changeRoomOwner(roomId, adminId); // pass admin as owner in table Rooms
 
       if (!stay)
         // is resign is decided with leaving the room
-        await this.db.removeClientFromRoom(roomId, ownerId);
-
+        await this.db.removeClientFromRoom(roomId, client.id);
+	  this.cg.emitMemberReload(roomId);
+	  let message = client.name + ' has resign his ownership of the room to ' + sucessor.name + '.';
+	  this.cg.sendServerMsg(roomId, message);
       return HttpStatus.NO_CONTENT;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);

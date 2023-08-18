@@ -27,7 +27,7 @@ export async function load({ cookies, params, fetch }) {
 					message: err.message});
 	});
 
-	if (replacementList.status)
+	if (replacementList && replacementList.status)
 		throw error(replacementList.status, { message: replacementList.statusText});
 
 	const roomInfo = await fetch(url_api_room_info, {
@@ -47,7 +47,7 @@ export async function load({ cookies, params, fetch }) {
 				message: err.message});
 	});
 
-	if (roomInfo.status)
+	if (roomInfo && roomInfo.status)
 		throw error(roomInfo.status, { message: roomInfo.statusText});
 
 	return {

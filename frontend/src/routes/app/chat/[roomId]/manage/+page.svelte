@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { jwt_cookie } from '$lib/stores';
+	import { error } from '@sveltejs/kit';
 	import { onMount, afterUpdate } from 'svelte';
 
 	export let data: any;
@@ -66,24 +67,20 @@
 		// dispatch('validationClick');
 	}
 
-	async function resign(client: any)
+	async function resign(stay: boolean)
 	{
-		let roomId, id;
-
-		let stay;
-		if (stayOption === 'stay')
-			stay = true;
-		else
-			stay = false;
 		try
 		{
 			const response = await fetch
-			(`/api/rooms/resign/${roomId}/${id}/${client.id}/${stay}`,{
+			(`/api/rooms/resign/${data.roomInfo.id}/${successor_id}/${stay}`,{
 					method: 'POST',
-				});
+					headers: {
+					'Authorization': `Bearer ${$jwt_cookie}`
+				}
+			});
 			if (response.ok)
 			{
-				handleValidationClick();
+				return ;
 			}
 			else
 			{
@@ -98,27 +95,22 @@
 
 	async function eraseRoom()
 	{	
-		let roomId
-
-
-		try
-		{
-			const response = await fetch(`/api/rooms/delete/${roomId}`,{
-					method: 'POST',
-				});
-			if (response.ok)
-			{
-				handleValidationClick();
-			}
-			else
-			{
-				console.error(response.status, response.statusText);
-			}
-		}
-		catch (error: any)
-		{
-			console.error('ERROR: falied on delete', error.message);
-		}
+		let res = await fetch(`/api/rooms/delete/${data.roomInfo.id}`, {
+				method: 'POST',
+				headers: {
+					'Authorization': `Bearer ${$jwt_cookie}`
+				}
+			})
+			.then(async (response) => {
+				console.log("we are here");
+				if (response.ok)
+					await goto('/app/chat');
+				else
+					console.error("Unauthorised");
+			})
+			.catch((err) => {
+				throw error(err.status, { message: err.statusText});
+		});
 	}
 	/*
 	const handleSubmit = async (event: any) => {
@@ -184,6 +176,16 @@
 		if (owner_choice == "")
 			return ;
 		console.log(owner_choice);
+		if (owner_choice === 'deleteroom')
+			return eraseRoom();
+		let stay = true;
+		if (owner_choice === 'resignquit')
+			stay = false;
+		resign(stay);
+		if (stay)
+			goto(`/app/chat/${data.roomInfo.id}`);
+		else
+			goto(`/app/chat`);
 	}
 </script>
 
@@ -233,12 +235,12 @@
 				<label for="owner-successor">
 					<select id="successor" bind:value={successor_id} class="input-box">
 						<option disabled selected value> -- select a successor -- </option>
-						<!-- {#if (admins && admins.length !== 0)
-						|| (members && members.length !== 0)}
-						<option value="resign">resign</option>
-						<option value="resignquit">resign and quit</option>
-						{/if}
-						<option value="deleteroom">delete room</option> -->
+						{#each admins as admin}
+							<option value="{admin.id}">💂{admin.name}</option>
+						{/each}
+						{#each members as member}
+							<option value="{member.id}">{member.name}</option>
+						{/each}
 					</select>
 				</label>
 			{/if}

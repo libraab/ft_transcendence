@@ -75,10 +75,10 @@ export class DashboardController {
 	@Request() req: { user: IJWT },
   	@Param('clientId', ParseIntPipe) clientId: number)
   { 
-	let client = await this.db.getClientById(clientId);
-	if (!client)
+	let client_img = await this.db.getClientImgById(clientId);
+	if (!client_img)
 		throw new HttpException('userNotFound', 404);
-    return client;
+    return client_img;
   }
 
   @UseGuards(AuthGuard)
