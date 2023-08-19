@@ -49,7 +49,23 @@ export class ChatController {
   ) {
     //  if (id <= 0) throw new BadRequestException('invalid user');
      const client = await this.db.getClientById42(req.user.id);
-     const json = await this.db.getRoomIdsAndNamesByClientId(client.id);
+     let json = await this.db.getRoomIdsAndNamesByClientId(client.id);
+	 const banned_list = await this.db.getBannedRelationshipsForId(client.id);
+	 json = json.filter((room) => {
+		if (room.secu === 3)
+		{
+			let otherId;
+			if (room.ownerid === client.id)
+				otherId = room.client2Id;
+			else
+				otherId = room.ownerid;
+			let found = banned_list.find((el) => el.client1.id === otherId || el.client2.id === otherId);
+			if (found)
+				return false;
+			return true;
+		}
+		return true;
+	 })
      return json;
    }
 
@@ -112,7 +128,10 @@ export class ChatController {
   @Get('/room/:id/status')
   async getMyStatus(@Request() req: { user: IJWT }, @Param('id', ParseIntPipe) room_id: number) {
 	const client = await this.db.getClientById42(req.user.id);
+	const room = await this.db.getRoomById(room_id);
 	let status = await this.db.roomUserCheck(room_id, client.id);
+	if (status && room.secu === 3)
+		return {status: 2};
 	return status;
   }
 
@@ -277,25 +296,26 @@ export class ChatController {
    * Creating a one-to-one room here 
    * 
    */
+  @UseGuards(AuthGuard)
   @Post('/sendMsg')
-  async sendMsg(@Body() data) {
-    const userId = await this.db.getClientById(data.iddata);
+  async sendMsg(@Request() req: { user: IJWT }, @Body() data) {
+	const client = await this.db.getClientById42(req.user.id);
     const newInterlocutor = await this.db.getClientById(data.newFriendId);
+	if (!client)
+		throw new Error('You do not exist');
 
     if (!newInterlocutor) {
       throw new Error('Interlocutor does not exist');
     }
-    if (!userId) {
-      throw new Error('You do not exist');
-    }
     // TODO check if user or sender is not blocked
-    this.dto.ownerid = userId.id;
+	this.dto.name = client.name;
+    this.dto.ownerid = client.id;
     this.dto.secu = 3;
     this.dto.client2Id = newInterlocutor.id;
 
     const Room = await this.db.createRooom(this.dto);
-    if (!Room) console.log('Failed to create room');
-    this.db.addMemberToRoom(Room.id, userId.id, 0);
+    if (!Room) throw new Error('failed to create room');
+    this.db.addMemberToRoom(Room.id, client.id, 0);
     this.db.addMemberToRoom(Room.id, newInterlocutor.id, 1); // adding the second as an admin
     // RELOAD ROOMS
     return 'A private chat room has been created';

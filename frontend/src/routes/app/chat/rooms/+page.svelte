@@ -42,7 +42,6 @@ async function fetchAvailableRooms() {
 			},
 			body: JSON.stringify({ password })
 		});
-		console.log(response.status);
 		if (response.ok)
 		{
 			console.log('Joined room:', room.name);

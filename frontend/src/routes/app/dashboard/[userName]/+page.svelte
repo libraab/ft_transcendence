@@ -106,6 +106,25 @@
 		}
 	}
 
+	const sendMsg = async () => {
+		const response = await fetch(`/api/chat/sendMsg`, {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'Authorization': `Bearer ${$jwt_cookie}`,
+			},
+			body: JSON.stringify({
+				newFriendId: target.id,
+				iddata: $userId,
+			})
+		});
+		if (response.ok) {
+			console.log('Chat one to one created');
+		} else {
+			console.error('Failed to create one to one room');
+		}
+	};
+
 </script>
 	<main class="main_body">
 			<div class="profile-container">
@@ -132,7 +151,7 @@
 						<button class="hovertext" data-hover="add to friendlist" on:click={addFriend}>🙏</button>
 					{/if}
 					<button class="hovertext" data-hover="block" on:click={blockUser}>❌</button>
-					<button class="hovertext" data-hover="send a message">💬</button>
+					<button class="hovertext" data-hover="send a message" on:click={sendMsg}>💬</button>
 					<Invitation opponent_id={target.id} where="" />
 				</div>
 				{/if}

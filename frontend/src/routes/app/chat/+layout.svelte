@@ -1,5 +1,5 @@
 <script lang='ts'>
-	import { type Rooms, jwt_cookie } from '$lib/stores'
+	import { type Rooms, jwt_cookie, userId } from '$lib/stores'
 	import { socket } from '$lib/socketsbs';
 	import { onMount } from 'svelte';
 	import { afterNavigate } from '$app/navigation';
@@ -9,7 +9,7 @@
 
 	
 	// let rooms_promise;
-	let rooms: Rooms[] = [];
+	let rooms: any = [];
 
 	onMount( async () => {
 		/**
@@ -63,6 +63,30 @@
 	}
 
 
+	async function getImage(id: number) {
+		try
+		{
+			const response = await fetch(`http://localhost:8080/api/dashboard/avatar/${id}`, {
+				method: 'GET',
+				headers: {
+					'Authorization': `Bearer ${$jwt_cookie}`
+				}
+			});
+			if (response.ok)
+			{
+				let client = await response.json();
+				return client;
+			}
+			else
+				console.error("avatar");
+		}
+		catch (error)
+		{
+			console.error("avatar" , error);
+		}
+	}
+
+
 </script>
 
 <div class="container">
@@ -80,6 +104,7 @@
 			<!-- {#await rooms_promise then rooms} -->
 				{#each rooms as room (room.roomId)}
 					<!-- svelte-ignore a11y-no-noninteractive-element-interactions -->
+					{#if room.secu !== 3}
 					<li class="one-room" class:selected-room={$page.url.pathname === `/app/chat/${room.roomId}`}>
 						{#if $page.url.pathname === `/app/chat/${room.roomId}`}
 							<p>{room.roomName}</p>
@@ -87,6 +112,40 @@
 							<a href='/app/chat/{room.roomId}'>{room.roomName}</a>
 						{/if}
 					</li>
+					{:else if room.secu === 3}
+						{#if room.ownerid === $userId}
+							<li class="one-room one-to-one" class:selected-room={$page.url.pathname === `/app/chat/${room.roomId}`}>
+								{#await getImage(room.client2Id)}
+									<img src="/logo.jpeg" alt="logo" class="room-img">
+									<p>{room.client2.name}</p>
+								{:then user} 
+									<img src={user.img} alt="logo" class="room-img">
+									{#if $page.url.pathname === `/app/chat/${room.roomId}`}
+										<p>{room.client2.name}</p>
+									{:else}
+										<a href='/app/chat/{room.roomId}'>
+											{room.client2.name}</a>
+									{/if}
+								{/await}
+							</li>
+						{:else}
+							<li class="one-room one-to-one" class:selected-room={$page.url.pathname === `/app/chat/${room.roomId}`}>
+								{#await getImage(room.ownerid)}
+									<img src="/logo.jpeg" alt="logo" class="room-img">
+									<p>{room.roomName}</p>
+								{:then user} 
+									<img src={user.img} alt="logo" class="room-img">
+									{#if $page.url.pathname === `/app/chat/${room.roomId}`}
+										<p>{room.roomName}</p>
+									{:else}
+										<a href='/app/chat/{room.roomId}'>
+											{room.roomName}</a>
+									{/if}
+								{/await}
+							</li>
+						{/if}
+						
+					{/if}
 				{:else}
 				<li class="one-room"><p>You don't have rooms</p></li>
 				{/each}
@@ -116,6 +175,13 @@
 	.one-room {
 		/* padding: 15px 20px; */
 		text-align: center;
+	}
+
+	.one-to-one {
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		align-items: center;
 	}
 
 	.selected-room {
@@ -170,4 +236,14 @@
 		list-style: none;
 	}
 
+
+	.room-img {
+		width: 25px;
+		height: 25px;
+		border-radius: 50%;
+		/* margin-right: 20px; */
+		object-fit: cover;
+		margin-right: 10px;
+		/* box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); */
+	}
 </style>

@@ -403,9 +403,9 @@ export class RoomsController {
       if (!stay)
         // is resign is decided with leaving the room
         await this.db.removeClientFromRoom(roomId, client.id);
-	  this.cg.emitMemberReload(roomId);
-	  let message = client.name + ' has resign his ownership of the room to ' + sucessor.name + '.';
-	  this.cg.sendServerMsg(roomId, message);
+		let message = client.name + ' has resign his ownership of the room to ' + sucessor.name + '.';
+		this.cg.emitMemberReload(roomId);
+	  	this.cg.sendServerMsg(roomId, message);
       return HttpStatus.NO_CONTENT;
     } catch (error) {
       throw new HttpException(error.message, HttpStatus.BAD_REQUEST);

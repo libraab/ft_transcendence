@@ -9,6 +9,7 @@ export async function load({ cookies, params, fetch }) {
 	const url_api_members = `http://localhost:8080/api/chat/room/${params.roomId}`;
 	const url_api_status = `http://localhost:8080/api/chat/room/${params.roomId}/status`;
 	const url_api_blocked = `http://localhost:8080/api/chat/blocked`;
+	const url_api_room_info = `http://localhost:8080/api/rooms/info/${params.roomId}`;
 
 	if (authToken === undefined) throw redirect(307, "/");
 	const members = await fetch(url_api_members, {
@@ -89,11 +90,32 @@ export async function load({ cookies, params, fetch }) {
 	if (blocked.status)
 		throw error(blocked.status, { message: blocked.statusText});
 
+	const roomInfo = await fetch(url_api_room_info, {
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${authToken}`
+			}
+		})
+		.then(async (response) => {
+			if (response.ok)
+				return await response.json();
+			else
+				return response;
+		})
+		.catch((err) => {
+			throw error(err.status, {
+				message: err.message});
+	});
+
+	if (roomInfo && roomInfo.status)
+		throw error(roomInfo.status, { message: roomInfo.statusText});
+
 	return {
 		roomId,
 		messages: messages, 
 		members: members,
 		status : status.status,
 		blocked: blocked,
+		roomInfo: roomInfo,
 	}
 }

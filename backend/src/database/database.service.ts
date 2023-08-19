@@ -624,7 +624,7 @@ export class DatabaseService {
 
         const room = await this.prisma.rooms.create({
           data: {
-            name: client2.name,
+            name: dto.name,
             ownerid,
             secu,
             password,
@@ -696,7 +696,7 @@ export class DatabaseService {
 
   async getRoomIdsAndNamesByClientId(
     clientId: number,
-  ): Promise<{ roomId: number; roomName: string }[]> {
+  ): Promise<{ roomId: number; roomName: string, secu: number, ownerid: number, client2Id: number }[]> {
     const roomMembers = await this.prisma.roomMembers.findMany({
 		where: {
 			memberId: clientId,
@@ -713,6 +713,9 @@ export class DatabaseService {
             id: true,
             name: true,
 			secu: true,
+			ownerid: true,
+			client2Id: true,
+			client2: true,
           },
         },
       },
@@ -722,6 +725,9 @@ export class DatabaseService {
       roomId: roomMember.room.id,
       roomName: roomMember.room.name,
 	  secu: roomMember.room.secu,
+	  ownerid: roomMember.room.ownerid,
+	  client2Id: roomMember.room.client2Id,
+	  client2: roomMember.room.client2,
     }));
 
     return roomIdsAndNames;
