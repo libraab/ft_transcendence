@@ -12,7 +12,7 @@
 
 	let badUpdate = false;
 	let indexBadUpdate = 0;
-	let new_img_data;
+	let new_img_data: any;
 	let fileInput : any = null;
 	let files : any;
 
@@ -119,7 +119,7 @@
 		});
 		if (response.ok) {
 			console.log('User unblocked');
-			blocked_users = blocked_users.filter((user) => user.client2.id !== unblockedId);
+			blocked_users = blocked_users.filter((user: any) => user.client2.id !== unblockedId);
 		} else {
 			console.error('Failed to unblock user');
 		}
