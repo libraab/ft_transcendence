@@ -1,5 +1,5 @@
 <script lang='ts'>
-	import { afterNavigate, goto } from "$app/navigation";
+	import { afterNavigate, goto, invalidateAll } from "$app/navigation";
 	import ConnectStatus from "$lib/connectStatus.svelte";
 	import { jwt_cookie, userId42, userId, clientName } from "$lib/stores";
 	import { onMount, onDestroy } from "svelte";
@@ -52,6 +52,7 @@
 					socket.on('serverToChat', recieveMessage);
 					socket.on('serverMessage', recieveServerMessage);
 					socket.on('reloadMembers', reloadMembers);
+					// socket.on('reloadrooms', reloadRoom);
 	}
 
 	onDestroy(() => {
@@ -61,8 +62,13 @@
 			socket.off('serverToChat', recieveMessage);
 			socket.off('serverMessage', recieveServerMessage);
 			socket.off('reloadMembers', reloadMembers);
+			// socket.off('reloadrooms', reloadRoom);
 		}
 	})
+
+	// async function reloadRoom() {
+	// 	invalidateAll();
+	// }
 
 	/**
 	 * Socket functions handlers event

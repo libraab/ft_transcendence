@@ -119,10 +119,12 @@ export class AuthController {
     const { isDFAActive } = body;
     const user: UpdateClientDto = new UpdateClientDto();
     // if user activate the dfa
+	console.log(body);
     if (isDFAActive) {
       user.dfa = true;
       user.dfaVerified = false;
       user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key
+	  console.log(user);
       await this.databaseService.updateClient(id, user);
       // Generate the QR code image
       const otpauthUrl = authenticator.keyuri(
@@ -138,4 +140,27 @@ export class AuthController {
       }
       return {};
     }
-  }
+
+	@UseGuards(AuthGuard)
+	@Get('/2fa/code')
+	async generateDfaCode(
+	  @Request() req: { user: IJWT },
+	) {
+		const client = await this.databaseService.getClientById42(req.user.id);
+		if (!client)
+			throw new NotFoundException("user doesnt exist");
+		const user: UpdateClientDto = new UpdateClientDto();
+		user.dfa = false;
+      	user.dfaVerified = false;
+      	user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key
+		await this.databaseService.updateClient(client.id, user);
+		const otpauthUrl = authenticator.keyuri(
+			'asmabouhlel@student.42nice.fr',
+			'ft_transcendence',
+			user.dfaSecret,
+		);
+		const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
+		return { qrCodeImageUrl };
+	}
+}
+

@@ -9,6 +9,9 @@
 // {block_id: 5, block_name: "LeTricheur"},
 // {block_id: 6, block_name: "LeSpammeur"},
 // 					];
+	export let data;
+	let DfaInfo = data.DfaInfo;
+	let qrCodeImageUrl = "";
 
 	let badUpdate = false;
 	let indexBadUpdate = 0;
@@ -17,6 +20,11 @@
 	let files : any;
 
 	let blocked_users: any = [];
+
+	console.log('data')
+	console.log(data);
+	console.log('DfaInfo')
+	console.log(DfaInfo);
 
 	onMount(() =>
 	{
@@ -124,6 +132,39 @@
 			console.error('Failed to unblock user');
 		}
 	};
+
+
+	async function toggleDFAState() {
+		console.log("TOGGLEDFA");
+		// Send API request to update DFA status
+		console.log (DfaInfo.dfa);
+		DfaInfo.dfa = !DfaInfo.dfa;
+		console.log (DfaInfo.dfa);
+		try {
+			const response = await fetch(`/api/auth/2fa/${$userId}`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					// 'Authorization': `Bearer ${$jwt_cookie}`
+				},
+				body: JSON.stringify({
+					isDFAActive: DfaInfo.dfa,
+				})
+			});
+			if (response.ok) {
+				data = await response.json();
+				console.log(data);
+				qrCodeImageUrl = data.qrCodeImageUrl;
+			} else {
+				console.error('Failed to get 2fa for the user');
+			}
+			// const response = await axios.post(`/api/auth/2fa/${$userId}`, { DfaInfo.dfa });
+			// qrCodeImageUrl = response.data.qrCodeImageUrl;
+		} catch (error) {
+			console.error('Failed to update DFA status:', error);
+		}
+	}
+
 </script>
 
 <div class="settings-wrap">
@@ -147,14 +188,32 @@
 				<!-- <input type="file" name="file-upload" id="file-upload"> -->
 			</label>
 		</div>
+		<div class="btn-wrap"><button id="btn-save" on:click={submitForm} >SAVE</button></div>
 		<div class="inputs">
 			<h4>Dfa</h4>
-			<label class="switch">
-				<input type="checkbox">
+			{#if DfaInfo.dfa}
+				<p>On</p>
+				<label class="switch">
+					<input type="checkbox" on:click={toggleDFAState} checked/>
+					<span class="slider round"></span>
+				</label>
+			{:else}
+				<p>Off</p>
+				<label class="switch">
+					<input type="checkbox" on:click={toggleDFAState} />
+					<span class="slider round"></span>
+				</label>
+			{/if}
+			<!-- <label class="switch">
+				<input type="checkbox" on:click={toggleDFAState}  />
 				<span class="slider round"></span>
-			</label>
+			</label> -->
+			{#if qrCodeImageUrl}
+				<div class="qrcode-wrapper">
+					<img class="img-qrcode" src={qrCodeImageUrl} alt="QR Code" />
+				</div>
+			{/if}
 		</div>
-		<div class="btn-wrap"><button id="btn-save" on:click={submitForm} >SAVE</button></div>
 	</div>
 	<div class="block-list">
 		<h3>Blocked Users :</h3>
@@ -354,6 +413,11 @@ input:checked + .slider:before {
 
 .slider.round:before {
   border-radius: 50%;
+}
+
+.qrcode-wrapper {
+	text-align: center;
+	padding: 15px;
 }
 
 </style>

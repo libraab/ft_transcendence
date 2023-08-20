@@ -8,6 +8,7 @@
 	import { connectClientToColyseus } from '$lib/gamesocket';
 	import Alert from '$lib/popupAlert.svelte'
 	import type { AfterNavigate } from '@sveltejs/kit';
+	import Invitation from '$lib/invitation.svelte';
 	// import { redirect } from '@sveltejs/kit';
 
 	export let data: any;
@@ -16,19 +17,23 @@
 	*/
 	let alertPopupOn = false;
 	let invitationData =  {player_id: 0, secret: "", name: "", img: ""};
-
+	let Invitations: any = [];
 	
 	let setPopupToogleEvent = () =>
 	{
 		socket.on('invitationGame', invitationHandler);
 	}
 	
-	let invitationHandler = (invitData) =>
+	let invitationHandler = (invitData: any) =>
 	{
 		console.log("invitation!!!");
 		alertPopupOn = true;
 		invitationData = invitData;
+		console.log(invitData);
+		Invitations.push(invitData);
+		console.log(Invitations);
 		//alert("Some guy invited you to a game!");
+		//ici add to a list of invitations?
 	}
 
 	/**
@@ -225,9 +230,17 @@
 </nav>
 
 <main>
-	{#if alertPopupOn}
+	<!-- {#if alertPopupOn}
 		<Alert invitationData={invitationData} on:refuseInvitation={ () => {alertPopupOn = false}}/>
-	{/if}
+	{/if} -->
+	{#each Invitations as invitation}
+		<h1>HEEEEEEELLLLLOOOOOOOOO</h1>
+		<Alert invitationData={invitation} on:refuseInvitation={ () => {
+		// 	Invitations = Invitations.filter((el) => {
+		// 	el.player_id !== invitation.id;
+		// })
+		}}/>
+	{/each}
 	<slot class="main_body"></slot>
 </main>
 
