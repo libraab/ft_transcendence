@@ -18,34 +18,44 @@
 		}
 		else
 			password = "";
+		if (roomName === '')
+		{
+			alert("Please enter a name");
+			return ;
+		}
 		/*
 		* Appel au Post du controller Chat qui va creer la Room dans la Db
 		*/
-		const response = await fetch(`/api/chat`, {
-			method: 'POST',
-			headers: {
-				'Authorization': `Bearer ${$jwt_cookie}`,
-				'Content-Type': 'application/json'
-			},
-			body: JSON.stringify({
-				roomName,
-				roomType,
-				password,
-				iddata: $userId42
-			})
-		});
-		if (response.ok) {
-			console.log('Room created successfully');
-			// handle success -> make sure that room is added to the list updates etc
-		} else {
-			console.error('Failed to create room');
-			// handle error
+		try {
+			const response = await fetch(`/api/chat`, {
+				method: 'POST',
+				headers: {
+					'Authorization': `Bearer ${$jwt_cookie}`,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					roomName,
+					roomType,
+					password,
+					iddata: $userId42
+				})
+			});
+			if (response.ok) {
+				console.log('Room created successfully');
+				// handle success -> make sure that room is added to the list updates etc
+				roomName = '';
+				roomType = 'public';
+				password = '';
+				goto('/app/chat');
+			} else {
+				console.error('Failed to create room');
+				// handle error
+			}
+			// Reset les valeurs du formulaure
 		}
-		// Reset les valeurs du formulaure
-		roomName = '';
-		roomType = 'public';
-		password = '';
-		goto('/app/chat');
+		catch {
+			console.error("Failed to create Room");
+		}
 		//ici rediriger vers /chat/room_id?
 		// toggleForm();
 		// fetchRooms();

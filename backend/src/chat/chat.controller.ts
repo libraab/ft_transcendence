@@ -152,6 +152,11 @@ export class ChatController {
         'User id is not matching data id',
         HttpStatus.BAD_REQUEST,
     );
+	if (data.roomName === '')
+		throw new HttpException(
+        	'room name is empty',
+        HttpStatus.BAD_REQUEST,
+    );
     const existingRooms = await this.db.getRooms();
     const userinfo = await this.db.getClientById42(parseInt(data.iddata)); //ici check si ok
     const roomNames = existingRooms.map((room) => room.name);
