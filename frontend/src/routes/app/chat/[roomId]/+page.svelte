@@ -156,7 +156,7 @@
           			},
 			}).then((res) => {
 				if (res.ok)
-					console.error('quit successfully');
+					console.log('quit successfully');
 				else 
 					console.error('failed to quit');
 			}).catch(() => {
