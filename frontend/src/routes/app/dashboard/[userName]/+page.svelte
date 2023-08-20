@@ -107,20 +107,28 @@
 	}
 
 	const sendMsg = async () => {
-		const response = await fetch(`/api/chat/sendMsg`, {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'Authorization': `Bearer ${$jwt_cookie}`,
-			},
-			body: JSON.stringify({
-				newFriendId: target.id,
-				iddata: $userId,
-			})
-		});
-		if (response.ok) {
-			console.log('Chat one to one created');
-		} else {
+		try {
+			const response = await fetch(`/api/chat/sendMsg`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${$jwt_cookie}`,
+				},
+				body: JSON.stringify({
+					newFriendId: target.id,
+					iddata: $userId,
+				})
+			});
+			if (response.ok) {
+				console.log('Chat one to one created');
+				const resolve = await response.json();
+				goto(`/app/chat/${resolve.roomId}`);
+			} else {
+				console.error('Failed to create one to one room');
+			}
+		}
+		catch (err)
+		{
 			console.error('Failed to create one to one room');
 		}
 	};

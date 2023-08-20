@@ -318,7 +318,7 @@ export class ChatController {
     this.db.addMemberToRoom(Room.id, client.id, 0);
     this.db.addMemberToRoom(Room.id, newInterlocutor.id, 1); // adding the second as an admin
     // RELOAD ROOMS
-    return 'A private chat room has been created';
+    return {roomId: Room.id};
   }
 
   @UseGuards(AuthGuard)
