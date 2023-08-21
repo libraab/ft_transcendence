@@ -2029,4 +2029,28 @@ export class DatabaseService {
 
     return response;
   }
+
+  async dfaSwitch(id: number) {
+    const dfaStatus = await this.prisma.clients.findUnique({
+      where: {
+        id42: id
+      },
+      select: {
+        dfaVerified: true
+      }
+    });
+
+    if (dfaStatus) {
+      const newDfaStatus = !dfaStatus.dfaVerified;
+
+      await this.prisma.clients.update({
+        where: {
+          id42: id
+        },
+        data: {
+          dfaVerified: newDfaStatus
+        }
+      });
+    }
+}
 }

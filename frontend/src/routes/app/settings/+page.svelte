@@ -137,15 +137,15 @@
 	async function toggleDFAState() {
 		console.log("TOGGLEDFA");
 		// Send API request to update DFA status
-		console.log (DfaInfo.dfa);
+		// console.log (DfaInfo.dfa);
 		DfaInfo.dfa = !DfaInfo.dfa;
-		console.log (DfaInfo.dfa);
+		// console.log (DfaInfo.dfa);
 		try {
-			const response = await fetch(`/api/auth/2fa/${$userId}`, {
+			const response = await fetch(`/api/auth/2fa`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					// 'Authorization': `Bearer ${$jwt_cookie}`
+					'Authorization': `Bearer ${$jwt_cookie}`
 				},
 				body: JSON.stringify({
 					isDFAActive: DfaInfo.dfa,

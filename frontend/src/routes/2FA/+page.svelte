@@ -6,10 +6,10 @@
 	  import { userId, jwt_cookie } from "$lib/stores";
 	  import { goto } from "$app/navigation";
 
-    export let data;
-    export let isDFAActive;
+    // export let data;
+    // export let isDFAActive;
     
-	  const dispatch = createEventDispatcher();
+	//   const dispatch = createEventDispatcher();
 
     let code = ""; // variable to store the user's 2FA code
   

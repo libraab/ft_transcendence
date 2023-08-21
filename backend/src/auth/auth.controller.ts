@@ -86,7 +86,8 @@ export class AuthController {
     const user = await this.databaseService.getClientById42(req.user.id);
     if (user == null)
       throw new NotFoundException("user doesnt exist");
-    const isVerified = authenticator.check(code, user.DfaSecret);
+	console.log(user.DfaSecret); // c'est juste une data en vrai mais si c'est null alors c'est que ça pas était save
+    const isVerified = authenticator.check(code, user.DfaSecret); //SOIT LE DFASECRET QUI S4EST PAS SAVE BIEN
     const userDto: UpdateClientDto = new UpdateClientDto();
     console.log("code received -->" + code);
     console.log("code is -->" + isVerified);
@@ -111,11 +112,16 @@ export class AuthController {
     return {dfa: user.Dfa, dfaVerifies: user.dfaVerified};
   }
 
-  @Post('/2fa/:id')
+  @UseGuards(AuthGuard)
+  @Post('/2fa')
   async activateDfa(
-    @Param('id', ParseIntPipe) id: number,
+	@Request() req: { user: IJWT },
     @Body() body: { isDFAActive: boolean },
   ): Promise<{ qrCodeImageUrl?: string }> {
+	console.log("activateDfa");
+	const client = await this.databaseService.getClientById42(req.user.id);
+	if (!client)
+		throw new NotFoundException("user doesnt exist");
     const { isDFAActive } = body;
     const user: UpdateClientDto = new UpdateClientDto();
     // if user activate the dfa
@@ -125,7 +131,7 @@ export class AuthController {
       user.dfaVerified = false;
       user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key
 	  console.log(user);
-      await this.databaseService.updateClient(id, user);
+      await this.databaseService.updateClient(client.id, user);
       // Generate the QR code image
       const otpauthUrl = authenticator.keyuri(
         'asmabouhlel@student.42nice.fr',
@@ -136,10 +142,22 @@ export class AuthController {
         return { qrCodeImageUrl };
       } else {
         user.dfa = false;
-        await this.databaseService.updateClient(id, user);
+        await this.databaseService.updateClient(client.id, user);
       }
       return {};
     }
+
+	@UseGuards(AuthGuard)
+	@Post('/2fa/logout')
+	async LogoutDfa(
+	  @Request() req: { user: IJWT },
+	) {
+		const client = await this.databaseService.getClientById42(req.user.id);
+		if (!client)
+			throw new NotFoundException("user doesnt exist");
+		this.databaseService.dfaSwitch(req.user.id);
+	}
+
 
 	@UseGuards(AuthGuard)
 	@Get('/2fa/code')
