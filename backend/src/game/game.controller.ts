@@ -23,6 +23,8 @@ export class GameController {
         gameHistoric.persScore = alldata.user.score;
         gameHistoric.client2Id = alldata.com.id;
         gameHistoric.vsScore = alldata.com.score;
+		if (alldata.user.id === alldata.com.id)
+			return ;
         const errors = await validateSync(gameHistoric);
         if (errors.length > 0) {
             console.log(errors);

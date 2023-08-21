@@ -7,8 +7,8 @@ export default defineConfig({
         port: 8080,
         proxy: {
             '/api': "http://backend:3000",
-            '/ws' : "http://backend:3001"
-        }
+            '/ws' : "http://backend:3001",
+        },
     },
     test: {
         include: ['src/**/*.{test,spec}.{js,ts}']
