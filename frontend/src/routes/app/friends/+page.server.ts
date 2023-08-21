@@ -1,10 +1,11 @@
 import { redirect } from "@sveltejs/kit";
+import { HOSTNAME } from '$env/static/private'
 
 export async function load({ cookies, fetch }) {
 	const authToken = cookies.get('jwt_cookie');
 	console.log("LOAD CALLED");
 	// return {roomId: roomId}
-	const url_api_fl = `http://localhost:8080/api/dashboard/fl`;
+	const url_api_fl = `http://${HOSTNAME}:8080/api/dashboard/fl`;
 
 	if (authToken === undefined) throw redirect(307, "/");
 	

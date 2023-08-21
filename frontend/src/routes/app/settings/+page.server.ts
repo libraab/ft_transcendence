@@ -1,10 +1,11 @@
 import { redirect, error } from "@sveltejs/kit";
+import { HOSTNAME } from "$env/static/private";
 
 export async function load({ cookies, fetch }) {
 	const authToken = cookies.get('jwt_cookie');
 	console.log("LOAD CALLED");
 	// return {roomId: roomId}
-	const url_api_2fa = `http://localhost:8080/api/auth/2fa`;
+	const url_api_2fa = `http://${HOSTNAME}:8080/api/auth/2fa`;
 
 	if (authToken === undefined) throw redirect(307, "/");
 	const DfaInfo = await fetch(url_api_2fa, {

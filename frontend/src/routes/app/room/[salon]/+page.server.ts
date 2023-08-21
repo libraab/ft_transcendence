@@ -1,5 +1,5 @@
 import { error, redirect } from '@sveltejs/kit'; 
-
+import { HOSTNAME } from '$env/static/private'
 
 let hostname = process.env.HOSTNAME
 	// @ts-ignore
@@ -7,7 +7,7 @@ let hostname = process.env.HOSTNAME
 	{
 		try
 		{
-			const response = await fetch(`http://localhost:8080/api/rooms/allMemberwithStatus/${id42}/${roomName}`);
+			const response = await fetch(`http://${HOSTNAME}:8080/api/rooms/allMemberwithStatus/${id42}/${roomName}`);
 			if (response.ok) {
 				let res =  await response.json();
 				return res;
@@ -24,7 +24,7 @@ let hostname = process.env.HOSTNAME
 	async function fetchRoomId(roomName, fetch)
 	{
 		try {
-			const response = await fetch(`http://localhost:8080/api/rooms/getRoomId/${roomName}`)
+			const response = await fetch(`http://${HOSTNAME}:8080/api/rooms/getRoomId/${roomName}`)
 			if (response.ok){
 				let res =  await response.json();
 				return res;
