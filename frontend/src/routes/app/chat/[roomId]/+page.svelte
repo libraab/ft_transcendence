@@ -33,7 +33,12 @@
 	onMount(() => {
 		if (!socket)
 			setTimeout(function(){
-				if (socket)
+				if (!socket)
+					setTimeout(function(){
+						if (socket)
+							configSocket();
+					}, 1000);
+				else if (socket)
 					configSocket();
 		}, 1000);
 		else if (socket)
