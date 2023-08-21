@@ -4,8 +4,8 @@
  */
 
 export async function load({ cookies }) {
-	cookies.set('jwt_cookie', null);
-	cookies.set('id42', null);
+	cookies.set('jwt_cookie', "");
+	cookies.set('id42', "");
 	// cookies.set('_intra_42_session_production', null);
 	// cookies.set('user.id', null);
 }

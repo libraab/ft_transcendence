@@ -58,9 +58,13 @@ export class AuthController {
       new_user.cookie = 'ABC';
       new_user.img = user_info.image.link;
       user = await this.databaseService.createClient(new_user);
-    } else console.log('We already know this person');
+    } else {
+      console.log('We already know this person');
+      user.dfaVerified = false;
+      this.databaseService.updateClient(user.id, user);
+    }
 
-    const add_cookie: UpdateClientDto = new UpdateClientDto();
+    //const add_cookie: UpdateClientDto = new UpdateClientDto();
     // generetate the jwt
     const jwt = await this.jwtService.signAsync({ id: user_info.id });
     response.setCookie('jwt_cookie', jwt, { path: '/' });
@@ -88,8 +92,8 @@ export class AuthController {
       throw new NotFoundException("user doesnt exist");
     const isVerified = authenticator.check(code, user.DfaSecret);
     const userDto: UpdateClientDto = new UpdateClientDto();
-    console.log("code received -->" + code);
-    console.log("code is -->" + isVerified);
+    // console.log("code received -->" + code);
+    // console.log("code is -->" + isVerified);
     if (isVerified) {
       userDto.dfaVerified = true;
       await this.databaseService.updateClient(user.id, userDto);
@@ -119,12 +123,13 @@ export class AuthController {
     const { isDFAActive } = body;
     const user: UpdateClientDto = new UpdateClientDto();
     // if user activate the dfa
-	console.log(body);
+	// console.log(body);
     if (isDFAActive) {
+      console.log('dfa was false and now is true');
       user.dfa = true;
       user.dfaVerified = false;
       user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key
-	  console.log(user);
+      // console.log(user);
       await this.databaseService.updateClient(id, user);
       // Generate the QR code image
       const otpauthUrl = authenticator.keyuri(
@@ -135,6 +140,7 @@ export class AuthController {
         const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
         return { qrCodeImageUrl };
       } else {
+        console.log('dfa was true and now is false');
         user.dfa = false;
         await this.databaseService.updateClient(id, user);
       }

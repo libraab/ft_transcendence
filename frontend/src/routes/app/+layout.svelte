@@ -141,7 +141,6 @@
 	 * Puis renvoyer la session en "/"
 	 */
 	let handleLogOut = () => {
-
 		goto("/logout");
 	}
 

@@ -13,6 +13,7 @@ import {
   Request,
   Logger,
   NotFoundException,
+  HttpCode,
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
@@ -30,6 +31,7 @@ import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import { AuthGuard } from 'src/auth/auth.guard';
 import IJWT from 'src/interfaces/jwt.interface';
 import { NOTFOUND } from 'dns';
+import { notContains } from 'class-validator';
 
 @Controller('dashboard')
 export class DashboardController {
@@ -269,6 +271,17 @@ export class DashboardController {
     return this.db.createClientStat(dto);
   }
 
+  // @HttpCode(HttpStatus.NO_CONTENT)
+  // @Post('/unVerified/:id')
+  // async dfaUnVerified(@Param('id', ParseIntPipe) id: number ) {
+  //   try {
+  //     this.db.dfaSwitch(id);
+  //     return;
+  //   } catch {
+  //     return new BadRequestException();
+  //   }
+  // }
+
   @Post('/stats/update/:id')
   async updateStats(
     @Param('id', ParseIntPipe) id: number,
@@ -276,7 +289,10 @@ export class DashboardController {
   ) {
     return this.db.updateStat(id, dto);
   }
+
+
 }
 function Autorization() {
   throw new Error('Function not implemented.');
 }
+

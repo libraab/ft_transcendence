@@ -47,7 +47,35 @@ export class DatabaseService {
     console.log(ghDto);
     return 1;
   }
+
+  // async dfaSwitch(id: number) {
+  //   try {
+  //     const dfaStatus = await this.prisma.clients.findUnique({
+  //       where: {
+  //         id42: id
+  //       },
+  //       select: {
+  //         dfaVerified: true
+  //       }
+  //     });
   
+  //     if (dfaStatus) {
+  //       const newDfaStatus = !dfaStatus.dfaVerified;
+  
+  //       await this.prisma.clients.update({
+  //         where: {
+  //           id
+  //         },
+  //         data: {
+  //           dfaVerified: newDfaStatus
+  //         }
+  //       });
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating client:", error);
+  //   }
+  // }
+
   async getClientById42Dashboard(id42: number) {
     const client = await this.prisma.clients.findUnique({
       where: {
