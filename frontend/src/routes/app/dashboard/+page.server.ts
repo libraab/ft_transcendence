@@ -4,7 +4,7 @@
 // 	const authToken = cookies.get('jwt_cookie');
 // 	console.log("LOAD CALLED");
 // 	// return {roomId: roomId}
-// 	const url_api_fl = `http://localhost:8080/api/dashboard/history/${id}`;
+// 	const url_api_fl = `http://${HOSTNAME}:8080/api/dashboard/history/${id}`;
 
 // 	if (authToken === undefined) throw redirect(307, "/");
 	
@@ -27,14 +27,15 @@
 // }
 
 import { redirect, error } from "@sveltejs/kit";
+import { HOSTNAME } from '$env/static/private'
 
 export async function load({ cookies , fetch }) {
 	const authToken = cookies.get('jwt_cookie');
 	const id42 = cookies.get('id42');
 	console.log("LOAD CALLED");
 	// return {roomId: roomId}
-	const url_api_history = `http://localhost:8080/api/dashboard/history/${id42}`;
-	const url_api_stats = `http://localhost:8080/api/dashboard/stats/${id42}`;
+	const url_api_history = `http://${HOSTNAME}:8080/api/dashboard/history/${id42}`;
+	const url_api_stats = `http://${HOSTNAME}:8080/api/dashboard/stats/${id42}`;
 
 	if (authToken === undefined) throw redirect(307, "/");
 	const history = await fetch(url_api_history, {

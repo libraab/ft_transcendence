@@ -1,7 +1,7 @@
 import { io } from 'socket.io-client'
 import { get, writable } from 'svelte/store';
 import { userId42, rooms, userId, jwt_cookie, blockedUser} from '$lib/stores';
-import { hostname } from './hostname';
+import { PUBLIC_HOSTNAME } from '$env/static/public';
 
 // Socket chat
 export let socket;//: Socket<DefaultEventsMap, DefaultEventsMap> | undefined = undefined;;
@@ -25,7 +25,7 @@ export let initializeSocket = () => {
 //   if (!socketData)
 //   	return;
 	// console.log("on mount");
-	socket = io(hostname+':3000/chat', {path: '/chatsockets'});//, auth: {token: }});
+	socket = io(PUBLIC_HOSTNAME +':3000/chat', {path: '/chatsockets'});//, auth: {token: }});
   	socket.emit('whoAmI', get(userId));
 //   socket.game = io(hostname+':3000/game', {path: '/gamesockets'});//, auth: {token: }});
 	

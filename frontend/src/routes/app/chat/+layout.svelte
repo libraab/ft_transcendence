@@ -1,4 +1,5 @@
 <script lang='ts'>
+	import { PUBLIC_HOSTNAME } from '$env/static/public'
 	import { type Rooms, jwt_cookie, userId } from '$lib/stores'
 	import { socket } from '$lib/socketsbs';
 	import { onMount } from 'svelte';
@@ -66,7 +67,7 @@
 	async function getImage(id: number) {
 		try
 		{
-			const response = await fetch(`http://localhost:8080/api/dashboard/avatar/${id}`, {
+			const response = await fetch(`http://${PUBLIC_HOSTNAME}:8080/api/dashboard/avatar/${id}`, {
 				method: 'GET',
 				headers: {
 					'Authorization': `Bearer ${$jwt_cookie}`

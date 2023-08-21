@@ -1,6 +1,5 @@
 <script lang="ts">
     import { onMount } from "svelte";
-    import { hostname } from "../../lib/hostname"
     import { onDestroy } from "svelte";
 	  import { createEventDispatcher } from 'svelte';
 	  import { userId, jwt_cookie } from "$lib/stores";

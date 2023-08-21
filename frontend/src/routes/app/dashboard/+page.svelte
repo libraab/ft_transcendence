@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { img_path, jwt_cookie, clientName, userId } from '$lib/stores';
+	import { PUBLIC_HOSTNAME } from '$env/static/public'
 
 	export let data: any;
 	let stats = data.stats;
@@ -16,7 +17,7 @@
 	async function getImage(id: number) {
 		try
 		{
-			const response = await fetch(`http://localhost:8080/api/dashboard/avatar/${id}`, {
+			const response = await fetch(`http://${PUBLIC_HOSTNAME}:8080/api/dashboard/avatar/${id}`, {
 				method: 'GET',
 				headers: {
 					'Authorization': `Bearer ${$jwt_cookie}`

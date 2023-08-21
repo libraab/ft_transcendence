@@ -1,15 +1,16 @@
 import { redirect, error } from "@sveltejs/kit";
+import { HOSTNAME } from '$env/static/private'
 
 export async function load({ cookies, params, fetch }) {
 	const authToken = cookies.get('jwt_cookie');
 	const roomId = params.roomId;
 	console.log("LOAD CALLED");
 	// return {roomId: roomId}
-	const url_api_message = `http://localhost:8080/api/chat/messages/${params.roomId}`;
-	const url_api_members = `http://localhost:8080/api/chat/room/${params.roomId}`;
-	const url_api_status = `http://localhost:8080/api/chat/room/${params.roomId}/status`;
-	const url_api_blocked = `http://localhost:8080/api/chat/blocked`;
-	const url_api_room_info = `http://localhost:8080/api/rooms/info/${params.roomId}`;
+	const url_api_message = `http://${HOSTNAME}:8080/api/chat/messages/${params.roomId}`;
+	const url_api_members = `http://${HOSTNAME}:8080/api/chat/room/${params.roomId}`;
+	const url_api_status = `http://${HOSTNAME}:8080/api/chat/room/${params.roomId}/status`;
+	const url_api_blocked = `http://${HOSTNAME}:8080/api/chat/blocked`;
+	const url_api_room_info = `http://${HOSTNAME}:8080/api/rooms/info/${params.roomId}`;
 
 	if (authToken === undefined) throw redirect(307, "/");
 	const members = await fetch(url_api_members, {
