@@ -83,7 +83,7 @@ export async function load({ cookies, fetch, params }) {
 	});
 	
 	//if fetch failed
-	if (target.status)
+	if (target && target.status)
 		throw error(target.status, { message: target.statusText});
 		
 	if (Number(target.id42) === Number(id42))
@@ -113,7 +113,7 @@ export async function load({ cookies, fetch, params }) {
 					message: err.message});
 	});
 
-	if (history.status)
+	if (history && history.status)
 		throw error(history.status, { message: history.statusText});
 
 	const stats = await fetch(url_api_stats, {
@@ -131,7 +131,7 @@ export async function load({ cookies, fetch, params }) {
 				message: err.message});
 	})
 
-	if (stats.status)
+	if (stats && stats.status)
 		throw error(stats.status, { message: stats.statusText});
 
 	return {
