@@ -165,6 +165,57 @@
 		}
 	}
 
+	async function toggleDFAState2() {
+		console.log("TOGGLEDFA");
+		DfaInfo.dfa = !DfaInfo.dfa;
+		qrCodeImageUrl = "";
+		// Send API request to update DFA status
+		try {
+			const response = await fetch(`/api/auth/2fastatus`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${$jwt_cookie}`
+				},
+				body: JSON.stringify({
+					isDFAActive: DfaInfo.dfa,
+				})
+			});
+			if (response.ok) {
+				return ;
+			} else {
+				console.error('Failed to update 2fa for the user');
+			}
+		} catch (error) {
+			console.error('Failed to update DFA status:', error);
+		}
+	}
+
+	async function generateQrCode() {
+		console.log("generateCode");
+		// Send API request to update DFA status
+		try {
+			const response = await fetch(`/api/auth/2fa/code`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${$jwt_cookie}`
+				},
+			});
+			if (response.ok) {
+				data = await response.json();
+				console.log(data);
+				qrCodeImageUrl = data.qrCodeImageUrl;
+			} else {
+				console.error('Failed to get code for dfa');
+			}
+			// const response = await axios.post(`/api/auth/2fa/${$userId}`, { DfaInfo.dfa });
+			// qrCodeImageUrl = response.data.qrCodeImageUrl;
+		} catch (error) {
+			console.error('Failed to get code for DFA:', error);
+		}
+	}
+
 </script>
 
 <div class="settings-wrap">
@@ -188,8 +239,8 @@
 				<!-- <input type="file" name="file-upload" id="file-upload"> -->
 			</label>
 		</div>
-		<div class="btn-wrap"><button id="btn-save" on:click={submitForm} >SAVE</button></div>
-		<div class="inputs">
+		<div class="btn-wrap"><button class="btn-save" on:click={submitForm} >SAVE</button></div>
+		<!-- <div class="inputs">
 			<h4>Dfa</h4>
 			{#if DfaInfo.dfa}
 				<p>On</p>
@@ -204,13 +255,39 @@
 					<span class="slider round"></span>
 				</label>
 			{/if}
-			<!-- <label class="switch">
-				<input type="checkbox" on:click={toggleDFAState}  />
-				<span class="slider round"></span>
-			</label> -->
 			{#if qrCodeImageUrl}
 				<div class="qrcode-wrapper">
 					<img class="img-qrcode" src={qrCodeImageUrl} alt="QR Code" />
+				</div>
+			{/if}
+		</div> -->
+		<div class="inputs">
+			<h4>Dfa : </h4>
+			<p>Using Google - Autheticator</p>
+			{#if DfaInfo.dfa}
+				<p>On</p>
+				<div class="btn-wrap">
+					<button class="btn-save" on:click={toggleDFAState2}>
+						Desactivate
+					</button>
+				</div>
+			{:else if !DfaInfo.dfa && qrCodeImageUrl === ""}
+				<p>Off</p>
+				<div class="btn-wrap">
+					<button class="btn-save" on:click={generateQrCode}>
+						Generate Code
+					</button>
+				</div>
+			{:else }
+				<p>Off</p>
+				<div class="qrcode-wrapper">
+					<img class="img-qrcode" src={qrCodeImageUrl} alt="QR Code" />
+				</div>
+				<p class="warning-text"><strong>do not activate dfa if you didn't took the qrCode otherwise you will never be able to connect.</strong></p>
+				<div class="btn-wrap">
+					<button class="btn-save" on:click={toggleDFAState2}>
+						Activate
+					</button>
 				</div>
 			{/if}
 		</div>
@@ -236,6 +313,10 @@
 		display: flex;
 		flex-direction: row;
 		justify-content: space-evenly;
+	}
+
+	.settings-data {
+		width: 50%;
 	}
 
 	h4 {
@@ -311,12 +392,13 @@
 		text-align: center;
 	}
 
-	#btn-save {
+	.btn-save {
 		background-color: #3AB45C;
 		padding: 15px 25px;
 		color: white;
 		border: none;
 		cursor: pointer;
+		text-transform: uppercase;
 	}
 
 	.block-list
@@ -356,6 +438,10 @@
   display: inline-block;
   width: 60px;
   height: 34px;
+}
+
+.warning-text {
+	color: red;
 }
 
 

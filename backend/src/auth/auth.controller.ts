@@ -158,7 +158,7 @@ export class AuthController {
 		this.databaseService.dfaSwitch(req.user.id);
 	}
 
-
+	//Other activation Methode
 	@UseGuards(AuthGuard)
 	@Get('/2fa/code')
 	async generateDfaCode(
@@ -167,6 +167,8 @@ export class AuthController {
 		const client = await this.databaseService.getClientById42(req.user.id);
 		if (!client)
 			throw new NotFoundException("user doesnt exist");
+		if (client.Dfa === true)
+			throw new NotFoundException("user has already a dfa code");
 		const user: UpdateClientDto = new UpdateClientDto();
 		user.dfa = false;
       	user.dfaVerified = false;
@@ -180,5 +182,36 @@ export class AuthController {
 		const qrCodeImageUrl = await qrcode.toDataURL(otpauthUrl);
 		return { qrCodeImageUrl };
 	}
+
+	@UseGuards(AuthGuard)
+	@Post('/2fastatus')
+	async toggleDfa(
+		@Request() req: { user: IJWT },
+		@Body() body: { isDFAActive: boolean },
+	): Promise<{ qrCodeImageUrl?: string }> {
+		const client = await this.databaseService.getClientById42(req.user.id);
+		if (!client)
+			throw new NotFoundException("user doesnt exist");
+		const { isDFAActive } = body;
+		if (isDFAActive && !client.DfaSecret)
+			throw new NotFoundException("Dfa code is not generated");
+		const user: UpdateClientDto = new UpdateClientDto();
+		
+		console.log(body);
+		if (isDFAActive)
+		{
+			user.dfa = true;
+			user.dfaVerified = false;
+			user.dfaSecret = client.DfaSecret;
+			await this.databaseService.updateClient(client.id, user);
+			return ;
+		}
+		else
+		{
+			user.dfa = false;
+			await this.databaseService.updateClient(client.id, user);
+		}
+		return {};
+    }
 }
 
