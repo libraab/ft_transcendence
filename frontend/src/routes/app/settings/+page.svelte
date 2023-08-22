@@ -288,6 +288,9 @@
 					<button class="btn-save" on:click={toggleDFAState2}>
 						Activate
 					</button>
+					<button class="btn-save" on:click={() => qrCodeImageUrl = ""}>
+						Abort
+					</button>
 				</div>
 			{/if}
 		</div>
