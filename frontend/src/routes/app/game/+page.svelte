@@ -302,7 +302,7 @@ function changeColor() {
 {/await}
 
 <main>
-	<body>
+	<div class="wrap">
 	<div bind:this={initialScreen} class="h-100 center-div">
         <div class="d-flex flex-column align-items-center justify-content-center h-100">
             
@@ -332,14 +332,14 @@ function changeColor() {
 
 			<canvas bind:this={canvas} id="pong" width=600 height=400></canvas>
     </div>
-	</body>
+</div>
 </main>
 
 <style>
 	#game {
             display: none;
         }
-	body {
+	.wrap {
             background-color: rgb(255, 255, 255);
         }
 

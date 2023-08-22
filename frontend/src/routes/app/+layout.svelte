@@ -26,14 +26,9 @@
 	
 	let invitationHandler = (invitData: any) =>
 	{
-		console.log("invitation!!!");
 		alertPopupOn = true;
 		invitationData = invitData;
-		console.log(invitData);
-		// Invitations.push(invitData);
-		// console.log(Invitations);
-		//alert("Some guy invited you to a game!");
-		//ici add to a list of invitations?
+		Invitations.push(invitationData);
 	}
 
 	/**
@@ -58,7 +53,7 @@
 				if (response.ok)
 				{
 					let dfastatus = await response.json();
-					console.log("verified  --> " + dfastatus.dfaVerifies)
+					// console.log("verified  --> " + dfastatus.dfaVerifies)
 					if (dfastatus.dfa == true && dfastatus.dfaVerifies == false)
 						goto("/2FA");
 				}
@@ -234,11 +229,10 @@
 		<Alert invitationData={invitationData} on:refuseInvitation={ () => {alertPopupOn = false}}/>
 	{/if}
 	<!-- {#each Invitations as invitation}
-		<h1>HEEEEEEELLLLLOOOOOOOOO</h1>
-		<Alert invitationData={invitation} on:refuseInvitation={ () => { -->
-		<!-- // 	Invitations = Invitations.filter((el) => { -->
-		<!-- // 	el.player_id !== invitation.id; -->
-		<!-- // })
+		<Alert invitationData={invitation} on:refuseInvitation={ () => {
+			Invitations = Invitations.filter((el) => {
+			el.player_id !== invitation.id;
+			});
 		}}/>
 	{/each} -->
 	<slot class="main_body"></slot>
