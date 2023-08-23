@@ -109,6 +109,8 @@ export async function load({ cookies, params, fetch }) {
 	if (roomInfo && roomInfo.status)
 		throw error(roomInfo.status, { message: roomInfo.statusText});
 
+	messages.reverse();
+
 	return {
 		roomId,
 		messages: messages, 

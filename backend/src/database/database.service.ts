@@ -1001,42 +1001,45 @@ export class DatabaseService {
 */
 
   async getRoomMessagesById(roomId: number, idClient: number): Promise<any[]> {
-    const messages = await this.prisma.messagesRooms.findMany({
-      where: {
-        roomId: roomId,
-        NOT: {
-          OR: [{
-            client: {
-              client1: {
-                some: {
-                  client1Id: idClient,
-                  status: 1
-                }
-              }
-            }
-          },
-          {
-            client: {
-              client2: {
-                some: {
-                  client2Id: idClient,
-                  status: 1
-                }
-              }
-            }
-          }
-        ]}
-      },
-      select: {
-        msg: true,
-        client: {
-          select: {
-            name: true,
-            id: true,
-          },
-        },
-      },
-    });
+	const messages = await this.prisma.messagesRooms.findMany({
+		where: {
+		  roomId: roomId,
+		  NOT: {
+			OR: [{
+			  client: {
+				client1: {
+				  some: {
+					client1Id: idClient,
+					status: 1
+				  }
+				}
+			  }
+			},
+			{
+			  client: {
+				client2: {
+				  some: {
+					client2Id: idClient,
+					status: 1
+				  }
+				}
+			  }
+			}
+		  ]}
+		},
+		select: {
+		  msg: true,
+		  client: {
+			select: {
+			  name: true,
+			  id: true,
+			},
+		  },
+		},
+		orderBy: {
+		  time: 'asc',
+		}
+	  });
 
     return messages.map((message) => ({
       message: message.msg,

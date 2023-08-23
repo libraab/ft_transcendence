@@ -85,11 +85,11 @@
 			})
 			if (found)
 				return ;
-			RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
+			RoomsMessages = [{sender: msg.sender, message: msg.message}, ...RoomsMessages];
 		}
 
 	let recieveServerMessage = (msg: any) => {
-		RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
+		RoomsMessages = [ {sender: msg.sender, message: msg.message}, ...RoomsMessages];
 	}
     
     let sendMessage = () => {
@@ -464,7 +464,7 @@
 
 	.messages {
 		display: flex;
-		flex-direction: column;
+		flex-direction: column-reverse;
 		max-height: 60vh;
 		overflow: auto;
 	}
