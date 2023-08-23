@@ -13,7 +13,7 @@
 			return ;
 		}
 		event.preventDefault();
-		if (roomType !== 'protected') {
+		if (roomType !== 'protected')
 			password = "";
 		if (roomName === '')
 		{
