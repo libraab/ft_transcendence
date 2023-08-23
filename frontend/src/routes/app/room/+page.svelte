@@ -59,10 +59,7 @@
 			return ;
 		}
 		event.preventDefault();
-		if (roomType === 'protected') {
-				console.log('Password:', password);
-		}
-		else
+		if (roomType !== 'protected') {
 			password = "";
 		/*
 		* Appel au Post du controller Chat qui va creer la Room dans la Db
@@ -80,10 +77,8 @@
 				iddata: $userId42
 			})
 		});
-		if (response.ok) {
-			console.log('Room created successfully');
-			// handle success -> make sure that room is added to the list updates etc
-		} else {
+		if (! response.ok) 
+		{
 			console.error('Failed to create room');
 			// handle error
 		}

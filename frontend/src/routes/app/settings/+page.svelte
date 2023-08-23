@@ -21,11 +21,6 @@
 
 	let blocked_users: any = [];
 
-	console.log('data')
-	console.log(data);
-	console.log('DfaInfo')
-	console.log(DfaInfo);
-
 	onMount(() =>
 	{
 		fetchBlockedUsers();
@@ -41,7 +36,6 @@
 			if (response.status == 200)
 			{
 				let block_list = await response.json();
-				console.log(block_list);
 				blocked_users = block_list;
 			}
 			else
@@ -59,7 +53,6 @@
 		const fileInput = document.getElementById("file-upload") as HTMLInputElement;
 
 		let data = new FormData();
-		console.log(fileInput);
 		data.append("file", fileInput.files[0]);
 
 		if (fileInput && fileInput.files && fileInput.files[0]) {
@@ -77,7 +70,7 @@
 			}
 			catch (error)
 			{
-				console.log(error);
+				console.error(error);
 			}
 		}
 
@@ -96,7 +89,7 @@
 			}
 			catch (error)
 			{
-				console.log(error);
+				console.error(error);
 			}
 		}
 		goto('/app/dashboard');
@@ -111,8 +104,6 @@
         };
     };
 
-	// $:{console.log(files)}
-
 	const unblockUser = async (unblockedId: number) => {
 		const response = await fetch(`/api/chat/unblockUser`, {
 			method: 'POST',
@@ -126,7 +117,6 @@
 			})
 		});
 		if (response.ok) {
-			console.log('User unblocked');
 			blocked_users = blocked_users.filter((user: any) => user.client2.id !== unblockedId);
 		} else {
 			console.error('Failed to unblock user');
@@ -135,11 +125,7 @@
 
 
 	async function toggleDFAState() {
-		console.log("TOGGLEDFA");
-		// Send API request to update DFA status
-		// console.log (DfaInfo.dfa);
 		DfaInfo.dfa = !DfaInfo.dfa;
-		// console.log (DfaInfo.dfa);
 		try {
 			const response = await fetch(`/api/auth/2fa`, {
 				method: 'POST',
@@ -153,7 +139,6 @@
 			});
 			if (response.ok) {
 				data = await response.json();
-				console.log(data);
 				qrCodeImageUrl = data.qrCodeImageUrl;
 			} else {
 				console.error('Failed to get 2fa for the user');
@@ -166,10 +151,9 @@
 	}
 
 	async function toggleDFAState2() {
-		console.log("TOGGLEDFA");
 		DfaInfo.dfa = !DfaInfo.dfa;
 		qrCodeImageUrl = "";
-		// Send API request to update DFA status
+
 		try {
 			const response = await fetch(`/api/auth/2fastatus`, {
 				method: 'POST',
@@ -192,8 +176,6 @@
 	}
 
 	async function generateQrCode() {
-		console.log("generateCode");
-		// Send API request to update DFA status
 		try {
 			const response = await fetch(`/api/auth/2fa/code`, {
 				method: 'GET',
@@ -204,7 +186,6 @@
 			});
 			if (response.ok) {
 				data = await response.json();
-				console.log(data);
 				qrCodeImageUrl = data.qrCodeImageUrl;
 			} else {
 				console.error('Failed to get code for dfa');

@@ -2,7 +2,6 @@ import { redirect, error } from "@sveltejs/kit";
 
 export async function load({ cookies, fetch }) {
 	const authToken = cookies.get('jwt_cookie');
-	console.log("LOAD CALLED");
 	// return {roomId: roomId}
 	const url_api_2fa = `http://localhost:8080/api/auth/2fa`;
 
@@ -30,9 +29,6 @@ export async function load({ cookies, fetch }) {
 	if (DfaInfo.status)
 		throw error(DfaInfo.status, { message: DfaInfo.statusText});
 
-	
-	console.log(DfaInfo);
-	console.log('finLoad');
 	return {
 		DfaInfo: DfaInfo,
 	}

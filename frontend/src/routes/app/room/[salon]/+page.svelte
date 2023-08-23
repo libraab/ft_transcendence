@@ -85,11 +85,7 @@
 				method: 'POST',
 			});
 
-			if (response.ok)
-			{
-				console.log('New member accepted');
-			}
-			else
+			if (! response.ok)
 			{
 				const errorText = await response.text();
 				throw new Error(errorText);
@@ -109,11 +105,7 @@
 				method: 'POST',
 			});
 
-			if (response.ok)
-			{
-				console.log('Status updated successfully');
-			}
-			else
+			if (! response.ok)
 			{
 				console.error(response.statusText);
 				console.error('Failed to update status');
@@ -152,9 +144,7 @@
 				method: 'POST',
 			});
 
-			if (response.ok)
-				console.log('client kicked');
-			else
+			if (! response.ok)
 			{
 				const errorText = await response.text();
 				throw new Error(errorText);
