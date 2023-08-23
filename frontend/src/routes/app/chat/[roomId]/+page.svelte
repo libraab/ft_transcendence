@@ -458,6 +458,7 @@
 		justify-content: space-between;
 		align-items: baseline;
 		padding: 5px 10px;
+		min-height: 30px;
 	}
 
 	.component_send_box input {
