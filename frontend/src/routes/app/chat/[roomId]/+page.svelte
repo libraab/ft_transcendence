@@ -130,6 +130,7 @@
 
 	afterNavigate( (navigation: AfterNavigate) => {
 		// console.log(navigation);
+		user_message = "";
 		roomId = data.roomId;
     	RoomsMessages = data.messages;
 		members = data.members;
