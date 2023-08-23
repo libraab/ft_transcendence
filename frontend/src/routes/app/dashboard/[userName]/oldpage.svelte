@@ -22,7 +22,6 @@
 				vals = await response.json();
 				if (vals.img === 'undefined')
 				{
-					console.log('no image');
 					target_img = "";
 				}
 				else
@@ -74,7 +73,6 @@
 			})
 		});
 		if (response.ok) {
-			console.log('User blocked');
 			toggleBlockState();
 		} else {
 			console.error('Failed to block user');
@@ -94,7 +92,6 @@
 			})
 		});
 		if (response.ok) {
-			console.log('User unblocked');
 			toggleBlockState();
 		} else {
 			console.error('Failed to unblock user');
@@ -172,7 +169,7 @@
 				iddata: $userId
 			})
 		});
-		if (response.ok) {
+		if (! response.ok) {
 			console.log('Joined room:', room.name);
 		} else {
 			console.error('Failed to join room:', room.name);

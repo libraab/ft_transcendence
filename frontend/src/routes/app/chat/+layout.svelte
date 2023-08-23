@@ -17,19 +17,9 @@
 		 * otherwise reload is trigered when some rooms changes are done on the backend and signaled trought the socket to the user if connected
 		*/
 		fetchRooms();
-		// if (socket)
-		// {
-		// 	console.log("comment ça?");
-		// 	rooms.forEach((room) => {
-		// 		socket.emit('joinChannel', String(room.roomId));
-		// 	});
-		// }
 	});
 
-	//En mettant le fetch seulement en onMount, le block await each saute, Mystere.
-	// solution? mettre le fetch dans le load?
 	afterNavigate( (navigation: AfterNavigate) => {
-		// if (navigation && navigation.from('/app/chat/create'))
 			fetchRooms();
 	})
 
@@ -44,13 +34,6 @@
 			if (response.status == 200)
 			{
 				let tmp_rooms = await response.json();
-				console.log(tmp_rooms);
-				// tmp_rooms = tmp_rooms.map((el) => {
-				// 	let item = curr_rooms.find((room) => (room.roomId == el.roomId));
-				// 	if (item == undefined)
-				// 		return { ...el, newMsgCount: 0 };
-				// 	return (item);
-				// });
 				rooms = tmp_rooms;
 			}
 			else

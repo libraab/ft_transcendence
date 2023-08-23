@@ -5,7 +5,6 @@
 	const dispatch = createEventDispatcher();
 
     export let invitationData: any;
-	// console.log(invitationData);
 
     let hanndleRefuse = () =>
     {

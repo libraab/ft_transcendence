@@ -8,9 +8,6 @@
 	let target = data.target;
 	let stats = data.stats;
 	let match_history = data.history;
-	console.log(match_history);
-	console.log(stats);
-
 
 	onMount(() => {
 		
@@ -52,7 +49,6 @@
 			})
 		});
 		if (response.ok) {
-			console.log('User blocked');
 			goto('/app/dashboard');
 		} else {
 			console.error('Failed to block user');
@@ -120,7 +116,6 @@
 				})
 			});
 			if (response.ok) {
-				console.log('Chat one to one created');
 				const resolve = await response.json();
 				goto(`/app/chat/${resolve.roomId}`);
 			} else {

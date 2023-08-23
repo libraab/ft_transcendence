@@ -14,7 +14,6 @@
     let code = ""; // variable to store the user's 2FA code
   
     async function handleSubmit() {
-      console.log(code);
       const url = `/api/auth/2fa/verify`;
       const params = {
           method: "POST",
@@ -32,16 +31,7 @@
         if (response.ok)
         {
             const value = await response.json();
-            console.log("GOOD");
             goto("/app/dashboard");
-              // if (res.status == 201) {
-              //       console.log("ces good")
-              //       isDFAActive = false;
-              //       console.log("pas de catch");
-              //   } else {
-              //       console.log("pas good")
-              //   }
-              //   console.log(value.message)
         }
         else
         {
@@ -53,18 +43,9 @@
         console.error("fetch failed in 2fa");
         goto("/");
       }
-
-          // .then(async (res) => {
-              
-          // })
-          // .catch((err) => {
-          //     console.log("ERROR: " + err);
-          //     console.error("Le back ne repond pas")
-          // })
   }
 
     onMount(() => {
-      console.log('in Dfa');
       code = "";
     });
 

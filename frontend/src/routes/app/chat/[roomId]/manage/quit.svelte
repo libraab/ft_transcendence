@@ -39,7 +39,7 @@
 		}
 		catch (error)
 		{
-			console.log(error);
+			console.error(error);
 		}
 	};
 
@@ -110,14 +110,6 @@
 			console.error('ERROR: falied on delete', error.message);
 		}
 	}
-	/*
-	const handleSubmit = async (event: any) => {
-		console.log(roomName);
-		console.log(roomType);
-		console.log(roomId);
-		console.log(password);
-	}
-	*/
 	
 	const roomTypeDict: { [key: string]: number } =
 	{
@@ -133,10 +125,7 @@
 			return ;
 		}
 		event.preventDefault();
-		if (roomType === 'protected') {
-				console.log('Password:', password);
-		}
-		else
+		if (roomType !== 'protected') {
 			password = "";
 		/*
 		* Appel au Post du controller Chat qui va creer la Room dans la Db
@@ -154,10 +143,7 @@
 				password,
 			})
 		});
-		if (response.ok) {
-			console.log('Room created successfully');
-			// handle success -> make sure that room is added to the list updates etc
-		} else {
+		if (! response.ok) {
 			alert('Failed to update room');
 			// handle error
 		}

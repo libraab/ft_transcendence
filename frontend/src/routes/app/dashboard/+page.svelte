@@ -5,8 +5,6 @@
 	export let data: any;
 	let stats = data.stats;
 	let match_history = data.history;
-	console.log(match_history);
-	console.log(stats);
 
 
 	onMount(() => {

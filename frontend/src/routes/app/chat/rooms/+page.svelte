@@ -12,7 +12,6 @@ async function fetchAvailableRooms() {
 		});
 		if (response.status == 200) {
 			let rooms = await response.json();
-			console.log(rooms);
 			return rooms;
 		} else {
 			console.error('Failed to fetch rooms');
@@ -33,7 +32,6 @@ async function fetchAvailableRooms() {
 			else if (placeholder)
 				password = placeholder;
 		}
-		console.log(password);
 		const response = await fetch(`/api/rooms/join/${room.id}`, {
 			method: 'POST',
 			headers: {
@@ -44,7 +42,6 @@ async function fetchAvailableRooms() {
 		});
 		if (response.ok)
 		{
-			console.log('Joined room:', room.name);
 			goto('/app/chat/');
 		} 
 		else if (response.status === 401)

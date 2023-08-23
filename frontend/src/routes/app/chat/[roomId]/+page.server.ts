@@ -3,7 +3,6 @@ import { redirect, error } from "@sveltejs/kit";
 export async function load({ cookies, params, fetch }) {
 	const authToken = cookies.get('jwt_cookie');
 	const roomId = params.roomId;
-	console.log("LOAD CALLED");
 	// return {roomId: roomId}
 	const url_api_message = `http://localhost:8080/api/chat/messages/${params.roomId}`;
 	const url_api_members = `http://localhost:8080/api/chat/room/${params.roomId}`;
