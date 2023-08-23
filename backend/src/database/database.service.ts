@@ -225,6 +225,20 @@ export class DatabaseService {
     return client || null;
   }
 
+  async getClientImgAndNameById(id: number) {
+    const client = await this.prisma.clients.findUnique({
+      where: {
+        id: id,
+      },
+	  select: {
+		img: true,
+		name: true,
+	  }
+    });
+
+    return client || null;
+  }
+
   // async getClientByCookie(cookie: string): Promise<Clients | null> {
   //   const client = await this.prisma.clients.findUnique({
   //     where: {

@@ -46,10 +46,10 @@
 	}
 
 
-	async function getImage(id: number) {
+	async function getImageAndName(id: number) {
 		try
 		{
-			const response = await fetch(`http://localhost:8080/api/dashboard/avatar/${id}`, {
+			const response = await fetch(`http://localhost:8080/api/dashboard/imgandname/${id}`, {
 				method: 'GET',
 				headers: {
 					'Authorization': `Bearer ${$jwt_cookie}`
@@ -61,11 +61,11 @@
 				return client;
 			}
 			else
-				console.error("avatar");
+				console.error("img and name");
 		}
 		catch (error)
 		{
-			console.error("avatar" , error);
+			console.error("img and name" , error);
 		}
 	}
 
@@ -98,7 +98,7 @@
 					{:else if room.secu === 3}
 						{#if room.ownerid === $userId}
 							<li class="one-room one-to-one" class:selected-room={$page.url.pathname === `/app/chat/${room.roomId}`}>
-								{#await getImage(room.client2Id)}
+								{#await getImageAndName(room.client2Id)}
 									<img src="/logo.jpeg" alt="logo" class="room-img">
 									<p>{room.client2.name}</p>
 								{:then user} 
@@ -109,21 +109,27 @@
 										<a href='/app/chat/{room.roomId}'>
 											{room.client2.name}</a>
 									{/if}
+								{:catch}
+									<img src="/logo.jpeg" alt="logo" class="room-img">
+									<p>Unknown</p>
 								{/await}
 							</li>
 						{:else}
 							<li class="one-room one-to-one" class:selected-room={$page.url.pathname === `/app/chat/${room.roomId}`}>
-								{#await getImage(room.ownerid)}
+								{#await getImageAndName(room.ownerid)}
 									<img src="/logo.jpeg" alt="logo" class="room-img">
-									<p>{room.roomName}</p>
+									<p>Loading...</p>
 								{:then user} 
 									<img src={user.img} alt="logo" class="room-img">
 									{#if $page.url.pathname === `/app/chat/${room.roomId}`}
-										<p>{room.roomName}</p>
+										<p>{user.name}</p>
 									{:else}
 										<a href='/app/chat/{room.roomId}'>
-											{room.roomName}</a>
+											{user.name}</a>
 									{/if}
+								{:catch}
+									<img src="/logo.jpeg" alt="logo" class="room-img">
+									<p>Unknown</p>
 								{/await}
 							</li>
 						{/if}
