@@ -288,7 +288,6 @@ function matchMaking() {
 
 function changeColor() {
 	changecolor = true;
-	console.log('change color');
 }
 
 </script>
