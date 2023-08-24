@@ -1553,14 +1553,11 @@ export class DatabaseService {
     const rooms = await this.prisma.rooms.findMany({
       where: {
         NOT: {
-          OR: [{
-            members: {
-              some: {
-                memberId: clientId,
-              },
+          members: {
+            some: {
+              memberId: clientId,
             },
-            secu: 3,
-          }]
+          },
         },
         owner: {
           NOT: {
@@ -1576,7 +1573,9 @@ export class DatabaseService {
       },
     });
 
-    return rooms;
+    const filteredRooms = rooms.filter(room => room.secu !== 3);
+
+    return filteredRooms;
   }
 
   async getRoomAdmins(roomId: number): Promise<{ id: number; name: string }[]> {
