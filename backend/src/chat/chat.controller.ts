@@ -313,7 +313,7 @@ export class ChatController {
         throw new Error('Interlocutor does not exist');
       }
       // TODO check if user or sender is not blocked
-      this.dto.name = client.name + newInterlocutor.name;
+      this.dto.name = String(client.id) + String(newInterlocutor.id);
       this.dto.ownerid = client.id;
       this.dto.secu = 3;
       this.dto.client2Id = newInterlocutor.id;

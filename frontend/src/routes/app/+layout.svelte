@@ -242,6 +242,7 @@
 	header {
 		/* background: no-repeat center/100% url('https://profile.intra.42.fr/assets/background_login-a4e0666f73c02f025f590b474b394fd86e1cae20e95261a6e4862c2d0faa1b04.jpg'); */
 		height: 25vh;
+		min-height: 160px;
 		color: white;
 		padding: 0 100px;
 	}
