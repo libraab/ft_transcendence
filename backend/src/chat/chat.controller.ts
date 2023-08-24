@@ -22,6 +22,7 @@ import { ChatGateway } from './chat.gateway';
 import { AuthGuard } from 'src/auth/auth.guard';
 import IJWT from 'src/interfaces/jwt.interface';
 import { e_status } from 'src/interfaces/e_status.interface';
+import { v4 as uuidv4 } from 'uuid';
 
 @Controller('chat')
 export class ChatController {
@@ -313,7 +314,7 @@ export class ChatController {
         throw new Error('Interlocutor does not exist');
       }
       // TODO check if user or sender is not blocked
-      this.dto.name = String(client.id) + String(newInterlocutor.id);
+      this.dto.name = uuidv4();
       this.dto.ownerid = client.id;
       this.dto.secu = 3;
       this.dto.client2Id = newInterlocutor.id;
