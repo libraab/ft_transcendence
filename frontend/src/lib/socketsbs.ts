@@ -24,7 +24,6 @@ export let initializeSocket = () => {
 //   socketData = await data;
 //   if (!socketData)
 //   	return;
-	// console.log("on mount");
 	socket = io(PUBLIC_HOSTNAME +':3000/chat', {path: '/chatsockets'});//, auth: {token: }});
   	socket.emit('whoAmI', get(userId));
 //   socket.game = io(hostname+':3000/game', {path: '/gamesockets'});//, auth: {token: }});

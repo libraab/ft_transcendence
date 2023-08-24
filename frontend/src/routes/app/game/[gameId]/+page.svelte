@@ -35,7 +35,6 @@ onMount(async () =>
 {
     if (!roomData)
     {
-        console.log("joining room");
         //connectClientToColyseus();
         await joinGame(data.gameId);
         playerNumber = 2;
@@ -94,7 +93,6 @@ let createHandlers = () =>
 }
 
 function init() {
-    console.log("dans init");
     //initialScreen.style.display = "none";
     //game.style.display = "block";
     canvas = pong;
@@ -114,7 +112,6 @@ function init() {
 }
 
     function keydown(e: any) {
-		console.log("keydown ", e.keyCode);
 		if (e.keyCode === 38) {
 			if (playerNumber == 1)
 				roomData.send("keydown38player1");
@@ -130,7 +127,6 @@ function init() {
 	}
 
 	function keyup(e: any) {
-		console.log("keyup ", e.keyCode);
 		if (e.keyCode === 38) {
 			if (playerNumber == 1)
 				roomData.send("keyup38player1");

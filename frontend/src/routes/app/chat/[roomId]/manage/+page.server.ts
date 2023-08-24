@@ -3,7 +3,6 @@ import { HOSTNAME } from '$env/static/private'
 export async function load({ cookies, params, fetch }) {
 	const authToken = cookies.get('jwt_cookie');
 	const roomId = params.roomId;
-	console.log("LOAD CALLED");
 	// return {roomId: roomId}
 	const url_api_remplacement_list = `http://${HOSTNAME}:8080/api/rooms/replacementList/${params.roomId}`;
 	const url_api_room_info = `http://${HOSTNAME}:8080/api/rooms/info/${params.roomId}`;

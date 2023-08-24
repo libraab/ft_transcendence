@@ -150,12 +150,18 @@ export class RoomsController {
 	else if (data.secu === 2)
 		message += 'private.';
 	}
-    if (roomToUpdate.secu !== 1 && data.secu === 1) {
-      const saltRounds = 10;
-	  if (data.password === '')
-	  	throw new BadRequestException("missing password to update");
-      data.password = await bcrypt.hash(data.password, saltRounds);
-    }
+    if (roomToUpdate.secu !== 1 && data.secu === 1 && data.password === '')
+	  throw new BadRequestException("missing password to update");
+	else if (roomToUpdate.secu !== 1 && data.secu === 1)
+	{
+		const saltRounds = 10;
+		data.password = await bcrypt.hash(data.password, saltRounds);
+	}
+	else if (roomToUpdate.secu === 1 && data.secu === 1 && data.password !== '')
+	{
+		const saltRounds = 10;
+		data.password = await bcrypt.hash(data.password, saltRounds);
+	}
 	else if (roomToUpdate.secu === 1 && data.secu === 1)
 		data = {name: data.name};
     try {

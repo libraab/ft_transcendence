@@ -21,11 +21,6 @@
 
 	let blocked_users: any = [];
 
-	console.log('data')
-	console.log(data);
-	console.log('DfaInfo')
-	console.log(DfaInfo);
-
 	onMount(() =>
 	{
 		fetchBlockedUsers();
@@ -41,7 +36,6 @@
 			if (response.status == 200)
 			{
 				let block_list = await response.json();
-				console.log(block_list);
 				blocked_users = block_list;
 			}
 			else
@@ -59,7 +53,6 @@
 		const fileInput = document.getElementById("file-upload") as HTMLInputElement;
 
 		let data = new FormData();
-		console.log(fileInput);
 		data.append("file", fileInput.files[0]);
 
 		if (fileInput && fileInput.files && fileInput.files[0]) {
@@ -77,7 +70,7 @@
 			}
 			catch (error)
 			{
-				console.log(error);
+				console.error(error);
 			}
 		}
 
@@ -96,7 +89,7 @@
 			}
 			catch (error)
 			{
-				console.log(error);
+				console.error(error);
 			}
 		}
 		goto('/app/dashboard');
@@ -111,8 +104,6 @@
         };
     };
 
-	// $:{console.log(files)}
-
 	const unblockUser = async (unblockedId: number) => {
 		const response = await fetch(`/api/chat/unblockUser`, {
 			method: 'POST',
@@ -126,7 +117,6 @@
 			})
 		});
 		if (response.ok) {
-			console.log('User unblocked');
 			blocked_users = blocked_users.filter((user: any) => user.client2.id !== unblockedId);
 		} else {
 			console.error('Failed to unblock user');
@@ -135,17 +125,13 @@
 
 
 	async function toggleDFAState() {
-		console.log("TOGGLEDFA");
-		// Send API request to update DFA status
-		console.log (DfaInfo.dfa);
 		DfaInfo.dfa = !DfaInfo.dfa;
-		console.log (DfaInfo.dfa);
 		try {
-			const response = await fetch(`/api/auth/2fa/${$userId}`, {
+			const response = await fetch(`/api/auth/2fa`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					// 'Authorization': `Bearer ${$jwt_cookie}`
+					'Authorization': `Bearer ${$jwt_cookie}`
 				},
 				body: JSON.stringify({
 					isDFAActive: DfaInfo.dfa,
@@ -153,7 +139,6 @@
 			});
 			if (response.ok) {
 				data = await response.json();
-				console.log(data);
 				qrCodeImageUrl = data.qrCodeImageUrl;
 			} else {
 				console.error('Failed to get 2fa for the user');
@@ -162,6 +147,53 @@
 			// qrCodeImageUrl = response.data.qrCodeImageUrl;
 		} catch (error) {
 			console.error('Failed to update DFA status:', error);
+		}
+	}
+
+	async function toggleDFAState2() {
+		DfaInfo.dfa = !DfaInfo.dfa;
+		qrCodeImageUrl = "";
+
+		try {
+			const response = await fetch(`/api/auth/2fastatus`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${$jwt_cookie}`
+				},
+				body: JSON.stringify({
+					isDFAActive: DfaInfo.dfa,
+				})
+			});
+			if (response.ok) {
+				return ;
+			} else {
+				console.error('Failed to update 2fa for the user');
+			}
+		} catch (error) {
+			console.error('Failed to update DFA status:', error);
+		}
+	}
+
+	async function generateQrCode() {
+		try {
+			const response = await fetch(`/api/auth/2fa/code`, {
+				method: 'GET',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${$jwt_cookie}`
+				},
+			});
+			if (response.ok) {
+				data = await response.json();
+				qrCodeImageUrl = data.qrCodeImageUrl;
+			} else {
+				console.error('Failed to get code for dfa');
+			}
+			// const response = await axios.post(`/api/auth/2fa/${$userId}`, { DfaInfo.dfa });
+			// qrCodeImageUrl = response.data.qrCodeImageUrl;
+		} catch (error) {
+			console.error('Failed to get code for DFA:', error);
 		}
 	}
 
@@ -188,8 +220,8 @@
 				<!-- <input type="file" name="file-upload" id="file-upload"> -->
 			</label>
 		</div>
-		<div class="btn-wrap"><button id="btn-save" on:click={submitForm} >SAVE</button></div>
-		<div class="inputs">
+		<div class="btn-wrap"><button class="btn-save" on:click={submitForm} >SAVE</button></div>
+		<!-- <div class="inputs">
 			<h4>Dfa</h4>
 			{#if DfaInfo.dfa}
 				<p>On</p>
@@ -204,13 +236,42 @@
 					<span class="slider round"></span>
 				</label>
 			{/if}
-			<!-- <label class="switch">
-				<input type="checkbox" on:click={toggleDFAState}  />
-				<span class="slider round"></span>
-			</label> -->
 			{#if qrCodeImageUrl}
 				<div class="qrcode-wrapper">
 					<img class="img-qrcode" src={qrCodeImageUrl} alt="QR Code" />
+				</div>
+			{/if}
+		</div> -->
+		<div class="inputs">
+			<h4>Dfa : </h4>
+			<p>Using Google - Autheticator</p>
+			{#if DfaInfo.dfa}
+				<p>On</p>
+				<div class="btn-wrap">
+					<button class="btn-save" on:click={toggleDFAState2}>
+						Desactivate
+					</button>
+				</div>
+			{:else if !DfaInfo.dfa && qrCodeImageUrl === ""}
+				<p>Off</p>
+				<div class="btn-wrap">
+					<button class="btn-save" on:click={generateQrCode}>
+						Generate Code
+					</button>
+				</div>
+			{:else }
+				<p>Off</p>
+				<div class="qrcode-wrapper">
+					<img class="img-qrcode" src={qrCodeImageUrl} alt="QR Code" />
+				</div>
+				<p class="warning-text"><strong>do not activate dfa if you didn't took the qrCode otherwise you will never be able to connect.</strong></p>
+				<div class="btn-wrap">
+					<button class="btn-save" on:click={toggleDFAState2}>
+						Activate
+					</button>
+					<button class="btn-save" on:click={() => qrCodeImageUrl = ""}>
+						Abort
+					</button>
 				</div>
 			{/if}
 		</div>
@@ -236,6 +297,10 @@
 		display: flex;
 		flex-direction: row;
 		justify-content: space-evenly;
+	}
+
+	.settings-data {
+		width: 50%;
 	}
 
 	h4 {
@@ -311,12 +376,13 @@
 		text-align: center;
 	}
 
-	#btn-save {
+	.btn-save {
 		background-color: #3AB45C;
 		padding: 15px 25px;
 		color: white;
 		border: none;
 		cursor: pointer;
+		text-transform: uppercase;
 	}
 
 	.block-list
@@ -356,6 +422,10 @@
   display: inline-block;
   width: 60px;
   height: 34px;
+}
+
+.warning-text {
+	color: red;
 }
 
 

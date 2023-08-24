@@ -5,7 +5,6 @@
 
 export let data: any;
 let fl = data.fl;
-console.log(fl);
 </script>
 
 <div class="fl-wrapper">

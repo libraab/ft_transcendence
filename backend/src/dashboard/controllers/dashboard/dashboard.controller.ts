@@ -82,6 +82,18 @@ export class DashboardController {
   }
 
   @UseGuards(AuthGuard)
+  @Get('/imgandname/:clientId')
+  async getImageAndNamePath(
+	@Request() req: { user: IJWT },
+  	@Param('clientId', ParseIntPipe) clientId: number)
+  { 
+	let data = await this.db.getClientImgAndNameById(clientId);
+	if (!data)
+		throw new HttpException('userNotFound', 404);
+    return data;
+  }
+
+  @UseGuards(AuthGuard)
   @Get('/getByName/:userName')
   async getByName(
     @Request() req: { user: IJWT },

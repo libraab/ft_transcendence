@@ -3,7 +3,7 @@ import { HOSTNAME } from '$env/static/private'
 
 export async function load({ cookies, fetch }) {
 	const authToken = cookies.get('jwt_cookie');
-	console.log("LOAD CALLED");
+	//console.log("LOAD CALLED");
 	// return {roomId: roomId}
 	const url_api_fl = `http://${HOSTNAME}:8080/api/dashboard/fl`;
 
@@ -16,7 +16,6 @@ export async function load({ cookies, fetch }) {
 			}
 		}).then(async (res) => {
 			let resjson = await res.json();
-			console.log(resjson);
 			return {
 				fl: resjson,
 			}
