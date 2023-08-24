@@ -1547,7 +1547,7 @@ export class DatabaseService {
         },
       });
 
-      return rooms;
+    return rooms;
   }
 
   async getRoomsAndMembersExcludingWhereClientIsMember(clientId: number) {
