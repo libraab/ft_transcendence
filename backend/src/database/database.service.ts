@@ -1552,15 +1552,18 @@ export class DatabaseService {
     return rooms;
   }
 
-  async getRoomsAndMembersExcludingWhereClientIsMember(clientId: number) {
+  async getRoomsExcludingWhereClientIsMember(clientId: number) {
     const rooms = await this.prisma.rooms.findMany({
       where: {
-        NOT: {
-          members: {
-            some: {
-              memberId: clientId,
+        NOT: { 
+          AND: [{
+            members: {
+              some: {
+                memberId: clientId,
+              },
             },
-          },
+            secu: 3
+          }],
         },
         owner: {
           NOT: {
@@ -1572,7 +1575,6 @@ export class DatabaseService {
         id: true,
         name: true,
         secu: true,
-		members: true,
       },
     });
 
