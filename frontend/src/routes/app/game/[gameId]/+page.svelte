@@ -23,6 +23,7 @@ let gameActive: boolean = false;
 let promise: any;
 let gameCode: any;
 let playerNumber: number;
+let gameResult: string = "";
 let changecolor: boolean = false
 ;
 
@@ -67,6 +68,18 @@ onDestroy(() =>
     // client.close();
 });
 
+function drawMessage(message: string) {
+    const canvas = document.getElementById('pong') as HTMLCanvasElement;
+    const ctx = canvas?.getContext('2d');
+    if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = '48px Arial';
+        ctx.fillStyle = 'black';
+        ctx.textAlign = 'center';
+        ctx.fillText(message ?? '', canvas.width / 2, canvas.height / 2);
+    }
+}
+
 let createHandlers = () =>
 {
     roomData.onMessage("gameState", (gameState: any) => 
@@ -82,12 +95,12 @@ let createHandlers = () =>
 		let date = JSON.parse(data);
     	if (date.winner === playerNumber) {
             resetroomData();
-        	alert('You win!');
+        	drawMessage("GG Winner ");
 			
     	}
     	else {
             resetroomData();
-      		alert('You lose!');
+            drawMessage("You loooser");
     	}
 	});
 }
@@ -106,6 +119,7 @@ function init() {
     // gameCode.innerText = name;
     gameActive = true;
     // console.log(gameCode);
+    gameResult = "";
     document.addEventListener('keydown', keydown);
     document.addEventListener('keyup', keyup);
     //gameActive = true;
