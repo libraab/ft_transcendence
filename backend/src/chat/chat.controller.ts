@@ -304,19 +304,19 @@ export class ChatController {
   @UseGuards(AuthGuard)
   @Post('/sendMsg')
   async sendMsg(@Request() req: { user: IJWT }, @Body() data) {
-	const client = await this.db.getClientById42(req.user.id);
+    const client = await this.db.getClientById42(req.user.id);
     const newInterlocutor = await this.db.getClientById(data.newFriendId);
-	if (!client)
-		throw new Error('You do not exist');
+    if (!client)
+      throw new Error('You do not exist');
 
-    if (!newInterlocutor) {
-      throw new Error('Interlocutor does not exist');
-    }
-    // TODO check if user or sender is not blocked
-	this.dto.name = client.name;
-    this.dto.ownerid = client.id;
-    this.dto.secu = 3;
-    this.dto.client2Id = newInterlocutor.id;
+      if (!newInterlocutor) {
+        throw new Error('Interlocutor does not exist');
+      }
+      // TODO check if user or sender is not blocked
+      this.dto.name = client.name + newInterlocutor.name;
+      this.dto.ownerid = client.id;
+      this.dto.secu = 3;
+      this.dto.client2Id = newInterlocutor.id;
 
     const Room = await this.db.createRooom(this.dto);
     if (!Room) throw new Error('failed to create room');
