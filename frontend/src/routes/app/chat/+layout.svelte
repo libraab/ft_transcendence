@@ -50,7 +50,7 @@
 	async function getImageAndName(id: number) {
 		try
 		{
-			const response = await fetch(`http://${PUBLIC_HOSTNAME}:8080/api/dashboard/avatar/${id}`, {
+			const response = await fetch(`http://${PUBLIC_HOSTNAME}:8080/api/dashboard/imgandname/${id}`, {
 				method: 'GET',
 				headers: {
 					'Authorization': `Bearer ${$jwt_cookie}`
