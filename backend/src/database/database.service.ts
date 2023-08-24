@@ -1524,35 +1524,6 @@ export class DatabaseService {
 */
 
   async getRoomsExcludingWhereClientIsMember(clientId: number) {
-  const rooms = await this.prisma.rooms.findMany({
-    where: {
-      NOT: {
-        members: {
-          some: {
-            memberId: clientId,
-          },
-        },
-      },
-      owner: {
-        NOT: {
-          id: clientId,
-        },
-      },
-    },
-    select: {
-      id: true,
-      name: true,
-      secu: true,
-    },
-  });
-
-  // Filtrer les salles ayant le statut égal à 3
-  const filteredRooms = rooms.filter(room => room.secu !== 3);
-
-  return filteredRooms;
-}
-
-  async getRoomsAndMembersExcludingWhereClientIsMember(clientId: number) {
     const rooms = await this.prisma.rooms.findMany({
       where: {
         NOT: {
@@ -1572,7 +1543,36 @@ export class DatabaseService {
         id: true,
         name: true,
         secu: true,
-		members: true,
+      },
+    });
+
+    return rooms;
+  }
+
+  async getRoomsAndMembersExcludingWhereClientIsMember(clientId: number) {
+    const rooms = await this.prisma.rooms.findMany({
+      where: {
+        NOT: {
+          OR: [{
+            members: {
+              some: {
+                memberId: clientId,
+              },
+            },
+            secu: 3,
+          }]
+        },
+        owner: {
+          NOT: {
+            id: clientId,
+          },
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        secu: true,
+        members: true,
       },
     });
 
