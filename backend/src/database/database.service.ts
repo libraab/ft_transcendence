@@ -1527,14 +1527,12 @@ export class DatabaseService {
       const rooms = await this.prisma.rooms.findMany({
         where: {
           NOT: { 
-            OR: [{
               members: {
                 some: {
                   memberId: clientId,
                 },
               },
               secu: 3
-            }],
           },
           owner: {
             NOT: {
