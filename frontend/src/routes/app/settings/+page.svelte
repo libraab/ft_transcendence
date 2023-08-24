@@ -63,10 +63,7 @@
 					body: data
 				});
 				if (!response.ok)
-				{
-					indexBadUpdate += 1;
-					badUpdate = true;
-				}
+					console.error('failed to update properly the avatar');
 			}
 			catch (error)
 			{
@@ -82,10 +79,7 @@
 					body: nameInput.value
 				});
 				if (!response.ok)
-				{
-					indexBadUpdate += 2;
-					badUpdate = true;
-				}
+					console.log('failed to update the name');	
 			}
 			catch (error)
 			{
