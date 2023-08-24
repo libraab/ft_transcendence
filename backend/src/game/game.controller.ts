@@ -16,7 +16,7 @@ export class GameController {
 
     @Post('saveScore') // http://localhost:3000/api/game/saveScore?data={"client1Id":1,"scoreClient1":1,"client2Id":2,"scoreClient2":2}
     async saveScore(@Query('data') data: any) { 
-        console.log("ICI", JSON.parse(data));
+        // console.log("ICI", JSON.parse(data));
         const alldata = JSON.parse(data);
         const gameHistoric = new gameHistoricDto();
         gameHistoric.client1Id = alldata.user.id;
@@ -32,7 +32,7 @@ export class GameController {
         }
         else {
             // return this.db.saveScore(gameHistoric);
-            console.log(">>>> ", gameHistoric);
+            // console.log(">>>> ", gameHistoric);
           //  this.ft_test(gameHistoric);
             this.db.historicnewEntry(gameHistoric);
             if (gameHistoric.persScore > gameHistoric.vsScore)

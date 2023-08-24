@@ -5,6 +5,7 @@ import { captureRejectionSymbol } from "events";
 
 
 const state: Record<string, any> = {};
+let intervalId: NodeJS.Timer = null;
 
 
 export class MyRoom extends Room<any> {
@@ -88,7 +89,7 @@ export class MyRoom extends Room<any> {
   }
 
   emitgamestate() {
-    const intervalId = setInterval(() => {
+      intervalId = setInterval(() => {
       /*this.onMessage("canvas", (canvas: number) => {
           console.log(canvas);
       });*/
@@ -135,13 +136,21 @@ export class MyRoom extends Room<any> {
 
   // When a client leaves the room
   onLeave(client: Client, consented: boolean) {
+    console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HEREEEEEEEEEEEEEE");
     state[this.roomId] = null;
+    console.log("Client left!", client.id);
+
+    clearInterval(intervalId);
+
+
     this.disconnect();
    
   }
 
   // Cleanup callback, called after there are no more clients in the room. (see `autoDispose`)
   onDispose() { 
+    console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HEREEEEEEEEEEEEEE");
+
     console.log("Dispose MyRoom");
     //clean the room
   }
