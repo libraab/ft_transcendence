@@ -24,9 +24,10 @@ let promise: any;
 let gameCode: any;
 let playerNumber: number;
 let gameResult: string = "";
+let leaved: boolean = false;
 let changecolor: boolean = false
 ;
-
+    
 let quitGame = () =>
 {
     goto("/app/game");
@@ -34,10 +35,10 @@ let quitGame = () =>
 
 onMount(async () =>
 {
-    if (!roomData)
+    if (!roomData) // si
     {
         //connectClientToColyseus();
-        await joinGame(data.gameId);
+        await joinGame(data.gameId); // join room permet de 
         playerNumber = 2;
     }
     else
@@ -53,6 +54,7 @@ onMount(async () =>
     //     });
 
     // }
+    // roomData.onMessage("quitGame", quitGame);
     socket.emit('startGame');
     init();
     createHandlers();
@@ -82,9 +84,12 @@ function drawMessage(message: string) {
 
 let createHandlers = () =>
 {
+    roomData.onMessage("init", (j: number) => {
+        // Handle 'init' message here
+        init()  
+    });
     roomData.onMessage("gameState", (gameState: any) => 
 	{
-        //console.log('test gameState');
         gameState = JSON.parse(gameState);
         requestAnimationFrame(() => trender(gameState));
     });
@@ -94,13 +99,16 @@ let createHandlers = () =>
         socket.emit('endGame');
 		let date = JSON.parse(data);
     	if (date.winner === playerNumber) {
+        	if(!leaved)
+                drawMessage("GG Winner ");
             resetroomData();
-        	drawMessage("GG Winner ");
-			
-    	}
+            //quitGame();
+        }
     	else {
+            if(!leaved)
+                drawMessage("You loooser");
             resetroomData();
-            drawMessage("You loooser");
+            //quitGame();
     	}
 	});
 }

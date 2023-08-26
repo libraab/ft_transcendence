@@ -140,5 +140,5 @@ function resetBall(state: any){
     state.ball.x = 600/2;
     state.ball.y = 400/2;
     state.ball.velocityX = -state.ball.velocityX;
-    state.ball.speed = 7;
+    state.ball.speed = 7.3;
 }
