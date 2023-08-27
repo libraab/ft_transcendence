@@ -33,12 +33,13 @@
 
 	if (browser) {
 		client = new Client("ws://" + location.hostname + ":3001/ws");
-		console.log("client id: " + client.id);
 	}
 
-	onMount(() => {
-		console.log("matc unde "	+ matchroom)
-	});
+	// onMount(() => {
+	// 	console.log("matc unde "	+ matchroom)
+	// 	console.log("client id: " + client.id);
+
+	// });
 	
 	// if (browser){
 		// }
@@ -47,21 +48,26 @@
 		// 	room?.leave(); // leave the room when the component is destroyed
 		// 	matchroom?.leave(); // leave the room when the component is destroyed
 		// });
-		
-		onDestroy(() => {
-					if(room)
-					{
-						console.log("destroy " + room.id + room.sessionId)
-						room?.onLeave;
-						// console.log("after destroy " + room.id + room.sessionId)
+	async function leaveGame(room:any) {
+		try {
+			await room.leave();
+			// console.log("Client left the room");
+			// Effectuez d'autres actions après la déconnexion du client
+		} catch (e) {
+			console.error(e);
+		}
+	}
 
-					}
-					if (matchroom) {
-						console.log("destroy match " + matchroom.id + matchroom.sessionId)
-						matchroom?.onLeave();
-						leaved = true;
-					}
-			});
+	onDestroy(() => {
+		if (matchroom) {
+			// deconnecter clent
+			leaveGame(matchroom);
+			//console.log("destroy match " + matchroom?.id + matchroom?.sessionId)
+			//matchroom?.leave();
+			//location.reload();
+			leaved = true;
+		}
+	});
 
 
 			// if(gameActive)
@@ -83,7 +89,7 @@
 			if(browser)
 			{
 				const localstorage =  localStorage.getItem('userId');
-				room = await client?.joinOrCreate("my_room", {id: localstorage}); // this will create "my_room" if it doesn't exist already or join it if it does exist
+				room = await client?.joinOrCreate("my_room", {id: localstorage, roomName: "my_room"}); // this will create "my_room" if it doesn't exist already or join it if it does exist
 			}
 			name = room.id;
 			return room.id;
@@ -102,7 +108,7 @@
 			{
 				const localstorage =  localStorage.getItem('userId');
 				// input = (<HTMLInputElement>document.getElementById('gameCodeInput')).value;
-				room = await client?.joinById(input, {id: localstorage});
+				room = await client?.joinById(input, {id: localstorage, roomName: "my_room"});
 			}
 		} catch(e) {
 			console.error(e);
@@ -131,36 +137,39 @@
     document.addEventListener('keyup', keyup);
 }
 
-	function keydown(e: any) {
-		(e.keyCode);
-		if (e.keyCode === 38) {
-			if (playerNumber == 1)
-				room.send("keydown38player1");
-			else
-				room.send("keydown38player2");
-		}
-		if (e.keyCode === 40) {
-			if (playerNumber == 1)
-				room.send("keydown40player1");
-			else
-				room.send("keydown40player2");
-		}
-	}
+function keydown(e: any) {
+  if (room && room.send) {
+    if (e.keyCode === 38) {
+      if (playerNumber == 1)
+        room.send("keydown38player1");
+      else
+        room.send("keydown38player2");
+    }
+    if (e.keyCode === 40) {
+      if (playerNumber == 1)
+        room.send("keydown40player1");
+      else
+        room.send("keydown40player2");
+    }
+  }
+}
 
-	function keyup(e: any) {
-		if (e.keyCode === 38) {
-			if (playerNumber == 1)
-				room.send("keyup38player1");
-			else
-				room.send("keyup38player2");
-		}
-		if (e.keyCode === 40) {
-			if (playerNumber == 1)
-				room.send("keyup40player1");
-			else
-				room.send("keyup40player2");
-		}
-	}
+function keyup(e: any) {
+  if (room && room.send) {
+    if (e.keyCode === 38) {
+      if (playerNumber == 1)
+        room.send("keyup38player1");
+      else
+        room.send("keyup38player2");
+    }
+    if (e.keyCode === 40) {
+      if (playerNumber == 1)
+        room.send("keyup40player1");
+      else
+        room.send("keyup40player2");
+    }
+  }
+}
 
 	const initGame = () => {
 		// room?.send("init");
@@ -180,7 +189,7 @@
 }
 
 	$: if (room) {
-		console.log(">>> " + room.id);
+		room.onMessage("disconnect", ()  => goto('/app/dashboard'));
 		room.onMessage("init", (j: number) => {
 			playerNumber = j;
 		});
@@ -215,7 +224,6 @@
 		async function consumeticket(ticket : any) {
 			try {
 				  room = await client?.consumeSeatReservation(ticket.ticket);
-				  console.log("in ticket " + room)
 				} catch (e) {
 					  console.error("join error", e);
 				}
@@ -348,8 +356,7 @@ async function joinMatchMaking() {
 		if(browser)
 		{
 			const localstorage =  localStorage.getItem('userId');
-			matchroom = await client?.joinOrCreate("matchMaking", {id: localstorage} ); // this will create "my_room" if it doesn't exist already or join it if it does exist
-			console.log(matchroom.id, matchroom.sessionId);
+			matchroom = await client?.joinOrCreate("matchMaking", {id: localstorage, roomName: "matchMaking"} ); // this will create "my_room" if it doesn't exist already or join it if it does exist
 			return (matchroom);
 		}
 	} catch(e) {
@@ -405,20 +412,11 @@ function handleGameOver(data: any) {
 	let date = JSON.parse(data);
 	if (date.winner === playerNumber) {
 
-		console.log("?? " + room.id)
-
-		resetroomData();
-		console.log("?? " + room.id)
-
 	    drawMessage("GG Winner ");
-	} else {
-		
-		console.log("?? " + room.id)
-
 		resetroomData();
+	} else {
 	    drawMessage("You loooser");
-		console.log("?? " + room.id)
-
+		resetroomData();
 	}
 }
 

@@ -27,15 +27,55 @@ export class MyRoom extends Room<any> {
 
   // When client successfully join the room
   onJoin(client: Client, options: any, auth: any) {
-    console.log("Client joined!", options.id, client.id)
+    if(options.roomName == "matchMaking" || options.roomName == "my_room") {
+      console.log("Client joined!", options.id, client.id, options.roomName); 
+      if (this.clients.length === 1) {
+        state[this.roomId].user.id = +options.id;
+        client.send("init", 1);
+      }
+      if (this.clients.length === 2) {
+        // this.joueur2 = client.id;
+        state[this.roomId].com.id = +options.id;
+        client.send("init", 2);
+        // client.send("init", 1); 
+        this.emitgamestate();
+      }
+      this.onMessage("keydown38player1", () => {
+        this.keystatusplayer1.keydown = 1;
+      });
+      this.onMessage("keydown38player2", () => {
+        this.keystatusplayer2.keydown = 1;
+      });
+      this.onMessage("keydown40player1", () => {
+        this.keystatusplayer1.keyup = 1;
+      });
+      this.onMessage("keydown40player2", () => {
+        this.keystatusplayer2.keyup = 1;
+      });
+      this.onMessage("keyup38player1", () => {
+        this.keystatusplayer1.keydown = 0;
+      });
+      this.onMessage("keyup38player2", () => {
+        this.keystatusplayer2.keydown = 0;
+      });
+      this.onMessage("keyup40player1", () => {
+        this.keystatusplayer1.keyup = 0;
+      });
+      this.onMessage("keyup40player2", () => {
+        this.keystatusplayer2.keyup = 0;
+      });
+  }
+  else {
+    console.log("Client joined by invitation!", options.id, client.id, options.roomName);
     if (this.clients.length === 1) {
       state[this.roomId].user.id = +options.id;
-      client.send("init", 1);
+      // client.send("init", 1);
     }
     if (this.clients.length === 2) {
       // this.joueur2 = client.id;
       state[this.roomId].com.id = +options.id;
-      client.send("init", 2); 
+      client.send("init", 1); 
+      client.send("init", 2);
       this.emitgamestate();
     }
     this.onMessage("keydown38player1", () => {
@@ -62,6 +102,7 @@ export class MyRoom extends Room<any> {
     this.onMessage("keyup40player2", () => {
       this.keystatusplayer2.keyup = 0;
     });
+  }
     /*setInterval(() => {
       gameLoop(state[this.roomId]);
       if (this.keystatusplayer1.keydown == 1) {
@@ -86,7 +127,7 @@ export class MyRoom extends Room<any> {
       }
       this.broadcast("gameState", JSON.stringify(state[this.roomId]));
     }, 1000 / 50);*/
-  }
+}
 
   emitgamestate() {
       intervalId = setInterval(() => {
@@ -136,11 +177,12 @@ export class MyRoom extends Room<any> {
 
   // When a client leaves the room
   onLeave(client: Client, consented: boolean) {
-    console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HEREEEEEEEEEEEEEE");
+    this.broadcast("disconnect")
     state[this.roomId] = null;
     console.log("Client left!", client.id);
-
-    clearInterval(intervalId);
+    // client.send("quitGame")
+    if(intervalId)
+      clearInterval(intervalId);
 
 
     this.disconnect();
@@ -149,9 +191,6 @@ export class MyRoom extends Room<any> {
 
   // Cleanup callback, called after there are no more clients in the room. (see `autoDispose`)
   onDispose() { 
-    console.log("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< HEREEEEEEEEEEEEEE");
 
-    console.log("Dispose MyRoom");
-    //clean the room
   }
 }
