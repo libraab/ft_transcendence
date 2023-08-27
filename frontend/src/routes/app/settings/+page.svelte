@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <script lang="ts">
+	import { PUBLIC_HOSTNAME } from "$env/static/public";
 	import { goto } from "$app/navigation";
 	import { client } from "$lib/gamesocket";
 	import { clientName, img_path, jwt_cookie, userId } from "$lib/stores";
@@ -52,14 +53,14 @@
 	{
 		const nameInput = document.getElementById("input-name") as HTMLInputElement;
 		const fileInput = document.getElementById("file-upload") as HTMLInputElement;
-
+		console.log("this is the one called");
 		let data = new FormData();
 		data.append("file", fileInput.files[0]);
 
 		if (fileInput && fileInput.files && fileInput.files[0]) {
 			try
 			{
-				const response = await fetch (`/api/dashboard/update/${$userId}`, {
+				const response = await fetch (`http://${PUBLIC_HOSTNAME}:8080/api/dashboard/update/${$userId}`, {
 					method: 'POST',
 					body: data
 				});
@@ -75,7 +76,7 @@
 		if (nameInput) {
 			try
 			{
-				const response = await fetch (`/api/dashboard/updateName/${$userId}`, {
+				const response = await fetch (`http://${PUBLIC_HOSTNAME}:8080/api/dashboard/updateName/${$userId}`, {
 					method: 'POST',
 					body: nameInput.value
 				});

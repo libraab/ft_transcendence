@@ -193,6 +193,7 @@ export class DashboardController {
     if (valid_mime.includes(data.mimetype)) {
       const tmp_name = uuidv4();
       const pump = require('pump');
+      
       await pump(
         data.file,
         fs.createWriteStream(process.cwd() + '/uploads/' + tmp_name),
