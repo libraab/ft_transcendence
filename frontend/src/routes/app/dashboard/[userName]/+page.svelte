@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <script lang="ts">
 	import { onMount } from "svelte";
 	import { img_path, jwt_cookie, clientName, userId } from '$lib/stores';

@@ -1,4 +1,5 @@
 <!-- <svelte:window on:load={onload} on:unload={onunload} /> -->
+<!DOCTYPE html>
 <script lang='ts'>
 	import { goto } from '$app/navigation';
     import { client, connectClientToColyseus, joinGame, roomData, resetroomData } from '$lib/gamesocket.js'

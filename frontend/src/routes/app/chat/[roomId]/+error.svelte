@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <script>
 	import { page } from '$app/stores';
 

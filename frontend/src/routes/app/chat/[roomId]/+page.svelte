@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <script lang='ts'>
 	import { afterNavigate, goto, invalidateAll } from "$app/navigation";
 	import ConnectStatus from "$lib/connectStatus.svelte";

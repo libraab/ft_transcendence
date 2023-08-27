@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <script lang="ts">
 	import { jwt_cookie, img_path, clientName, userId42, userId, rooms } from '$lib/stores';
 	import { afterNavigate, goto, invalidate } from '$app/navigation';

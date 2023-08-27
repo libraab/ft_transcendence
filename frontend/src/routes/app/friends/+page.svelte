@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <script lang="ts">
 	import ConnectStatus from "$lib/connectStatus.svelte";
 	import Invitation from "$lib/invitation.svelte";

@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <script lang="ts">
     import { onMount } from "svelte";
     import { onDestroy } from "svelte";

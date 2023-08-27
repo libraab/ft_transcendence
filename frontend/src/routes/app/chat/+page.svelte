@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <script>
 	/*
 		This is just a default page when no chat is selected

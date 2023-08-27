@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <script lang="ts">
 	import { goto } from "$app/navigation";
 import { jwt_cookie } from "$lib/stores";

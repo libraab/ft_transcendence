@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <script lang='ts'>
 	import { PUBLIC_HOSTNAME } from '$env/static/public'
 	import { type Rooms, jwt_cookie, userId } from '$lib/stores'
