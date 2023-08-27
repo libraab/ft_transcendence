@@ -1,3 +1,4 @@
+<!-- <svelte:window on:load={onload} on:unload={onunload} /> -->
 <script lang='ts'>
 	import { goto } from '$app/navigation';
     import { client, connectClientToColyseus, joinGame, roomData, resetroomData } from '$lib/gamesocket.js'
@@ -33,8 +34,13 @@ let quitGame = () =>
     goto("/app/game");
 }
 
+// let onload = async () => 
 onMount(async () =>
 {
+    // window.onbeforeunload = function() {
+    //     console.log('reload')
+    //     goto("/");
+    // }
     if (!roomData) // si
     {
         //connectClientToColyseus();
@@ -59,8 +65,10 @@ onMount(async () =>
     init();
     createHandlers();
     socket.on('refused', quitGame);
+    
 });
 
+// let onunload = () =>
 onDestroy(() =>
 {
     document.removeEventListener('keyup', keyup);
@@ -84,6 +92,7 @@ function drawMessage(message: string) {
 
 let createHandlers = () =>
 {
+    roomData.onMessage("disconnect", quitGame);
     roomData.onMessage("init", (j: number) => {
         // Handle 'init' message here
         init()  
@@ -239,12 +248,12 @@ function trender(state: any) {
 
 
 </script>
-<p>{data.gameId} $$$ {playerNumber}</p>
+<!-- <p>{data.gameId} $$$ {playerNumber}</p> -->
 <canvas bind:this={pong} id="pong" width=600 height=400></canvas>
 
 
 <style>
-    #pong {
+    /* #pong {
         border: 2px solid #FFF;
         position: relative;
         margin: auto;
@@ -252,5 +261,18 @@ function trender(state: any) {
         right: 0;
         left: 0;
         bottom: 0;
+    } */
+
+    #pong {
+        border: 2px solid rgb(32, 31, 31);
+        position: relative;
+        margin: auto;
+        /* top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0; */
+        display: flex; 
+        justify-content: center;
+        align-items: center;
     }
 </style>

@@ -177,6 +177,7 @@ export class MyRoom extends Room<any> {
 
   // When a client leaves the room
   onLeave(client: Client, consented: boolean) {
+    this.broadcast("disconnect")
     state[this.roomId] = null;
     console.log("Client left!", client.id);
     // client.send("quitGame")

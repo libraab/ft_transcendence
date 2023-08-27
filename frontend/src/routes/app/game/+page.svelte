@@ -51,7 +51,7 @@
 	async function leaveGame(room:any) {
 		try {
 			await room.leave();
-			console.log("Client left the room");
+			// console.log("Client left the room");
 			// Effectuez d'autres actions après la déconnexion du client
 		} catch (e) {
 			console.error(e);
@@ -189,6 +189,7 @@ function keyup(e: any) {
 }
 
 	$: if (room) {
+		room.onMessage("disconnect", ()  => goto('/app/dashboard'));
 		room.onMessage("init", (j: number) => {
 			playerNumber = j;
 		});
@@ -411,11 +412,11 @@ function handleGameOver(data: any) {
 	let date = JSON.parse(data);
 	if (date.winner === playerNumber) {
 
-		resetroomData();
 	    drawMessage("GG Winner ");
-	} else {
 		resetroomData();
+	} else {
 	    drawMessage("You loooser");
+		resetroomData();
 	}
 }
 
