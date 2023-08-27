@@ -1,6 +1,7 @@
 <!-- <svelte:window on:load={onload} on:unload={onunload} /> -->
 
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import {
 		client,
@@ -44,12 +45,18 @@
 		//     console.log('reload')
 		//     goto("/");
 		// }
+		
 		if (!roomData) {
 			// si
 			//connectClientToColyseus();
 			await joinGame(data.gameId); // join room permet de
 			playerNumber = 2;
 		} else playerNumber = 1;
+
+		if (!roomData)
+		{
+			goto('/app/game');
+		}
 		// if (roomData)
 		// {
 		//     roomData.onMessage("init", (j: number) => {
@@ -62,30 +69,42 @@
 
 		// }
 		// roomData.onMessage("quitGame", quitGame);
-		socket.emit('startGame');
-		init();
-		createHandlers();
-		socket.on('refused', quitGame);
+		if (socket) {
+			socket.emit('startGame');
+			socket.on('refused', quitGame);
+		}
+		try {
+			init();
+			createHandlers();
+		} catch (error) {
+			goto('/app/game');
+		}
 	});
 
 	// let onunload = () =>
 	onDestroy(() => {
-		document.removeEventListener('keyup', keyup);
-		document.removeEventListener('keydown', keydown);
-		socket.emit('endGame');
+		if (browser) {
+			document.removeEventListener('keyup', keyup);
+			document.removeEventListener('keydown', keydown);
+		}
+		if (socket) {
+			socket.emit('endGame');
+		}
 		resetroomData();
 		// client.close();
 	});
 
 	function drawMessage(message: string) {
-		const canvas = document.getElementById('pong') as HTMLCanvasElement;
-		const ctx = canvas?.getContext('2d');
-		if (ctx) {
-			ctx.clearRect(0, 0, canvas.width, canvas.height);
-			ctx.font = '48px Arial';
-			ctx.fillStyle = 'black';
-			ctx.textAlign = 'center';
-			ctx.fillText(message ?? '', canvas.width / 2, canvas.height / 2);
+		if (browser) {
+			const canvas = document.getElementById('pong') as HTMLCanvasElement;
+			const ctx = canvas?.getContext('2d');
+			if (ctx) {
+				ctx.clearRect(0, 0, canvas.width, canvas.height);
+				ctx.font = '48px Arial';
+				ctx.fillStyle = 'black';
+				ctx.textAlign = 'center';
+				ctx.fillText(message ?? '', canvas.width / 2, canvas.height / 2);
+			}
 		}
 	}
 
@@ -100,9 +119,13 @@
 			requestAnimationFrame(() => trender(gameState));
 		});
 		roomData.onMessage('gameOver', (data: any) => {
-			document.removeEventListener('keyup', keyup);
-			document.removeEventListener('keydown', keydown);
-			socket.emit('endGame');
+			if (browser) {
+				document.removeEventListener('keyup', keyup);
+				document.removeEventListener('keydown', keydown);
+			}
+			if (socket) {
+				socket.emit('endGame');
+			}
 			let date = JSON.parse(data);
 			if (date.winner === playerNumber) {
 				if (!leaved) drawMessage('GG Winner ');
@@ -131,8 +154,10 @@
 		gameActive = true;
 		// console.log(gameCode);
 		gameResult = '';
-		document.addEventListener('keydown', keydown);
-		document.addEventListener('keyup', keyup);
+		if (browser) {
+			document.addEventListener('keydown', keydown);
+			document.addEventListener('keyup', keyup);
+		}
 		//gameActive = true;
 	}
 
