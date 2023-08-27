@@ -1,11 +1,10 @@
 <script lang='ts'>
     import { goto } from "$app/navigation";
 	import { socket } from "./socketsbs";
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
 	const dispatch = createEventDispatcher();
 
     export let invitationData: any;
-	console.log(invitationData);
 
     let hanndleRefuse = () =>
     {
@@ -15,6 +14,7 @@
 </script>
 
 <div class="popup">
+	<img src={invitationData.img} alt="logo" class="invit-img">
 	<p>You got an invitation to a game from {invitationData.name}</p>
 	<div class="buttons">
 	  <button on:click={() => {
@@ -59,4 +59,13 @@
 .buttons button:hover {
   background-color: #0056b3;
 }
+
+.invit-img {
+			width: 50px;
+			height: 50px;
+			border-radius: 50%;
+			/* margin-right: 20px; */
+			object-fit: cover;
+			/* box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); */
+		}
 </style>

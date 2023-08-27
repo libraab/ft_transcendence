@@ -26,14 +26,16 @@
 			})
 			return (!found);
 	});
-
-	console.log(blocked);
-	
 	
 	onMount(() => {
 		if (!socket)
 			setTimeout(function(){
-				if (socket)
+				if (!socket)
+					setTimeout(function(){
+						if (socket)
+							configSocket();
+					}, 1000);
+				else if (socket)
 					configSocket();
 		}, 1000);
 		else if (socket)
@@ -81,15 +83,13 @@
 				if ((el.client1.name !== $clientName && el.client1.name === msg.sender) || (el.client2.name !== $clientName && el.client2.name == msg.sender))
 					found = true;
 			})
-			// let found = blocked.find((el: any) => { console.log((el.client1.name !== $clientName && el.client1.name === msg.sender) || (el.client2.name !== $clientName && el.client2.name == msg.sender))});
-			
 			if (found)
 				return ;
-			RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
+			RoomsMessages = [{sender: msg.sender, message: msg.message}, ...RoomsMessages];
 		}
 
 	let recieveServerMessage = (msg: any) => {
-		RoomsMessages = [...RoomsMessages, {sender: msg.sender, message: msg.message}];
+		RoomsMessages = [ {sender: msg.sender, message: msg.message}, ...RoomsMessages];
 	}
     
     let sendMessage = () => {
@@ -111,7 +111,6 @@
 					}
 				})
 				.then(async (response) => {
-					console.log("we are here");
 					if (response.ok)
 						return await response.json();
 					else
@@ -124,14 +123,13 @@
 	}
 
 	afterNavigate( (navigation: AfterNavigate) => {
-		// console.log(navigation);
+		user_message = "";
 		roomId = data.roomId;
     	RoomsMessages = data.messages;
 		members = data.members;
 		my_status = data.status;
 		blocked = data.blocked;
 		roomInfo = data.roomInfo;
-			//todo modifier les messages pour effacer les user blocked avec filter?
 		RoomsMessages = RoomsMessages.filter((msg: any) => {
 			let found = false;
 			blocked.forEach( (el: any) => {
@@ -155,9 +153,7 @@
               			'Authorization': `Bearer ${$jwt_cookie}`
           			},
 			}).then((res) => {
-				if (res.ok)
-					console.log('quit successfully');
-				else 
+				if (! res.ok)
 					console.error('failed to quit');
 			}).catch(() => {
 				console.error('failed to quit');
@@ -187,11 +183,7 @@
           			},
 			});
 
-			if (response.ok)
-			{
-				console.log('Status updated successfully');
-			}
-			else
+			if (! response.ok)
 			{
 				console.error(response.statusText);
 				console.error('Failed to update status');
@@ -213,9 +205,7 @@
           			},
 			});
 
-			if (response.ok)
-				console.log('client kicked');
-			else
+			if (! response.ok)
 			{
 				const errorText = await response.text();
 				throw new Error(errorText);
@@ -236,11 +226,7 @@
           			},
 			});
 
-			if (response.ok)
-			{
-				console.log('New member accepted');
-			}
-			else
+			if (! response.ok)
 			{
 				const errorText = await response.text();
 				throw new Error(errorText);
@@ -453,6 +439,7 @@
 		justify-content: space-between;
 		align-items: baseline;
 		padding: 5px 10px;
+		min-height: 30px;
 	}
 
 	.component_send_box input {
@@ -477,7 +464,7 @@
 
 	.messages {
 		display: flex;
-		flex-direction: column;
+		flex-direction: column-reverse;
 		max-height: 60vh;
 		overflow: auto;
 	}

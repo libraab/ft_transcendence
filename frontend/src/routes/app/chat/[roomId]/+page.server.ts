@@ -4,7 +4,6 @@ import { HOSTNAME } from '$env/static/private'
 export async function load({ cookies, params, fetch }) {
 	const authToken = cookies.get('jwt_cookie');
 	const roomId = params.roomId;
-	console.log("LOAD CALLED");
 	// return {roomId: roomId}
 	const url_api_message = `http://${HOSTNAME}:8080/api/chat/messages/${params.roomId}`;
 	const url_api_members = `http://${HOSTNAME}:8080/api/chat/room/${params.roomId}`;
@@ -110,6 +109,8 @@ export async function load({ cookies, params, fetch }) {
 
 	if (roomInfo && roomInfo.status)
 		throw error(roomInfo.status, { message: roomInfo.statusText});
+
+	messages.reverse();
 
 	return {
 		roomId,

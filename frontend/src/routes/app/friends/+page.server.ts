@@ -16,7 +16,6 @@ export async function load({ cookies, fetch }) {
 			}
 		}).then(async (res) => {
 			let resjson = await res.json();
-			console.log(resjson);
 			return {
 				fl: resjson,
 			}

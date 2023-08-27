@@ -32,7 +32,6 @@ import { HOSTNAME } from '$env/static/private'
 export async function load({ cookies , fetch }) {
 	const authToken = cookies.get('jwt_cookie');
 	const id42 = cookies.get('id42');
-	console.log("LOAD CALLED");
 	// return {roomId: roomId}
 	const url_api_history = `http://${HOSTNAME}:8080/api/dashboard/history/${id42}`;
 	const url_api_stats = `http://${HOSTNAME}:8080/api/dashboard/stats/${id42}`;

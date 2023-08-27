@@ -13,10 +13,7 @@
 			return ;
 		}
 		event.preventDefault();
-		if (roomType === 'protected') {
-				console.log('Password:', password);
-		}
-		else
+		if (roomType !== 'protected')
 			password = "";
 		if (roomName === '')
 		{
@@ -41,8 +38,6 @@
 				})
 			});
 			if (response.ok) {
-				console.log('Room created successfully');
-				// handle success -> make sure that room is added to the list updates etc
 				roomName = '';
 				roomType = 'public';
 				password = '';

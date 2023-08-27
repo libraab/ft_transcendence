@@ -1,3 +1,4 @@
+<!-- <svelte:window on:load={onload} on:unload={onunload} /> -->
 <script lang='ts'>
 	import { goto } from '$app/navigation';
     import { client, connectClientToColyseus, joinGame, roomData, resetroomData } from '$lib/gamesocket.js'
@@ -23,21 +24,27 @@ let gameActive: boolean = false;
 let promise: any;
 let gameCode: any;
 let playerNumber: number;
+let gameResult: string = "";
+let leaved: boolean = false;
 let changecolor: boolean = false
 ;
-
+    
 let quitGame = () =>
 {
     goto("/app/game");
 }
 
+// let onload = async () => 
 onMount(async () =>
 {
-    if (!roomData)
+    // window.onbeforeunload = function() {
+    //     console.log('reload')
+    //     goto("/");
+    // }
+    if (!roomData) // si
     {
-        console.log("joining room");
         //connectClientToColyseus();
-        await joinGame(data.gameId);
+        await joinGame(data.gameId); // join room permet de 
         playerNumber = 2;
     }
     else
@@ -53,12 +60,15 @@ onMount(async () =>
     //     });
 
     // }
+    // roomData.onMessage("quitGame", quitGame);
     socket.emit('startGame');
     init();
     createHandlers();
     socket.on('refused', quitGame);
+    
 });
 
+// let onunload = () =>
 onDestroy(() =>
 {
     document.removeEventListener('keyup', keyup);
@@ -68,11 +78,27 @@ onDestroy(() =>
     // client.close();
 });
 
+function drawMessage(message: string) {
+    const canvas = document.getElementById('pong') as HTMLCanvasElement;
+    const ctx = canvas?.getContext('2d');
+    if (ctx) {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.font = '48px Arial';
+        ctx.fillStyle = 'black';
+        ctx.textAlign = 'center';
+        ctx.fillText(message ?? '', canvas.width / 2, canvas.height / 2);
+    }
+}
+
 let createHandlers = () =>
 {
+    roomData.onMessage("disconnect", quitGame);
+    roomData.onMessage("init", (j: number) => {
+        // Handle 'init' message here
+        init()  
+    });
     roomData.onMessage("gameState", (gameState: any) => 
 	{
-        //console.log('test gameState');
         gameState = JSON.parse(gameState);
         requestAnimationFrame(() => trender(gameState));
     });
@@ -82,19 +108,21 @@ let createHandlers = () =>
         socket.emit('endGame');
 		let date = JSON.parse(data);
     	if (date.winner === playerNumber) {
+        	if(!leaved)
+                drawMessage("GG Winner ");
             resetroomData();
-        	alert('You win!');
-			
-    	}
+            //quitGame();
+        }
     	else {
+            if(!leaved)
+                drawMessage("You loooser");
             resetroomData();
-      		alert('You lose!');
+            //quitGame();
     	}
 	});
 }
 
 function init() {
-    console.log("dans init");
     //initialScreen.style.display = "none";
     //game.style.display = "block";
     canvas = pong;
@@ -108,13 +136,13 @@ function init() {
     // gameCode.innerText = name;
     gameActive = true;
     // console.log(gameCode);
+    gameResult = "";
     document.addEventListener('keydown', keydown);
     document.addEventListener('keyup', keyup);
     //gameActive = true;
 }
 
     function keydown(e: any) {
-		console.log("keydown ", e.keyCode);
 		if (e.keyCode === 38) {
 			if (playerNumber == 1)
 				roomData.send("keydown38player1");
@@ -130,7 +158,6 @@ function init() {
 	}
 
 	function keyup(e: any) {
-		console.log("keyup ", e.keyCode);
 		if (e.keyCode === 38) {
 			if (playerNumber == 1)
 				roomData.send("keyup38player1");
@@ -221,12 +248,12 @@ function trender(state: any) {
 
 
 </script>
-<p>{data.gameId} $$$ {playerNumber}</p>
+<!-- <p>{data.gameId} $$$ {playerNumber}</p> -->
 <canvas bind:this={pong} id="pong" width=600 height=400></canvas>
 
 
 <style>
-    #pong {
+    /* #pong {
         border: 2px solid #FFF;
         position: relative;
         margin: auto;
@@ -234,5 +261,18 @@ function trender(state: any) {
         right: 0;
         left: 0;
         bottom: 0;
+    } */
+
+    #pong {
+        border: 2px solid rgb(32, 31, 31);
+        position: relative;
+        margin: auto;
+        /* top: 0;
+        right: 0;
+        left: 0;
+        bottom: 0; */
+        display: flex; 
+        justify-content: center;
+        align-items: center;
     }
 </style>

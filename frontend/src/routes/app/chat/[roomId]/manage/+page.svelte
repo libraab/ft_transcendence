@@ -22,50 +22,15 @@
 	else if (data.roomInfo.secu === 2)
 		roomType = 'private';
 
-	// let isFormVisible: boolean = false;
-	// const toggleForm = () => {
-	// 	isFormVisible = !isFormVisible;
-	// }
-
-	// async function getReplacementLists () {
-	// 	try
-	// 	{
-	// 		const response = await fetch(`/api/rooms/replacementList/${roomId}`);
-	// 		if (response.ok)
-	// 		{
-	// 			const data = await response.json();
-
-	// 			admins = data.admins;
-	// 			members = data.members;
-	// 		}
-	// 		else
-	// 		{
-	// 			console.error('failed to load replacement list');
-	// 		}
-	// 	}
-	// 	catch (error)
-	// 	{
-	// 		console.log(error);
-	// 	}
-	// };
-
-	// let firstLoad = true;
 	onMount(async () => {
-		// await getReplacementLists();
-		// firstLoad = false;
+		
 	});
 
 	afterUpdate(() => {
-		// if (!firstLoad) {
-		// 	getReplacementLists();
-		// }
+		
 	});
 
 	let stayOption = 'stay'; // Default option is "and stay"
-
-	function handleValidationClick() {
-		// dispatch('validationClick');
-	}
 
 	async function resign(stay: boolean)
 	{
@@ -102,7 +67,6 @@
 				}
 			})
 			.then(async (response) => {
-				console.log("we are here");
 				if (response.ok)
 					await goto('/app/chat');
 				else
@@ -112,14 +76,6 @@
 				throw error(err.status, { message: err.statusText});
 		});
 	}
-	/*
-	const handleSubmit = async (event: any) => {
-		console.log(roomName);
-		console.log(roomType);
-		console.log(roomId);
-		console.log(password);
-	}
-	*/
 	
 	const roomTypeDict: { [key: string]: number } =
 	{
@@ -136,11 +92,8 @@
 			return ;
 		}
 		event.preventDefault();
-		if (roomType === 'protected') {
-			console.log('Password:', password);
-		}
-		else
-				password = "";
+		if (roomType !== 'protected')
+			password = "";
 		if (roomName === '')
 			roomName = data.roomInfo.name;
 		/*
@@ -159,14 +112,8 @@
 				password,
 			})
 		});
-		if (response.ok) {
-			console.log('Room updated successfully');
-			// handle success -> make sure that room is added to the list updates etc
-		}
-		else {
-			console.log(response);
+		if (! response.ok) {
 			alert('Failed to update room');
-			// handle error
 		}
 		goto(`/app/chat/${data.roomInfo.id}`);
 	}
@@ -175,7 +122,6 @@
 		event.preventDefault();
 		if (owner_choice == "")
 			return ;
-		console.log(owner_choice);
 		if (owner_choice === 'deleteroom')
 			return eraseRoom();
 		let stay = true;

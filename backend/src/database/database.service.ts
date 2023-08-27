@@ -225,6 +225,20 @@ export class DatabaseService {
     return client || null;
   }
 
+  async getClientImgAndNameById(id: number) {
+    const client = await this.prisma.clients.findUnique({
+      where: {
+        id: id,
+      },
+	  select: {
+		img: true,
+		name: true,
+	  }
+    });
+
+    return client || null;
+  }
+
   // async getClientByCookie(cookie: string): Promise<Clients | null> {
   //   const client = await this.prisma.clients.findUnique({
   //     where: {
@@ -1001,42 +1015,45 @@ export class DatabaseService {
 */
 
   async getRoomMessagesById(roomId: number, idClient: number): Promise<any[]> {
-    const messages = await this.prisma.messagesRooms.findMany({
-      where: {
-        roomId: roomId,
-        NOT: {
-          OR: [{
-            client: {
-              client1: {
-                some: {
-                  client1Id: idClient,
-                  status: 1
-                }
-              }
-            }
-          },
-          {
-            client: {
-              client2: {
-                some: {
-                  client2Id: idClient,
-                  status: 1
-                }
-              }
-            }
-          }
-        ]}
-      },
-      select: {
-        msg: true,
-        client: {
-          select: {
-            name: true,
-            id: true,
-          },
-        },
-      },
-    });
+	const messages = await this.prisma.messagesRooms.findMany({
+		where: {
+		  roomId: roomId,
+		  NOT: {
+			OR: [{
+			  client: {
+				client1: {
+				  some: {
+					client1Id: idClient,
+					status: 1
+				  }
+				}
+			  }
+			},
+			{
+			  client: {
+				client2: {
+				  some: {
+					client2Id: idClient,
+					status: 1
+				  }
+				}
+			  }
+			}
+		  ]}
+		},
+		select: {
+		  msg: true,
+		  client: {
+			select: {
+			  name: true,
+			  id: true,
+			},
+		  },
+		},
+		orderBy: {
+		  time: 'asc',
+		}
+	  });
 
     return messages.map((message) => ({
       message: message.msg,
@@ -2029,4 +2046,28 @@ export class DatabaseService {
 
     return response;
   }
+
+  async dfaSwitch(id: number) {
+    const dfaStatus = await this.prisma.clients.findUnique({
+      where: {
+        id42: id
+      },
+      select: {
+        dfaVerified: true
+      }
+    });
+
+    if (dfaStatus) {
+      const newDfaStatus = !dfaStatus.dfaVerified;
+
+      await this.prisma.clients.update({
+        where: {
+          id42: id
+        },
+        data: {
+          dfaVerified: newDfaStatus
+        }
+      });
+    }
+}
 }
