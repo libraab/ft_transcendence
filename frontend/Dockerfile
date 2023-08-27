@@ -1,5 +1,5 @@
 # stage build
-FROM node:18
+FROM node:19.9
 
 ARG HOSTNAME
 ARG PUBLIC_HOSTNAME
