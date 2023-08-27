@@ -1,34 +1,30 @@
-<!DOCTYPE html>
 <script lang="ts">
-	import { goto } from "$app/navigation";
-	import { jwt_cookie, userId42 } from "$lib/stores";
+	import { goto } from '$app/navigation';
+	import { jwt_cookie, userId42 } from '$lib/stores';
 
 	let roomName: string = '';
 	let roomType: string = 'public';
 	let password: string = '';
 
 	const handleSubmit = async (event: any) => {
-		if (password === "" && roomType == "protected")
-		{
-			alert("Please enter a password");
-			return ;
+		if (password === '' && roomType == 'protected') {
+			alert('Please enter a password');
+			return;
 		}
 		event.preventDefault();
-		if (roomType !== 'protected')
-			password = "";
-		if (roomName === '')
-		{
-			alert("Please enter a name");
-			return ;
+		if (roomType !== 'protected') password = '';
+		if (roomName === '') {
+			alert('Please enter a name');
+			return;
 		}
 		/*
-		* Appel au Post du controller Chat qui va creer la Room dans la Db
-		*/
+		 * Appel au Post du controller Chat qui va creer la Room dans la Db
+		 */
 		try {
 			const response = await fetch(`/api/chat`, {
 				method: 'POST',
 				headers: {
-					'Authorization': `Bearer ${$jwt_cookie}`,
+					Authorization: `Bearer ${$jwt_cookie}`,
 					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
@@ -48,49 +44,52 @@
 				// handle error
 			}
 			// Reset les valeurs du formulaure
-		}
-		catch {
-			console.error("Failed to create Room");
+		} catch {
+			console.error('Failed to create Room');
 		}
 		//ici rediriger vers /chat/room_id?
 		// toggleForm();
 		// fetchRooms();
 		// fetchOwnedRoom();
-	}
-
+	};
 </script>
 
 <div class="rooms-create-content">
 	<form on:submit={handleSubmit}>
-		<div class="inputs">  
-			<label for="room-name"><h4>Room Name:</h4>
-				<input type="text" id="room-name" bind:value={roomName} class="input-box"/>
+		<div class="inputs">
+			<label for="room-name"
+				><h4>Room Name:</h4>
+				<input type="text" id="room-name" bind:value={roomName} class="input-box" />
 			</label>
 		</div>
-		<div class="inputs">  
-			<label for="room-type"><h4>Room Type:</h4>
+		<div class="inputs">
+			<label for="room-type"
+				><h4>Room Type:</h4>
 				<select id="room-type" bind:value={roomType} class="input-box">
 					<option value="public">Public</option>
 					<option value="private">Private</option>
 					<option value="protected">Protected</option>
 				</select>
-				{#if roomType === "protected"}
-				<br />
-				<label for="password"><h4>Password:</h4>
-					<input type="password" id="password" bind:value={password} class="input-box"/>
-				</label>
+				{#if roomType === 'protected'}
+					<br />
+					<label for="password"
+						><h4>Password:</h4>
+						<input type="password" id="password" bind:value={password} class="input-box" />
+					</label>
 				{/if}
 			</label>
 		</div>
-		<div class="btn-submit-room-wrapper"><button type="submit" class="btn-submit">Create</button></div>
+		<div class="btn-submit-room-wrapper">
+			<button type="submit" class="btn-submit">Create</button>
+		</div>
 	</form>
 </div>
-<div class="void-content"></div>
+<div class="void-content" />
 
 <style>
 	.rooms-create-content {
 		width: 100%;
-		background-color: #EFEFEF;
+		background-color: #efefef;
 		color: black;
 	}
 
@@ -112,7 +111,7 @@
 	}
 
 	.btn-submit {
-		background-color: #3AB45C;
+		background-color: #3ab45c;
 		border: none;
 		color: white;
 		padding: 15px 30px;
@@ -130,15 +129,14 @@
 	.input-box {
 		padding: 5px 10px;
 		border-radius: 0%;
-		border: #DCDCDC 1px solid;
+		border: #dcdcdc 1px solid;
 	}
 
 	select {
 		font-family: 'Oxanium';
 	}
 
-	.void-content
-	{
+	.void-content {
 		background-color: #404040;
 		width: 30vw;
 	}

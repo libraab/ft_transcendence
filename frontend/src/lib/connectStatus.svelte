@@ -1,6 +1,5 @@
-<!DOCTYPE html>
-<script lang='ts'>
-    import { onDestroy, onMount } from "svelte";
+<script lang="ts">
+	import { onDestroy, onMount } from 'svelte';
 
 	//exported var
 	export let userId: number;
@@ -20,7 +19,7 @@
 	let userStatus: e_status = e_status.Disconnected;
 	let intervalRefresh: NodeJS.Timer;
 
-	function sleep(ms: number){
+	function sleep(ms: number) {
 		return new Promise((resolve) => setTimeout(resolve, ms));
 	}
 
@@ -43,41 +42,35 @@
 			const response = await fetch(`/api/chat/connected/${userId}`);
 			let status = await response.json();
 			userStatus = status;
-		}
-		catch (error)
-		{
+		} catch (error) {
 			console.error(error);
 		}
 	}
-
-
-
 </script>
 
-<div class="connectStats" class:connected={userStatus == e_status.Connected} class:disconnected={userStatus == e_status.Disconnected} class:inGame={userStatus == e_status.InGame}>
-</div>
+<div
+	class="connectStats"
+	class:connected={userStatus == e_status.Connected}
+	class:disconnected={userStatus == e_status.Disconnected}
+	class:inGame={userStatus == e_status.InGame}
+/>
 
 <style>
-.connectStats
-{
-	border-radius: 50%;
-	width: 15px;
-	height: 15px;
-}
+	.connectStats {
+		border-radius: 50%;
+		width: 15px;
+		height: 15px;
+	}
 
-.connected
-{
-	background-color: #05E300;
-}
+	.connected {
+		background-color: #05e300;
+	}
 
-.disconnected
-{
-	background-color: #EAEAEA
-}
+	.disconnected {
+		background-color: #eaeaea;
+	}
 
-.inGame
-{
-	background-color: orange;
-}
-
+	.inGame {
+		background-color: orange;
+	}
 </style>

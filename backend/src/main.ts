@@ -31,7 +31,7 @@ async function bootstrap() {
   // Register plugins avec línstance Fastify
   fastifyInstance.register(fastifyCookie, {
     secret: 'my-secret', // cryptage cookies
-    sameSite: 'lax'
+    sameSite: 'none'
   });
   fastifyInstance.register(fastifyMultipart);
 

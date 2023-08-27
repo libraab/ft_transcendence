@@ -1,7 +1,5 @@
-<!DOCTYPE html>
 <script>
 	import { page } from '$app/stores';
-
 </script>
 
 <div class="error">

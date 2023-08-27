@@ -1,11 +1,9 @@
-<!DOCTYPE html>
 <script lang="ts">
-	import ConnectStatus from "$lib/connectStatus.svelte";
-	import Invitation from "$lib/invitation.svelte";
+	import ConnectStatus from '$lib/connectStatus.svelte';
+	import Invitation from '$lib/invitation.svelte';
 
-
-export let data: any;
-let fl = data.fl;
+	export let data: any;
+	let fl = data.fl;
 </script>
 
 <div class="fl-wrapper">
@@ -14,7 +12,7 @@ let fl = data.fl;
 			{#each fl as friend}
 				<li class="fl-friend">
 					<div class="fl-data">
-						<img src={friend.client.img} alt="logo" class="fl-img">
+						<img src={friend.client.img} alt="logo" class="fl-img" />
 						<a href="/app/dashboard/{friend.client.name}" class="fl-name">{friend.client.name}</a>
 						<ConnectStatus userId={friend.client.id} />
 					</div>
@@ -57,7 +55,7 @@ let fl = data.fl;
 		border-radius: 10px;
 		display: flex;
 		flex-direction: row;
-		justify-content: space-between;;
+		justify-content: space-between;
 		margin: 20px;
 		padding: 10px 40px;
 	}
@@ -99,5 +97,4 @@ let fl = data.fl;
 		display: flex;
 		align-items: center;
 	}
-
 </style>

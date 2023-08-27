@@ -1,7 +1,5 @@
-<!DOCTYPE html>
 <script>
 	import { page } from '$app/stores';
-
 </script>
 
 <div class="error">
@@ -11,10 +9,10 @@
 	{/if}
 	<a href="/app/chat">go back</a>
 </div>
-<div class="chat-users-content"></div>
+<div class="chat-users-content" />
 
 <style>
-	.chat-users-content{
+	.chat-users-content {
 		background-color: #404040;
 		width: 30vw;
 	}

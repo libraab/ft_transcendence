@@ -1,13 +1,12 @@
-<!DOCTYPE html>
 <script lang="ts">
 	import { jwt_cookie, img_path, clientName, userId42, userId, rooms } from '$lib/stores';
 	import { afterNavigate, goto, invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { afterUpdate, onDestroy, onMount } from 'svelte';
-	import { io } from 'socket.io-client'
+	import { io } from 'socket.io-client';
 	import { initializeSocket, socket } from '$lib/socketsbs.js';
 	import { connectClientToColyseus } from '$lib/gamesocket';
-	import Alert from '$lib/popupAlert.svelte'
+	import Alert from '$lib/popupAlert.svelte';
 	import type { AfterNavigate } from '@sveltejs/kit';
 	import Invitation from '$lib/invitation.svelte';
 	// import { redirect } from '@sveltejs/kit';
@@ -15,66 +14,57 @@
 	export let data: any;
 	/**
 	 * Invitations
-	*/
+	 */
 	let alertPopupOn = false;
-	let invitationData =  {player_id: 0, secret: "", name: "", img: ""};
+	let invitationData = { player_id: 0, secret: '', name: '', img: '' };
 	let Invitations: any = [];
-	
-	let setPopupToogleEvent = () =>
-	{
+
+	let setPopupToogleEvent = () => {
 		socket.on('invitationGame', invitationHandler);
-	}
-	
-	let invitationHandler = (invitData: any) =>
-	{
+	};
+
+	let invitationHandler = (invitData: any) => {
 		alertPopupOn = true;
 		invitationData = invitData;
 		Invitations.push(invitationData);
-	}
+	};
 
 	/**
 	 * La logique de ce Layout qui englobe tout App
 	 * On fait un fetch 'test' et on recupere chaque info necessaire quon stock dans stores et dans le localStorage en consequent
 	 * Si nok alors lacces a l'app est interdite et on renvoi sur la page de debut
-	*/
-	onMount( async () =>
-    {
+	 */
+	onMount(async () => {
 		jwt_cookie.set(data.myJwtCookie);
-        userId42.set(data.myid42);
-		if ($jwt_cookie)
-        {
-		//--- Ici on va chercher la value de la DFA dans la BD
-			try{
+		userId42.set(data.myid42);
+		if ($jwt_cookie) {
+			//--- Ici on va chercher la value de la DFA dans la BD
+			try {
 				const response = await fetch(`/api/auth/2fa`, {
 					method: 'GET',
-        	            headers: {
-        	                'Authorization': `Bearer ${$jwt_cookie}`
-        	            }
+					headers: {
+						Authorization: `Bearer ${$jwt_cookie}`
+					}
 				});
-				if (response.ok)
-				{
+				if (response.ok) {
 					let dfastatus = await response.json();
-					if (dfastatus.dfa == true && dfastatus.dfaVerifies == false)
-						goto("/2FA");
+					if (dfastatus.dfa == true && dfastatus.dfaVerifies == false) goto('/2FA');
 				}
+			} catch {
+				goto('/');
 			}
-			catch
-			{
-				goto("/");
-			}
-		//---
-		//si la value est true on goto /2FA
-		//sinon rien
-		
-            try {
-                const connect = await fetch(`/api/dashboard`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${$jwt_cookie}`
-                    }
-                });
-                if (connect.status == 200)
-                {
+			//---
+			//si la value est true on goto /2FA
+			//sinon rien
+
+			try {
+				const connect = await fetch(`/api/dashboard`, {
+					method: 'GET',
+					headers: {
+						Authorization: `Bearer ${$jwt_cookie}`
+					}
+				});
+				if (connect.status == 200) {
 					const data = await connect.json();
 					$img_path = data.img;
 					$clientName = data.name;
@@ -82,53 +72,41 @@
 					await initializeSocket();
 					setPopupToogleEvent();
 					connectClientToColyseus();
-                }
-                else
-                {
-                    //connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
-                    console.error("fetch failed in app layout");
-					goto("/");
-                }
-            }
-            catch (error) {
-                console.error("fetching in '/app' :" , error);
-				goto("/");
-            }
-        }
-		else
-			goto("/");
-    })
-
-	onDestroy(() =>
-	{
-		
+				} else {
+					//connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
+					console.error('fetch failed in app layout');
+					goto('/');
+				}
+			} catch (error) {
+				console.error("fetching in '/app' :", error);
+				goto('/');
+			}
+		} else goto('/');
 	});
 
-	afterNavigate( async (navigation: AfterNavigate) => {
+	onDestroy(() => {});
+
+	afterNavigate(async (navigation: AfterNavigate) => {
 		try {
-                const connect = await fetch(`/api/dashboard`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${$jwt_cookie}`
-                    }
-                });
-                if (connect.status == 200)
-                {
-					const data = await connect.json();
-					$img_path = data.img;
-					$clientName = data.name;
-					$userId = data.id;
-                }
-                else
-                {
-                    //connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
-                    console.error("fetch failed in app layout");
-                }
-            }
-            catch (error) {
-                console.error("fetching in '/app' :" , error);
-            }
-	})
+			const connect = await fetch(`/api/dashboard`, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${$jwt_cookie}`
+				}
+			});
+			if (connect.status == 200) {
+				const data = await connect.json();
+				$img_path = data.img;
+				$clientName = data.name;
+				$userId = data.id;
+			} else {
+				//connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
+				console.error('fetch failed in app layout');
+			}
+		} catch (error) {
+			console.error("fetching in '/app' :", error);
+		}
+	});
 
 	/**
 	 * La fonction handleLogOut est appelee lorsque le user click sur le bouton LogOut
@@ -136,61 +114,57 @@
 	 * Puis renvoyer la session en "/"
 	 */
 	let handleLogOut = () => {
-
-		goto("/logout");
-	}
+		goto('/logout');
+	};
 
 	/**
 	 * Search Block
 	 */
-	let nameSearchInput = "";
+	let nameSearchInput = '';
 	let id42NameInputNotEmpty: any;
 	let searchRes: any = [];
-	async function getSpecifiedClients()
-	{
+	async function getSpecifiedClients() {
 		const nameSearchInput = document.getElementById('id42-name-input').value;
 		id42NameInputNotEmpty = nameSearchInput.trim() !== '';
 
-		if (id42NameInputNotEmpty)
-		{
-			try
-			{
+		if (id42NameInputNotEmpty) {
+			try {
 				const response = await fetch(`/api/dashboard/name/${nameSearchInput}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${$jwt_cookie}`
-                    }
-                });
+					method: 'GET',
+					headers: {
+						Authorization: `Bearer ${$jwt_cookie}`
+					}
+				});
 				searchRes = await response.json();
-			}
-			catch (error) {
+			} catch (error) {
 				console.error(error);
 			}
-		}
-		else
-			searchRes = [];
+		} else searchRes = [];
 	}
 
-	async function refreshInput(client: any)
-	{
-		document.getElementById('id42-name-input').value = "";
+	async function refreshInput(client: any) {
+		document.getElementById('id42-name-input').value = '';
 		searchRes = [];
 		id42NameInputNotEmpty = null;
-		await goto(`/app/dashboard/${client.name}`, { replaceState: true});
+		await goto(`/app/dashboard/${client.name}`, { replaceState: true });
 	}
 
 	// $:{
 	// 	$rooms;
 	// 	local_count = msgCount;
 	// }
-
-	
 </script>
-
 
 <header>
 	<div class="search-bar">
-		<input class="input" type="text" placeholder="search ..." id="id42-name-input" on:input={() => getSpecifiedClients()} bind:value={nameSearchInput}/>
+		<input
+			class="input"
+			type="text"
+			placeholder="search ..."
+			id="id42-name-input"
+			on:input={() => getSpecifiedClients()}
+			bind:value={nameSearchInput}
+		/>
 		{#if id42NameInputNotEmpty}
 			<div class="popup">
 				{#each searchRes as client}
@@ -206,27 +180,46 @@
 		<div class="panel">
 			<div class="controls">
 				<p class="controls-one">{$clientName}</p>
-				<button on:click={ () => goto('/app/settings') } class:settings-select={$page.url.pathname === '/app/settings'} class="controls-one" >settings</button>
+				<button
+					on:click={() => goto('/app/settings')}
+					class:settings-select={$page.url.pathname === '/app/settings'}
+					class="controls-one">settings</button
+				>
 				<button class="controls-one" on:click={handleLogOut}>log out</button>
 			</div>
 			{#if $img_path}
-				<img src={$img_path} alt="logo" class="rick">
+				<img src={$img_path} alt="logo" class="rick" />
 			{:else}
-				<img src='/logo.jpeg' alt="logo" class="rick">
+				<img src="/logo.jpeg" alt="logo" class="rick" />
 			{/if}
 		</div>
 	</div>
 </header>
 <nav class="navbar">
-	<button on:click={ () => goto('/app/dashboard') } class:selected={$page.url.pathname === '/app/dashboard'}>DashBoard</button>
-	<button on:click={ () => goto('/app/friends') } class:selected={$page.url.pathname === '/app/friends'}>Friends</button>
-	<button on:click={ () => goto('/app/game') } class:selected={$page.url.pathname === '/app/game'}>Game</button>
-	<button on:click={ () => goto('/app/chat') } class:selected={$page.url.pathname === '/app/chat'}>Chat</button>
+	<button
+		on:click={() => goto('/app/dashboard')}
+		class:selected={$page.url.pathname === '/app/dashboard'}>DashBoard</button
+	>
+	<button
+		on:click={() => goto('/app/friends')}
+		class:selected={$page.url.pathname === '/app/friends'}>Friends</button
+	>
+	<button on:click={() => goto('/app/game')} class:selected={$page.url.pathname === '/app/game'}
+		>Game</button
+	>
+	<button on:click={() => goto('/app/chat')} class:selected={$page.url.pathname === '/app/chat'}
+		>Chat</button
+	>
 </nav>
 
 <main>
 	{#if alertPopupOn}
-		<Alert invitationData={invitationData} on:refuseInvitation={ () => {alertPopupOn = false}}/>
+		<Alert
+			{invitationData}
+			on:refuseInvitation={() => {
+				alertPopupOn = false;
+			}}
+		/>
 	{/if}
 	<!-- {#each Invitations as invitation}
 		<Alert invitationData={invitation} on:refuseInvitation={ () => {
@@ -235,11 +228,10 @@
 			});
 		}}/>
 	{/each} -->
-	<slot class="main_body"></slot>
+	<slot class="main_body" />
 </main>
 
 <style>
-
 	header {
 		/* background: no-repeat center/100% url('https://profile.intra.42.fr/assets/background_login-a4e0666f73c02f025f590b474b394fd86e1cae20e95261a6e4862c2d0faa1b04.jpg'); */
 		height: 25vh;
@@ -280,7 +272,6 @@
 		text-align: center;
 	}
 
-
 	button {
 		text-decoration: none;
 		border: none;
@@ -289,12 +280,10 @@
 		font-family: 'Oxanium';
 	}
 
-	
-
 	.controls button {
 		margin-top: 5px;
 		text-decoration: none;
-		
+
 		border: none;
 		background: none;
 		font-size: 15px;
@@ -303,11 +292,11 @@
 	}
 
 	.controls-one {
-		color: white; 
+		color: white;
 	}
 
 	.settings-select {
-		color: #05E300;
+		color: #05e300;
 	}
 
 	.controls button:hover {
@@ -327,7 +316,7 @@
 	.search-bar {
 		text-align: left;
 	}
-	
+
 	.input {
 		width: 150px;
 		height: 20px;
@@ -355,9 +344,8 @@
 	}
 
 	.selected {
-		background-color: #3AB45C;
+		background-color: #3ab45c;
 	}
-
 
 	/* .tabs{
 		display: flex;
@@ -392,19 +380,18 @@
 		transition: color 0.3s ease;
 	}
 	.link:hover {
-		color:#3AB45C;
+		color: #3ab45c;
 		cursor: pointer;
 	}
 	.link button:hover {
-		color:#3AB45C;
+		color: #3ab45c;
 		cursor: pointer;
 	}
 
-	.popup
-	{
+	.popup {
 		position: absolute;
 	}
-	
+
 	/* .popup_container {
 		position: relative;
 		width: 7vw;
@@ -426,8 +413,7 @@
 		z-index: 1;
 	} */
 
-input:disabled {
-	color: #ccc;
-}
-
+	input:disabled {
+		color: #ccc;
+	}
 </style>

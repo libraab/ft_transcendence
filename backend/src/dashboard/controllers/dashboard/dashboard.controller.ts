@@ -30,6 +30,9 @@ import { HttpErrorByCode } from '@nestjs/common/utils/http-error-by-code.util';
 import { AuthGuard } from 'src/auth/auth.guard';
 import IJWT from 'src/interfaces/jwt.interface';
 import { NOTFOUND } from 'dns';
+const { promisify } = require('util')
+const { pipeline } = require('stream')
+const pump = promisify(pipeline)
 
 @Controller('dashboard')
 export class DashboardController {
@@ -192,7 +195,6 @@ export class DashboardController {
     ]; // formats that we accept
     if (valid_mime.includes(data.mimetype)) {
       const tmp_name = uuidv4();
-      const pump = require('pump');
       
       await pump(
         data.file,
