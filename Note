@@ -1,3 +1,0 @@
-invitation handler should be  alist of $lib/invitation popup. first one would be on the top of other until accepted Or declined Or som etime has passed
-dfa
-qrcode should be created but dfa passed to true when user click on save

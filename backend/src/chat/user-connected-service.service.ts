@@ -13,7 +13,14 @@ export class UserConnectedService {
   }
 
   deleteUser(socket: Socket): void {
-    this.hmapconnected.delete(socket.id);
+    try
+    {
+        this.hmapconnected.delete(socket.id);
+    }
+    catch
+    {
+        return;
+    }
     this.deleteInGame(socket);
   }
 
@@ -33,11 +40,19 @@ export class UserConnectedService {
     this.hmapconnected.forEach((value, key, map) => {
       if (key == socket.id) userId = value;
     });
-    this.hmapingame.set(socket.id, userId);
+    if (userId !== 0)
+        this.hmapingame.set(socket.id, userId);
   }
 
   deleteInGame(socket: Socket): void {
-    this.hmapingame.delete(socket.id);
+    try
+    {
+        this.hmapingame.delete(socket.id);
+    }
+    catch
+    {
+        return;
+    }
   }
 
   findSocketId(id: number): string {
