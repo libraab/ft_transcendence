@@ -171,6 +171,7 @@ export class DashboardController {
   @UseGuards(AuthGuard)
   @Post('/update/:id')
   async changePicture(
+    @Request() tomate: { user: IJWT },
     @Param('id', ParseIntPipe) id: number,
     @Req() req: FastifyRequest,
   ) {

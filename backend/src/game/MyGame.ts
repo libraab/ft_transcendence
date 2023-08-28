@@ -69,7 +69,7 @@ export function gameLoop(state: any) {
         let direction = (state.ball.x + state.ball.radius < 600 / 2) ? 1 : -1;
         state.ball.velocityX = direction * state.ball.speed * Math.cos(angleRad);
         state.ball.velocityY = state.ball.speed * Math.sin(angleRad);
-        state.ball.speed += 0.5;
+        // state.ball.speed += 0.5;
     }
     else
     {

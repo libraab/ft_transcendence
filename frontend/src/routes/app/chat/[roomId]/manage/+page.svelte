@@ -165,7 +165,7 @@
 			</label>
 			{#if owner_choice === 'resign' || owner_choice === 'resignquit'}
 				<h3>Select the successor</h3>
-				<label for="owner-successor">
+				<label for="successor">
 					<select id="successor" bind:value={successor_id} class="input-box">
 						<option disabled selected value> -- select a successor -- </option>
 						{#each admins as admin}

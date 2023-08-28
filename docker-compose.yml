@@ -12,6 +12,8 @@ services:
       - PUBLIC_HOSTNAME=${PUBLIC_HOSTNAME}
       - PUBLIC_API_42=${PUBLIC_API_42}
       - PUBLIC_DOMAIN_BACK=${PUBLIC_DOMAIN_BACK}
+    depends_on:
+      - backend
     networks:
       frontend_network:
         aliases:

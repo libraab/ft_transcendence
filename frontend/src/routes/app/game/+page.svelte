@@ -188,9 +188,9 @@
 			if (!gameOver) {
 				let date = JSON.parse(data);
 				if (date.winner === playerNumber) {
-					if (!leaved) drawMessage('GG Winner ');
+					drawMessage('GG Winner ');
 				} else {
-					if (!leaved) drawMessage('You loooser');
+					drawMessage('You loooser');
 				}
 				gameOver = true;
 			}

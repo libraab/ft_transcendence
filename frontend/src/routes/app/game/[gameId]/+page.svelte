@@ -128,11 +128,11 @@
 			}
 			let date = JSON.parse(data);
 			if (date.winner === playerNumber) {
-				if (!leaved) drawMessage('GG Winner ');
+				drawMessage('GG Winner ');
 				resetroomData();
 				//quitGame();
 			} else {
-				if (!leaved) drawMessage('You loooser');
+				drawMessage('You loooser');
 				resetroomData();
 				//quitGame();
 			}

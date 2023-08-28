@@ -29,10 +29,8 @@ export async function load({ cookies }) {
 
 	if (switchDfa && switchDfa.status)
 		throw error(switchDfa.status, { message: switchDfa.statusText});
-	
 	cookies.set('jwt_cookie', "");
 	cookies.set('id42', "");
-
 	// cookies.set('_intra_42_session_production', null);
 	// cookies.set('user.id', null);
 }
