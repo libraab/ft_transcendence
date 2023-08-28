@@ -76,7 +76,6 @@ export class ChatController {
   async getAllMessages(@Request() req: { user: IJWT }, @Param('roomid', ParseIntPipe) roomid: number) {
 	let client = await this.db.getClientById42(req.user.id);
 	let status = await this.db.roomUserCheck(roomid, client.id);
-  console.log(status);
 	if (status == null || status.status == 5)
 	{
 		throw new UnauthorizedException("You are not member");
@@ -88,7 +87,6 @@ export class ChatController {
         res.push({ sender: e.clientName, message: e.message });
       }),
     );
-    console.log(res); 
     return res;
   }
 

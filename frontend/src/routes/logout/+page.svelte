@@ -11,15 +11,12 @@
 
 <center>
 	<div>
-		<p>Goodbye :'&#40;</p>
-		<iframe
-			src="https://giphy.com/embed/lOpPaqaUwkX5PKywFh"
-			width="480"
-			height="480"
-			frameBorder="0"
-			class="giphy-embed"
-			allowFullScreen
-		/>
+		<center><h1 style="color: white;">Goodbye :'&#40;</h1></center>
+		<center><h3 style="color: white;">We gonna miss</h3></center>
+		<center><h3 style="color: white;">My heart Just Broke</h3></center>
+		<center><h3 style="color: white;">But OK, i understand</h3></center>
+		<center><h3 style="color: white;">It's not you, it's me...</h3></center>
+		<center><h3 style="color: white;">I hope we can still be friends</h3></center>
 	</div>
 	<br />
 	<br />

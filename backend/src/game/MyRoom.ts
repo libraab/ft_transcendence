@@ -28,7 +28,6 @@ export class MyRoom extends Room<any> {
   // When client successfully join the room
   onJoin(client: Client, options: any, auth: any) {
     if(options.roomName == "matchMaking" || options.roomName == "my_room") {
-      console.log("Client joined!", options.id, client.id, options.roomName); 
       if (this.clients.length === 1) {
         state[this.roomId].user.id = +options.id;
         client.send("init", 1);
@@ -66,7 +65,6 @@ export class MyRoom extends Room<any> {
       });
   }
   else {
-    console.log("Client joined by invitation!", options.id, client.id, options.roomName);
     if (this.clients.length === 1) {
       state[this.roomId].user.id = +options.id;
       // client.send("init", 1);
@@ -179,7 +177,6 @@ export class MyRoom extends Room<any> {
   onLeave(client: Client, consented: boolean) {
     this.broadcast("disconnect")
     state[this.roomId] = null;
-    console.log("Client left!", client.id);
     // client.send("quitGame")
     if(intervalId)
       clearInterval(intervalId);

@@ -74,7 +74,7 @@
 					connectClientToColyseus();
 				} else {
 					//connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
-					console.error('fetch failed in app layout');
+					console.error('invalid cookie');
 					goto('/');
 				}
 			} catch (error) {
@@ -101,7 +101,8 @@
 				$userId = data.id;
 			} else {
 				//connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
-				console.error('fetch failed in app layout');
+				console.error('invalid cookie');
+				goto('/')
 			}
 		} catch (error) {
 			console.error("fetching in '/app' :", error);

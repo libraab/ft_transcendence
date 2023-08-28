@@ -72,7 +72,6 @@ export class RoomsController {
 	const response = rooms_data.map((el) => {
 		return ({id: el.id, name: el.name, secu: el.secu, quantity: el.members.length});
 	});
-	console.log(response);
     return response;
   }
 
@@ -123,8 +122,6 @@ export class RoomsController {
   					@Param('roomId', ParseIntPipe) roomId: number,
                   	@Body() data: updateRoomDto)
   {
-	console.log(data);
-	
 	let client = await this.db.getClientById42(req.user.id);
 	if (!client)
 	throw new BadRequestException("Unauthorized to update");

@@ -375,61 +375,6 @@
 		text-decoration: none;
 	}
 
-	.list_box {
-		color: whitesmoke;
-		background-color: #292d39;
-		width: 200px;
-		max-height: 60vh;
-		overflow: scroll;
-	}
-
-	.alertBox {
-		position: absolute;
-		top: 15px;
-		right: 15px;
-		width: 20px;
-		height: 20px;
-		background-color: red;
-		color: white;
-		border-radius: 50%;
-		text-align: center;
-		line-height: 20px;
-		font-size: 12px;
-		display: none;
-	}
-
-	.alertOn {
-		display: block;
-	}
-
-	.one_room {
-		position: relative;
-		font-size: 18px;
-		padding: 15px;
-		cursor: pointer;
-		border-bottom: 1px #898f9f solid;
-	}
-	/* .alertBox
-	{
-		width: 10px;
-		height: 10px;
-		background-color: brown;
-		border-radius: 5px;
-		display: none;
-	} */
-
-	.alertOn {
-		display: block;
-	}
-
-	.one_room:hover {
-		background-color: #505668;
-	}
-
-	.activeroom {
-		background-color: #898f9f;
-	}
-
 	li {
 		list-style: none;
 	}
@@ -499,9 +444,6 @@
 
 	.servermsg {
 		color: gray;
-	}
-	.servermsg strong {
-		color: rgb(190, 43, 29);
 	}
 
 	.info {

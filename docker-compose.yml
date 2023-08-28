@@ -17,7 +17,7 @@ services:
         aliases:
           - frontend
     volumes:
-      - frontend:/app
+      - frontend:/appli
 
   backend:
     build:

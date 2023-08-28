@@ -28,7 +28,8 @@
 					goto('/app/dashboard');
 				} else {
 					//connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
-					console.error('fetch failed in login page');
+					console.error('Invalid cookie');
+					goto('/');
 				}
 			} catch (error) {
 				console.error("fetching in '/' :", error);

@@ -15,6 +15,7 @@ import {
   BadRequestException,
   UseGuards,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import type User42Interface from './user42.interface';
@@ -58,13 +59,13 @@ export class AuthController {
       new_user.cookie = 'ABC';
       new_user.img = user_info.image.link;
       user = await this.databaseService.createClient(new_user);
-    } else console.log('We already know this person');
+    }
 
-    const add_cookie: UpdateClientDto = new UpdateClientDto();
+    // const add_cookie: UpdateClientDto = new UpdateClientDto();
     // generetate the jwt
     const jwt = await this.jwtService.signAsync({ id: user_info.id });
-    response.setCookie('jwt_cookie', jwt, { path: '/' });
-    response.setCookie('id42', user.id42.toString(), { path: '/' });
+    response.setCookie('jwt_cookie', jwt, { path: '/', sameSite: 'lax'});
+    response.setCookie('id42', user.id42.toString(), { path: '/', sameSite: 'lax' });
     // return response;
 
     // add_cookie.cookie = jwt;
@@ -86,11 +87,8 @@ export class AuthController {
     const user = await this.databaseService.getClientById42(req.user.id);
     if (user == null)
       throw new NotFoundException("user doesnt exist");
-	console.log(user.DfaSecret); // c'est juste une data en vrai mais si c'est null alors c'est que ça pas était save
     const isVerified = authenticator.check(code, user.DfaSecret); //SOIT LE DFASECRET QUI S4EST PAS SAVE BIEN
     const userDto: UpdateClientDto = new UpdateClientDto();
-    console.log("code received -->" + code);
-    console.log("code is -->" + isVerified);
     if (isVerified) {
       userDto.dfaVerified = true;
       await this.databaseService.updateClient(user.id, userDto);
@@ -98,7 +96,7 @@ export class AuthController {
         message: '2Fa is valide',
       };
     }
-    return new BadRequestException('Error check 2FA');
+    return new UnauthorizedException('Error check 2FA');
   }
 
   @UseGuards(AuthGuard)
@@ -118,19 +116,16 @@ export class AuthController {
 	@Request() req: { user: IJWT },
     @Body() body: { isDFAActive: boolean },
   ): Promise<{ qrCodeImageUrl?: string }> {
-	console.log("activateDfa");
 	const client = await this.databaseService.getClientById42(req.user.id);
 	if (!client)
 		throw new NotFoundException("user doesnt exist");
     const { isDFAActive } = body;
     const user: UpdateClientDto = new UpdateClientDto();
     // if user activate the dfa
-	console.log(body);
     if (isDFAActive) {
       user.dfa = true;
       user.dfaVerified = false;
       user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key
-	  console.log(user);
       await this.databaseService.updateClient(client.id, user);
       // Generate the QR code image
       const otpauthUrl = authenticator.keyuri(
@@ -197,7 +192,6 @@ export class AuthController {
 			throw new NotFoundException("Dfa code is not generated");
 		const user: UpdateClientDto = new UpdateClientDto();
 		
-		console.log(body);
 		if (isDFAActive)
 		{
 			user.dfa = true;

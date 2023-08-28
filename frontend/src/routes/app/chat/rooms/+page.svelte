@@ -124,8 +124,4 @@
 		text-align: center;
 	}
 
-	/* .btn-create-room a {
-		text-decoration: none;
-		color: white;
-	} */
 </style>

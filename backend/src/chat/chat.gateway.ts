@@ -81,7 +81,6 @@ export class ChatGateway
       sender: client_id.id,
       msg: message.message,
     });
-    console.log("OKOKOK");
     this.wss.to(message.channel).emit('serverToChat', { ...message, sender: client_id.name});
     this.wss.to(message.channel).emit('serverAlertToChat', { ...message, sender: client_id.name});
     // WsResponse<string>
@@ -127,7 +126,6 @@ export class ChatGateway
 	if (status !== null && status.status != 5 && status.status != 6)
 	{
 		client.join(channel);
-		console.log('JOINED');
 		client.emit('joinedChannel', channel);
 	}
   }
@@ -138,7 +136,6 @@ export class ChatGateway
     // check if client is a member of channel then proceed
     // ask the chat service to delete the user from members
     client.leave(channel);
-    console.log('LEAVED');
     client.emit('leavedChannel', channel);
   }
 
@@ -163,7 +160,6 @@ export class ChatGateway
   }
 
   async sendServerMsg(roomid: number, msg: any) {
-    console.log(msg);
     this.wss.to(`${roomid}`).emit('serverMessage', {
       channel: roomid,
       sender: 'server',
@@ -195,7 +191,6 @@ export class ChatGateway
   areWordsLessThanLength(inputString: string, maxLength: number) 
   {
     const words = inputString.split(' ');
-    console.log(words);
     for (let i = 0; i < words.length; i++) {
         if (words[i].length > maxLength) {
             return false;

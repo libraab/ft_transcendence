@@ -84,15 +84,6 @@
 		margin-right: 10px;
 	}
 
-	/* button {
-		border: none;
-		cursor: pointer;
-		background-color: #17ACFF;
-		color: white;
-		font-family: 'Oxanium';
-		padding: 10px 30px;
-	} */
-
 	.btn-play-wrap {
 		display: flex;
 		align-items: center;

@@ -32,7 +32,6 @@ export class GameController {
         }
         else {
             // return this.db.saveScore(gameHistoric);
-            // console.log(">>>> ", gameHistoric);
           //  this.ft_test(gameHistoric);
             this.db.historicnewEntry(gameHistoric);
             if (gameHistoric.persScore > gameHistoric.vsScore)

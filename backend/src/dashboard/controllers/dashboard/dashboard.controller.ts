@@ -13,6 +13,7 @@ import {
   Request,
   Logger,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
 import { ClientDto } from 'src/database/dtos/dbBaseDto';
@@ -42,12 +43,11 @@ export class DashboardController {
   @UseGuards(AuthGuard)
   @Get()
   async getMyDashboard(
-    @Request() req: { user: IJWT },
-  ) {
+    @Request() req: { user: IJWT },) {
     let ppp = await this.db.getClientById42Dashboard(+req.user.id);
-	if (ppp == null)
-		throw new NotFoundException("You're cookie is a bad cookie");
-	  return ppp;
+    if (ppp == null)
+      throw new UnauthorizedException("You're cookie is a bad cookie");
+      return ppp;
   }
 
   @UseGuards(AuthGuard)
@@ -68,8 +68,14 @@ export class DashboardController {
 	@Request() req: { user: IJWT },
   	@Param('clientId', ParseIntPipe) clientId: number)
   { 
-	const client = await this.db.getClientById42(clientId)
-    return this.db.getGameHistoric(client.id);
+    try {
+      const client = await this.db.getClientById42(clientId)
+      return this.db.getGameHistoric(client.id);
+    }
+    catch (error) {
+      return new BadRequestException();
+    }
+
   }
 
   @UseGuards(AuthGuard)

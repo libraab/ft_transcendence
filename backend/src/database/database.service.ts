@@ -391,10 +391,6 @@ export class DatabaseService {
   }
 
   async updateClient(id: number, data: UpdateClientDto): Promise<Clients> {
-    console.log('--------------------------------------');
-    console.log(data);
-    console.log(data.dfaVerified);
-    console.log('--------------------------------------');
     try {
       const updateData: Prisma.ClientsUpdateInput = {
         img: data.img ? { set: data.img } : undefined,
@@ -1956,7 +1952,6 @@ export class DatabaseService {
     }
     else
     {
-      console.log(">>>>>>>>>>>>>>>> ", clientId)
       await this.prisma.clientStats.create({
         data: {
           played: 1,
@@ -2006,7 +2001,6 @@ export class DatabaseService {
           client2Id: data.client2Id,
         }
       })
-      console.log(data);
     }
     catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {

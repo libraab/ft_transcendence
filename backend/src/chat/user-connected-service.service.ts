@@ -57,7 +57,6 @@ export class UserConnectedService {
 
   findSocketId(id: number): string {
     let res = '';
-    console.log("Searching in GateWay Data the id : ", id);
     this.hmapconnected.forEach((value, key, map) => {
       if (value == id) res = key;
     });
@@ -66,7 +65,6 @@ export class UserConnectedService {
 
   findId(socket_id: string): number {
     let res = null;
-    console.log("Searching in GateWay Data the socket_id : ", socket_id);
     this.hmapconnected.forEach((value, key, map) => {
       if (key == socket_id) res = value;
     });

@@ -192,18 +192,6 @@
 		background-color: #3ab45c;
 	}
 
-	.alertBox {
-		width: 10px;
-		height: 10px;
-		background-color: brown;
-		border-radius: 5px;
-		display: none;
-	}
-
-	.alertOn {
-		display: block;
-	}
-
 	/* .activeroom {
 		background-color: #898f9f;
 	} */

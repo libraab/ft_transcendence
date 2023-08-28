@@ -34,7 +34,7 @@
 				goto('/');
 			}
 		} catch {
-			console.error('fetch failed in 2fa');
+			console.error('2fa verification failed');
 			goto('/');
 		}
 	}
