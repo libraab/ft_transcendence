@@ -1,0 +1,967 @@
+diff --git a/.env b/.env
+deleted file mode 100644
+index d9d2214..0000000
+--- a/.env
++++ /dev/null
+@@ -1,20 +0,0 @@
+-CLIENT_SECRET=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
+-CLIENT_ID=u-s4t2ud-a5af938705ebd0c4b5b8a782f8b8026fb20fae93ce976a067e4d2033ee47c4d9
+-# This was inserted by `prisma init`:
+-# Environment variables declared in this file are automatically made available to Prisma.
+-# See the documentation for more detail: https://pris.ly/d/prisma-schema#accessing-environment-variables-from-the-schema
+-# Prisma supports the native connection string format for PostgreSQL, MySQL, SQLite, SQL Server, MongoDB and CockroachDB.
+-# See the documentation for all the connection string options: https://pris.ly/d/connection-strings
+-
+-HOSTNAME=bbox.bryanledda.fr
+-
+-# Database vars
+-PORT_DB=7001
+-POSTGRES_USER=postgres
+-POSTGRES_DB=ft_transcendence
+-POSTGRES_PASSWORD=123
+-DATABASE_URL="postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}?schema=public"
+-
+-PUBLIC_HOSTNAME=${HOSTNAME}
+-PUBLIC_API_42=${CLIENT_ID}
+-PUBLIC_DOMAIN_BACK=http://${HOSTNAME}:8080/api/auth
+diff --git a/backend/entrypoint.sh b/backend/entrypoint.sh
+index 35f819b..ef6ab49 100644
+--- a/backend/entrypoint.sh
++++ b/backend/entrypoint.sh
+@@ -6,4 +6,6 @@ cd /app
+ npm upgrade
+ npm install
+ npx prisma migrate dev &&
++#npm run start:dev
++npm run build
+ node dist/main
+diff --git a/backend/src/auth/auth.controller.ts b/backend/src/auth/auth.controller.ts
+index 822dbc7..7c4ba99 100644
+--- a/backend/src/auth/auth.controller.ts
++++ b/backend/src/auth/auth.controller.ts
+@@ -15,6 +15,7 @@ import {
+   BadRequestException,
+   UseGuards,
+   NotFoundException,
++  UnauthorizedException,
+ } from '@nestjs/common';
+ import { AuthService } from './auth.service';
+ import type User42Interface from './user42.interface';
+@@ -58,13 +59,13 @@ export class AuthController {
+       new_user.cookie = 'ABC';
+       new_user.img = user_info.image.link;
+       user = await this.databaseService.createClient(new_user);
+-    } else console.log('We already know this person');
++    }
+ 
+-    const add_cookie: UpdateClientDto = new UpdateClientDto();
++    // const add_cookie: UpdateClientDto = new UpdateClientDto();
+     // generetate the jwt
+     const jwt = await this.jwtService.signAsync({ id: user_info.id });
+-    response.setCookie('jwt_cookie', jwt, { path: '/' });
+-    response.setCookie('id42', user.id42.toString(), { path: '/' });
++    response.setCookie('jwt_cookie', jwt, { path: '/', sameSite: 'lax'});
++    response.setCookie('id42', user.id42.toString(), { path: '/', sameSite: 'lax' });
+     // return response;
+ 
+     // add_cookie.cookie = jwt;
+@@ -86,11 +87,8 @@ export class AuthController {
+     const user = await this.databaseService.getClientById42(req.user.id);
+     if (user == null)
+       throw new NotFoundException("user doesnt exist");
+-	console.log(user.DfaSecret); // c'est juste une data en vrai mais si c'est null alors c'est que ça pas était save
+     const isVerified = authenticator.check(code, user.DfaSecret); //SOIT LE DFASECRET QUI S4EST PAS SAVE BIEN
+     const userDto: UpdateClientDto = new UpdateClientDto();
+-    console.log("code received -->" + code);
+-    console.log("code is -->" + isVerified);
+     if (isVerified) {
+       userDto.dfaVerified = true;
+       await this.databaseService.updateClient(user.id, userDto);
+@@ -98,7 +96,7 @@ export class AuthController {
+         message: '2Fa is valide',
+       };
+     }
+-    return new BadRequestException('Error check 2FA');
++    return new UnauthorizedException('Error check 2FA');
+   }
+ 
+   @UseGuards(AuthGuard)
+@@ -118,19 +116,16 @@ export class AuthController {
+ 	@Request() req: { user: IJWT },
+     @Body() body: { isDFAActive: boolean },
+   ): Promise<{ qrCodeImageUrl?: string }> {
+-	console.log("activateDfa");
+ 	const client = await this.databaseService.getClientById42(req.user.id);
+ 	if (!client)
+ 		throw new NotFoundException("user doesnt exist");
+     const { isDFAActive } = body;
+     const user: UpdateClientDto = new UpdateClientDto();
+     // if user activate the dfa
+-	console.log(body);
+     if (isDFAActive) {
+       user.dfa = true;
+       user.dfaVerified = false;
+       user.dfaSecret = authenticator.generateSecret(); // Generate a new secret key
+-	  console.log(user);
+       await this.databaseService.updateClient(client.id, user);
+       // Generate the QR code image
+       const otpauthUrl = authenticator.keyuri(
+@@ -197,7 +192,6 @@ export class AuthController {
+ 			throw new NotFoundException("Dfa code is not generated");
+ 		const user: UpdateClientDto = new UpdateClientDto();
+ 		
+-		console.log(body);
+ 		if (isDFAActive)
+ 		{
+ 			user.dfa = true;
+diff --git a/backend/src/chat/chat.controller.ts b/backend/src/chat/chat.controller.ts
+index 1510bec..44f60c5 100644
+--- a/backend/src/chat/chat.controller.ts
++++ b/backend/src/chat/chat.controller.ts
+@@ -76,7 +76,6 @@ export class ChatController {
+   async getAllMessages(@Request() req: { user: IJWT }, @Param('roomid', ParseIntPipe) roomid: number) {
+ 	let client = await this.db.getClientById42(req.user.id);
+ 	let status = await this.db.roomUserCheck(roomid, client.id);
+-  console.log(status);
+ 	if (status == null || status.status == 5)
+ 	{
+ 		throw new UnauthorizedException("You are not member");
+@@ -88,7 +87,6 @@ export class ChatController {
+         res.push({ sender: e.clientName, message: e.message });
+       }),
+     );
+-    console.log(res); 
+     return res;
+   }
+ 
+diff --git a/backend/src/chat/chat.gateway.ts b/backend/src/chat/chat.gateway.ts
+index ca1e8e7..ae06f80 100644
+--- a/backend/src/chat/chat.gateway.ts
++++ b/backend/src/chat/chat.gateway.ts
+@@ -81,7 +81,6 @@ export class ChatGateway
+       sender: client_id.id,
+       msg: message.message,
+     });
+-    console.log("OKOKOK");
+     this.wss.to(message.channel).emit('serverToChat', { ...message, sender: client_id.name});
+     this.wss.to(message.channel).emit('serverAlertToChat', { ...message, sender: client_id.name});
+     // WsResponse<string>
+@@ -127,7 +126,6 @@ export class ChatGateway
+ 	if (status !== null && status.status != 5 && status.status != 6)
+ 	{
+ 		client.join(channel);
+-		console.log('JOINED');
+ 		client.emit('joinedChannel', channel);
+ 	}
+   }
+@@ -138,7 +136,6 @@ export class ChatGateway
+     // check if client is a member of channel then proceed
+     // ask the chat service to delete the user from members
+     client.leave(channel);
+-    console.log('LEAVED');
+     client.emit('leavedChannel', channel);
+   }
+ 
+@@ -163,7 +160,6 @@ export class ChatGateway
+   }
+ 
+   async sendServerMsg(roomid: number, msg: any) {
+-    console.log(msg);
+     this.wss.to(`${roomid}`).emit('serverMessage', {
+       channel: roomid,
+       sender: 'server',
+@@ -195,7 +191,6 @@ export class ChatGateway
+   areWordsLessThanLength(inputString: string, maxLength: number) 
+   {
+     const words = inputString.split(' ');
+-    console.log(words);
+     for (let i = 0; i < words.length; i++) {
+         if (words[i].length > maxLength) {
+             return false;
+diff --git a/backend/src/chat/user-connected-service.service.ts b/backend/src/chat/user-connected-service.service.ts
+index cd58c66..b60c455 100644
+--- a/backend/src/chat/user-connected-service.service.ts
++++ b/backend/src/chat/user-connected-service.service.ts
+@@ -57,7 +57,6 @@ export class UserConnectedService {
+ 
+   findSocketId(id: number): string {
+     let res = '';
+-    console.log("Searching in GateWay Data the id : ", id);
+     this.hmapconnected.forEach((value, key, map) => {
+       if (value == id) res = key;
+     });
+@@ -66,7 +65,6 @@ export class UserConnectedService {
+ 
+   findId(socket_id: string): number {
+     let res = null;
+-    console.log("Searching in GateWay Data the socket_id : ", socket_id);
+     this.hmapconnected.forEach((value, key, map) => {
+       if (key == socket_id) res = value;
+     });
+diff --git a/backend/src/dashboard/controllers/dashboard/dashboard.controller.ts b/backend/src/dashboard/controllers/dashboard/dashboard.controller.ts
+index 23e6c44..0928f2e 100644
+--- a/backend/src/dashboard/controllers/dashboard/dashboard.controller.ts
++++ b/backend/src/dashboard/controllers/dashboard/dashboard.controller.ts
+@@ -13,6 +13,7 @@ import {
+   Request,
+   Logger,
+   NotFoundException,
++  UnauthorizedException,
+ } from '@nestjs/common';
+ import { DatabaseService } from 'src/database/database.service';
+ import { ClientDto } from 'src/database/dtos/dbBaseDto';
+@@ -42,12 +43,11 @@ export class DashboardController {
+   @UseGuards(AuthGuard)
+   @Get()
+   async getMyDashboard(
+-    @Request() req: { user: IJWT },
+-  ) {
++    @Request() req: { user: IJWT },) {
+     let ppp = await this.db.getClientById42Dashboard(+req.user.id);
+-	if (ppp == null)
+-		throw new NotFoundException("You're cookie is a bad cookie");
+-	  return ppp;
++    if (ppp == null)
++      throw new UnauthorizedException("You're cookie is a bad cookie");
++      return ppp;
+   }
+ 
+   @UseGuards(AuthGuard)
+@@ -68,8 +68,14 @@ export class DashboardController {
+ 	@Request() req: { user: IJWT },
+   	@Param('clientId', ParseIntPipe) clientId: number)
+   { 
+-	const client = await this.db.getClientById42(clientId)
+-    return this.db.getGameHistoric(client.id);
++    try {
++      const client = await this.db.getClientById42(clientId)
++      return this.db.getGameHistoric(client.id);
++    }
++    catch (error) {
++      return new BadRequestException();
++    }
++
+   }
+ 
+   @UseGuards(AuthGuard)
+diff --git a/backend/src/database/database.service.ts b/backend/src/database/database.service.ts
+index 2020676..e04938a 100644
+--- a/backend/src/database/database.service.ts
++++ b/backend/src/database/database.service.ts
+@@ -391,10 +391,6 @@ export class DatabaseService {
+   }
+ 
+   async updateClient(id: number, data: UpdateClientDto): Promise<Clients> {
+-    console.log('--------------------------------------');
+-    console.log(data);
+-    console.log(data.dfaVerified);
+-    console.log('--------------------------------------');
+     try {
+       const updateData: Prisma.ClientsUpdateInput = {
+         img: data.img ? { set: data.img } : undefined,
+@@ -1956,7 +1952,6 @@ export class DatabaseService {
+     }
+     else
+     {
+-      console.log(">>>>>>>>>>>>>>>> ", clientId)
+       await this.prisma.clientStats.create({
+         data: {
+           played: 1,
+@@ -2006,7 +2001,6 @@ export class DatabaseService {
+           client2Id: data.client2Id,
+         }
+       })
+-      console.log(data);
+     }
+     catch (error) {
+       if (error instanceof Prisma.PrismaClientKnownRequestError) {
+diff --git a/backend/src/game/MyRoom.ts b/backend/src/game/MyRoom.ts
+index f977717..85089f5 100644
+--- a/backend/src/game/MyRoom.ts
++++ b/backend/src/game/MyRoom.ts
+@@ -28,7 +28,6 @@ export class MyRoom extends Room<any> {
+   // When client successfully join the room
+   onJoin(client: Client, options: any, auth: any) {
+     if(options.roomName == "matchMaking" || options.roomName == "my_room") {
+-      console.log("Client joined!", options.id, client.id, options.roomName); 
+       if (this.clients.length === 1) {
+         state[this.roomId].user.id = +options.id;
+         client.send("init", 1);
+@@ -66,7 +65,6 @@ export class MyRoom extends Room<any> {
+       });
+   }
+   else {
+-    console.log("Client joined by invitation!", options.id, client.id, options.roomName);
+     if (this.clients.length === 1) {
+       state[this.roomId].user.id = +options.id;
+       // client.send("init", 1);
+@@ -179,7 +177,6 @@ export class MyRoom extends Room<any> {
+   onLeave(client: Client, consented: boolean) {
+     this.broadcast("disconnect")
+     state[this.roomId] = null;
+-    console.log("Client left!", client.id);
+     // client.send("quitGame")
+     if(intervalId)
+       clearInterval(intervalId);
+diff --git a/backend/src/game/game.controller.ts b/backend/src/game/game.controller.ts
+index 02adb67..a4ec294 100644
+--- a/backend/src/game/game.controller.ts
++++ b/backend/src/game/game.controller.ts
+@@ -32,7 +32,6 @@ export class GameController {
+         }
+         else {
+             // return this.db.saveScore(gameHistoric);
+-            // console.log(">>>> ", gameHistoric);
+           //  this.ft_test(gameHistoric);
+             this.db.historicnewEntry(gameHistoric);
+             if (gameHistoric.persScore > gameHistoric.vsScore)
+diff --git a/backend/src/rooms/rooms.controller.ts b/backend/src/rooms/rooms.controller.ts
+index 033f9e8..2fb1f0b 100644
+--- a/backend/src/rooms/rooms.controller.ts
++++ b/backend/src/rooms/rooms.controller.ts
+@@ -72,7 +72,6 @@ export class RoomsController {
+ 	const response = rooms_data.map((el) => {
+ 		return ({id: el.id, name: el.name, secu: el.secu, quantity: el.members.length});
+ 	});
+-	console.log(response);
+     return response;
+   }
+ 
+@@ -123,8 +122,6 @@ export class RoomsController {
+   					@Param('roomId', ParseIntPipe) roomId: number,
+                   	@Body() data: updateRoomDto)
+   {
+-	console.log(data);
+-	
+ 	let client = await this.db.getClientById42(req.user.id);
+ 	if (!client)
+ 	throw new BadRequestException("Unauthorized to update");
+diff --git a/backend/uploads/7201b769-f8d8-4573-bd51-094d0fa64c76 b/backend/uploads/7201b769-f8d8-4573-bd51-094d0fa64c76
+new file mode 100644
+index 0000000..a5ebf1a
+Binary files /dev/null and b/backend/uploads/7201b769-f8d8-4573-bd51-094d0fa64c76 differ
+diff --git a/backend/uploads/f3d9086a-d3af-4695-92c1-73725f9f21b6 b/backend/uploads/f3d9086a-d3af-4695-92c1-73725f9f21b6
+new file mode 100644
+index 0000000..a5ebf1a
+Binary files /dev/null and b/backend/uploads/f3d9086a-d3af-4695-92c1-73725f9f21b6 differ
+diff --git a/docker-compose.yml b/docker-compose.yml
+index 797aa97..f65f61c 100644
+--- a/docker-compose.yml
++++ b/docker-compose.yml
+@@ -17,7 +17,7 @@ services:
+         aliases:
+           - frontend
+     volumes:
+-      - frontend:/app
++      - frontend:/appli
+ 
+   backend:
+     build:
+diff --git a/dockerReset.sh b/dockerReset.sh
+index c282a28..eefb43d 100755
+--- a/dockerReset.sh
++++ b/dockerReset.sh
+@@ -1,4 +1,10 @@
+ #!/bin/bash
+ 
+-docker rm $(docker ps -aq) && docker rmi $(docker images -q) && docker network prune && docker volume prune && docker-compose up --build
++docker rm $(docker ps -aq) &&\
++docker rmi $(docker images -q) &&\
++docker volume rm $(docker volume ls | tail -n 3 | awk '{print $2}') &&\
++docker volume prune &&\
++docker network prune &&\
++docker system prune &&\
++docker-compose up --build
+ 
+diff --git a/frontend/Dockerfile b/frontend/Dockerfile
+index 2ac90b3..daba652 100644
+--- a/frontend/Dockerfile
++++ b/frontend/Dockerfile
+@@ -11,7 +11,7 @@ ENV PUBLIC_HOSTNAME ${PUBLIC_HOSTNAME}
+ ENV PUBLIC_API_42 ${PUBLIC_API_42}
+ ENV PUBLIC_DOMAIN_BACK ${PUBLIC_DOMAIN_BACK}
+ 
+-WORKDIR /app
++WORKDIR /appli
+ 
+ # copy everything to the container
+ 
+diff --git a/frontend/entrypoint.sh b/frontend/entrypoint.sh
+index b497bf3..c323b6a 100644
+--- a/frontend/entrypoint.sh
++++ b/frontend/entrypoint.sh
+@@ -4,5 +4,6 @@ set -e
+ export PORT=8080
+ npm upgrade
+ npm install
++#npm run dev -- --host
+ npm run build
+ npm run preview
+\ No newline at end of file
+diff --git a/frontend/package-lock.json b/frontend/package-lock.json
+index 9d636e0..87ade43 100644
+--- a/frontend/package-lock.json
++++ b/frontend/package-lock.json
+@@ -1013,9 +1013,9 @@
+ 			"dev": true
+ 		},
+ 		"node_modules/@types/node": {
+-			"version": "20.5.6",
+-			"resolved": "https://registry.npmjs.org/@types/node/-/node-20.5.6.tgz",
+-			"integrity": "sha512-Gi5wRGPbbyOTX+4Y2iULQ27oUPrefaB0PxGQJnfyWN3kvEDGM3mIB5M/gQLmitZf7A9FmLeaqxD3L1CXpm3VKQ=="
++			"version": "20.5.7",
++			"resolved": "https://registry.npmjs.org/@types/node/-/node-20.5.7.tgz",
++			"integrity": "sha512-dP7f3LdZIysZnmvP3ANJYTSwg+wLLl8p7RqniVlV7j+oXSXAbt9h0WIBFmJy5inWZoX9wZN6eXx+YXd9Rh3RBA=="
+ 		},
+ 		"node_modules/@types/pug": {
+ 			"version": "2.0.6",
+diff --git a/frontend/package.json b/frontend/package.json
+index 4bb11db..9627fb0 100644
+--- a/frontend/package.json
++++ b/frontend/package.json
+@@ -41,4 +41,4 @@
+ 		"socket.io-client": "^4.7.1",
+ 		"svelte-spa-router": "^3.3.0"
+ 	}
+-}
++}
+\ No newline at end of file
+diff --git a/frontend/src/app.html b/frontend/src/app.html
+index 7bf5aa1..a25a89c 100644
+--- a/frontend/src/app.html
++++ b/frontend/src/app.html
+@@ -1,5 +1,4 @@
+-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" 
+-"http://www.w3.org/TR/html4/strict.dtd">
++<!DOCTYPE html>
+ <script lang="ts">
+ </script>
+ 
+diff --git a/frontend/src/routes/+page.svelte b/frontend/src/routes/+page.svelte
+index f4ec7fe..ec54d36 100644
+--- a/frontend/src/routes/+page.svelte
++++ b/frontend/src/routes/+page.svelte
+@@ -28,7 +28,8 @@
+ 					goto('/app/dashboard');
+ 				} else {
+ 					//connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
+-					console.error('fetch failed in login page');
++					console.error('Invalid cookie');
++					goto('/');
+ 				}
+ 			} catch (error) {
+ 				console.error("fetching in '/' :", error);
+diff --git a/frontend/src/routes/2FA/+page.svelte b/frontend/src/routes/2FA/+page.svelte
+index 18440dc..0c33295 100644
+--- a/frontend/src/routes/2FA/+page.svelte
++++ b/frontend/src/routes/2FA/+page.svelte
+@@ -34,7 +34,7 @@
+ 				goto('/');
+ 			}
+ 		} catch {
+-			console.error('fetch failed in 2fa');
++			console.error('2fa verification failed');
+ 			goto('/');
+ 		}
+ 	}
+diff --git a/frontend/src/routes/app/+layout.svelte b/frontend/src/routes/app/+layout.svelte
+index ae6f909..df9d1f8 100644
+--- a/frontend/src/routes/app/+layout.svelte
++++ b/frontend/src/routes/app/+layout.svelte
+@@ -74,7 +74,7 @@
+ 					connectClientToColyseus();
+ 				} else {
+ 					//connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
+-					console.error('fetch failed in app layout');
++					console.error('invalid cookie');
+ 					goto('/');
+ 				}
+ 			} catch (error) {
+@@ -101,7 +101,8 @@
+ 				$userId = data.id;
+ 			} else {
+ 				//connection refusee a cause dun mauvai/vieux/invalid/corrompu cookie
+-				console.error('fetch failed in app layout');
++				console.error('invalid cookie');
++				goto('/')
+ 			}
+ 		} catch (error) {
+ 			console.error("fetching in '/app' :", error);
+diff --git a/frontend/src/routes/app/chat/+layout.svelte b/frontend/src/routes/app/chat/+layout.svelte
+index 4902db3..f82fca0 100644
+--- a/frontend/src/routes/app/chat/+layout.svelte
++++ b/frontend/src/routes/app/chat/+layout.svelte
+@@ -192,18 +192,6 @@
+ 		background-color: #3ab45c;
+ 	}
+ 
+-	.alertBox {
+-		width: 10px;
+-		height: 10px;
+-		background-color: brown;
+-		border-radius: 5px;
+-		display: none;
+-	}
+-
+-	.alertOn {
+-		display: block;
+-	}
+-
+ 	/* .activeroom {
+ 		background-color: #898f9f;
+ 	} */
+diff --git a/frontend/src/routes/app/chat/+page.svelte b/frontend/src/routes/app/chat/+page.svelte
+index cd48ae4..3090186 100644
+--- a/frontend/src/routes/app/chat/+page.svelte
++++ b/frontend/src/routes/app/chat/+page.svelte
+@@ -28,40 +28,6 @@
+ 		background-color: #404040;
+ 		width: 30vw;
+ 	}
+-	/* 
+-	.component_send_box {
+-		border: solid 1px lightseagreen;
+-		border-radius: 50px;
+-		overflow: hidden;
+-		margin: 0px 20px;
+-		display: flex;
+-		flex-direction: row;
+-		justify-content: space-between;
+-		align-items: baseline;
+-	}
+-
+-	.component_send_box input {
+-		border: none;
+-		width: 100%;
+-		max-width: 80%;
+-	}
+-
+-	input:focus {
+-    	outline: none;
+-	}
+-
+-	.component_send_box button {
+-		border: none;
+-		border-radius: 0px;
+-		width: 100px;
+-		height: 100%;
+-		background: lightseagreen;
+-	} */
+-	/* 
+-	.messages {
+-		max-height: 50vh;
+-		overflow: scroll;
+-	} */
+ 
+ 	.info {
+ 		width: 100%;
+diff --git a/frontend/src/routes/app/chat/[roomId]/+page.svelte b/frontend/src/routes/app/chat/[roomId]/+page.svelte
+index e9d364e..6f11d10 100644
+--- a/frontend/src/routes/app/chat/[roomId]/+page.svelte
++++ b/frontend/src/routes/app/chat/[roomId]/+page.svelte
+@@ -375,61 +375,6 @@
+ 		text-decoration: none;
+ 	}
+ 
+-	.list_box {
+-		color: whitesmoke;
+-		background-color: #292d39;
+-		width: 200px;
+-		max-height: 60vh;
+-		overflow: scroll;
+-	}
+-
+-	.alertBox {
+-		position: absolute;
+-		top: 15px;
+-		right: 15px;
+-		width: 20px;
+-		height: 20px;
+-		background-color: red;
+-		color: white;
+-		border-radius: 50%;
+-		text-align: center;
+-		line-height: 20px;
+-		font-size: 12px;
+-		display: none;
+-	}
+-
+-	.alertOn {
+-		display: block;
+-	}
+-
+-	.one_room {
+-		position: relative;
+-		font-size: 18px;
+-		padding: 15px;
+-		cursor: pointer;
+-		border-bottom: 1px #898f9f solid;
+-	}
+-	/* .alertBox
+-	{
+-		width: 10px;
+-		height: 10px;
+-		background-color: brown;
+-		border-radius: 5px;
+-		display: none;
+-	} */
+-
+-	.alertOn {
+-		display: block;
+-	}
+-
+-	.one_room:hover {
+-		background-color: #505668;
+-	}
+-
+-	.activeroom {
+-		background-color: #898f9f;
+-	}
+-
+ 	li {
+ 		list-style: none;
+ 	}
+@@ -500,9 +445,6 @@
+ 	.servermsg {
+ 		color: gray;
+ 	}
+-	.servermsg strong {
+-		color: rgb(190, 43, 29);
+-	}
+ 
+ 	.info {
+ 		width: 100%;
+diff --git a/frontend/src/routes/app/chat/rooms/+page.svelte b/frontend/src/routes/app/chat/rooms/+page.svelte
+index ad5ec3b..47f370a 100644
+--- a/frontend/src/routes/app/chat/rooms/+page.svelte
++++ b/frontend/src/routes/app/chat/rooms/+page.svelte
+@@ -124,8 +124,4 @@
+ 		text-align: center;
+ 	}
+ 
+-	/* .btn-create-room a {
+-		text-decoration: none;
+-		color: white;
+-	} */
+ </style>
+diff --git a/frontend/src/routes/app/dashboard/+page.svelte b/frontend/src/routes/app/dashboard/+page.svelte
+index 255f15a..7b1b99f 100644
+--- a/frontend/src/routes/app/dashboard/+page.svelte
++++ b/frontend/src/routes/app/dashboard/+page.svelte
+@@ -206,85 +206,4 @@
+ 	.looseScore {
+ 		color: #ef0000;
+ 	}
+-
+-	/* .friend-container {
+-			display: flex;
+-			align-items: center;
+-		}
+-	
+-		.friend-container h2 {
+-			margin-right: 10px;
+-		} */
+-	/* .emoji-container {
+-			display: flex;
+-			flex-direction: column;
+-		}
+-	
+-		.emoji-container span {
+-			margin-top: 5px;
+-		} */
+-	/* 
+-	
+-		.profile-info {
+-			display: flex;
+-			align-items: center;
+-			justify-content: center;
+-			flex-wrap: wrap;
+-		}
+-	
+-		.round-button {
+-			border: none;
+-			background-color: #9e9c9c;
+-			border-radius: 20px;
+-			color: white;
+-			font-size: 16px;
+-			font-weight: bold;
+-			cursor: pointer;
+-			outline: none;
+-			padding: 10px 20px;
+-			margin: 10px;
+-			transition: background-color 0.3s ease;
+-		}
+-	
+-		.round-button:hover {
+-			background-color: #464947;
+-		}
+-	
+-		.round-button:active {
+-			transform: scale(0.95);
+-		}
+-	
+-		.dfa-button.active {
+-			background-color: green;
+-		}
+-	
+-		.dfa-button.inactive {
+-			background-color: red;
+-		} */
+-
+-	/* Media query for tablets */
+-	/* @media (min-width: 768px) {
+-			.container {
+-				flex-direction: row;
+-				justify-content: space-around;
+-			}
+-	
+-			.profile-container {
+-				flex-basis: 33.33%;
+-				max-width: 33.33%;
+-			}
+-		} */
+-
+-	/* Media query for desktops */
+-	/* @media (min-width: 1024px) {
+-			.container {
+-				flex-direction: row;
+-				justify-content: space-around;
+-			}
+-	
+-			.profile-container {
+-				flex-basis: 25%;
+-				max-width: 25%;
+-			}
+-		} */
+ </style>
+diff --git a/frontend/src/routes/app/dashboard/[userName]/+page.svelte b/frontend/src/routes/app/dashboard/[userName]/+page.svelte
+index 4d155d5..9ed4c30 100644
+--- a/frontend/src/routes/app/dashboard/[userName]/+page.svelte
++++ b/frontend/src/routes/app/dashboard/[userName]/+page.svelte
+@@ -351,84 +351,4 @@
+ 		color: #ef0000;
+ 	}
+ 
+-	/* .friend-container {
+-			display: flex;
+-			align-items: center;
+-		}
+-	
+-		.friend-container h2 {
+-			margin-right: 10px;
+-		} */
+-	/* .emoji-container {
+-			display: flex;
+-			flex-direction: column;
+-		}
+-	
+-		.emoji-container span {
+-			margin-top: 5px;
+-		} */
+-	/* 
+-	
+-		.profile-info {
+-			display: flex;
+-			align-items: center;
+-			justify-content: center;
+-			flex-wrap: wrap;
+-		}
+-	
+-		.round-button {
+-			border: none;
+-			background-color: #9e9c9c;
+-			border-radius: 20px;
+-			color: white;
+-			font-size: 16px;
+-			font-weight: bold;
+-			cursor: pointer;
+-			outline: none;
+-			padding: 10px 20px;
+-			margin: 10px;
+-			transition: background-color 0.3s ease;
+-		}
+-	
+-		.round-button:hover {
+-			background-color: #464947;
+-		}
+-	
+-		.round-button:active {
+-			transform: scale(0.95);
+-		}
+-	
+-		.dfa-button.active {
+-			background-color: green;
+-		}
+-	
+-		.dfa-button.inactive {
+-			background-color: red;
+-		} */
+-
+-	/* Media query for tablets */
+-	/* @media (min-width: 768px) {
+-			.container {
+-				flex-direction: row;
+-				justify-content: space-around;
+-			}
+-	
+-			.profile-container {
+-				flex-basis: 33.33%;
+-				max-width: 33.33%;
+-			}
+-		} */
+-
+-	/* Media query for desktops */
+-	/* @media (min-width: 1024px) {
+-			.container {
+-				flex-direction: row;
+-				justify-content: space-around;
+-			}
+-	
+-			.profile-container {
+-				flex-basis: 25%;
+-				max-width: 25%;
+-			}
+-		} */
+ </style>
+diff --git a/frontend/src/routes/app/friends/+page.svelte b/frontend/src/routes/app/friends/+page.svelte
+index 3f6b6d1..6913214 100644
+--- a/frontend/src/routes/app/friends/+page.svelte
++++ b/frontend/src/routes/app/friends/+page.svelte
+@@ -84,15 +84,6 @@
+ 		margin-right: 10px;
+ 	}
+ 
+-	/* button {
+-		border: none;
+-		cursor: pointer;
+-		background-color: #17ACFF;
+-		color: white;
+-		font-family: 'Oxanium';
+-		padding: 10px 30px;
+-	} */
+-
+ 	.btn-play-wrap {
+ 		display: flex;
+ 		align-items: center;
+diff --git a/frontend/src/routes/app/settings/+page.svelte b/frontend/src/routes/app/settings/+page.svelte
+index c752a1f..9e210f7 100644
+--- a/frontend/src/routes/app/settings/+page.svelte
++++ b/frontend/src/routes/app/settings/+page.svelte
+@@ -339,16 +339,6 @@
+ 		/* box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); */
+ 	}
+ 
+-	#btn-choose-img {
+-		border: none;
+-		background-color: #d7d7d7;
+-		border-radius: 10px;
+-		padding: 7px 10px;
+-		font-family: 'Oxanium';
+-		font-size: 10px;
+-		cursor: pointer;
+-	}
+-
+ 	.selected-img {
+ 		position: relative;
+ 	}
+@@ -412,73 +402,11 @@
+ 		margin-right: 10px;
+ 		cursor: pointer;
+ 	}
+-
+-	.switch {
+-		position: relative;
+-		display: inline-block;
+-		width: 60px;
+-		height: 34px;
+-	}
+-
++	
+ 	.warning-text {
+ 		color: red;
+ 	}
+ 
+-	/* Hide default HTML checkbox */
+-	.switch input {
+-		opacity: 0;
+-		width: 0;
+-		height: 0;
+-	}
+-
+-	/* The slider */
+-	.slider {
+-		position: absolute;
+-		cursor: pointer;
+-		top: 0;
+-		left: 0;
+-		right: 0;
+-		bottom: 0;
+-		background-color: #ccc;
+-		-webkit-transition: 0.4s;
+-		transition: 0.4s;
+-	}
+-
+-	.slider:before {
+-		position: absolute;
+-		content: '';
+-		height: 26px;
+-		width: 26px;
+-		left: 4px;
+-		bottom: 4px;
+-		background-color: white;
+-		-webkit-transition: 0.4s;
+-		transition: 0.4s;
+-	}
+-
+-	input:checked + .slider {
+-		background-color: #2196f3;
+-	}
+-
+-	input:focus + .slider {
+-		box-shadow: 0 0 1px #2196f3;
+-	}
+-
+-	input:checked + .slider:before {
+-		-webkit-transform: translateX(26px);
+-		-ms-transform: translateX(26px);
+-		transform: translateX(26px);
+-	}
+-
+-	/* Rounded sliders */
+-	.slider.round {
+-		border-radius: 34px;
+-	}
+-
+-	.slider.round:before {
+-		border-radius: 50%;
+-	}
+-
+ 	.qrcode-wrapper {
+ 		text-align: center;
+ 		padding: 15px;
+diff --git a/frontend/src/routes/logout/+page.svelte b/frontend/src/routes/logout/+page.svelte
+index 1e6ffef..718b0f9 100644
+--- a/frontend/src/routes/logout/+page.svelte
++++ b/frontend/src/routes/logout/+page.svelte
+@@ -11,15 +11,12 @@
+ 
+ <center>
+ 	<div>
+-		<p>Goodbye :'&#40;</p>
+-		<iframe
+-			src="https://giphy.com/embed/lOpPaqaUwkX5PKywFh"
+-			width="480"
+-			height="480"
+-			frameBorder="0"
+-			class="giphy-embed"
+-			allowFullScreen
+-		/>
++		<center><h1 style="color: white;">Goodbye :'&#40;</h1></center>
++		<center><h3 style="color: white;">We gonna miss</h3></center>
++		<center><h3 style="color: white;">My heart Just Broke</h3></center>
++		<center><h3 style="color: white;">But OK, i understand</h3></center>
++		<center><h3 style="color: white;">It's not you, it's me...</h3></center>
++		<center><h3 style="color: white;">I hope we can still be friends</h3></center>
+ 	</div>
+ 	<br />
+ 	<br />
