@@ -12,11 +12,12 @@
 <center>
 	<div>
 		<center><h1 style="color: white;">Goodbye :'&#40;</h1></center>
-		<center><h3 style="color: white;">We gonna miss</h3></center>
+		<center><h3 style="color: white;">We gonna miss U</h3></center>
 		<center><h3 style="color: white;">My heart Just Broke</h3></center>
 		<center><h3 style="color: white;">But OK, i understand</h3></center>
 		<center><h3 style="color: white;">It's not you, it's me...</h3></center>
 		<center><h3 style="color: white;">I hope we can still be friends</h3></center>
+		<center><h3 style="color: white;">(ㅠ﹏ㅠ)</h3></center>
 	</div>
 	<br />
 	<br />

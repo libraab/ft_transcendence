@@ -3,11 +3,16 @@ import { HOSTNAME } from '$env/static/private'
 
 let hostname = process.env.HOSTNAME
 	// @ts-ignore
-	async function fetchAllRoomMembers(id42, roomName, fetch)
+	async function fetchAllRoomMembers(id42, roomName, fetch, authToken)
 	{
 		try
 		{
-			const response = await fetch(`http://${HOSTNAME}:8080/api/rooms/allMemberwithStatus/${id42}/${roomName}`);
+			const response = await fetch(`http://${HOSTNAME}:8080/api/rooms/allMemberwithStatus/${id42}/${roomName}`, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${authToken}`
+				}
+			});
 			if (response.ok) {
 				let res =  await response.json();
 				return res;
@@ -21,10 +26,15 @@ let hostname = process.env.HOSTNAME
 		}
 	}
 
-	async function fetchRoomId(roomName, fetch)
+	async function fetchRoomId(roomName, fetch, authToken)
 	{
 		try {
-			const response = await fetch(`http://${HOSTNAME}:8080/api/rooms/getRoomId/${roomName}`)
+			const response = await fetch(`http://${HOSTNAME}:8080/api/rooms/getRoomId/${roomName}`, {
+				method: 'GET',
+				headers: {
+					Authorization: `Bearer ${authToken}`
+				}
+			});
 			if (response.ok){
 				let res =  await response.json();
 				return res;
@@ -46,8 +56,8 @@ export async function load( {cookies, fetch, params} ) {
 
 	const id42 = cookies.get('id42');
 	const roomName = params.salon;
-	let ret = await fetchAllRoomMembers(id42, roomName, fetch)
-	let roomid = await fetchRoomId(roomName, fetch);
+	let ret = await fetchAllRoomMembers(id42, roomName, fetch, authToken)
+	let roomid = await fetchRoomId(roomName, fetch, authToken);
 	if (ret instanceof Response)
 	{
 		throw error(ret.status, {

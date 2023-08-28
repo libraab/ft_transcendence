@@ -35,6 +35,7 @@ export class RoomsController {
     return this.db.getRoomsByOwnerId(client.id);
   }
 
+  @UseGuards(AuthGuard)
   @Get('/allMemberwithStatus/:id42/:name')
   async loadAllRoomMember(
     @Param('id42', ParseIntPipe) id42: number,
@@ -42,7 +43,7 @@ export class RoomsController {
   ) {
     return await this.db.getAllRoomMembers(id42, roomName);
   }
-
+/*
   @Get('/privateRoomMember/:id')
   async getPrivateRoomMembers(@Param('id', ParseIntPipe) id: number) {
     return await this.db.getMembersForPrivateRoom(id);
@@ -63,7 +64,7 @@ export class RoomsController {
   ) {
     return await this.db.getMembersByRoomIdExcludingClientForAdmins(idRoom, idMember);
   }
-
+*/
   @UseGuards(AuthGuard)
   @Get('valideRooms')
   async getAuthorizedRoomsForId(@Request() req: { user: IJWT }) {
@@ -74,12 +75,12 @@ export class RoomsController {
 	});
     return response;
   }
-
+/*
   @Get('getAdmins/:roomId')
   async getRoomAdmins(@Param('roomId', ParseIntPipe) roomId: number) {
     return this.db.getRoomAdmins(roomId);
   }
-
+*/
   @UseGuards(AuthGuard)
   @Get('/replacementList/:id')
   async getReplacements(@Request() req: { user: IJWT }, @Param('id', ParseIntPipe) roomId: number) {
@@ -110,6 +111,7 @@ export class RoomsController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Get('getRoomId/:roomName')
   async getRoomId(@Param('roomName') roomName: string)
   {
