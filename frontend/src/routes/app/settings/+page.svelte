@@ -54,7 +54,10 @@
 				const response = await fetch(`http://${PUBLIC_HOSTNAME}:8080/api/dashboard/update/${$userId}`,
 					{
 						method: 'POST',
-						body: data
+						body: data,
+						headers: {
+							Authorization: `Bearer ${$jwt_cookie}`
+						},
 					}
 				);
 				if (!response.ok) console.error('failed to update properly the avatar');
@@ -69,7 +72,10 @@
 					`http://${PUBLIC_HOSTNAME}:8080/api/dashboard/updateName/${$userId}`,
 					{
 						method: 'POST',
-						body: nameInput.value
+						body: nameInput.value,
+						headers: {
+							Authorization: `Bearer ${$jwt_cookie}`
+						},
 					}
 				);
 				if (!response.ok) console.log('failed to update the name');

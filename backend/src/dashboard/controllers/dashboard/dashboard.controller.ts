@@ -57,9 +57,9 @@ export class DashboardController {
     @Param('id42', ParseIntPipe) id: number
   ) {
     let ppp = await this.db.getClientById42Dashboard(id);
-	if (ppp == null)
-		throw new NotFoundException("You're cookie is a bad cookie");
-	return ppp;
+    if (ppp == null)
+      throw new NotFoundException("You're cookie is a bad cookie");
+    return ppp;
   }
 
   @UseGuards(AuthGuard)
@@ -116,18 +116,6 @@ export class DashboardController {
     }
   }
 
-  @Get('preDelCheck/:clientId')
-  async preDelCheck(@Param('clientId', ParseIntPipe) clientId: number)
-  {
-    return this.db.preDelCheck(clientId);
-  }
-
-  @Get('/convert/:id42')
-  async getIdFromId42(@Param('id42', ParseIntPipe) id42: number)
-  {
-    return this.db.getIdFromId42(id42);
-  }
-
   @UseGuards(AuthGuard)
   @Get('getTargetWithRelation/:name')
   async getTarget(
@@ -140,11 +128,6 @@ export class DashboardController {
       console.error(error);
       throw new HttpException('User Not Found', 404);
     }
-  }
-
-  @Get('/42/:id')
-  async getByid(@Param('id', ParseIntPipe) id: number) {
-    return this.db.getClientById(id);
   }
 
   @UseGuards(AuthGuard)
@@ -185,6 +168,7 @@ export class DashboardController {
     }
   }
 
+  @UseGuards(AuthGuard)
   @Post('/update/:id')
   async changePicture(
     @Param('id', ParseIntPipe) id: number,
@@ -212,17 +196,7 @@ export class DashboardController {
     throw new BadRequestException();
   }
 
-  @Post('/deleteUser/:id')
-  async deleteUser(@Param('id', ParseIntPipe) id: number)
-  {
-    try{
-      return this.db.deleteClientById(id);
-    }
-    catch (error) {
-      throw new BadRequestException(error.message);
-    }
-  }
-
+  @UseGuards(AuthGuard)
   @Post('/updateName/:id')
   async changeName(
     @Param('id', ParseIntPipe) id: number,
@@ -235,16 +209,6 @@ export class DashboardController {
     }
     throw new BadRequestException();
   }
-
-  @Get('/ranking')
-  async getRanking() {
-    return this.db.getTop100Scores();
-  }
-
-  // @Get('/cookie/:cookie')
-  // async getByCookie(@Param('cookie') cookie: string) {
-  //   return this.db.getClientByCookie(cookie);
-  // }
 
   @UseGuards(AuthGuard)
   @Get('/name/:name')
@@ -275,11 +239,11 @@ export class DashboardController {
     }
   }
 
-  @Post('/create')
   async createClient(@Body() dto: ClientDto) {
     return this.db.createClient(dto);
   }
 
+/*
   @Post('/relations/create')
   async createRelations(@Body() dto: createRelationsDto) {
     return this.db.createRelation(dto);
@@ -289,7 +253,6 @@ export class DashboardController {
   async createStats(@Body() dto: createStatsDto) {
     return this.db.createClientStat(dto);
   }
-
   @Post('/stats/update/:id')
   async updateStats(
     @Param('id', ParseIntPipe) id: number,
@@ -297,7 +260,11 @@ export class DashboardController {
   ) {
     return this.db.updateStat(id, dto);
   }
+*/
 }
+
+/*
 function Autorization() {
   throw new Error('Function not implemented.');
 }
+*/

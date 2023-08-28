@@ -114,8 +114,6 @@ export class DatabaseService {
 
 		return client;
 	}
-*/
-
   async getIdFromId42(id42: number)
   {
     const id = await this.prisma.clients.findUnique({
@@ -129,6 +127,7 @@ export class DatabaseService {
 
     return id;
   }
+*/
 
   async getTarget(clientId: number, name: string) {
     const client = await this.prisma.clients.findUnique({
